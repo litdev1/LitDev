@@ -1,0 +1,508 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LitDev</RootNamespace>
+    <AssemblyName>LitDev</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\LitDev.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\LitDev.XML</DocumentationFile>
+    <NoWarn>1591;0618</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\LitDev.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\LitDev.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>AppIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DirectShowLib-2005">
+      <HintPath>..\DirectShowLib-2005.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.Shell32">
+      <HintPath>..\Interop.Shell32.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="InTheHand.Net.Personal, Version=3.5.605.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\InTheHand.Net.Personal.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zip">
+      <HintPath>..\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="IWshRuntimeLibrary">
+      <HintPath>..\IWshRuntimeLibrary.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.JScript" />
+    <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReachFramework" />
+    <Reference Include="SmallBasicLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SmallBasicLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg">
+      <HintPath>..\Svg.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Data.SQLite, Version=1.0.66.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Speech" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Box2D\Box2D.Collision\AABB.cs" />
+    <Compile Include="Box2D\Box2D.Collision\Bound.cs" />
+    <Compile Include="Box2D\Box2D.Collision\BoundValues.cs" />
+    <Compile Include="Box2D\Box2D.Collision\BroadPhase.cs" />
+    <Compile Include="Box2D\Box2D.Collision\BufferedPair.cs" />
+    <Compile Include="Box2D\Box2D.Collision\CircleDef.cs" />
+    <Compile Include="Box2D\Box2D.Collision\CircleShape.cs" />
+    <Compile Include="Box2D\Box2D.Collision\Collision.cs" />
+    <Compile Include="Box2D\Box2D.Collision\ContactID.cs" />
+    <Compile Include="Box2D\Box2D.Collision\Features.cs" />
+    <Compile Include="Box2D\Box2D.Collision\FilterData.cs" />
+    <Compile Include="Box2D\Box2D.Collision\Manifold.cs" />
+    <Compile Include="Box2D\Box2D.Collision\ManifoldPoint.cs" />
+    <Compile Include="Box2D\Box2D.Collision\MassData.cs" />
+    <Compile Include="Box2D\Box2D.Collision\OBB.cs" />
+    <Compile Include="Box2D\Box2D.Collision\Pair.cs" />
+    <Compile Include="Box2D\Box2D.Collision\PairCallback.cs" />
+    <Compile Include="Box2D\Box2D.Collision\PairManager.cs" />
+    <Compile Include="Box2D\Box2D.Collision\PolygonDef.cs" />
+    <Compile Include="Box2D\Box2D.Collision\PolygonShape.cs" />
+    <Compile Include="Box2D\Box2D.Collision\Proxy.cs" />
+    <Compile Include="Box2D\Box2D.Collision\Segment.cs" />
+    <Compile Include="Box2D\Box2D.Collision\SegmentCollide.cs" />
+    <Compile Include="Box2D\Box2D.Collision\Shape.cs" />
+    <Compile Include="Box2D\Box2D.Collision\ShapeDef.cs" />
+    <Compile Include="Box2D\Box2D.Collision\ShapeType.cs" />
+    <Compile Include="Box2D\Box2D.Collision\SortKeyFunc.cs" />
+    <Compile Include="Box2D\Box2D.Common\Mat22.cs" />
+    <Compile Include="Box2D\Box2D.Common\Mat33.cs" />
+    <Compile Include="Box2D\Box2D.Common\Math.cs" />
+    <Compile Include="Box2D\Box2D.Common\Settings.cs" />
+    <Compile Include="Box2D\Box2D.Common\Sweep.cs" />
+    <Compile Include="Box2D\Box2D.Common\Vec2.cs" />
+    <Compile Include="Box2D\Box2D.Common\Vec3.cs" />
+    <Compile Include="Box2D\Box2D.Common\XForm.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\Body.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\BodyDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\BoundaryListener.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\CircleContact.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\Color.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\Contact.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactConstraint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactConstraintPoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactCreateFcn.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactDestroyFcn.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactEdge.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactFilter.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactListener.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactManager.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactPoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactRegister.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactResult.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\ContactSolver.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\DebugDraw.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\DestructionListener.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\DistanceJoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\DistanceJointDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\GearJoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\GearJointDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\Island.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\Jacobian.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\Joint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\JointDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\JointEdge.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\JointType.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\LimitState.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\LineJoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\LineJointDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\MouseJoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\MouseJointDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\NullContact.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\PolyAndCircleContact.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\PolygonContact.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\Position.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\PrismaticJoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\PrismaticJointDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\PulleyJoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\PulleyJointDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\RevoluteJoint.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\RevoluteJointDef.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\TimeStep.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\Velocity.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\World.cs" />
+    <Compile Include="Box2D\Box2D.Dynamics\WorldCallback.cs" />
+    <Compile Include="Box2D\Box2D\Box2DXDebug.cs" />
+    <Compile Include="LitDev\Clipboard.cs" />
+    <Compile Include="LitDev\Chart.cs" />
+    <Compile Include="LitDev\Resources.cs" />
+    <Compile Include="LitDev\Dictionary.cs" />
+    <Compile Include="LitDev\Forms\FormEvents.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormEvents.Designer.cs">
+      <DependentUpon>FormEvents.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LitDev\XML.cs" />
+    <Compile Include="LitDev\FTP.cs" />
+    <Compile Include="LitDev\Engines\BingSearchContainer.cs" />
+    <Compile Include="LitDev\Engines\Capture.cs" />
+    <Compile Include="LitDev\Engines\Dynamic.cs" />
+    <Compile Include="LitDev\FastShapes.cs" />
+    <Compile Include="LitDev\Colours.cs" />
+    <Compile Include="LitDev\Array.cs" />
+    <Compile Include="LitDev\Controls.cs" />
+    <Compile Include="LitDev\Call.cs" />
+    <Compile Include="LitDev\3DView.cs" />
+    <Compile Include="LitDev\BlueTooth.cs" />
+    <Compile Include="LitDev\Engines\iowkit.cs" />
+    <Compile Include="LitDev\Shell.cs" />
+    <Compile Include="LitDev\Inline.cs" />
+    <Compile Include="LitDev\List.cs" />
+    <Compile Include="LitDev\Client.cs" />
+    <Compile Include="LitDev\Server.cs" />
+    <Compile Include="LitDev\Queue.cs" />
+    <Compile Include="LitDev\Settings.cs" />
+    <Compile Include="LitDev\IOWarrior.cs" />
+    <Compile Include="LitDev\DataBase.cs" />
+    <Compile Include="LitDev\Encryption.cs" />
+    <Compile Include="LitDev\Text.cs" />
+    <Compile Include="LitDev\Sound.cs" />
+    <Compile Include="LitDev\Engines\HIDEngine.cs" />
+    <Compile Include="LitDev\HID.cs" />
+    <Compile Include="LitDev\ScrollBars.cs" />
+    <Compile Include="LitDev\Network.cs" />
+    <Compile Include="LitDev\TextWindow.cs" />
+    <Compile Include="LitDev\GraphicsWindow.cs" />
+    <Compile Include="LitDev\Search.cs" />
+    <Compile Include="LitDev\Translate.cs" />
+    <Compile Include="LitDev\Zip.cs" />
+    <Compile Include="LitDev\Regex.cs" />
+    <Compile Include="LitDev\Windows.cs" />
+    <Compile Include="LitDev\Email.cs" />
+    <Compile Include="LitDev\Image.cs" />
+    <Compile Include="LitDev\Weather.cs" />
+    <Compile Include="LitDev\Forms\FormMatrix.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormMatrix.Designer.cs">
+      <DependentUpon>FormMatrix.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LitDev\Matrix.cs" />
+    <Compile Include="LitDev\Music.cs" />
+    <Compile Include="LitDev\WebCam.cs" />
+    <Compile Include="LitDev\Debug.cs" />
+    <Compile Include="LitDev\Dialogs.cs" />
+    <Compile Include="LitDev\Forms\FormAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormAbout.Designer.cs">
+      <DependentUpon>FormAbout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormCalendar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormCalendar.Designer.cs">
+      <DependentUpon>FormCalendar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormChangeLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormChangeLog.Designer.cs">
+      <DependentUpon>FormChangeLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormDebug.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormDebug.Designer.cs">
+      <DependentUpon>FormDebug.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormDebugHelp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormDebugHelp.Designer.cs">
+      <DependentUpon>FormDebugHelp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormWait.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LitDev\Forms\FormWait.Designer.cs">
+      <DependentUpon>FormWait.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LitDev\Statistics.cs" />
+    <Compile Include="LitDev\Sort.cs" />
+    <Compile Include="LitDev\File.cs" />
+    <Compile Include="LitDev\DateTime.cs" />
+    <Compile Include="LitDev\Utilities.cs" />
+    <Compile Include="LitDev\Engines\GraphEngine.cs" />
+    <Compile Include="LitDev\Cursors.cs" />
+    <Compile Include="LitDev\Graph.cs" />
+    <Compile Include="LitDev\Events.cs" />
+    <Compile Include="LitDev\Engines\PhysicsEngine.cs" />
+    <Compile Include="LitDev\Physics.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="LitDev\CommPort.cs" />
+    <Compile Include="LitDev\Shapes.cs" />
+    <Compile Include="LitDev\Process.cs" />
+    <Compile Include="LitDev\Speech.cs" />
+    <Compile Include="LitDev\Focus.cs" />
+    <Compile Include="LitDev\Math.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\TranslatorService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LitDev\Forms\FormAbout.resx">
+      <DependentUpon>FormAbout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LitDev\Forms\FormCalendar.resx">
+      <DependentUpon>FormCalendar.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LitDev\Forms\FormChangeLog.resx">
+      <DependentUpon>FormChangeLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LitDev\Forms\FormEvents.resx">
+      <DependentUpon>FormEvents.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LitDev\Forms\FormDebug.resx">
+      <DependentUpon>FormDebug.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LitDev\Forms\FormDebugHelp.resx">
+      <DependentUpon>FormDebugHelp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LitDev\Forms\FormMatrix.resx">
+      <DependentUpon>FormMatrix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LitDev\Forms\FormWait.resx">
+      <DependentUpon>FormWait.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Resources\csv.png" />
+    <None Include="Service References\TranslatorService\LitDev.TranslatorService.GetTranslationsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TranslatorService\LitDev.TranslatorService.TranslateArray2Response.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TranslatorService\LitDev.TranslatorService.TranslateArrayResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TranslatorService\soap.wsdl" />
+    <None Include="Service References\TranslatorService\soap.xsd" />
+    <None Include="Service References\TranslatorService\soap1.xsd" />
+    <None Include="Service References\TranslatorService\soap2.xsd" />
+    <None Include="Service References\TranslatorService\soap3.xsd" />
+    <None Include="Service References\TranslatorService\SoapService.wsdl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\DebugHelp.rtf" />
+    <None Include="Resources\excel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\legend.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\zoom.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Microsoft.Office.Core">
+      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>5</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Private>True</Private>
+    </COMReference>
+    <COMReference Include="Microsoft.Office.Interop.Excel">
+      <Guid>{00020813-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>7</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Private>True</Private>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SBicon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\play.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\noBP.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\allBP.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\exit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\quit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bug.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\transparency.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\array.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\help.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HelixToolkit.Wpf\HelixToolkit.csproj">
+      <Project>{3f3b4548-a9db-4874-86f7-e7c4fec8a351}</Project>
+      <Name>HelixToolkit</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AppIcon.ico" />
+    <Content Include="Box2D\License.txt" />
+    <Content Include="License.txt" />
+    <Content Include="Resources\iowkit32.dll" />
+    <Content Include="Resources\iowkit64.dll" />
+    <None Include="Resources\stepout.png" />
+    <None Include="Resources\SQLite.Interop64.dll" />
+    <None Include="Resources\SQLite.Interop32.dll" />
+    <None Include="Service References\TranslatorService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\TranslatorService\configuration.svcinfo" />
+    <None Include="Service References\TranslatorService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\TranslatorService\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

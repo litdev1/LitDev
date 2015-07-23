@@ -1,0 +1,863 @@
+﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+//Copyright (C) <2011 - 2015> litdev@hotmail.co.uk
+//This file is part of the LitDev Extension for Small Basic.
+
+//LitDev Extension is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+
+//LitDev Extension is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+
+//You should have received a copy of the GNU General Public License
+//along with menu.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
+using Microsoft.SmallBasic.Library;
+using System.Windows;
+using System.Windows.Media;
+using System.Threading;
+using System.IO;
+using System.Diagnostics;
+using System.Text;
+using System.Reflection;
+using System.Collections.Generic;
+
+namespace LitDev
+{
+    /// <summary>
+    /// File utilities.
+    /// </summary>
+    [SmallBasicType]
+    public static class LDFile
+    {
+        private static Encoding GetFileEncoding(string fileName)
+        {
+            // *** Use Default of Encoding.Default (Ansi CodePage)
+
+            Encoding enc = Encoding.Default;
+
+            // *** Detect byte order mark if any - otherwise assume default
+
+            byte[] buffer = new byte[5];
+            FileStream file = new FileStream(fileName, FileMode.Open);
+            file.Read(buffer, 0, 5);
+            file.Close();
+
+            if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
+                enc = Encoding.UTF8;
+            else if (buffer[0] == 0xfe && buffer[1] == 0xff)
+                enc = Encoding.Unicode;
+            else if (buffer[0] == 0 && buffer[1] == 0 && buffer[2] == 0xfe && buffer[3] == 0xff)
+                enc = Encoding.UTF32;
+            else if (buffer[0] == 0x2b && buffer[1] == 0x2f && buffer[2] == 0x76)
+                enc = Encoding.UTF7;
+
+            return enc;
+        }
+
+        private static string ReadEncodedFile(string fileName)
+        {
+            Encoding encoding = GetFileEncoding(fileName);
+            byte[] ansiBytes = System.IO.File.ReadAllBytes(fileName);
+            string content = "";
+            if (encoding == Encoding.Default)
+            {
+                content = Encoding.UTF8.GetString(ansiBytes);
+                if (content.Contains(replaced)) content = Encoding.Default.GetString(ansiBytes);
+            }
+            else
+            {
+                content = encoding.GetString(ansiBytes);
+            }
+            if (content.Contains(replaced)) return "";
+            if (content[0] == 65279) content = content.Substring(1);
+            return content;
+        }
+
+        private static string replaced = String.Format("{0}", (char)65533);
+
+        private static void CopyFilesRecursively(String SourcePath, String DestinationPath)
+        {
+            // First create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(SourcePath, "*", SearchOption.AllDirectories))
+                Directory.CreateDirectory(dirPath.Replace(SourcePath, DestinationPath));
+
+            // Copy all the files
+            foreach (string newPath in Directory.GetFiles(SourcePath, "*.*", SearchOption.AllDirectories))
+                System.IO.File.Copy(newPath, newPath.Replace(SourcePath, DestinationPath));
+        }
+
+        private static void getDirectories(string dirPath, ref string result, ref int i)
+        {
+            try
+            {
+                dirPath = Environment.ExpandEnvironmentVariables(dirPath);
+                result += (i++).ToString() + "=" + Utilities.ArrayParse(dirPath) + ";";
+
+                if ((System.IO.File.GetAttributes(dirPath) & FileAttributes.ReparsePoint) != FileAttributes.ReparsePoint)
+                {
+                    foreach (string path in Directory.GetDirectories(dirPath))
+                    {
+                        getDirectories(path, ref result, ref i);
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Reads a text file into an array with one element for each line in the file.
+        /// 
+        /// Blank lines are included as an element in the array with one blank space.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the file.
+        /// </param>
+        /// <returns>
+        /// An array with one element for each line in the file.
+        /// </returns>
+        public static Primitive ReadToArray(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                StreamReader streamReader = new StreamReader(fileName);
+                Primitive file = "";
+                string line;
+                int iLine = 1;
+
+                while (!streamReader.EndOfStream)
+                {
+                    line = streamReader.ReadLine();
+                    if (line == "") line = " ";
+                    //file[iLine] = line;
+                    file += iLine.ToString() + "=" + Utilities.ArrayParse(line) + ";"; //Much faster
+                    iLine++;
+                }
+
+                streamReader.Close();
+                return Utilities.CreateArrayMap(file);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Gets the number of lines in a text file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the file.
+        /// </param>
+        /// <returns>
+        /// The number of lines in the file (-1 on failure).
+        /// </returns>
+        public static Primitive Length(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return -1;
+            }
+            try
+            {
+                return System.IO.File.ReadAllLines(fileName).Length;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Gets the creation time of a file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the file.
+        /// </param>
+        /// <returns>
+        /// The creation time of the file or directory ("" on failure).
+        /// </returns>
+        public static Primitive CreationTime(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                return System.IO.File.GetCreationTime(fileName).ToString();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Gets the last time a file was accessed.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the file.
+        /// </param>
+        /// <returns>
+        /// The last access time of the file or directory ("" on failure).
+        /// </returns>
+        public static Primitive AccessTime(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                return System.IO.File.GetLastAccessTime(fileName).ToString();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Gets the last time a file was modified.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the file.
+        /// </param>
+        /// <returns>
+        /// The last modified time of the file or directory ("" on failure).
+        /// </returns>
+        public static Primitive ModifiedTime(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                return System.IO.File.GetLastWriteTime(fileName).ToString();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Gets the play time for a music file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the music file e.g. "C:\Users\Public\Music\song.mp3".
+        /// </param>
+        /// <returns>
+        /// The file play time in seconds (0 if failed).
+        /// </returns>
+        public static Primitive MusicPlayTime(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return 0;
+            }
+            try
+            {
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                Uri uri = new Uri(fileName);
+                mediaPlayer.Open(uri);
+                //Wait for the player to open the file (up to 1 sec)
+                int iCount = 0;
+                while (!mediaPlayer.NaturalDuration.HasTimeSpan && iCount < 100)
+                {
+                    Thread.Sleep(10);
+                    iCount++;
+                }
+                Duration duration = mediaPlayer.NaturalDuration;
+                int sec = duration.TimeSpan.Minutes * 60 + duration.TimeSpan.Seconds + 1; //Round up
+                mediaPlayer.Close();
+                return sec;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Read a CSV (comma separated values) file into an array.
+        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the CSV file.
+        /// </param>
+        /// <returns>
+        /// A 2D array with CSV file imported.
+        /// </returns>
+        public static Primitive ReadCSV(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            return Utilities.ReadCSV(fileName, false);
+        }
+
+        /// <summary>
+        /// Read a CSV (comma separated values) file into an array. and transpose (swap rows and columns).
+        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the CSV file.
+        /// </param>
+        /// <returns>
+        /// 2D array with transposed CSV file imported.
+        /// </returns>
+        public static Primitive ReadCSVTransposed(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            return Utilities.ReadCSV(fileName, true);
+        }
+
+        /// <summary>
+        /// Write a 2D array to a CSV (comma separated values) file.
+        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the CSV file.
+        /// </param>
+        /// <param name="array">
+        /// The array to export.
+        /// </param>
+        /// <returns>
+        /// None.
+        /// </returns>
+        public static void WriteCSV(Primitive fileName, Primitive array)
+        {
+            Utilities.WriteCSV(fileName, array);
+        }
+
+        /// <summary>
+        /// Character to use in place of empty values in the imported array when reading CSV files.
+        /// A SmallBasic array cannot hold an empty value i.e. "".
+        /// 
+        /// Default is the empty string "" (no array entries created for empty values in the CSV file).
+        /// </summary>
+        public static Primitive CSVplaceholder
+        {
+            get { return Utilities.CSVplaceHolder; }
+            set { Utilities.CSVplaceHolder = value; }
+        }
+
+        /// <summary>
+        /// Print a file.
+        /// </summary>
+        /// <param name="fileName">The full path of the file to print.</param>
+        public static void PrintFile(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return;
+            }
+            Process process = new Process();
+            process.StartInfo.FileName = fileName;
+            process.StartInfo.Verb = "Print";
+            process.Start();
+        }
+
+        /// <summary>
+        /// Gets the Temp folder path.
+        /// </summary>
+        public static Primitive TempFolder
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable("TEMP");
+            }
+        }
+
+        /// <summary>
+        /// Gets the current user name.
+        /// </summary>
+        public static Primitive UserName
+        {
+            get
+            {
+                return Environment.UserName;
+            }
+        }
+
+        /// <summary>
+        /// Gets the ApplicationData folder path.
+        /// </summary>
+        public static Primitive AppDataFolder
+        {
+            get
+            {
+                return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            }
+        }
+
+        /// <summary>
+        /// Gets the Public folder path.
+        /// </summary>
+        public static Primitive PublicFolder
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable("PUBLIC");
+            }
+        }
+
+        /// <summary>
+        /// Gets the Documents folder path.
+        /// </summary>
+        public static Primitive DocumentsFolder
+        {
+            get
+            {
+                return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+        }
+
+        /// <summary>
+        /// Gets the Music folder path.
+        /// </summary>
+        public static Primitive MusicFolder
+        {
+            get
+            {
+                return Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+            }
+        }
+
+        /// <summary>
+        /// Gets the Pictures folder path.
+        /// </summary>
+        public static Primitive PicturesFolder
+        {
+            get
+            {
+                return Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            }
+        }
+
+        /// <summary>
+        /// Get the folder for a full file path.
+        /// </summary>
+        /// <param name="fileName">The full path of a file.</param>
+        /// <returns>The folder part of the file path.</returns>
+        public static Primitive GetFolder(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                return Path.GetDirectoryName(fileName);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Get the file for a full file path.
+        /// </summary>
+        /// <param name="fileName">The full path of a file.</param>
+        /// <returns>The file name part of the file path (without the folder or the extension).</returns>
+        public static Primitive GetFile(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                return Path.GetFileNameWithoutExtension(fileName);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Get the file extension for a file.
+        /// </summary>
+        /// <param name="fileName">The file name with extension (may include folder path or not).</param>
+        /// <returns>The extension of the file (without the '.').</returns>
+        public static Primitive GetExtension(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                return Path.GetExtension(fileName).Substring(1);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Convert an ANSI encoded text file to UTF8.
+        /// It should also work for any other encoding.
+        /// UTF8 is the default text file encoding used by Small Basic.
+        /// </summary>
+        /// <param name="fileName">The file path to convert.</param>
+        /// <param name="BOM">Include Byte Order Mark (BOM) in UTF8 file ("True" or "False", no BOM is usual).</param>
+        /// <returns>The converted file path (-UTF8.txt) or "" for failure (the encoding may not have been detected correctly).</returns>
+        public static Primitive ANSItoUTF8(Primitive fileName, Primitive BOM)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                string content = ReadEncodedFile(fileName);
+                if (content == "") return "";
+                string resultFile = Path.GetDirectoryName(fileName) + "\\" + Path.GetFileNameWithoutExtension(fileName) + "-UTF8" + Path.GetExtension(fileName);
+                if (BOM)
+                {
+                    using (StreamWriter sw = new StreamWriter(resultFile, false, Encoding.UTF8))
+                    {
+                        sw.Write(content);
+                        sw.Close();
+                    }
+                }
+                else
+                {
+                    using (StreamWriter sw = new StreamWriter(resultFile, false))
+                    {
+                        sw.Write(content);
+                        sw.Close();
+                    }
+                }
+                return resultFile;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Read an ANSI encoded text file.
+        /// It should also work for any other encoding including UTF8.
+        /// UTF8 is the default text file encoding used by Small Basic.
+        /// </summary>
+        /// <param name="fileName">The file path to read.</param>
+        /// <returns>The contents of the file or "" for failure (the encoding may not have been detected correctly).</returns>
+        public static Primitive ReadANSI(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                return ReadEncodedFile(fileName);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Reads a text file with ANSI encoding into an array with one element for each line in the file.
+        /// It should also work for any other encoding including UTF8.
+        /// Blank lines are included as an element in the array with one blank space.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the file.
+        /// </param>
+        /// <returns>
+        /// An array with one element for each line in the file or "" for failure (the encoding may not have been detected correctly).
+        /// </returns>
+        public static Primitive ReadANSIToArray(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            try
+            {
+                string content =  ReadEncodedFile(fileName);
+                string[] lines = content.Split(new string[] {Environment.NewLine}, StringSplitOptions.None);
+                int iLine = 1;
+                string result = "";
+
+                foreach (string line in lines)
+                {
+                    result += (iLine++).ToString() + "=" + Utilities.ArrayParse(line == "" ? " " : line) + ";";
+                }
+
+                return Utilities.CreateArrayMap(result);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Check if a file path is an existing file or directory.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the file or directory.
+        /// </param>
+        /// <returns>"True" or "False".</returns>
+        public static Primitive Exists(Primitive fileName)
+        {
+            if (System.IO.File.Exists(fileName)) return "True";
+            if (Directory.Exists(fileName)) return "True";
+            return "False";
+        }
+
+        /// <summary>
+        /// Save all of the current variables to a file.
+        /// This is the complete current state of your program.
+        /// May be useful to store a game state, or for debugging.
+        /// </summary>
+        /// <param name="fileName">The full path to store the variables and their values.
+        /// This file will be over-written.</param>
+        public static void SaveAllVariables(Primitive fileName)
+        {
+            try
+            {
+                StackTrace stackTrace = new StackTrace(Thread.CurrentThread, false);
+                StackFrame frame = stackTrace.GetFrame(stackTrace.FrameCount - 1);
+                MethodBase method = frame.GetMethod();
+                Type type = method.DeclaringType;
+                FieldInfo[] fields = type.GetFields(BindingFlags.Static | BindingFlags.NonPublic);
+	            string path = Environment.ExpandEnvironmentVariables(fileName);
+                if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+                using (StreamWriter streamWriter = new StreamWriter(path))
+                {
+                    foreach (FieldInfo field in fields)
+                    {
+                        streamWriter.WriteLine(field.Name + " " + field.GetValue(null));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Restore the values of all variables that were previously stored using SaveAllVariables.
+        /// </summary>
+        /// <param name="fileName">The full path to a file with stored variable values.</param>
+        public static void LoadAllVariables(Primitive fileName)
+        {
+            try
+            {
+                if (!System.IO.File.Exists(fileName))
+                {
+                    Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                    return;
+                }
+                StackTrace stackTrace = new StackTrace(Thread.CurrentThread, false);
+                StackFrame frame = stackTrace.GetFrame(stackTrace.FrameCount - 1);
+                MethodBase method = frame.GetMethod();
+                Type type = method.DeclaringType;
+                FieldInfo[] fields = type.GetFields(BindingFlags.Static | BindingFlags.NonPublic);
+                string path = Environment.ExpandEnvironmentVariables(fileName);
+                using (StreamReader streamReader = new StreamReader(path))
+                {
+                    while (streamReader.Peek() >= 0)
+                    {
+                        string line = streamReader.ReadLine();
+                        int pos = line.IndexOf(" ");
+                        string name = line.Substring(0, pos);
+                        Primitive var = line.Substring(pos + 1);
+                        foreach (FieldInfo field in fields)
+                        {
+                            if (field.Name == name)
+                            {
+                                field.SetValue(null, var);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Get the size of a file in bytes.
+        /// </summary>
+        /// <param name="fileName">The full path to the file to get the size of.</param>
+        /// <returns>The number of bytes in the file or -1 on error.</returns>
+        public static Primitive Size(Primitive fileName)
+        {
+            try
+            {
+                return (decimal)new FileInfo(fileName).Length;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Rename or move a file.
+        /// </summary>
+        /// <param name="fileFrom">The full path to the file to rename.</param>
+        /// <param name="fileTo">The full path to the new name for the file.</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive RenameFile(Primitive fileFrom, Primitive fileTo)
+        {
+            try
+            {
+                if (!System.IO.File.Exists(fileFrom)) return "FAILED";
+                if (!Directory.Exists(Path.GetDirectoryName(fileTo))) return "FAILED";
+                System.IO.File.Move(fileFrom, fileTo);
+                return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Rename or move a directory.
+        /// </summary>
+        /// <param name="directoryFrom">The full path to the directory to rename.</param>
+        /// <param name="directoryTo">The full path to the new name for the directory.</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive RenameDirectory(Primitive directoryFrom, Primitive directoryTo)
+        {
+            try
+            {
+                if (!Directory.Exists(directoryFrom)) return "FAILED";
+                Directory.Move(directoryFrom, directoryTo);
+                return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Recursively copy a directory and all contents including sub-directories.
+        /// </summary>
+        /// <param name="directoryFrom">The full path to the directory to copy from.</param>
+        /// <param name="directoryTo">The full path to the directory to copy to.</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive CopyDirectory(Primitive directoryFrom, Primitive directoryTo)
+        {
+            try
+            {
+                if (!Directory.Exists(directoryFrom)) return "FAILED";
+                CopyFilesRecursively(directoryFrom, directoryTo);
+                return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Recursively get all sub-directories in directory.
+        /// </summary>
+        /// <param name="path">The full path to the root dircetory.</param>
+        /// <returns>An array of all sub-drectores or "FAILED".</returns>
+        public static Primitive GetAllDirectories(Primitive path)
+        {
+            try
+            {
+                path = Environment.ExpandEnvironmentVariables(path);
+                if (!Directory.Exists(path)) return "FAILED";
+                string result = "";
+                int i = 1;
+                foreach (string dirPath in Directory.GetDirectories(path, "*", SearchOption.AllDirectories))
+                {
+                    result += (i++).ToString() + "=" + Utilities.ArrayParse(dirPath) + ";";
+                }
+                return Utilities.CreateArrayMap(result);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                //Try to do it recursively
+                try
+                {
+                    string result = "";
+                    int i = 1;
+                    getDirectories(path, ref result, ref i);
+                    return Utilities.CreateArrayMap(result);
+                }
+                catch (Exception ex)
+                {
+
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    return "FAILED";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+    }
+}

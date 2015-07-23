@@ -1,0 +1,94 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LitDev", "LitDev\LitDev.csproj", "{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHarness", "TestHarness\TestHarness.csproj", "{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500} = {CDFCE8E5-0080-4301-ABF5-C076DDEDE500}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelixToolkit", "HelixToolkit.Wpf\HelixToolkit.csproj", "{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Debug|x64.Build.0 = Debug|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Debug|x86.Build.0 = Debug|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Release|x64.ActiveCfg = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Release|x64.Build.0 = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Release|x86.ActiveCfg = Release|Any CPU
+		{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}.Release|x86.Build.0 = Release|Any CPU
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Debug|Any CPU.ActiveCfg = Release|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Debug|Any CPU.Build.0 = Release|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Debug|x64.ActiveCfg = Debug|x64
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Debug|x64.Build.0 = Debug|x64
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Debug|x86.ActiveCfg = Debug|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Debug|x86.Build.0 = Debug|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Release|Any CPU.ActiveCfg = Release|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Release|Any CPU.Build.0 = Release|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Release|Mixed Platforms.Build.0 = Release|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Release|x64.ActiveCfg = Release|x64
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Release|x64.Build.0 = Release|x64
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Release|x86.ActiveCfg = Release|x86
+		{AF35FA5D-690D-497E-81BB-3EE2D154E0FB}.Release|x86.Build.0 = Release|x86
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Debug|x64.Build.0 = Debug|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Debug|x86.Build.0 = Debug|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Release|x64.ActiveCfg = Release|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Release|x64.Build.0 = Release|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Release|x86.ActiveCfg = Release|Any CPU
+		{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://todman-lenovo:8080/tfs/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = HelixToolkit.Wpf\\HelixToolkit.csproj
+		SccProjectName1 = HelixToolkit.Wpf
+		SccLocalPath1 = HelixToolkit.Wpf
+		SccProjectUniqueName2 = LitDev\\LitDev.csproj
+		SccProjectName2 = LitDev
+		SccLocalPath2 = LitDev
+		SccProjectUniqueName3 = TestHarness\\TestHarness.csproj
+		SccProjectName3 = TestHarness
+		SccLocalPath3 = TestHarness
+	EndGlobalSection
+EndGlobal
