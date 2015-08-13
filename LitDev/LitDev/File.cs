@@ -111,6 +111,12 @@ namespace LitDev
             }
         }
 
+        [HideFromIntellisense]
+        public static Primitive MusicPlayTime(Primitive fileName)
+        {
+            return LDSound.MusicPlayTime(fileName);
+        }
+
         /// <summary>
         /// Reads a text file into an array with one element for each line in the file.
         /// 
@@ -261,47 +267,6 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
             return "";
-        }
-
-        /// <summary>
-        /// Gets the play time for a music file.
-        /// </summary>
-        /// <param name="fileName">
-        /// The full path of the music file e.g. "C:\Users\Public\Music\song.mp3".
-        /// </param>
-        /// <returns>
-        /// The file play time in seconds (0 if failed).
-        /// </returns>
-        public static Primitive MusicPlayTime(Primitive fileName)
-        {
-            if (!System.IO.File.Exists(fileName))
-            {
-                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
-                return 0;
-            }
-            try
-            {
-                MediaPlayer mediaPlayer = new MediaPlayer();
-                Uri uri = new Uri(fileName);
-                mediaPlayer.Open(uri);
-                //Wait for the player to open the file (up to 1 sec)
-                int iCount = 0;
-                while (!mediaPlayer.NaturalDuration.HasTimeSpan && iCount < 100)
-                {
-                    Thread.Sleep(10);
-                    iCount++;
-                }
-                Duration duration = mediaPlayer.NaturalDuration;
-                int sec = duration.TimeSpan.Minutes * 60 + duration.TimeSpan.Seconds + 1; //Round up
-                mediaPlayer.Close();
-                return sec;
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-            }
-
-            return 0;
         }
 
         /// <summary>
