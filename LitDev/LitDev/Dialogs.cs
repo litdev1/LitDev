@@ -220,6 +220,8 @@ namespace LitDev
         /// </summary>
         /// <param name="extension">
         /// The file type extension, e.g. "sb".
+        /// This may also be an array of extension types such as "1=png;2=jpg;".
+        /// If the extension contains a "|" character then it will be used directly such as "bmp jpg gif png|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*".
         /// </param>
         /// <param name="folder">
         /// The initial folder to open dialog with, can be "".
@@ -233,7 +235,26 @@ namespace LitDev
                 ThreadStart start = delegate
                 {
                     System.Windows.Forms.OpenFileDialog dlg = new System.Windows.Forms.OpenFileDialog();
-                    dlg.Filter = "File Type (*." + extension + ") |*." + extension;
+                    if (((string)extension).Contains("|"))
+                    {
+                        dlg.Filter = extension;
+                    }
+                    else if (SBArray.IsArray(extension))
+                    {
+                        Primitive indices = SBArray.GetAllIndices(extension);
+                        int count = SBArray.GetItemCount(indices);
+                        string types = "";
+                        for (int i = 1; i <= count; i++)
+                        {
+                            types += "*." + extension[indices[i]];
+                            if (i < count) types += ";";
+                        }
+                        dlg.Filter = "File Type (" + types + ") |" + types;
+                    }
+                    else
+                    {
+                        dlg.Filter = "File Type (*." + extension + ") |*." + extension;
+                    }
                     dlg.InitialDirectory = folder;
                     if (dlg.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK) result = dlg.FileName;
                 };
@@ -254,6 +275,8 @@ namespace LitDev
         /// </summary>
         /// <param name="extension">
         /// The file type extension, e.g. "sb".
+        /// This may also be an array of extension types such as "1=png;2=jpg;".
+        /// If the extension contains a "|" character then it will be used directly such as "bmp jpg gif png|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*".
         /// </param>
         /// <param name="folder">
         /// The initial folder to open dialog with, can be "".
@@ -267,7 +290,26 @@ namespace LitDev
                 ThreadStart start = delegate
                 {
                     System.Windows.Forms.SaveFileDialog dlg = new System.Windows.Forms.SaveFileDialog();
-                    dlg.Filter = "File Type (*." + extension + ") |*." + extension;
+                    if (((string)extension).Contains("|"))
+                    {
+                        dlg.Filter = extension;
+                    }
+                    else if (SBArray.IsArray(extension))
+                    {
+                        Primitive indices = SBArray.GetAllIndices(extension);
+                        int count = SBArray.GetItemCount(indices);
+                        string types = "";
+                        for (int i = 1; i <= count; i++)
+                        {
+                            types += "*." + extension[indices[i]];
+                            if (i < count) types += ";";
+                        }
+                        dlg.Filter = "File Type (" + types + ") |" + types;
+                    }
+                    else
+                    {
+                        dlg.Filter = "File Type (*." + extension + ") |*." + extension;
+                    }
                     dlg.InitialDirectory = folder;
                     if (dlg.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK) result = dlg.FileName;
                 };

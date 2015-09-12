@@ -4627,7 +4627,7 @@ namespace LitDev
         /// <param name="iconList">
         /// An optional array of icon images (URL or ImageList) or "" for none.
         /// 
-        /// iconList["File"] = Program.Directory+"\file.png"
+        /// iconList["File"] = Program.Directory+"/file.png"
         /// </param>
         /// <param name="checkList">
         /// An optional array to identify items as checkable or "" for none.
