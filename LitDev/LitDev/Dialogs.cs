@@ -64,6 +64,32 @@ namespace LitDev
             _MenuClickDelegate();
         }
 
+        private static string getFilter(Primitive extension)
+        {
+            string filter = "";
+            if (((string)extension).Contains("|"))
+            {
+                filter = extension;
+            }
+            else if (SBArray.IsArray(extension))
+            {
+                Primitive indices = SBArray.GetAllIndices(extension);
+                int count = SBArray.GetItemCount(indices);
+                string types = "";
+                for (int i = 1; i <= count; i++)
+                {
+                    types += "*." + extension[indices[i]];
+                    if (i < count) types += ";";
+                }
+                filter = "File Type (" + types + ") |" + types;
+            }
+            else
+            {
+                filter = "File Type (*." + extension + ") |*." + extension;
+            }
+            return filter;
+        }
+
         public static ContextMenu getMenu(Dictionary<string, BitmapSource> _savedImages, Primitive items, Primitive images, int iconSize)
         {
             BitmapSource img;
@@ -221,7 +247,7 @@ namespace LitDev
         /// <param name="extension">
         /// The file type extension, e.g. "sb".
         /// This may also be an array of extension types such as "1=png;2=jpg;".
-        /// If the extension contains a "|" character then it will be used directly such as "bmp jpg gif png|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*".
+        /// If the extension contains a "|" character then it will be used directly such as "Images|*.bmp;*.jpg;*.gif;*.png|All files (*.*)|*.*".
         /// </param>
         /// <param name="folder">
         /// The initial folder to open dialog with, can be "".
@@ -235,26 +261,7 @@ namespace LitDev
                 ThreadStart start = delegate
                 {
                     System.Windows.Forms.OpenFileDialog dlg = new System.Windows.Forms.OpenFileDialog();
-                    if (((string)extension).Contains("|"))
-                    {
-                        dlg.Filter = extension;
-                    }
-                    else if (SBArray.IsArray(extension))
-                    {
-                        Primitive indices = SBArray.GetAllIndices(extension);
-                        int count = SBArray.GetItemCount(indices);
-                        string types = "";
-                        for (int i = 1; i <= count; i++)
-                        {
-                            types += "*." + extension[indices[i]];
-                            if (i < count) types += ";";
-                        }
-                        dlg.Filter = "File Type (" + types + ") |" + types;
-                    }
-                    else
-                    {
-                        dlg.Filter = "File Type (*." + extension + ") |*." + extension;
-                    }
+                    dlg.Filter = getFilter(extension);
                     dlg.InitialDirectory = folder;
                     if (dlg.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK) result = dlg.FileName;
                 };
@@ -276,7 +283,7 @@ namespace LitDev
         /// <param name="extension">
         /// The file type extension, e.g. "sb".
         /// This may also be an array of extension types such as "1=png;2=jpg;".
-        /// If the extension contains a "|" character then it will be used directly such as "bmp jpg gif png|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*".
+        /// If the extension contains a "|" character then it will be used directly such as "Images|*.bmp;*.jpg;*.gif;*.png|All files (*.*)|*.*".
         /// </param>
         /// <param name="folder">
         /// The initial folder to open dialog with, can be "".
@@ -290,26 +297,7 @@ namespace LitDev
                 ThreadStart start = delegate
                 {
                     System.Windows.Forms.SaveFileDialog dlg = new System.Windows.Forms.SaveFileDialog();
-                    if (((string)extension).Contains("|"))
-                    {
-                        dlg.Filter = extension;
-                    }
-                    else if (SBArray.IsArray(extension))
-                    {
-                        Primitive indices = SBArray.GetAllIndices(extension);
-                        int count = SBArray.GetItemCount(indices);
-                        string types = "";
-                        for (int i = 1; i <= count; i++)
-                        {
-                            types += "*." + extension[indices[i]];
-                            if (i < count) types += ";";
-                        }
-                        dlg.Filter = "File Type (" + types + ") |" + types;
-                    }
-                    else
-                    {
-                        dlg.Filter = "File Type (*." + extension + ") |*." + extension;
-                    }
+                    dlg.Filter = getFilter(extension);
                     dlg.InitialDirectory = folder;
                     if (dlg.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK) result = dlg.FileName;
                 };
