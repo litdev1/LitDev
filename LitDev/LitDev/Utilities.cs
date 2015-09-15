@@ -1514,6 +1514,21 @@ namespace LitDev
                 return GDI32.GetDeviceCaps(desktop, GDI32.LOGPIXELSY);
             }
         }
+
+        /// <summary>
+        /// Get or set the current culture.
+        /// </summary>
+        public static Primitive CurrentCulture
+        {
+            get { return Thread.CurrentThread.CurrentCulture.Name; }
+            set
+            {
+                Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(value);
+                Thread.CurrentThread.CurrentUICulture = Thread.CurrentThread.CurrentCulture;
+                CultureInfo.DefaultThreadCurrentCulture = Thread.CurrentThread.CurrentCulture;
+                CultureInfo.DefaultThreadCurrentUICulture = Thread.CurrentThread.CurrentCulture;
+            }
+        }
     }
 }
 

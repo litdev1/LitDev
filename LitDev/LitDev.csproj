@@ -224,6 +224,7 @@
     <Compile Include="Box2D\Box2D.Dynamics\World.cs" />
     <Compile Include="Box2D\Box2D.Dynamics\WorldCallback.cs" />
     <Compile Include="Box2D\Box2D\Box2DXDebug.cs" />
+    <Compile Include="LitDev\Logic.cs" />
     <Compile Include="LitDev\Clipboard.cs" />
     <Compile Include="LitDev\Chart.cs" />
     <Compile Include="LitDev\Resources.cs" />

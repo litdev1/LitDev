@@ -352,11 +352,11 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Evaluate a string expression to a number (if possible).
+        /// Evaluate a string expression to a number or boolean (if possible).
         /// The JScript command 'eval' is used and may therefore allow more complex JScript manipulations (also see LDInline).
         /// The TextWindow should be visible prior to using this method if later use of the TextWindow is required.
         /// </summary>
-        /// <param name="expression">The expression to evaluate, e.g. "(9/6) + 3".</param>
+        /// <param name="expression">The expression to evaluate, e.g. "(9/6) + 3" or "2.1 > 1.5".</param>
         /// <returns>The evaluated result.</returns>
         public static Primitive Evaluate(Primitive expression)
         {
@@ -385,6 +385,29 @@ namespace LitDev
                 ExpressionParser parser = new ExpressionParser(new ParameterExpression[] { pe }, expression, null);
                 LambdaExpression expr = Expression.Lambda(parser.Parse(typeof(double)), null);
                 var del = (Func<double>)expr.Compile();
+                return del();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Evaluate a string expression to a boolean "True" or "False" (if possible).
+        /// An alternative to Evaluate that behaves nicely with the TextWindow.
+        /// </summary>
+        /// <param name="expression">The expression to evaluate to a boolean, e.g. "21.3 > 16".</param>
+        /// <returns>The evaluated result ("True" or "False").</returns>
+        public static Primitive Evaluate3(Primitive expression)
+        {
+            try
+            {
+                ParameterExpression pe = Expression.Parameter(typeof(string), "IntegerAsReal");
+                ExpressionParser parser = new ExpressionParser(new ParameterExpression[] { pe }, expression, null);
+                LambdaExpression expr = Expression.Lambda(parser.Parse(typeof(bool)), null);
+                var del = (Func<bool>)expr.Compile();
                 return del();
             }
             catch (Exception ex)
