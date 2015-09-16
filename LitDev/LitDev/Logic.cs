@@ -23,6 +23,10 @@ namespace LitDev
 {
     /// <summary>
     /// Logic operations.
+    /// To evaluate an expression for use with these options, use LDMath.Evaluate3.
+    /// Example:
+    /// input = 3.1
+    /// result = LDLogic.Not(LDMath.Evaluate3(input+"&lt;5"))
     /// </summary>
     [SmallBasicType]
     public static class LDLogic
