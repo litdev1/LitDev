@@ -26,7 +26,7 @@ namespace LitDev
     /// To evaluate an expression for use with these options, use LDMath.Evaluate3.
     /// Example:
     /// input = 3.1
-    /// result = LDLogic.Not(LDMath.Evaluate3(input+"&lt;5"))
+    /// result = LDLogic.Switch(LDMath.Evaluate3(input+"&lt;5"),"OK","New input required")
     /// </summary>
     [SmallBasicType]
     public static class LDLogic
@@ -223,6 +223,18 @@ namespace LitDev
             {
                 return string.Compare(value1, value2, stringComparison) != 0;
             }
+        }
+
+        /// <summary>
+        /// A sorthand conditional statement.
+        /// </summary>
+        /// <param name="condition">A condition or variable that evaluates to "True" or "False".</param>
+        /// <param name="value1">The value to return if condition is "True".</param>
+        /// <param name="value2">The value to return if condition is "False".</param>
+        /// <returns>value1 or value2.</returns>
+        public static Primitive Switch(Primitive condition, Primitive value1, Primitive value2)
+        {
+            return condition ? value1 : value2;
         }
     }
 }

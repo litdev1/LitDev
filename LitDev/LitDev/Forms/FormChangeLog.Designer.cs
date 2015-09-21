@@ -17,10 +17,10 @@
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("OpenFile and SvaeFile may take an array of extensions");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("OpenFile and SaveFile may take an array of extensions");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDDialogs", new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Logical operations method added");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Logical operations object added");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("LDLogic", new System.Windows.Forms.TreeNode[] {
             treeNode3});
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("CurrentCulture property added");
@@ -1422,11 +1422,11 @@
             this.treeView1.Margin = new System.Windows.Forms.Padding(4);
             this.treeView1.Name = "treeView1";
             treeNode1.Name = "Node2";
-            treeNode1.Text = "OpenFile and SvaeFile may take an array of extensions";
+            treeNode1.Text = "OpenFile and SaveFile may take an array of extensions";
             treeNode2.Name = "Node1";
             treeNode2.Text = "LDDialogs";
             treeNode3.Name = "Node1";
-            treeNode3.Text = "Logical operations method added";
+            treeNode3.Text = "Logical operations object added";
             treeNode4.Name = "Node0";
             treeNode4.Text = "LDLogic";
             treeNode5.Name = "Node4";
