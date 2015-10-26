@@ -786,7 +786,7 @@ namespace LitDev
         /// Recursively get all sub-directories in directory.
         /// </summary>
         /// <param name="path">The full path to the root dircetory.</param>
-        /// <returns>An array of all sub-drectores or "FAILED".</returns>
+        /// <returns>An array of all sub-directores or "FAILED".</returns>
         public static Primitive GetAllDirectories(Primitive path)
         {
             try
