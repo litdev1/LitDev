@@ -862,6 +862,7 @@ namespace LitDev
         public const int WM_RBUTTONUP = 0x205;
         public const int WH_KEYBOARD_LL = 13;
         public const int WH_MOUSE_LL = 14;
+        public const int SWP_NOSIZE = 0x0001;
         public const UInt32 SC_CLOSE = 0xF060;
         public const UInt32 SC_MAXIMIZE = 0xF030;
         public const UInt32 SC_MINIMIZE = 0xF020;
@@ -936,6 +937,8 @@ namespace LitDev
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ShowWindow(IntPtr hWnd, ShowWindowCommands nCmdShow);
+        [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
+        public static extern IntPtr FindWindowByCaption(IntPtr ZeroOnly, string lpWindowName);
 
         public struct IconInfo
         {
@@ -952,6 +955,8 @@ namespace LitDev
         public static extern bool GetIconInfo(IntPtr hIcon, ref IconInfo pIconInfo);
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool DestroyIcon(IntPtr hIcon);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int y, int cx, int cy, int wFlags);
     }
 
     /// <summary>

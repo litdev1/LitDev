@@ -440,11 +440,6 @@ namespace LitDev
         /// <returns>The folder part of the file path.</returns>
         public static Primitive GetFolder(Primitive fileName)
         {
-            if (!System.IO.File.Exists(fileName))
-            {
-                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
-                return "";
-            }
             try
             {
                 return Path.GetDirectoryName(fileName);
@@ -463,11 +458,6 @@ namespace LitDev
         /// <returns>The file name part of the file path (without the folder or the extension).</returns>
         public static Primitive GetFile(Primitive fileName)
         {
-            if (!System.IO.File.Exists(fileName))
-            {
-                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
-                return "";
-            }
             try
             {
                 return Path.GetFileNameWithoutExtension(fileName);
@@ -486,11 +476,6 @@ namespace LitDev
         /// <returns>The extension of the file (without the '.').</returns>
         public static Primitive GetExtension(Primitive fileName)
         {
-            if (!System.IO.File.Exists(fileName))
-            {
-                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
-                return "";
-            }
             try
             {
                 return Path.GetExtension(fileName).Substring(1);

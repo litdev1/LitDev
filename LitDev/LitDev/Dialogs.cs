@@ -51,6 +51,7 @@ namespace LitDev
             _FormWait.setText(_TextWait);
             _FormWait.setColour(_Colour);
             _FormWait.TopMost = true;
+            StartPosition(_FormWait, null);
             _FormWait.ShowDialog(Utilities.ForegroundHandle());
         }
 
@@ -88,6 +89,82 @@ namespace LitDev
                 filter = "File Type (*." + extension + ") |*." + extension;
             }
             return filter;
+        }
+
+        private static void StartPosition(System.Windows.Forms.Form form, string title)
+        {
+            bool bValid = true;
+
+            switch (eStartupMode)
+            {
+                case StartupMode.NONE:
+                    bValid = false;
+                    break;
+                case StartupMode.GRAPHICSWINDOW:
+                    Type GraphicsWindowType = typeof(GraphicsWindow);
+                    Canvas _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            return _mainCanvas.PointToScreen(new System.Windows.Point(xPosInput, yPosInput));
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return null;
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    if (null == _mainCanvas)
+                    {
+                        bValid = false;
+                    }
+                    else
+                    {
+                        System.Windows.Point point = (System.Windows.Point)method.Invoke(null, new object[] { ret });
+                        if (null != point)
+                        {
+                            TextWindow.WriteLine(point.X);
+                            xPosDisplay = point.X;
+                            yPosDisplay = point.Y;
+                        }
+                    }
+                    break;
+                case StartupMode.SCREEN:
+                    xPosDisplay = xPosInput;
+                    yPosDisplay = yPosInput;
+                    break;
+            }
+
+            if (null != form)
+            {
+                if (bValid)
+                {
+                    form.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+                    form.Location = new System.Drawing.Point((int)xPosDisplay, (int)yPosDisplay);
+                }
+                else
+                {
+                    form.StartPosition = System.Windows.Forms.FormStartPosition.WindowsDefaultLocation;
+                }
+            }
+            else if (null != title)
+            {
+                if (bValid)
+                {
+                    IntPtr hWnd;
+                    int count = 0;
+                    while ((hWnd = User32.FindWindowByCaption((IntPtr)0, title)) == (IntPtr)0 && ++count < 100)
+                    {
+                        Thread.Sleep(5);
+                    }
+                    if (hWnd != IntPtr.Zero)
+                    {
+                        User32.SetWindowPos(hWnd, 0, (int)xPosDisplay, (int)yPosDisplay, 0, 0, User32.SWP_NOSIZE);
+                    }
+                }
+            }
         }
 
         public static ContextMenu getMenu(Dictionary<string, BitmapSource> _savedImages, Primitive items, Primitive images, int iconSize)
@@ -132,6 +209,28 @@ namespace LitDev
             }
             if (menu.Items.Count == 0) return null;
             return menu;
+        }
+
+        private enum StartupMode { NONE, GRAPHICSWINDOW, SCREEN }
+        private static StartupMode eStartupMode = StartupMode.NONE;
+        private static double xPosInput = -1;
+        private static double yPosInput = -1;
+        private static double xPosDisplay = -1;
+        private static double yPosDisplay = -1;
+        /// <summary>
+        /// Set the startup coordinates (top left) for most dialoges.  This should be set before the dialog is called.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The X coordinate.</param>
+        /// <param name="mode">The mode which is one of the following
+        /// 0 : Off (default)
+        /// 1 : The coordinates are relative to the graphics window, equivalent to GraphicsWindow.MouseX/Y.
+        /// 2 : The coordinates are relative to the display window, equivalent to Desktop.MouseX/Y</param>
+        public static void SetStartupPosition(Primitive x, Primitive y, Primitive mode)
+        {
+            eStartupMode = (StartupMode)(int)mode;
+            xPosInput = x;
+            yPosInput = y;
         }
 
         /// <summary>
@@ -237,6 +336,7 @@ namespace LitDev
             }
             FormCalendar _FormCalendar = new FormCalendar(Start);
             _FormCalendar.TopMost = true;
+            StartPosition(_FormCalendar, null);
             _FormCalendar.ShowDialog(Utilities.ForegroundHandle());
             return _FormCalendar.result;
         }
@@ -268,6 +368,7 @@ namespace LitDev
                 Thread thread = new Thread(start);
                 thread.SetApartmentState(ApartmentState.STA);
                 thread.Start();
+                StartPosition(null, "Open");
                 thread.Join();
             }
             catch (Exception ex)
@@ -304,6 +405,7 @@ namespace LitDev
                 Thread thread = new Thread(start);
                 thread.SetApartmentState(ApartmentState.STA);
                 thread.Start();
+                StartPosition(null, "Save As");
                 thread.Join();
             }
             catch (Exception ex)
@@ -338,6 +440,7 @@ namespace LitDev
                 Thread thread = new Thread(start);
                 thread.SetApartmentState(ApartmentState.STA);
                 thread.Start();
+                StartPosition(null, "Browse For Folder");
                 thread.Join();
             }
             catch (Exception ex)
@@ -387,6 +490,7 @@ namespace LitDev
                 Thread thread = new Thread(start);
                 thread.SetApartmentState(ApartmentState.STA);
                 thread.Start();
+                StartPosition(null, "Font");
                 thread.Join();
             }
             catch (Exception ex)
@@ -404,17 +508,33 @@ namespace LitDev
         /// </returns>
         public static Primitive Colour()
         {
-            System.Windows.Forms.ColorDialog colorDialog = new System.Windows.Forms.ColorDialog();
-            colorDialog.AllowFullOpen = true;
-            colorDialog.AnyColor = true;
-            colorDialog.FullOpen = true;
-            colorDialog.SolidColorOnly = false;
-
-            if (colorDialog.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK)
+            string result = "";
+            try
             {
-                return ColorTranslator.ToHtml(colorDialog.Color).ToString();
+                ThreadStart start = delegate
+                {
+                    System.Windows.Forms.ColorDialog dlg = new System.Windows.Forms.ColorDialog();
+                    dlg.AllowFullOpen = true;
+                    dlg.AnyColor = true;
+                    dlg.FullOpen = true;
+                    dlg.SolidColorOnly = false;
+
+                    if (dlg.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK)
+                    {
+                        result = ColorTranslator.ToHtml(dlg.Color).ToString();
+                    }
+                };
+                Thread thread = new Thread(start);
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+                StartPosition(null, "Color");
+                thread.Join();
             }
-            return "";
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return result;
         }
 
         /// <summary>

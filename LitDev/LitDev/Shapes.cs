@@ -85,7 +85,7 @@ namespace LitDev
                     ImageBrush imageBrush = new ImageBrush(img);
                     return imageBrush;
                 }
-                if (orientation == "")
+                if (orientation == "" || orientation.ToString().ToLower() == "r")
                 {
                     RadialGradientBrush radialGradientBrush = new RadialGradientBrush();
                     radialGradientBrush.GradientOrigin = new Point(0.5, 0.5);
@@ -1661,7 +1661,7 @@ namespace LitDev
         /// "V" vertical.
         /// "DU" diagonally up.
         /// "DD" diagonally down.
-        /// "" radial gradient.
+        /// "R"  radial (default if "")
         /// </param>
         /// <returns>The gradient brush name.</returns>
         public static Primitive BrushGradient(Primitive colours, Primitive orientation)

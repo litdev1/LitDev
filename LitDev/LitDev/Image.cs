@@ -20,9 +20,11 @@ using Microsoft.SmallBasic.Library.Internal;
 using Svg;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SBArray = Microsoft.SmallBasic.Library.Array;
 
@@ -1433,6 +1435,58 @@ namespace LitDev
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return "";
+            }
+        }
+
+        /// <summary>
+        /// Create a new single colored 32bitARGB image in ImageList.
+        /// </summary>
+        /// <param name="width">The width of the new image.</param>
+        /// <param name="height">The height of the new image.</param>
+        /// <param name="colour">The colour of the new image.</param>
+        /// <returns>The Name of the new created ImageList image on success, else "".</returns>
+        public static Primitive NewImage(Primitive width, Primitive height, Primitive colour)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Type ShapesType = typeof(Shapes);
+                Dictionary<string, BitmapSource> _savedImages;
+
+                try
+                {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            MethodInfo methodInfo = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                            string imageName = methodInfo.Invoke(null, new object[] { "ImageList" }).ToString();
+
+                            Bitmap img = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                            System.Drawing.ColorConverter colConvert = new System.Drawing.ColorConverter();
+
+                            Graphics.FromImage(img).FillRectangle(new SolidBrush((System.Drawing.Color)colConvert.ConvertFromString(colour)), 0, 0, width, height);
+
+                            _savedImages[imageName] = getBitmapImage(img);
+                            return imageName;
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    return "";
+                }
             }
         }
     }
