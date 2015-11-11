@@ -34,6 +34,12 @@ namespace LitDev
 
         private static GraphEngine _Engine = new GraphEngine();
 
+        [HideFromIntellisense]
+        public static void AddSeriesHitogram(Primitive graphName, Primitive seriesLabel, Primitive data, Primitive colour)
+        {
+            AddSeriesHistogram(graphName, seriesLabel, data, colour);
+        }
+
         /// <summary>
         /// Create a graph.
         /// </summary>
@@ -126,7 +132,7 @@ namespace LitDev
         /// <returns>
         /// None.
         /// </returns>
-        public static void AddSeriesHitogram(Primitive graphName, Primitive seriesLabel, Primitive data, Primitive colour)
+        public static void AddSeriesHistogram(Primitive graphName, Primitive seriesLabel, Primitive data, Primitive colour)
         {
             _Engine.addSeries(graphName, seriesLabel, data, colour, eLineType.HISTOGRAM);
         }

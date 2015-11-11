@@ -277,7 +277,7 @@ namespace TestHarness
             }
             Primitive dist = LDStatistics.InterpolateX(LDStatistics.Integrate(data), array);
             Primitive freq = LDStatistics.Frequency(dist, 50, "True");
-            LDGraph.AddSeriesHitogram(graph, "Generated", freq, "Black");
+            LDGraph.AddSeriesHistogram(graph, "Generated", freq, "Black");
             LDStatistics.SetArray(dist);
             TextWindow.WriteLine(LDStatistics.Mean);
             TextWindow.WriteLine(LDStatistics.SDev);
@@ -497,7 +497,7 @@ namespace TestHarness
             //    data[i] = SBMath.GetRandomNumber(100) * 1.075;
             //}
             //Primitive graph = LDGraph.AddGraph(0, 0, GraphicsWindow.Width, GraphicsWindow.Height, "Title", "X", "Y");
-            //LDGraph.AddSeriesHitogram(graph, "Lable", data, "Blue");
+            //LDGraph.AddSeriesHistogram(graph, "Lable", data, "Blue");
         }
 
         private void buttonZip_Click(object sender, EventArgs e)
