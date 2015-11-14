@@ -97,6 +97,7 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Expression.Effects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.JScript" />
     <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -224,6 +225,7 @@
     <Compile Include="Box2D\Box2D.Dynamics\World.cs" />
     <Compile Include="Box2D\Box2D.Dynamics\WorldCallback.cs" />
     <Compile Include="Box2D\Box2D\Box2DXDebug.cs" />
+    <Compile Include="LitDev\Effects.cs" />
     <Compile Include="LitDev\Logic.cs" />
     <Compile Include="LitDev\Clipboard.cs" />
     <Compile Include="LitDev\Chart.cs" />
@@ -482,6 +484,7 @@
     <Content Include="License.txt" />
     <Content Include="Resources\iowkit32.dll" />
     <Content Include="Resources\iowkit64.dll" />
+    <None Include="Resources\Microsoft.Expression.Effects.dll" />
     <None Include="Resources\stepout.png" />
     <None Include="Resources\SQLite.Interop64.dll" />
     <None Include="Resources\SQLite.Interop32.dll" />

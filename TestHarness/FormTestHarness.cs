@@ -613,6 +613,8 @@ namespace TestHarness
                 System.IO.File.Copy(Application.StartupPath + "\\Svg.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Svg.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\IWshRuntimeLibrary.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\IWshRuntimeLibrary.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\Interop.Shell32.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Interop.Shell32.dll", true);
+                //System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Effects.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Effects.dll", true);
+                //System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Interactions.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Interactions.dll", true);
             }
             catch (Exception ex)
             {
@@ -702,6 +704,10 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive shape = Shapes.AddRectangle(100, 100);
+            LDEffect.Bloom(shape,"");
+            Program.Delay(1000);
+
             LDControls.AddDataView(GraphicsWindow.Width, GraphicsWindow.Height, "1=Hello;2=World;");
 
             //string _urlTemplate = "https://api.flickr.com/services/rest/?sort=interestingness-desc&safe_search=1&license=1,2,3,4,5,6,7&api_key=";
