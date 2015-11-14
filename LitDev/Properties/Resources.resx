@@ -190,4 +190,7 @@
   <data name="Microsoft_Expression_Effects" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Microsoft.Expression.Effects.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="Microsoft_Expression_Drawing" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Microsoft.Expression.Drawing.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

@@ -17,8 +17,6 @@
 
 using Microsoft.SmallBasic.Library;
 using System;
-using System.Net.Mail;
-using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Windows;
 using System.Reflection;
@@ -73,115 +71,122 @@ namespace LitDev
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
                     {
-                        switch(effect)
+                        try
                         {
-                            case eEffect.NONE:
-                                obj.Effect = null;
-                                break;
-                            case eEffect.DROPSHADOW:
-                                obj.Effect = new DropShadowEffect();
-                                if (SBArray.ContainsIndex(properties, "BlurRadius")) obj.Effect.SetValue(DropShadowEffect.BlurRadiusProperty, (double)properties["BlurRadius"]);
-                                if (SBArray.ContainsIndex(properties, "Color")) obj.Effect.SetValue(DropShadowEffect.ColorProperty, (Color)ColorConverter.ConvertFromString(properties["Color"]));
-                                if (SBArray.ContainsIndex(properties, "Direction")) obj.Effect.SetValue(DropShadowEffect.DirectionProperty, (double)properties["Direction"]);
-                                if (SBArray.ContainsIndex(properties, "Opacity")) obj.Effect.SetValue(DropShadowEffect.OpacityProperty, (double)properties["Opacity"]);
-                                if (SBArray.ContainsIndex(properties, "ShadowDepth")) obj.Effect.SetValue(DropShadowEffect.ShadowDepthProperty, (double)properties["ShadowDepth"]);
-                                break;
-                            case eEffect.BLUR:
-                                obj.Effect = new BlurEffect();
-                                if (SBArray.ContainsIndex(properties, "KernelType"))
-                                {
-                                    string value = properties["KernelType"];
-                                    obj.Effect.SetValue(BlurEffect.KernelTypeProperty, value.ToLower() == "box" ? KernelType.Box : KernelType.Gaussian);
-                                }
-                                if (SBArray.ContainsIndex(properties, "Radius")) obj.Effect.SetValue(BlurEffect.RadiusProperty, (double)properties["Radius"]);
-                                break;
-                            case eEffect.BLOOM:
-                                obj.Effect = new BloomEffect();
-                                if (SBArray.ContainsIndex(properties, "BaseIntensity")) obj.Effect.SetValue(BloomEffect.BaseIntensityProperty, (double)properties["BaseIntensity"]);
-                                if (SBArray.ContainsIndex(properties, "BaseSaturation")) obj.Effect.SetValue(BloomEffect.BaseSaturationProperty, (double)properties["BaseSaturation"]);
-                                if (SBArray.ContainsIndex(properties, "BloomIntensity")) obj.Effect.SetValue(BloomEffect.BloomIntensityProperty, (double)properties["BloomIntensity"]);
-                                if (SBArray.ContainsIndex(properties, "BloomSaturation")) obj.Effect.SetValue(BloomEffect.BloomSaturationProperty, (double)properties["BloomSaturation"]);
-                                if (SBArray.ContainsIndex(properties, "Threshold")) obj.Effect.SetValue(BloomEffect.ThresholdProperty, (double)properties["Threshold"]);
-                                break;
-                            case eEffect.COLORTONE:
-                                obj.Effect = new ColorToneEffect();
-                                if (SBArray.ContainsIndex(properties, "DarkColor")) obj.Effect.SetValue(ColorToneEffect.DarkColorProperty, (Color)ColorConverter.ConvertFromString(properties["DarkColor"]));
-                                if (SBArray.ContainsIndex(properties, "Desaturation")) obj.Effect.SetValue(ColorToneEffect.DesaturationProperty, (double)properties["Desaturation"]);
-                                if (SBArray.ContainsIndex(properties, "LightColor")) obj.Effect.SetValue(ColorToneEffect.LightColorProperty, (Color)ColorConverter.ConvertFromString(properties["LightColor"]));
-                                if (SBArray.ContainsIndex(properties, "ToneAmount")) obj.Effect.SetValue(ColorToneEffect.ToneAmountProperty, (double)properties["ToneAmount"]);
-                                break;
-                            case eEffect.EMBOSSED:
-                                obj.Effect = new EmbossedEffect();
-                                if (SBArray.ContainsIndex(properties, "Amount")) obj.Effect.SetValue(EmbossedEffect.AmountProperty, (double)properties["Amount"]);
-                                if (SBArray.ContainsIndex(properties, "Color")) obj.Effect.SetValue(EmbossedEffect.ColorProperty, (Color)ColorConverter.ConvertFromString(properties["Color"]));
-                                if (SBArray.ContainsIndex(properties, "Height")) obj.Effect.SetValue(EmbossedEffect.HeightProperty, (double)properties["Height"]);
-                                break;
-                            case eEffect.MAGNIFY:
-                                obj.Effect = new MagnifyEffect();
-                                if (SBArray.ContainsIndex(properties, "Amount")) obj.Effect.SetValue(MagnifyEffect.AmountProperty, (double)properties["Amount"]);
-                                if (SBArray.ContainsIndex(properties, "Center"))
-                                {
-                                    Primitive center = properties["Center"];
-                                    Point point = new Point(0.5, 0.5);
-                                    if (SBArray.GetItemCount(center) == 2)
+                            switch (effect)
+                            {
+                                case eEffect.NONE:
+                                    obj.Effect = null;
+                                    break;
+                                case eEffect.DROPSHADOW:
+                                    obj.Effect = new DropShadowEffect();
+                                    if (SBArray.ContainsIndex(properties, "BlurRadius")) obj.Effect.SetValue(DropShadowEffect.BlurRadiusProperty, (double)properties["BlurRadius"]);
+                                    if (SBArray.ContainsIndex(properties, "Color")) obj.Effect.SetValue(DropShadowEffect.ColorProperty, (Color)ColorConverter.ConvertFromString(properties["Color"]));
+                                    if (SBArray.ContainsIndex(properties, "Direction")) obj.Effect.SetValue(DropShadowEffect.DirectionProperty, (double)properties["Direction"]);
+                                    if (SBArray.ContainsIndex(properties, "Opacity")) obj.Effect.SetValue(DropShadowEffect.OpacityProperty, (double)properties["Opacity"]);
+                                    if (SBArray.ContainsIndex(properties, "ShadowDepth")) obj.Effect.SetValue(DropShadowEffect.ShadowDepthProperty, (double)properties["ShadowDepth"]);
+                                    break;
+                                case eEffect.BLUR:
+                                    obj.Effect = new BlurEffect();
+                                    if (SBArray.ContainsIndex(properties, "KernelType"))
                                     {
-                                        Primitive indices = SBArray.GetAllIndices(center);
-                                        point.X = center[indices[1]];
-                                        point.Y = center[indices[2]];
+                                        string value = properties["KernelType"];
+                                        obj.Effect.SetValue(BlurEffect.KernelTypeProperty, value.ToLower() == "box" ? KernelType.Box : KernelType.Gaussian);
                                     }
-                                    obj.Effect.SetValue(MagnifyEffect.CenterProperty, point);
-                                }
-                                if (SBArray.ContainsIndex(properties, "InnerRadius")) obj.Effect.SetValue(MagnifyEffect.InnerRadiusProperty, (double)properties["InnerRadius"]);
-                                if (SBArray.ContainsIndex(properties, "OuterRadius")) obj.Effect.SetValue(MagnifyEffect.OuterRadiusProperty, (double)properties["OuterRadius"]);
-                                break;
-                            case eEffect.MONOCHROME:
-                                obj.Effect = new MonochromeEffect();
-                                if (SBArray.ContainsIndex(properties, "Color")) obj.Effect.SetValue(MonochromeEffect.ColorProperty, (Color)ColorConverter.ConvertFromString(properties["Color"]));
-                                break;
-                            case eEffect.PIXELATE:
-                                obj.Effect = new PixelateEffect();
-                                if (SBArray.ContainsIndex(properties, "Pixelation")) obj.Effect.SetValue(PixelateEffect.PixelationProperty, (double)properties["Pixelation"]);
-                                break;
-                            case eEffect.RIPPLE:
-                                obj.Effect = new RippleEffect();
-                                if (SBArray.ContainsIndex(properties, "Center"))
-                                {
-                                    Primitive center = properties["Center"];
-                                    Point point = new Point(0.5, 0.5);
-                                    if (SBArray.GetItemCount(center) == 2)
+                                    if (SBArray.ContainsIndex(properties, "Radius")) obj.Effect.SetValue(BlurEffect.RadiusProperty, (double)properties["Radius"]);
+                                    break;
+                                case eEffect.BLOOM:
+                                    obj.Effect = new BloomEffect();
+                                    if (SBArray.ContainsIndex(properties, "BaseIntensity")) obj.Effect.SetValue(BloomEffect.BaseIntensityProperty, (double)properties["BaseIntensity"]);
+                                    if (SBArray.ContainsIndex(properties, "BaseSaturation")) obj.Effect.SetValue(BloomEffect.BaseSaturationProperty, (double)properties["BaseSaturation"]);
+                                    if (SBArray.ContainsIndex(properties, "BloomIntensity")) obj.Effect.SetValue(BloomEffect.BloomIntensityProperty, (double)properties["BloomIntensity"]);
+                                    if (SBArray.ContainsIndex(properties, "BloomSaturation")) obj.Effect.SetValue(BloomEffect.BloomSaturationProperty, (double)properties["BloomSaturation"]);
+                                    if (SBArray.ContainsIndex(properties, "Threshold")) obj.Effect.SetValue(BloomEffect.ThresholdProperty, (double)properties["Threshold"]);
+                                    break;
+                                case eEffect.COLORTONE:
+                                    obj.Effect = new ColorToneEffect();
+                                    if (SBArray.ContainsIndex(properties, "DarkColor")) obj.Effect.SetValue(ColorToneEffect.DarkColorProperty, (Color)ColorConverter.ConvertFromString(properties["DarkColor"]));
+                                    if (SBArray.ContainsIndex(properties, "Desaturation")) obj.Effect.SetValue(ColorToneEffect.DesaturationProperty, (double)properties["Desaturation"]);
+                                    if (SBArray.ContainsIndex(properties, "LightColor")) obj.Effect.SetValue(ColorToneEffect.LightColorProperty, (Color)ColorConverter.ConvertFromString(properties["LightColor"]));
+                                    if (SBArray.ContainsIndex(properties, "ToneAmount")) obj.Effect.SetValue(ColorToneEffect.ToneAmountProperty, (double)properties["ToneAmount"]);
+                                    break;
+                                case eEffect.EMBOSSED:
+                                    obj.Effect = new EmbossedEffect();
+                                    if (SBArray.ContainsIndex(properties, "Amount")) obj.Effect.SetValue(EmbossedEffect.AmountProperty, (double)properties["Amount"]);
+                                    if (SBArray.ContainsIndex(properties, "Color")) obj.Effect.SetValue(EmbossedEffect.ColorProperty, (Color)ColorConverter.ConvertFromString(properties["Color"]));
+                                    if (SBArray.ContainsIndex(properties, "Height")) obj.Effect.SetValue(EmbossedEffect.HeightProperty, (double)properties["Height"]);
+                                    break;
+                                case eEffect.MAGNIFY:
+                                    obj.Effect = new MagnifyEffect();
+                                    if (SBArray.ContainsIndex(properties, "Amount")) obj.Effect.SetValue(MagnifyEffect.AmountProperty, (double)properties["Amount"]);
+                                    if (SBArray.ContainsIndex(properties, "Center"))
                                     {
-                                        Primitive indices = SBArray.GetAllIndices(center);
-                                        point.X = center[indices[1]];
-                                        point.Y = center[indices[2]];
+                                        Primitive center = properties["Center"];
+                                        Point point = new Point(0.5, 0.5);
+                                        if (SBArray.GetItemCount(center) == 2)
+                                        {
+                                            Primitive indices = SBArray.GetAllIndices(center);
+                                            point.X = center[indices[1]];
+                                            point.Y = center[indices[2]];
+                                        }
+                                        obj.Effect.SetValue(MagnifyEffect.CenterProperty, point);
                                     }
-                                    obj.Effect.SetValue(RippleEffect.CenterProperty, point);
-                                }
-                                if (SBArray.ContainsIndex(properties, "Frequency")) obj.Effect.SetValue(RippleEffect.FrequencyProperty, (double)properties["Frequency"]);
-                                if (SBArray.ContainsIndex(properties, "Magnitude")) obj.Effect.SetValue(RippleEffect.MagnitudeProperty, (double)properties["Magnitude"]);
-                                if (SBArray.ContainsIndex(properties, "Phase")) obj.Effect.SetValue(RippleEffect.PhaseProperty, (double)properties["Phase"]);
-                                break;
-                            case eEffect.SHARPEN:
-                                obj.Effect = new SharpenEffect();
-                                if (SBArray.ContainsIndex(properties, "Amount")) obj.Effect.SetValue(SharpenEffect.AmountProperty, (double)properties["Amount"]);
-                                if (SBArray.ContainsIndex(properties, "Height")) obj.Effect.SetValue(SharpenEffect.HeightProperty, (double)properties["Height"]);
-                                break;
-                            case eEffect.SWIRL:
-                                obj.Effect = new SwirlEffect();
-                                if (SBArray.ContainsIndex(properties, "AngleFrequency")) obj.Effect.SetValue(SwirlEffect.AngleFrequencyProperty, (double)properties["AngleFrequency"]);
-                                if (SBArray.ContainsIndex(properties, "Center"))
-                                {
-                                    Primitive center = properties["Center"];
-                                    Point point = new Point(0.5, 0.5);
-                                    if (SBArray.GetItemCount(center) == 2)
+                                    if (SBArray.ContainsIndex(properties, "InnerRadius")) obj.Effect.SetValue(MagnifyEffect.InnerRadiusProperty, (double)properties["InnerRadius"]);
+                                    if (SBArray.ContainsIndex(properties, "OuterRadius")) obj.Effect.SetValue(MagnifyEffect.OuterRadiusProperty, (double)properties["OuterRadius"]);
+                                    break;
+                                case eEffect.MONOCHROME:
+                                    obj.Effect = new MonochromeEffect();
+                                    if (SBArray.ContainsIndex(properties, "Color")) obj.Effect.SetValue(MonochromeEffect.ColorProperty, (Color)ColorConverter.ConvertFromString(properties["Color"]));
+                                    break;
+                                case eEffect.PIXELATE:
+                                    obj.Effect = new PixelateEffect();
+                                    if (SBArray.ContainsIndex(properties, "Pixelation")) obj.Effect.SetValue(PixelateEffect.PixelationProperty, (double)properties["Pixelation"]);
+                                    break;
+                                case eEffect.RIPPLE:
+                                    obj.Effect = new RippleEffect();
+                                    if (SBArray.ContainsIndex(properties, "Center"))
                                     {
-                                        Primitive indices = SBArray.GetAllIndices(center);
-                                        point.X = center[indices[1]];
-                                        point.Y = center[indices[2]];
+                                        Primitive center = properties["Center"];
+                                        Point point = new Point(0.5, 0.5);
+                                        if (SBArray.GetItemCount(center) == 2)
+                                        {
+                                            Primitive indices = SBArray.GetAllIndices(center);
+                                            point.X = center[indices[1]];
+                                            point.Y = center[indices[2]];
+                                        }
+                                        obj.Effect.SetValue(RippleEffect.CenterProperty, point);
                                     }
-                                    obj.Effect.SetValue(SwirlEffect.CenterProperty, point);
-                                }
-                                if (SBArray.ContainsIndex(properties, "TwistAmount")) obj.Effect.SetValue(SwirlEffect.TwistAmountProperty, (double)properties["TwistAmount"]);
-                                break;
+                                    if (SBArray.ContainsIndex(properties, "Frequency")) obj.Effect.SetValue(RippleEffect.FrequencyProperty, (double)properties["Frequency"]);
+                                    if (SBArray.ContainsIndex(properties, "Magnitude")) obj.Effect.SetValue(RippleEffect.MagnitudeProperty, (double)properties["Magnitude"]);
+                                    if (SBArray.ContainsIndex(properties, "Phase")) obj.Effect.SetValue(RippleEffect.PhaseProperty, (double)properties["Phase"]);
+                                    break;
+                                case eEffect.SHARPEN:
+                                    obj.Effect = new SharpenEffect();
+                                    if (SBArray.ContainsIndex(properties, "Amount")) obj.Effect.SetValue(SharpenEffect.AmountProperty, (double)properties["Amount"]);
+                                    if (SBArray.ContainsIndex(properties, "Height")) obj.Effect.SetValue(SharpenEffect.HeightProperty, (double)properties["Height"]);
+                                    break;
+                                case eEffect.SWIRL:
+                                    obj.Effect = new SwirlEffect();
+                                    if (SBArray.ContainsIndex(properties, "AngleFrequency")) obj.Effect.SetValue(SwirlEffect.AngleFrequencyProperty, (double)properties["AngleFrequency"]);
+                                    if (SBArray.ContainsIndex(properties, "Center"))
+                                    {
+                                        Primitive center = properties["Center"];
+                                        Point point = new Point(0.5, 0.5);
+                                        if (SBArray.GetItemCount(center) == 2)
+                                        {
+                                            Primitive indices = SBArray.GetAllIndices(center);
+                                            point.X = center[indices[1]];
+                                            point.Y = center[indices[2]];
+                                        }
+                                        obj.Effect.SetValue(SwirlEffect.CenterProperty, point);
+                                    }
+                                    if (SBArray.ContainsIndex(properties, "TwistAmount")) obj.Effect.SetValue(SwirlEffect.TwistAmountProperty, (double)properties["TwistAmount"]);
+                                    break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
                     MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);

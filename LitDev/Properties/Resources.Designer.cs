@@ -183,6 +183,16 @@ namespace LitDev.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] Microsoft_Expression_Drawing {
+            get {
+                object obj = ResourceManager.GetObject("Microsoft_Expression_Drawing", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Microsoft_Expression_Effects {
             get {
                 object obj = ResourceManager.GetObject("Microsoft_Expression_Effects", resourceCulture);
