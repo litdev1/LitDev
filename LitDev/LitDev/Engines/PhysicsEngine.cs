@@ -1098,6 +1098,23 @@ namespace LitDev
             }
         }
 
+        public void setGroup(string shapeName, ushort group, ushort mask)
+        {
+            foreach (Sprite i in Sprites)
+            {
+                if (i.name == shapeName)
+                {
+                    for (Shape shape = i.body.GetShapeList(); shape != null; shape = shape._next)
+                    {
+                        FilterData filterData = shape.FilterData;
+                        filterData.CategoryBits = group;
+                        filterData.MaskBits = mask;
+                        shape.FilterData = filterData;
+                    }
+                }
+            }
+        }
+
         public void setBoundaries(float leftS, float rightS, float topS, float bottomS)
         {
             if (leftS < 0)

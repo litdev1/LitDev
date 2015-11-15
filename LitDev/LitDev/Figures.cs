@@ -100,6 +100,7 @@ namespace LitDev
                                     shape.StartAngle = properties[0];
                                     shape.EndAngle = properties[1];
                                     shape.ArcThickness = properties[2];
+                                    shape.ArcThicknessUnit = Microsoft.Expression.Media.UnitType.Pixel;
                                 }
                                 break;
                             case eFigure.BLOCKARROW:
@@ -291,7 +292,7 @@ namespace LitDev
         /// <param name="height">The height of the shape.</param>
         /// <param name="startAngle">The starting angle in degrees.</param>
         /// <param name="endAngle">The ending angle in degrees.</param>
-        /// <param name="thickness">The thickness of the arc.</param>
+        /// <param name="thickness">The thickness of the arc in pixels.</param>
         /// <returns>The shape name.</returns>
         public static Primitive AddArc(Primitive width, Primitive height, Primitive startAngle, Primitive endAngle, Primitive thickness)
         {
@@ -331,7 +332,7 @@ namespace LitDev
         /// </summary>
         /// <param name="width">The width of the shape.</param>
         /// <param name="height">The height of the shape.</param>
-        /// <param name="size">The size of the arrow head.</param>
+        /// <param name="size">The size of the arrow head in pixels.</param>
         /// <param name="bend">The arrow bend amount (e.g. 0 is straight, 0.5 is smoothly bending).</param>
         /// <param name="startArrow">The start arrow type: "None", "Arrow", "Open", "Oval" or "Stealth".</param>
         /// <param name="endArrow">The end arrow type: "None", "Arrow", "Open", "Oval" or "Stealth".</param>

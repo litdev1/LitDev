@@ -942,6 +942,40 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Control which sprites interact (collide) with other shapes.
+        /// </summary>
+        /// <param name="shapeName">
+        /// The shape to modify.
+        /// </param>
+        /// <param name="group">
+        /// The group that the current shape belongs to (default 0).  This should be an integer between 0 and 7.
+        /// </param>
+        /// <param name="mask">
+        /// An array of groups that this shape will collide with (default all groups).
+        /// </param>
+        /// <returns>
+        /// None.
+        /// </returns>
+        public static void SetGroup(Primitive shapeName, Primitive group, Primitive mask)
+        {
+            ushort groupBits = (ushort)System.Math.Pow(2, group);
+            ushort maskBits = 0;
+            if (SBArray.IsArray(mask))
+            {
+                Primitive indices = SBArray.GetAllIndices(mask);
+                for (int i = 1; i <= SBArray.GetItemCount(mask); i++)
+                {
+                    maskBits += (ushort)System.Math.Pow(2, mask[indices[i]]);
+                }
+            }
+            else
+            {
+                maskBits += (ushort)System.Math.Pow(2, mask);
+            }
+            _Engine.setGroup(shapeName, groupBits, maskBits);
+        }
+
+        /// <summary>
         /// Set the gravity direction and magnitude (default 0,100).
         /// </summary>
         /// <param name="gravX">
