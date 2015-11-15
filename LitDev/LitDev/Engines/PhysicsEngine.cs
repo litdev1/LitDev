@@ -42,6 +42,7 @@ using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -681,6 +682,8 @@ namespace LitDev
         // (1)
         public override void Add(ContactPoint point)
         {
+            engine.ContactPoints.Add(point);
+
             if (null != point.Shape1.UserData && point.Shape1.UserData.GetType() != typeof(Sprite)) return;
             if (null != point.Shape2.UserData && point.Shape2.UserData.GetType() != typeof(Sprite)) return;
 
@@ -788,6 +791,7 @@ namespace LitDev
         public Vec2 rangeAABB, centreAABB, minAABBB, maxAABBB;
         public List<Tire> Tires = new List<Tire>();
         public Vec2 panViewP; // the offset view in Engine coordinates posP = posS / scale + panViewP
+        public List<ContactPoint> ContactPoints = new List<ContactPoint>();
 
         public PhysicsEngine()
         {
@@ -1700,6 +1704,7 @@ namespace LitDev
         public void doTimestep()
         {
             //Reset collisions
+            ContactPoints.Clear();
             foreach (Sprite i in Sprites)
             {
                 i.Collisions.Clear();
@@ -1842,6 +1847,27 @@ namespace LitDev
                 }
             }
             return collisions;
+        }
+
+        public Primitive getContacts(float[] position, float distance)
+        {
+            Primitive contacts = "";
+            int i = 1;
+            foreach (ContactPoint point in ContactPoints)
+            {
+                float posX = scale * (point.Position.X);
+                float posY = scale * (point.Position.Y);
+                double dist = System.Math.Sqrt((posX - position[0]) * (posX - position[0]) + (posY - position[1]) * (posY - position[1]));
+                if (dist < distance)
+                {
+                    Sprite sprite1 = (Sprite)point.Shape1.UserData;
+                    Sprite sprite2 = (Sprite)point.Shape2.UserData;
+                    string shape1 = null == sprite1 ? "Wall" : sprite1.name;
+                    string shape2 = null == sprite2 ? "Wall" : sprite2.name;
+                    contacts[i++] = "1=" + Utilities.ArrayParse(shape1) + ";2=" + Utilities.ArrayParse(shape2) + ";";
+                }
+            }
+            return Utilities.CreateArrayMap(contacts);
         }
 
         public void setPosition(string shapeName, float posXS, float posYS, float angleS)

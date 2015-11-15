@@ -604,6 +604,26 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Get a list of shapes that collided within a distance of a specified contact point.
+        /// </summary>
+        /// <param name="x">
+        /// The X coordinate of a contact position to check.
+        /// </param>
+        /// <param name="y">
+        /// The Y coordinate of a contact position to check.
+        /// </param>
+        /// <param name="distance">
+        /// A maximum distance from the contact point for the contact.
+        /// </param>
+        /// <returns>
+        /// An array of contacts, with each contact being an array of 2 shape names.
+        /// </returns>
+        public static Primitive GetContacts(Primitive x, Primitive y, Primitive distance)
+        {
+            return _Engine.getContacts(new float[] { x, y }, distance);
+        }
+
+        /// <summary>
         /// Get the shape rotation speed.
         /// </summary>
         /// <param name="shapeName">
