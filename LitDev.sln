@@ -76,19 +76,4 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://todman-lenovo:8080/tfs/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = HelixToolkit.Wpf\\HelixToolkit.csproj
-		SccProjectName1 = HelixToolkit.Wpf
-		SccLocalPath1 = HelixToolkit.Wpf
-		SccProjectUniqueName2 = LitDev\\LitDev.csproj
-		SccProjectName2 = LitDev
-		SccLocalPath2 = LitDev
-		SccProjectUniqueName3 = TestHarness\\TestHarness.csproj
-		SccProjectName3 = TestHarness
-		SccLocalPath3 = TestHarness
-	EndGlobalSection
 EndGlobal

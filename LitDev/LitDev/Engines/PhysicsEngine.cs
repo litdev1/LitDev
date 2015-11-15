@@ -674,18 +674,21 @@ namespace LitDev
     class SpriteContactListener : ContactListener
     {
         private PhysicsEngine engine;
-        public SpriteContactListener(PhysicsEngine _engine)
+        private World world;
+        public SpriteContactListener(PhysicsEngine _engine, World _world)
         {
             engine = _engine;
+            world = _world;
         }
 
         // (1)
         public override void Add(ContactPoint point)
         {
-            engine.ContactPoints.Add(point);
-
+            if (!world._contactFilter.ShouldCollide(point.Shape1, point.Shape2)) return;
             if (null != point.Shape1.UserData && point.Shape1.UserData.GetType() != typeof(Sprite)) return;
             if (null != point.Shape2.UserData && point.Shape2.UserData.GetType() != typeof(Sprite)) return;
+
+            engine.ContactPoints.Add(point);
 
             Sprite _Sprite1, _Sprite2;
 
@@ -870,7 +873,7 @@ namespace LitDev
             bool doSleep = true;
             world = new World(worldAABB, gravity, doSleep);
 
-            contactListener = new SpriteContactListener(this);
+            contactListener = new SpriteContactListener(this, world);
             world.SetContactListener(contactListener);
 
             GraphicsWindow.Show();
@@ -1849,7 +1852,7 @@ namespace LitDev
             return collisions;
         }
 
-        public Primitive getContacts(float[] position, float distance)
+        public Primitive getContacts(float x, float y, float distance)
         {
             Primitive contacts = "";
             int i = 1;
@@ -1857,7 +1860,7 @@ namespace LitDev
             {
                 float posX = scale * (point.Position.X);
                 float posY = scale * (point.Position.Y);
-                double dist = System.Math.Sqrt((posX - position[0]) * (posX - position[0]) + (posY - position[1]) * (posY - position[1]));
+                double dist = System.Math.Sqrt((posX - x) * (posX - x) + (posY - y) * (posY - y));
                 if (dist < distance)
                 {
                     Sprite sprite1 = (Sprite)point.Shape1.UserData;

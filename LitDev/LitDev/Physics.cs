@@ -620,7 +620,7 @@ namespace LitDev
         /// </returns>
         public static Primitive GetContacts(Primitive x, Primitive y, Primitive distance)
         {
-            return _Engine.getContacts(new float[] { x, y }, distance);
+            return _Engine.getContacts(x, y, distance);
         }
 
         /// <summary>
