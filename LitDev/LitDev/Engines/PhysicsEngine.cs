@@ -1852,7 +1852,7 @@ namespace LitDev
             return collisions;
         }
 
-        public Primitive getContacts(float x, float y, float distance)
+        public Primitive getContacts(float posXS, float posYS, float distance)
         {
             Primitive contacts = "";
             int i = 1;
@@ -1860,7 +1860,7 @@ namespace LitDev
             {
                 float posX = scale * (point.Position.X);
                 float posY = scale * (point.Position.Y);
-                double dist = System.Math.Sqrt((posX - x) * (posX - x) + (posY - y) * (posY - y));
+                double dist = System.Math.Sqrt((posX - posXS) * (posX - posXS) + (posY - posYS) * (posY - posYS));
                 if (dist < distance)
                 {
                     Sprite sprite1 = (Sprite)point.Shape1.UserData;
@@ -1873,6 +1873,27 @@ namespace LitDev
             return Utilities.CreateArrayMap(contacts);
         }
 
+        public Primitive getAllShapesAt(float posXS, float posYS)
+        {
+            Primitive shapes = "";
+            Vec2 posP = new Vec2(posXS / scale, posYS / scale) + panViewP;
+            int i = 1;
+            for (Body body = world.GetBodyList(); body != null; body = body._next)
+            {
+                XForm xf = body.GetXForm();
+                for (Shape shape = body.GetShapeList(); shape != null; shape = shape._next)
+                {
+                    if (null != shape.UserData && shape.UserData.GetType() != typeof(Sprite)) continue;
+                    Sprite sprite = (Sprite)shape.UserData;
+                    if (null != sprite && shape.TestPoint(xf, posP))
+                    {
+                        shapes[i++] = sprite.name;
+                    }
+                }
+            }
+            return shapes;
+        }
+        
         public void setPosition(string shapeName, float posXS, float posYS, float angleS)
         {
             foreach (Sprite i in Sprites)

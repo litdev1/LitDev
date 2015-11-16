@@ -606,10 +606,10 @@ namespace LitDev
         /// <summary>
         /// Get a list of shapes that collided within a distance of a specified contact point.
         /// </summary>
-        /// <param name="x">
+        /// <param name="posX">
         /// The X coordinate of a contact position to check.
         /// </param>
-        /// <param name="y">
+        /// <param name="posY">
         /// The Y coordinate of a contact position to check.
         /// </param>
         /// <param name="distance">
@@ -618,9 +618,27 @@ namespace LitDev
         /// <returns>
         /// An array of contacts, with each contact being an array of 2 shape names.
         /// </returns>
-        public static Primitive GetContacts(Primitive x, Primitive y, Primitive distance)
+        public static Primitive GetContacts(Primitive posX, Primitive posY, Primitive distance)
         {
-            return _Engine.getContacts(x, y, distance);
+            return _Engine.getContacts(posX, posY, distance);
+        }
+
+        /// <summary>
+        /// Get an array of all the physics engine shapes (if any) at the input coordinates.
+        /// The coordinates for this method are the screen coordinates if panning is present.
+        /// </summary>
+        /// <param name="posX">
+        /// The X coordinate.
+        /// </param>
+        /// <param name="posY">
+        /// The Y coordinate.
+        /// </param>
+        /// <returns>
+        /// An array of shape names or "".
+        /// </returns>
+        public static Primitive GetAllShapesAt(Primitive posX, Primitive posY)
+        {
+            return _Engine.getAllShapesAt(posX, posY);
         }
 
         /// <summary>
