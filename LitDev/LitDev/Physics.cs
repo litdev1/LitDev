@@ -625,7 +625,7 @@ namespace LitDev
 
         /// <summary>
         /// Get an array of all the physics engine shapes (if any) at the input coordinates.
-        /// The coordinates for this method are the screen coordinates if panning is present.
+        /// The coordinates for this method are the physics engine coordinates if panning is present.
         /// </summary>
         /// <param name="posX">
         /// The X coordinate.

@@ -1876,7 +1876,7 @@ namespace LitDev
         public Primitive getAllShapesAt(float posXS, float posYS)
         {
             Primitive shapes = "";
-            Vec2 posP = new Vec2(posXS / scale, posYS / scale) + panViewP;
+            Vec2 posP = new Vec2(posXS / scale, posYS / scale);
             int i = 1;
             for (Body body = world.GetBodyList(); body != null; body = body._next)
             {

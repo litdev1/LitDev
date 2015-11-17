@@ -20,6 +20,7 @@ using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
@@ -38,6 +39,7 @@ namespace LitDev
         private static StringCollection CB_files;
         private static String CB_text;
         private static String CB_imageName;
+        private static bool CB_imageAlpha = true;
 
         private static void CB_Clear()
         {
@@ -86,7 +88,22 @@ namespace LitDev
         {
             try
             {
-                Clipboard.SetImage(CB_image);
+                if (CB_imageAlpha)
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(CB_image));
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        encoder.Save(ms);
+                        IDataObject dataObject = new DataObject();
+                        dataObject.SetData("PNG", ms, true);
+                        Clipboard.SetDataObject(dataObject, true);
+                    }
+                }
+                else
+                {
+                    Clipboard.SetImage(CB_image);
+                }
             }
             catch (Exception ex)
             {
@@ -208,6 +225,12 @@ namespace LitDev
                 Dictionary<string, BitmapSource> _savedImages;
                 _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_savedImages.TryGetValue((string)imageName, out CB_image)) return "FAILED";
+                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                {
+                    return CB_image.Format.BitsPerPixel == 32;
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                CB_imageAlpha = (bool)method.Invoke(null, new object[] { ret });
 
                 Thread thread = new Thread(CB_SetImage);
                 thread.SetApartmentState(ApartmentState.STA); //Set the thread to STA
