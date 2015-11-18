@@ -20,7 +20,7 @@
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("New object to apply effects to any shape or control");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDEffects", new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("New object to add arrow, arc and callout shapes");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("New object to add arrow, arc, polygons and callout shapes");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("LDFigures", new System.Windows.Forms.TreeNode[] {
             treeNode3});
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("SetGroup method added");
@@ -30,7 +30,7 @@
             treeNode5,
             treeNode6,
             treeNode7});
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("SetImage handles alpha channel");
+            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("SetImage handles images with transparency");
             System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("LDClipboard", new System.Windows.Forms.TreeNode[] {
             treeNode9});
             System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Version 1.2.3.0", new System.Windows.Forms.TreeNode[] {
@@ -1474,7 +1474,7 @@
             treeNode2.Name = "Node1";
             treeNode2.Text = "LDEffects";
             treeNode3.Name = "Node1";
-            treeNode3.Text = "New object to add arrow, arc and callout shapes";
+            treeNode3.Text = "New object to add arrow, arc, polygons and callout shapes";
             treeNode4.Name = "Node0";
             treeNode4.Text = "LDFigures";
             treeNode5.Name = "Node1";
@@ -1486,7 +1486,7 @@
             treeNode8.Name = "Node0";
             treeNode8.Text = "LDPhysics";
             treeNode9.Name = "Node2";
-            treeNode9.Text = "SetImage handles alpha channel";
+            treeNode9.Text = "SetImage handles images with transparency";
             treeNode10.Name = "Node1";
             treeNode10.Text = "LDClipboard";
             treeNode11.Name = "Node0";

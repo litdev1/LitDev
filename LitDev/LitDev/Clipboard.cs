@@ -64,14 +64,34 @@ namespace LitDev
             {
                 try
                 {
-                    if (!Clipboard.ContainsImage()) return "FAILED";
+                    BitmapImage image = new BitmapImage();
+                    try
+                    {
+                        _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                        MethodInfo methodInfo = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                        string imageName = methodInfo.Invoke(null, new object[] { "ImageList" }).ToString();
 
-                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                    MethodInfo methodInfo = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    string imageName = methodInfo.Invoke(null, new object[] { "ImageList" }).ToString();
+                        if (Clipboard.ContainsImage())
+                        {
+                            _savedImages[imageName] = Clipboard.GetImage();
+                            return imageName;
+                        }
+                        else
+                        {
+                            IDataObject dataObject = Clipboard.GetDataObject();
+                            MemoryStream ms = (MemoryStream)dataObject.GetData("PNG");
+                            image.BeginInit();
+                            image.StreamSource = ms;
+                            image.EndInit();
 
-                    _savedImages[imageName] = Clipboard.GetImage();
-                    return imageName;
+                            _savedImages[imageName] = image;
+                            return imageName;
+                        }
+                    }
+                    catch
+                    {
+                        return "FAILED";
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -225,12 +245,7 @@ namespace LitDev
                 Dictionary<string, BitmapSource> _savedImages;
                 _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_savedImages.TryGetValue((string)imageName, out CB_image)) return "FAILED";
-                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
-                {
-                    return CB_image.Format.BitsPerPixel == 32;
-                });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                CB_imageAlpha = (bool)method.Invoke(null, new object[] { ret });
+                if (null == CB_image) return "FAILED";
 
                 Thread thread = new Thread(CB_SetImage);
                 thread.SetApartmentState(ApartmentState.STA); //Set the thread to STA
@@ -368,6 +383,16 @@ namespace LitDev
             {
                 Utilities.formEvents.ClipBoardChangedDelegate = null;
             }
+        }
+
+        /// <summary>
+        /// Use an extended format for SetImage that includes transparency ("True" default or "False").
+        /// This extended format may not be recognised by some applications when pasted.
+        /// </summary>
+        public static Primitive ImageTransparency
+        {
+            get { return CB_imageAlpha; }
+            set { CB_imageAlpha = value; }
         }
     }
 }
