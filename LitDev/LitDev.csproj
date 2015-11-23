@@ -108,6 +108,10 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="ReachFramework" />
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="SmallBasicLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\SmallBasicLibrary.dll</HintPath>
@@ -226,6 +230,7 @@
     <Compile Include="Box2D\Box2D.Dynamics\World.cs" />
     <Compile Include="Box2D\Box2D.Dynamics\WorldCallback.cs" />
     <Compile Include="Box2D\Box2D\Box2DXDebug.cs" />
+    <Compile Include="LitDev\Engines\SlimDX.cs" />
     <Compile Include="LitDev\Figures.cs" />
     <Compile Include="LitDev\Effects.cs" />
     <Compile Include="LitDev\Logic.cs" />
@@ -239,6 +244,7 @@
     <Compile Include="LitDev\Forms\FormEvents.Designer.cs">
       <DependentUpon>FormEvents.cs</DependentUpon>
     </Compile>
+    <Compile Include="LitDev\WaveForm.cs" />
     <Compile Include="LitDev\XML.cs" />
     <Compile Include="LitDev\FTP.cs" />
     <Compile Include="LitDev\Engines\BingSearchContainer.cs" />

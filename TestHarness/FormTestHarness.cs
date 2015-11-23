@@ -613,6 +613,7 @@ namespace TestHarness
                 System.IO.File.Copy(Application.StartupPath + "\\Svg.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Svg.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\IWshRuntimeLibrary.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\IWshRuntimeLibrary.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\Interop.Shell32.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Interop.Shell32.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\SlimDX.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\SlimDX.dll", true);
                 //System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Effects.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Effects.dll", true);
                 //System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Interactions.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Interactions.dll", true);
             }
