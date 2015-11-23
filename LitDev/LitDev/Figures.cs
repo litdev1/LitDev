@@ -148,8 +148,8 @@ namespace LitDev
                                     shape.Stroke = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GraphicsWindow.PenColor));
                                     shape.StrokeThickness = GraphicsWindow.PenWidth;
 
-                                    shape.PointCount = properties[1];
-                                    shape.InnerRadius = properties[0];
+                                    shape.PointCount = properties[0];
+                                    shape.InnerRadius = properties[1];
                                 }
                                 break;
                             case eFigure.CALLOUT:
