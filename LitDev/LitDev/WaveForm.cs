@@ -21,24 +21,36 @@ using System.Linq;
 using Microsoft.SmallBasic.Library;
 using SlimDX.DirectSound;
 using SlimDX.Multimedia;
-using System.Runtime.InteropServices;
 using SBArray = Microsoft.SmallBasic.Library.Array;
+using System.Threading;
 
 //Based on https://www.insecure.ws/2010/03/09/control-rc-aircrafts-from-your-computer-for-0
 
 namespace LitDev
 {
     /// <summary>
-    /// Create simple sound waveforms.
-    /// SlimDX for .Net 4.0 requires to be installed before this object can be used (http://slimdx.org/download.php).
-    /// Additionally control DX7 PPM (see http://blogs.msdn.com/b/smallbasic/archive/2014/05/10/smallbasic-pulse-position-modulation-extension.aspx).
+    /// Create PPM (Pulse Position Modulation) sound signals to control RC (remote control) devices.
+    /// See http://blogs.msdn.com/b/smallbasic/archive/2014/05/10/smallbasic-pulse-position-modulation-extension.aspx.
+    /// Additonally create simple sound waveforms.
+    /// 
+    /// SlimDX runtme for .Net 4.0 requires to be installed before this object can be used (http://slimdx.org/download.php).
     /// </summary>
     [SmallBasicType]
-    public static class WaveForm
+    public static class LDWaveForm
     {
         private static DirectSound directSound = null;
         private static WaveFormat waveFormat;
         private static short amplitude = 20262;
+        private static bool bAsync = false;
+
+        /// <summary>
+        /// Play the sound asynchronously (return before sound completes), "True" or "False" default.
+        /// </summary>
+        public static Primitive Async
+        {
+            get { return bAsync; }
+            set { bAsync = value; }
+        }
 
         /// <summary>
         /// Signal amplitude (maximum is 2^15 = 32768, default is 20262)
@@ -71,6 +83,71 @@ namespace LitDev
             if (!VerifySlimDX.Verify()) return;
 
             Play(frequency, duration / 1000.0, 2);
+        }
+
+        /// <summary>
+        /// Play a user defined wave form.
+        /// </summary>
+        /// <param name="frequency">Frequency (HZ)</param>
+        /// <param name="duration">Duration (ms)</param>
+        /// <param name="waveform">Form for the repeating wave.
+        /// This is an array, where the index is an increasing relative time (the actual value is normalised to the frequency) and the value is an amplitude (-1 to 1).
+        /// Example of a triangular wave would be "0=-1;1=1;2=-1;"</param>
+        public static void PlayWave(Primitive frequency, Primitive duration, Primitive waveform)
+        {
+            if (!VerifySlimDX.Verify()) return;
+
+            duration = duration / 1000.0; //seconds
+            Initialise();
+            try
+            {
+                int sampleCount = (int)(duration * waveFormat.SamplesPerSecond);
+
+                // buffer description         
+                SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
+                soundBufferDescription.Format = waveFormat;
+                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
+
+                SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+
+                short[] rawsamples = new short[sampleCount];
+                double frac, value;
+
+                Primitive indices = SBArray.GetAllIndices(waveform);
+                int count = SBArray.GetItemCount(waveform);
+                double interval = indices[count] - indices[1];
+                double[] timeFrac = new double[count];
+                double[] timeValue = new double[count];
+                for (int i = 1; i <= count; i++) //Normalise to interval 1;
+                {
+                    timeFrac[i - 1] = (indices[i] - indices[1]) / interval;
+                    timeValue[i - 1] = waveform[indices[i]];
+                }
+
+                for (int i = 0; i < sampleCount; i++)
+                {
+                    frac = frequency * duration * i / (double)sampleCount;
+                    frac = frac - (int)frac;
+                    for (int j = 0; j < count - 1; j++)
+                    {
+                        if (frac >= timeFrac[j] && frac <= timeFrac[j + 1])
+                        {
+                            value = timeValue[j] + (timeValue[j + 1] - timeValue[j]) * (frac - timeFrac[j]) / (timeFrac[j + 1] - timeFrac[j]);
+                            rawsamples[i] = (short)(amplitude * value);
+                            break;
+                        }
+                    }
+                }
+
+                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
+                thread.Start(new Object[] { rawsamples, secondarySoundBuffer });
+                if (!bAsync) thread.Join();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
         }
 
         /// <summary>
@@ -117,21 +194,31 @@ namespace LitDev
                     for (i = 0; i < stopSamples; i++) rawsamples[sample++] = (short)(-amplitude);
                 }
 
-                //load audio samples to secondary buffer
-                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
-
-                //play audio buffer			
-                secondarySoundBuffer.Play(0, PlayFlags.None);
-
-                //wait to complete before returning
-                while ((secondarySoundBuffer.Status & BufferStatus.Playing) != 0);
-
-                secondarySoundBuffer.Dispose();
+                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
+                thread.Start(new Object[] { rawsamples, secondarySoundBuffer });
+                if (!bAsync) thread.Join();
             }
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
+        }
+
+        private static void DoPlay(Object obj)
+        {
+            short[] rawsamples = (short[])((Object[])obj)[0];
+            SecondarySoundBuffer secondarySoundBuffer = (SecondarySoundBuffer)((Object[])obj)[1];
+
+            //load audio samples to secondary buffer
+            secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
+
+            //play audio buffer			
+            secondarySoundBuffer.Play(0, PlayFlags.None);
+
+            //wait to complete before returning
+            while ((secondarySoundBuffer.Status & BufferStatus.Playing) != 0);
+
+            secondarySoundBuffer.Dispose();
         }
 
         private static void Play(double frequency, double duration, int iType)
@@ -173,16 +260,9 @@ namespace LitDev
                         break;
                 }
 
-                //load audio samples to secondary buffer
-                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
-
-                //play audio buffer			
-                secondarySoundBuffer.Play(0, PlayFlags.None);
-
-                //wait to complete before returning
-                while ((secondarySoundBuffer.Status & BufferStatus.Playing) != 0);
-
-                secondarySoundBuffer.Dispose();
+                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
+                thread.Start(new Object[] { rawsamples, secondarySoundBuffer });
+                if (!bAsync) thread.Join();
             }
             catch (Exception ex)
             {
