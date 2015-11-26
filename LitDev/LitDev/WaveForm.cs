@@ -30,17 +30,15 @@ namespace LitDev
 {
     class Buffer
     {
-        public short[] rawsamples;
         public SecondarySoundBuffer secondarySoundBuffer;
         public double duration;
         public bool bPlaying;
         public bool bDispose;
         public string name;
 
-        public Buffer(string name, short[] rawsamples, SecondarySoundBuffer secondarySoundBuffer, double duration, bool bDispose = true)
+        public Buffer(string name, SecondarySoundBuffer secondarySoundBuffer, double duration, bool bDispose = true)
         {
             this.name = name;
-            this.rawsamples = rawsamples;
             this.secondarySoundBuffer = secondarySoundBuffer;
             this.duration = duration;
             this.bDispose = bDispose;
@@ -70,17 +68,30 @@ namespace LitDev
         {
             Buffer buffer = (Buffer)obj;
 
-            //load audio samples to secondary buffer
-            buffer.secondarySoundBuffer.Write(buffer.rawsamples, 0, LockFlags.EntireBuffer);
-
-            //play audio buffer			
-            buffer.secondarySoundBuffer.Play(0, PlayFlags.Looping);
-
-            //wait to complete before returning
-            DateTime start = DateTime.Now;
-            while (buffer.bPlaying && (buffer.secondarySoundBuffer.Status & BufferStatus.Playing) != 0)
+            if (buffer.duration > 0)
             {
-                if (!bLoop && (DateTime.Now - start).TotalMilliseconds > buffer.duration) break;
+                //play audio buffer			
+                buffer.secondarySoundBuffer.Play(0, PlayFlags.Looping);
+
+                //wait to complete before returning
+                DateTime start = DateTime.Now;
+                while (buffer.bPlaying && (buffer.secondarySoundBuffer.Status & BufferStatus.Playing) != 0)
+                {
+                    if (!bLoop && (DateTime.Now - start).TotalMilliseconds > buffer.duration) break;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < -buffer.duration; i++)
+                {
+                    //play audio buffer			
+                    buffer.secondarySoundBuffer.Play(0, PlayFlags.None);
+
+                    //wait to complete before returning
+                    while (buffer.bPlaying && (buffer.secondarySoundBuffer.Status & BufferStatus.Playing) != 0)
+                    {
+                    }
+                }
             }
 
             if (buffer.bDispose)
@@ -128,9 +139,10 @@ namespace LitDev
                         }
                         break;
                 }
+                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
 
                 string name = NextName();
-                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer, duration);
+                Buffer buffer = new Buffer(name, secondarySoundBuffer, duration);
                 buffers.Add(buffer);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
@@ -220,8 +232,8 @@ namespace LitDev
         /// <summary>
         /// Play a Sine wave form.
         /// </summary>
-        /// <param name="frequency">Frequency (HZ)</param>
-        /// <param name="duration">Duration (ms)</param>
+        /// <param name="frequency">Frequency (HZ).</param>
+        /// <param name="duration">Duration (ms).  If this is negative then wav sound is repeated (-duration) times.</param>
         /// <returns>The wave name or "" on failure.</returns>
         public static Primitive PlaySineWave(Primitive frequency, Primitive duration)
         {
@@ -233,8 +245,8 @@ namespace LitDev
         /// <summary>
         /// Play a square wave form.
         /// </summary>
-        /// <param name="frequency">Frequency (HZ)</param>
-        /// <param name="duration">Duration (ms)</param>
+        /// <param name="frequency">Frequency (HZ).</param>
+        /// <param name="duration">Duration (ms).  If this is negative then wav sound is repeated (-duration) times.</param>
         /// <returns>The wave name or "" on failure.</returns>
         public static Primitive PlaySquareWave(Primitive frequency, Primitive duration)
         {
@@ -246,8 +258,8 @@ namespace LitDev
         /// <summary>
         /// Play a user defined wave form.
         /// </summary>
-        /// <param name="frequency">Frequency (HZ)</param>
-        /// <param name="duration">Duration (ms)</param>
+        /// <param name="frequency">Frequency (HZ).</param>
+        /// <param name="duration">Duration (ms).  If this is negative then wav sound is repeated (-duration) times.</param>
         /// <param name="waveform">Form for the repeating wave.
         /// This is an array, where the index is an increasing relative time (the actual value is normalised to the frequency) and the value is an amplitude (-1 to 1).
         /// Example of a triangular wave would be "0=-1;1=1;2=-1;"</param>
@@ -297,9 +309,10 @@ namespace LitDev
                         }
                     }
                 }
+                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
 
                 string name = NextName();
-                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer, duration);
+                Buffer buffer = new Buffer(name, secondarySoundBuffer, duration);
                 buffers.Add(buffer);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
@@ -317,8 +330,8 @@ namespace LitDev
         /// <summary>
         /// Play a user defined wave form as a sum of harmonics.
         /// </summary>
-        /// <param name="frequency">Frequency (HZ)</param>
-        /// <param name="duration">Duration (ms)</param>
+        /// <param name="frequency">Frequency (HZ).</param>
+        /// <param name="duration">Duration (ms).  If this is negative then wav sound is repeated (-duration) times.</param>
         /// <param name="harmonics">Harmonic amplitudes.
         /// This is an array, where the index is a harmonic multiple of the base frequency (2, 3, etc) and the value is the relative amplitude of the harmonic.
         /// A square wave can be formed by (https://en.wikipedia.org/wiki/Square_wave):
@@ -361,9 +374,52 @@ namespace LitDev
                     }
                     rawsamples[i] = (short)(amplitude * value);
                 }
+                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
 
                 string name = NextName();
-                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer, duration);
+                Buffer buffer = new Buffer(name, secondarySoundBuffer, duration);
+                buffers.Add(buffer);
+
+                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
+                thread.Start(buffer);
+                if (!bAsync) thread.Join();
+                return name;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Play a wav file.
+        /// </summary>
+        /// <param name="fileName">The *.wav file.</param>
+        /// <param name="duration">Duration (ms).  If this is negative then wav sound is repeated (-duration) times.</param>
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlayWavFile(Primitive fileName, Primitive duration)
+        {
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
+
+            try
+            {
+                Initialise();
+
+                WaveStream waveFile = new WaveStream(fileName);
+                SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
+                soundBufferDescription.Format = waveFile.Format;
+                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.SizeInBytes = (int)waveFile.Length;
+
+                SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+                byte[] rawsamples = new byte[soundBufferDescription.SizeInBytes];
+                waveFile.Read(rawsamples, 0, soundBufferDescription.SizeInBytes);
+                waveFile.Close();
+                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
+
+                string name = NextName();
+                Buffer buffer = new Buffer(name, secondarySoundBuffer, duration);
                 buffers.Add(buffer);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
@@ -422,9 +478,10 @@ namespace LitDev
                     for (i = 0; i < servoSamples[iServo]; i++) rawsamples[sample++] = amplitude;
                     for (i = 0; i < stopSamples; i++) rawsamples[sample++] = (short)(-amplitude);
                 }
+                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
 
                 string name = NextName();
-                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer, 1000 * duration);
+                Buffer buffer = new Buffer(name, secondarySoundBuffer, -1);
                 buffers.Add(buffer);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));

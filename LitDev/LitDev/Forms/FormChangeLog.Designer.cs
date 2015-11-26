@@ -19,7 +19,7 @@
         {
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("New object added (previously a separate extension)");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Async and Loop properties added");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("PlayWave and PlayHarmonics methods added");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("PlayWave, PlayHarmonics and PlayWavFile methods added");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("LDWaveForm", new System.Windows.Forms.TreeNode[] {
             treeNode1,
             treeNode2,
@@ -1485,7 +1485,7 @@
             treeNode2.Name = "Node1";
             treeNode2.Text = "Async and Loop properties added";
             treeNode3.Name = "Node2";
-            treeNode3.Text = "PlayWave and PlayHarmonics methods added";
+            treeNode3.Text = "PlayWave, PlayHarmonics and PlayWavFile methods added";
             treeNode4.Name = "Node1";
             treeNode4.Text = "LDWaveForm";
             treeNode5.Name = "Node0";
