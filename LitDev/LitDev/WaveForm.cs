@@ -32,14 +32,18 @@ namespace LitDev
     {
         public short[] rawsamples;
         public SecondarySoundBuffer secondarySoundBuffer;
+        public double duration;
         public bool bPlaying;
+        public bool bDispose;
         public string name;
 
-        public Buffer(string name, short[] rawsamples, SecondarySoundBuffer secondarySoundBuffer)
+        public Buffer(string name, short[] rawsamples, SecondarySoundBuffer secondarySoundBuffer, double duration, bool bDispose = true)
         {
             this.name = name;
             this.rawsamples = rawsamples;
             this.secondarySoundBuffer = secondarySoundBuffer;
+            this.duration = duration;
+            this.bDispose = bDispose;
             bPlaying = true;
         }
     }
@@ -70,14 +74,20 @@ namespace LitDev
             buffer.secondarySoundBuffer.Write(buffer.rawsamples, 0, LockFlags.EntireBuffer);
 
             //play audio buffer			
-            PlayFlags playFlags = bLoop ? PlayFlags.Looping : PlayFlags.None;
-            buffer.secondarySoundBuffer.Play(0, playFlags);
+            buffer.secondarySoundBuffer.Play(0, PlayFlags.Looping);
 
             //wait to complete before returning
-            while (buffer.bPlaying && (playFlags == PlayFlags.Looping || (buffer.secondarySoundBuffer.Status & BufferStatus.Playing) != 0));
+            DateTime start = DateTime.Now;
+            while (buffer.bPlaying && (buffer.secondarySoundBuffer.Status & BufferStatus.Playing) != 0)
+            {
+                if (!bLoop && (DateTime.Now - start).TotalMilliseconds > buffer.duration) break;
+            }
 
-            buffer.secondarySoundBuffer.Dispose();
-            buffers.Remove(buffer);
+            if (buffer.bDispose)
+            {
+                buffer.secondarySoundBuffer.Dispose();
+                buffers.Remove(buffer);
+            }
         }
 
         private static string Play(double frequency, double duration, int iType)
@@ -85,7 +95,7 @@ namespace LitDev
             Initialise();
             try
             {
-                int sampleCount = (int)(duration * waveFormat.SamplesPerSecond);
+                int sampleCount = (int)(waveFormat.SamplesPerSecond / frequency);
 
                 // buffer description         
                 SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
@@ -103,7 +113,7 @@ namespace LitDev
                     case 1: //Sinusoidal
                         for (int i = 0; i < sampleCount; i++)
                         {
-                            frac = frequency * duration * i / (double)sampleCount;
+                            frac = i / (double)sampleCount;
                             value = System.Math.Sin(2.0 * System.Math.PI * frac);
                             rawsamples[i] = (short)(amplitude * value);
                         }
@@ -111,7 +121,7 @@ namespace LitDev
                     case 2: //Square
                         for (int i = 0; i < sampleCount; i++)
                         {
-                            frac = frequency * duration * i / (double)sampleCount;
+                            frac = i / (double)sampleCount;
                             frac = frac - (int)frac;
                             value = frac < 0.5 ? -1.0 : 1.0;
                             rawsamples[i] = (short)(amplitude * value);
@@ -120,7 +130,7 @@ namespace LitDev
                 }
 
                 string name = NextName();
-                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer);
+                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer, duration);
                 buffers.Add(buffer);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
@@ -217,7 +227,7 @@ namespace LitDev
         {
             if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
-            return Play(frequency, duration / 1000.0, 1);
+            return Play(frequency, duration, 1);
         }
 
         /// <summary>
@@ -230,7 +240,7 @@ namespace LitDev
         {
             if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
-            return Play(frequency, duration / 1000.0, 2);
+            return Play(frequency, duration, 2);
         }
 
         /// <summary>
@@ -246,11 +256,10 @@ namespace LitDev
         {
             if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
-            duration = duration / 1000.0; //seconds
             Initialise();
             try
             {
-                int sampleCount = (int)(duration * waveFormat.SamplesPerSecond);
+                int sampleCount = (int)(waveFormat.SamplesPerSecond / frequency);
 
                 // buffer description         
                 SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
@@ -276,7 +285,7 @@ namespace LitDev
 
                 for (int i = 0; i < sampleCount; i++)
                 {
-                    frac = frequency * duration * i / (double)sampleCount;
+                    frac = i / (double)sampleCount;
                     frac = frac - (int)frac;
                     for (int j = 0; j < count - 1; j++)
                     {
@@ -290,7 +299,7 @@ namespace LitDev
                 }
 
                 string name = NextName();
-                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer);
+                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer, duration);
                 buffers.Add(buffer);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
@@ -351,7 +360,7 @@ namespace LitDev
                 }
 
                 string name = NextName();
-                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer);
+                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer, 1000 * duration);
                 buffers.Add(buffer);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
