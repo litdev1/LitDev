@@ -92,9 +92,9 @@ namespace LitDev
 
         private static string Play(double frequency, double duration, int iType)
         {
-            Initialise();
             try
             {
+                Initialise();
                 int sampleCount = (int)(waveFormat.SamplesPerSecond / frequency);
 
                 // buffer description         
@@ -256,9 +256,9 @@ namespace LitDev
         {
             if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
-            Initialise();
             try
             {
+                Initialise();
                 int sampleCount = (int)(waveFormat.SamplesPerSecond / frequency);
 
                 // buffer description         
@@ -315,6 +315,70 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Play a user defined wave form as a sum of harmonics.
+        /// </summary>
+        /// <param name="frequency">Frequency (HZ)</param>
+        /// <param name="duration">Duration (ms)</param>
+        /// <param name="harmonics">Harmonic amplitudes.
+        /// This is an array, where the index is a harmonic multiple of the base frequency (2, 3, etc) and the value is the relative amplitude of the harmonic.
+        /// A square wave can be formed by (https://en.wikipedia.org/wiki/Square_wave):
+        /// For i = 3 To 21 Step 2
+        ///   harmonics[i] = 1/i
+        /// EndFor
+        /// squareWave = LDWaveForm.PlayHarmonics(256,1000,harmonics)</param>
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlayHarmonics(Primitive frequency, Primitive duration, Primitive harmonics)
+        {
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
+
+            try
+            {
+                Initialise();
+                int sampleCount = (int)(waveFormat.SamplesPerSecond / frequency);
+
+                // buffer description         
+                SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
+                soundBufferDescription.Format = waveFormat;
+                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
+
+                SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+
+                short[] rawsamples = new short[sampleCount];
+                double frac, value;
+
+                Primitive indices = SBArray.GetAllIndices(harmonics);
+                int count = SBArray.GetItemCount(harmonics);
+
+                for (int i = 0; i < sampleCount; i++)
+                {
+                    frac = i / (double)sampleCount;
+                    value = System.Math.Sin(2.0 * System.Math.PI * frac);
+                    for (int j = 1; j <= count; j++)
+                    {
+                        double harmonic = indices[j];
+                        value += harmonics[harmonic] * System.Math.Sin(2.0 * System.Math.PI * harmonic * frac);
+                    }
+                    rawsamples[i] = (short)(amplitude * value);
+                }
+
+                string name = NextName();
+                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer, duration);
+                buffers.Add(buffer);
+
+                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
+                thread.Start(buffer);
+                if (!bAsync) thread.Join();
+                return name;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
         /// Play DX7.
         /// </summary>
         /// <param name="channels">An array of values for each channel (values between 0 and 1, usually 8 channels).</param>
@@ -323,9 +387,9 @@ namespace LitDev
         {
             if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
-            Initialise();
             try
             {
+                Initialise();
                 int i, iServo;
                 double duration = 0.0225;
                 int sampleCount = (int)(duration * waveFormat.SamplesPerSecond);
