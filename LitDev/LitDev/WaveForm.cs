@@ -28,10 +28,26 @@ using System.Threading;
 
 namespace LitDev
 {
+    class Buffer
+    {
+        public short[] rawsamples;
+        public SecondarySoundBuffer secondarySoundBuffer;
+        public bool bPlaying;
+        public string name;
+
+        public Buffer(string name, short[] rawsamples, SecondarySoundBuffer secondarySoundBuffer)
+        {
+            this.name = name;
+            this.rawsamples = rawsamples;
+            this.secondarySoundBuffer = secondarySoundBuffer;
+            bPlaying = true;
+        }
+    }
+
     /// <summary>
     /// Create PPM (Pulse Position Modulation) sound signals to control RC (remote control) devices.
     /// See http://blogs.msdn.com/b/smallbasic/archive/2014/05/10/smallbasic-pulse-position-modulation-extension.aspx.
-    /// Additonally create simple sound waveforms.
+    /// Additonally create simple sound waveforms, which can be played asynchronously at the same time.
     /// 
     /// SlimDX runtme for .Net 4.0 requires to be installed before this object can be used (http://slimdx.org/download.php).
     /// </summary>
@@ -42,6 +58,136 @@ namespace LitDev
         private static WaveFormat waveFormat;
         private static short amplitude = 20262;
         private static bool bAsync = false;
+        private static bool bLoop = false;
+        private static int index = 0;
+        private static List<Buffer> buffers = new List<Buffer>();
+
+        private static void DoPlay(Object obj)
+        {
+            Buffer buffer = (Buffer)obj;
+
+            //load audio samples to secondary buffer
+            buffer.secondarySoundBuffer.Write(buffer.rawsamples, 0, LockFlags.EntireBuffer);
+
+            //play audio buffer			
+            PlayFlags playFlags = bLoop ? PlayFlags.Looping : PlayFlags.None;
+            buffer.secondarySoundBuffer.Play(0, playFlags);
+
+            //wait to complete before returning
+            while (buffer.bPlaying && (playFlags == PlayFlags.Looping || (buffer.secondarySoundBuffer.Status & BufferStatus.Playing) != 0));
+
+            buffer.secondarySoundBuffer.Dispose();
+            buffers.Remove(buffer);
+        }
+
+        private static string Play(double frequency, double duration, int iType)
+        {
+            Initialise();
+            try
+            {
+                int sampleCount = (int)(duration * waveFormat.SamplesPerSecond);
+
+                // buffer description         
+                SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
+                soundBufferDescription.Format = waveFormat;
+                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
+
+                SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+
+                short[] rawsamples = new short[sampleCount];
+                double frac, value;
+
+                switch (iType)
+                {
+                    case 1: //Sinusoidal
+                        for (int i = 0; i < sampleCount; i++)
+                        {
+                            frac = frequency * duration * i / (double)sampleCount;
+                            value = System.Math.Sin(2.0 * System.Math.PI * frac);
+                            rawsamples[i] = (short)(amplitude * value);
+                        }
+                        break;
+                    case 2: //Square
+                        for (int i = 0; i < sampleCount; i++)
+                        {
+                            frac = frequency * duration * i / (double)sampleCount;
+                            frac = frac - (int)frac;
+                            value = frac < 0.5 ? -1.0 : 1.0;
+                            rawsamples[i] = (short)(amplitude * value);
+                        }
+                        break;
+                }
+
+                string name = NextName();
+                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer);
+                buffers.Add(buffer);
+
+                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
+                thread.Start(buffer);
+                if (!bAsync) thread.Join();
+                return name;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        private static void Initialise()
+        {
+            try
+            {
+                if (directSound == null)
+                {
+                    //Initialize the DirectSound Device
+                    directSound = new DirectSound();
+
+                    waveFormat = new WaveFormat();
+                    waveFormat.BitsPerSample = 16;
+                    waveFormat.Channels = 1;
+                    waveFormat.BlockAlignment = (short)(waveFormat.BitsPerSample / 8);
+
+                    waveFormat.FormatTag = WaveFormatTag.Pcm;
+                    waveFormat.SamplesPerSecond = 192000;
+                    waveFormat.AverageBytesPerSecond = waveFormat.SamplesPerSecond * waveFormat.BlockAlignment;
+                }
+                // Set the priority of the device with the rest of the operating system
+                directSound.SetCooperativeLevel(User32.GetForegroundWindow(), CooperativeLevel.Priority);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private static string NextName()
+        {
+            return "WaveForm" + (index++).ToString();
+        }
+
+        /// <summary>
+        /// Continuously loop the sound, "True" or "False" default.
+        /// Lopping sounds can be stopped by calling Stop method as they are playing.
+        /// </summary>
+        public static Primitive Loop
+        {
+            get { return bLoop; }
+            set { bLoop = value; }
+        }
+
+        /// <summary>
+        /// Stop a playing sound.
+        /// </summary>
+        /// <param name="waveName">The sound wave name.</param>
+        public static void Stop(Primitive waveName)
+        {
+            foreach (Buffer buffer in buffers)
+            {
+                if (waveName == buffer.name) buffer.bPlaying = false;
+            }
+        }
 
         /// <summary>
         /// Play the sound asynchronously (return before sound completes), "True" or "False" default.
@@ -66,11 +212,12 @@ namespace LitDev
         /// </summary>
         /// <param name="frequency">Frequency (HZ)</param>
         /// <param name="duration">Duration (ms)</param>
-        public static void PlaySineWave(Primitive frequency, Primitive duration)
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlaySineWave(Primitive frequency, Primitive duration)
         {
-            if (!VerifySlimDX.Verify()) return;
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
-            Play(frequency, duration / 1000.0, 1);
+            return Play(frequency, duration / 1000.0, 1);
         }
 
         /// <summary>
@@ -78,11 +225,12 @@ namespace LitDev
         /// </summary>
         /// <param name="frequency">Frequency (HZ)</param>
         /// <param name="duration">Duration (ms)</param>
-        public static void PlaySquareWave(Primitive frequency, Primitive duration)
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlaySquareWave(Primitive frequency, Primitive duration)
         {
-            if (!VerifySlimDX.Verify()) return;
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
-            Play(frequency, duration / 1000.0, 2);
+            return Play(frequency, duration / 1000.0, 2);
         }
 
         /// <summary>
@@ -93,9 +241,10 @@ namespace LitDev
         /// <param name="waveform">Form for the repeating wave.
         /// This is an array, where the index is an increasing relative time (the actual value is normalised to the frequency) and the value is an amplitude (-1 to 1).
         /// Example of a triangular wave would be "0=-1;1=1;2=-1;"</param>
-        public static void PlayWave(Primitive frequency, Primitive duration, Primitive waveform)
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlayWave(Primitive frequency, Primitive duration, Primitive waveform)
         {
-            if (!VerifySlimDX.Verify()) return;
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
             duration = duration / 1000.0; //seconds
             Initialise();
@@ -140,13 +289,19 @@ namespace LitDev
                     }
                 }
 
+                string name = NextName();
+                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer);
+                buffers.Add(buffer);
+
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
-                thread.Start(new Object[] { rawsamples, secondarySoundBuffer });
+                thread.Start(buffer);
                 if (!bAsync) thread.Join();
+                return name;
             }
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
             }
         }
 
@@ -154,9 +309,10 @@ namespace LitDev
         /// Play DX7.
         /// </summary>
         /// <param name="channels">An array of values for each channel (values between 0 and 1, usually 8 channels).</param>
-        public static void PlayDX7(Primitive channels)
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlayDX7(Primitive channels)
         {
-            if (!VerifySlimDX.Verify()) return;
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
 
             Initialise();
             try
@@ -194,106 +350,19 @@ namespace LitDev
                     for (i = 0; i < stopSamples; i++) rawsamples[sample++] = (short)(-amplitude);
                 }
 
-                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
-                thread.Start(new Object[] { rawsamples, secondarySoundBuffer });
-                if (!bAsync) thread.Join();
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-            }
-        }
-
-        private static void DoPlay(Object obj)
-        {
-            short[] rawsamples = (short[])((Object[])obj)[0];
-            SecondarySoundBuffer secondarySoundBuffer = (SecondarySoundBuffer)((Object[])obj)[1];
-
-            //load audio samples to secondary buffer
-            secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
-
-            //play audio buffer			
-            secondarySoundBuffer.Play(0, PlayFlags.None);
-
-            //wait to complete before returning
-            while ((secondarySoundBuffer.Status & BufferStatus.Playing) != 0);
-
-            secondarySoundBuffer.Dispose();
-        }
-
-        private static void Play(double frequency, double duration, int iType)
-        {
-            Initialise();
-            try
-            {
-                int sampleCount = (int)(duration * waveFormat.SamplesPerSecond);
-
-                // buffer description         
-                SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
-                soundBufferDescription.Format = waveFormat;
-                soundBufferDescription.Flags = BufferFlags.Defer;
-                soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
-
-                SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
-
-                short[] rawsamples = new short[sampleCount];
-                double frac, value;
-
-                switch (iType)
-                {
-                    case 1: //Sinusoidal
-                        for (int i = 0; i < sampleCount; i++)
-                        {
-                            frac = frequency * duration * i / (double)sampleCount;
-                            value = System.Math.Sin(2.0 * System.Math.PI * frac);
-                            rawsamples[i] = (short)(amplitude * value);
-                        }
-                        break;
-                    case 2: //Square
-                        for (int i = 0; i < sampleCount; i++)
-                        {
-                            frac = frequency * duration * i / (double)sampleCount;
-                            frac = frac - (int)frac;
-                            value = frac < 0.5 ? -1.0 : 1.0;
-                            rawsamples[i] = (short)(amplitude * value);
-                        }
-                        break;
-                }
+                string name = NextName();
+                Buffer buffer = new Buffer(name, rawsamples, secondarySoundBuffer);
+                buffers.Add(buffer);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
-                thread.Start(new Object[] { rawsamples, secondarySoundBuffer });
+                thread.Start(buffer);
                 if (!bAsync) thread.Join();
+                return name;
             }
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-            }
-        }
-
-        private static void Initialise()
-        {
-            try
-            {
-                if (directSound == null)
-                {
-                    //Initialize the DirectSound Device
-                    directSound = new DirectSound();
-
-                    waveFormat = new WaveFormat();
-                    waveFormat.BitsPerSample = 16;
-                    waveFormat.Channels = 1;
-                    waveFormat.BlockAlignment = (short)(waveFormat.BitsPerSample / 8);
-
-                    waveFormat.FormatTag = WaveFormatTag.Pcm;
-                    waveFormat.SamplesPerSecond = 192000;
-                    waveFormat.AverageBytesPerSecond = waveFormat.SamplesPerSecond * waveFormat.BlockAlignment;
-                }
-                // Set the priority of the device with the rest of the operating system
-                directSound.SetCooperativeLevel(User32.GetForegroundWindow(), CooperativeLevel.Priority);
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
             }
         }
     }

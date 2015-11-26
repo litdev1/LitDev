@@ -33,7 +33,7 @@ namespace LitDev
 
     class VerifySlimDX
     {
-        public static bool Verify()
+        public static bool Verify(string objName)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace LitDev
             }
             catch (Exception ex)
             {
-                MessageBox.Show("This extension object requires SlimDX runtime for .Net 4.0 to be installed.\nIt can be downloaded from http://slimdx.org/download.php.",
+                MessageBox.Show("This extension object (" + objName + ") requires SlimDX runtime for .Net 4.0 to be installed.\nIt can be downloaded from http://slimdx.org/download.php.",
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return false;

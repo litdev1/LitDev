@@ -18,7 +18,7 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("New object added (previously a separate extension)");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Async property added");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Async and Loop properties added");
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("PlayWave method added");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("LDWaveForm", new System.Windows.Forms.TreeNode[] {
             treeNode1,
@@ -1483,7 +1483,7 @@
             treeNode1.Name = "Node0";
             treeNode1.Text = "New object added (previously a separate extension)";
             treeNode2.Name = "Node1";
-            treeNode2.Text = "Async property added";
+            treeNode2.Text = "Async and Loop properties added";
             treeNode3.Name = "Node2";
             treeNode3.Text = "PlayWave method added";
             treeNode4.Name = "Node1";

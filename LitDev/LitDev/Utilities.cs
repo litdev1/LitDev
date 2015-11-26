@@ -632,7 +632,7 @@ namespace LitDev
             StackTrace st = new StackTrace();
             StackFrame sf = st.GetFrame(1);
 
-            return sf.GetMethod().DeclaringType.Name + "." + sf.GetMethod().Name + " : ";
+            return sf.GetMethod().DeclaringType.Name + "." + sf.GetMethod().Name;
         }
 
         public static double getDouble(string value)
@@ -707,21 +707,21 @@ namespace LitDev
 
         public static void OnError(string method, Exception ex)
         {
-            string message = method + ex.Message;
+            string message = method + " : " + ex.Message;
             if (bShowErrors) TextWindow.WriteLine(message);
             LDEvents._Error(null, new ErrorEventArgs(message));
         }
 
         public static void OnFileError(string method, string fileName)
         {
-            string message = method + "File not found : " + fileName;
+            string message = method + " : " + "File not found : " + fileName;
             if (bShowFileErrors) TextWindow.WriteLine(message);
             LDEvents._Error(null, new ErrorEventArgs(message));
         }
 
         public static void OnShapeError(string method, string shapeName)
         {
-            string message = method + "Shape not found : " + shapeName;
+            string message = method + " : " + "Shape not found : " + shapeName;
             if (bShowNoShapeErrors) TextWindow.WriteLine(message);
             LDEvents._Error(null, new ErrorEventArgs(message));
         }
@@ -1385,7 +1385,7 @@ namespace LitDev
 
         /// <summary>
         /// Delete all Small Basic related files from the temp folder.
-        /// There are files with extensions tmp, pdb and dll.
+        /// These are files with extensions tmp, pdb and dll.
         /// Other applications may also use these, so best to use with no other apps running.
         /// </summary>
         /// <returns>The number of files deleted.</returns>
