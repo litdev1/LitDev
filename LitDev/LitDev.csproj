@@ -244,6 +244,7 @@
     <Compile Include="LitDev\Forms\FormEvents.Designer.cs">
       <DependentUpon>FormEvents.cs</DependentUpon>
     </Compile>
+    <Compile Include="LitDev\Controller.cs" />
     <Compile Include="LitDev\WaveForm.cs" />
     <Compile Include="LitDev\XML.cs" />
     <Compile Include="LitDev\FTP.cs" />

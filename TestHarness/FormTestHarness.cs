@@ -705,8 +705,6 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            LDWaveForm.PlaySineWave(256, 1000);
-
             Primitive shape = Shapes.AddRectangle(100, 100);
             LDEffect.Bloom(shape,"");
             Program.Delay(1000);

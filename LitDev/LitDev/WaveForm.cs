@@ -35,6 +35,7 @@ namespace LitDev
         public double frequency;
         public bool bPlaying;
         public bool bDispose;
+        public bool bLoop;
         public string name;
 
         public Buffer(string name, SecondarySoundBuffer secondarySoundBuffer, double frequency, double duration, bool bDispose = true)
@@ -45,6 +46,7 @@ namespace LitDev
             this.duration = duration;
             this.bDispose = bDispose;
             bPlaying = true;
+            bLoop = LDWaveForm.bLoop;
         }
     }
 
@@ -62,15 +64,15 @@ namespace LitDev
         private static WaveFormat waveFormat;
         private static short amplitude = 20262;
         private static bool bAsync = false;
-        private static bool bLoop = false;
         private static int index = 0;
         private static List<Buffer> buffers = new List<Buffer>();
+
+        public static bool bLoop = false;
 
         private static void DoPlay(Object obj)
         {
             Buffer buffer = (Buffer)obj;
             double duration = buffer.duration;
-            bool bLooping = bLoop;
 
             if (duration < -1 && buffer.frequency > 0)
             {
@@ -87,7 +89,7 @@ namespace LitDev
                 DateTime start = DateTime.Now;
                 while (buffer.bPlaying && (buffer.secondarySoundBuffer.Status & BufferStatus.Playing) != 0)
                 {
-                    if (!bLooping && (DateTime.Now - start).TotalMilliseconds > duration) break;
+                    if (!buffer.bLoop && (DateTime.Now - start).TotalMilliseconds > duration) break;
                 }
             }
             else
@@ -112,7 +114,39 @@ namespace LitDev
             }
         }
 
-        private static string Play(double frequency, double duration, int iType)
+        private static void Initialise()
+        {
+            try
+            {
+                if (directSound == null)
+                {
+                    //Initialize the DirectSound Device
+                    directSound = new DirectSound();
+
+                    waveFormat = new WaveFormat();
+                    waveFormat.BitsPerSample = 16;
+                    waveFormat.Channels = 1;
+                    waveFormat.BlockAlignment = (short)(waveFormat.BitsPerSample / 8);
+
+                    waveFormat.FormatTag = WaveFormatTag.Pcm;
+                    waveFormat.SamplesPerSecond = 192000;
+                    waveFormat.AverageBytesPerSecond = waveFormat.SamplesPerSecond * waveFormat.BlockAlignment;
+                }
+                // Set the priority of the device with the rest of the operating system
+                directSound.SetCooperativeLevel(User32.GetForegroundWindow(), CooperativeLevel.Priority);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private static string NextName()
+        {
+            return "WaveForm" + (index++).ToString();
+        }
+
+        private static string _Play(double frequency, double duration, int iType)
         {
             try
             {
@@ -168,117 +202,63 @@ namespace LitDev
             }
         }
 
-        private static void Initialise()
+        private static string _PlayDX7(Primitive channels)
         {
             try
             {
-                if (directSound == null)
+                Initialise();
+                int i, iServo;
+                double duration = 0.0225;
+                int sampleCount = (int)(duration * waveFormat.SamplesPerSecond);
+
+                // buffer description         
+                SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
+                soundBufferDescription.Format = waveFormat;
+                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
+
+                SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+
+                short[] rawsamples = new short[sampleCount];
+                int stopSamples = (int)(0.0004 * waveFormat.SamplesPerSecond);
+                List<int> servoSamples = new List<int>();
+                Primitive indices = SBArray.GetAllIndices(channels);
+                int servoCount = SBArray.GetItemCount(indices);
+                for (iServo = 1; iServo <= servoCount; iServo++)
                 {
-                    //Initialize the DirectSound Device
-                    directSound = new DirectSound();
-
-                    waveFormat = new WaveFormat();
-                    waveFormat.BitsPerSample = 16;
-                    waveFormat.Channels = 1;
-                    waveFormat.BlockAlignment = (short)(waveFormat.BitsPerSample / 8);
-
-                    waveFormat.FormatTag = WaveFormatTag.Pcm;
-                    waveFormat.SamplesPerSecond = 192000;
-                    waveFormat.AverageBytesPerSecond = waveFormat.SamplesPerSecond * waveFormat.BlockAlignment;
+                    servoSamples.Add((int)((0.0007 + 0.0008 * channels[indices[iServo]]) * waveFormat.SamplesPerSecond));
                 }
-                // Set the priority of the device with the rest of the operating system
-                directSound.SetCooperativeLevel(User32.GetForegroundWindow(), CooperativeLevel.Priority);
+                //Lead-in
+                int leading = sampleCount - (servoCount + 1) * stopSamples - servoSamples.Sum();
+                int sample = 0;
+                for (i = 0; i < leading; i++) rawsamples[sample++] = 0;
+                //Servos
+                for (i = 0; i < stopSamples; i++) rawsamples[sample++] = (short)(-amplitude);
+                for (iServo = 0; iServo < servoCount; iServo++)
+                {
+                    for (i = 0; i < servoSamples[iServo]; i++) rawsamples[sample++] = amplitude;
+                    for (i = 0; i < stopSamples; i++) rawsamples[sample++] = (short)(-amplitude);
+                }
+                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
+
+                string name = NextName();
+                Buffer buffer = new Buffer(name, secondarySoundBuffer, 0, -1);
+                buffers.Add(buffer);
+
+                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
+                thread.Start(buffer);
+                if (!bAsync) thread.Join();
+                return name;
             }
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
             }
         }
 
-        private static string NextName()
+        private static string _PlayWave(double frequency, double duration, Primitive waveform)
         {
-            return "WaveForm" + (index++).ToString();
-        }
-
-        /// <summary>
-        /// Continuously loop the sound, "True" or "False" default.
-        /// Lopping sounds can be stopped by calling Stop method as they are playing.
-        /// </summary>
-        public static Primitive Loop
-        {
-            get { return bLoop; }
-            set { bLoop = value; }
-        }
-
-        /// <summary>
-        /// Stop a playing sound.
-        /// </summary>
-        /// <param name="waveName">The sound wave name.</param>
-        public static void Stop(Primitive waveName)
-        {
-            foreach (Buffer buffer in buffers)
-            {
-                if (waveName == buffer.name) buffer.bPlaying = false;
-            }
-        }
-
-        /// <summary>
-        /// Play the sound asynchronously (return before sound completes), "True" or "False" default.
-        /// </summary>
-        public static Primitive Async
-        {
-            get { return bAsync; }
-            set { bAsync = value; }
-        }
-
-        /// <summary>
-        /// Signal amplitude (maximum is 2^15 = 32768, default is 20262)
-        /// </summary>
-        public static Primitive Amplitude
-        {
-            get { return (int)amplitude; }
-            set { amplitude = (short)value; }
-        }
-
-        /// <summary>
-        /// Play a Sine wave form.
-        /// </summary>
-        /// <param name="frequency">Frequency (HZ).</param>
-        /// <param name="duration">Duration (ms).  If this is negative then waveform is repeated (-duration) times.</param>
-        /// <returns>The wave name or "" on failure.</returns>
-        public static Primitive PlaySineWave(Primitive frequency, Primitive duration)
-        {
-            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
-
-            return Play(frequency, duration, 1);
-        }
-
-        /// <summary>
-        /// Play a square wave form.
-        /// </summary>
-        /// <param name="frequency">Frequency (HZ).</param>
-        /// <param name="duration">Duration (ms).  If this is negative then waveform is repeated (-duration) times.</param>
-        /// <returns>The wave name or "" on failure.</returns>
-        public static Primitive PlaySquareWave(Primitive frequency, Primitive duration)
-        {
-            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
-
-            return Play(frequency, duration, 2);
-        }
-
-        /// <summary>
-        /// Play a user defined wave form.
-        /// </summary>
-        /// <param name="frequency">Frequency (HZ).</param>
-        /// <param name="duration">Duration (ms).  If this is negative then waveform is repeated (-duration) times.</param>
-        /// <param name="waveform">Form for the repeating wave.
-        /// This is an array, where the index is an increasing relative time (the actual value is normalised to the frequency) and the value is an amplitude (-1 to 1).
-        /// Example of a triangular wave would be "0=-1;1=1;2=-1;"</param>
-        /// <returns>The wave name or "" on failure.</returns>
-        public static Primitive PlayWave(Primitive frequency, Primitive duration, Primitive waveform)
-        {
-            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
-
             try
             {
                 Initialise();
@@ -338,23 +318,8 @@ namespace LitDev
             }
         }
 
-        /// <summary>
-        /// Play a user defined wave form as a sum of harmonics.
-        /// </summary>
-        /// <param name="frequency">Frequency (HZ).</param>
-        /// <param name="duration">Duration (ms).  If this is negative then waveform is repeated (-duration) times.</param>
-        /// <param name="harmonics">Harmonic amplitudes.
-        /// This is an array, where the index is a harmonic multiple of the base frequency (2, 3, etc) and the value is the relative amplitude of the harmonic.
-        /// A square wave can be formed by (https://en.wikipedia.org/wiki/Square_wave):
-        /// For i = 3 To 21 Step 2
-        ///   harmonics[i] = 1/i
-        /// EndFor
-        /// squareWave = LDWaveForm.PlayHarmonics(256,1000,harmonics)</param>
-        /// <returns>The wave name or "" on failure.</returns>
-        public static Primitive PlayHarmonics(Primitive frequency, Primitive duration, Primitive harmonics)
+        private static string _PlayHarmonics(double frequency, double duration, Primitive harmonics)
         {
-            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
-
             try
             {
                 Initialise();
@@ -403,16 +368,8 @@ namespace LitDev
             }
         }
 
-        /// <summary>
-        /// Play a wav file.
-        /// </summary>
-        /// <param name="fileName">The *.wav file.</param>
-        /// <param name="duration">Duration (ms).  If this is negative then waveform is repeated (-duration) times.</param>
-        /// <returns>The wave name or "" on failure.</returns>
-        public static Primitive PlayWavFile(Primitive fileName, Primitive duration)
+        private static string _PlayWavFile(string fileName, double duration)
         {
-            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
-
             try
             {
                 Initialise();
@@ -444,6 +401,118 @@ namespace LitDev
                 return "";
             }
         }
+        
+        /// <summary>
+        /// Continuously loop the sound, "True" or "False" default.
+        /// Lopping sounds can be stopped by calling Stop method as they are playing.
+        /// </summary>
+        public static Primitive Loop
+        {
+            get { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return ""; return bLoop; }
+            set { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return; bLoop = value; }
+        }
+
+        /// <summary>
+        /// Stop a playing sound.
+        /// </summary>
+        /// <param name="waveName">The sound wave name.</param>
+        public static void Stop(Primitive waveName)
+        {
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return;
+
+            foreach (Buffer buffer in buffers)
+            {
+                if (waveName == buffer.name) buffer.bPlaying = false;
+            }
+        }
+
+        /// <summary>
+        /// Play the sound asynchronously (return before sound completes), "True" or "False" default.
+        /// </summary>
+        public static Primitive Async
+        {
+            get { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return ""; return bAsync; }
+            set { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return; bAsync = value; }
+        }
+
+        /// <summary>
+        /// Signal amplitude (maximum is 2^15 = 32768, default is 20262).
+        /// </summary>
+        public static Primitive Amplitude
+        {
+            get { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return ""; return (int)amplitude; }
+            set { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return; amplitude = (short)value; }
+        }
+
+        /// <summary>
+        /// Play a Sine wave form.
+        /// </summary>
+        /// <param name="frequency">Frequency (HZ).</param>
+        /// <param name="duration">Duration (ms).  If this is negative then the waveform is repeated (-duration) times.</param>
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlaySineWave(Primitive frequency, Primitive duration)
+        {
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
+            return _Play(frequency, duration, 1);
+        }
+
+        /// <summary>
+        /// Play a square wave form.
+        /// </summary>
+        /// <param name="frequency">Frequency (HZ).</param>
+        /// <param name="duration">Duration (ms).  If this is negative then the waveform is repeated (-duration) times.</param>
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlaySquareWave(Primitive frequency, Primitive duration)
+        {
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
+            return _Play(frequency, duration, 2);
+        }
+
+        /// <summary>
+        /// Play a user defined wave form.
+        /// </summary>
+        /// <param name="frequency">Frequency (HZ).</param>
+        /// <param name="duration">Duration (ms).  If this is negative then the waveform is repeated (-duration) times.</param>
+        /// <param name="waveform">Form for the repeating wave.
+        /// This is an array, where the index is an increasing relative time (the actual value is normalised to the frequency) and the value is an amplitude (-1 to 1).
+        /// Example of a triangular wave would be "0=-1;1=1;2=-1;"</param>
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlayWave(Primitive frequency, Primitive duration, Primitive waveform)
+        {
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
+            return _PlayWave(frequency, duration, waveform);
+        }
+
+        /// <summary>
+        /// Play a user defined wave form as a sum of harmonics.
+        /// </summary>
+        /// <param name="frequency">Frequency (HZ).</param>
+        /// <param name="duration">Duration (ms).  If this is negative then the waveform is repeated (-duration) times.</param>
+        /// <param name="harmonics">Harmonic amplitudes.
+        /// This is an array, where the index is a harmonic multiple of the base frequency (2, 3, etc) and the value is the relative amplitude of the harmonic.
+        /// A square wave can be formed by (https://en.wikipedia.org/wiki/Square_wave):
+        /// For i = 3 To 21 Step 2
+        ///   harmonics[i] = 1/i
+        /// EndFor
+        /// squareWave = LDWaveForm.PlayHarmonics(256,1000,harmonics)</param>
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlayHarmonics(Primitive frequency, Primitive duration, Primitive harmonics)
+        {
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
+            return _PlayHarmonics(frequency, duration, harmonics);
+        }
+
+        /// <summary>
+        /// Play a wav file.
+        /// </summary>
+        /// <param name="fileName">The *.wav file.</param>
+        /// <param name="duration">Duration (ms).  If this is negative then the waveform is repeated (-duration) times.</param>
+        /// <returns>The wave name or "" on failure.</returns>
+        public static Primitive PlayWavFile(Primitive fileName, Primitive duration)
+        {
+            if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
+            return _PlayWavFile(fileName, duration);
+        }
 
         /// <summary>
         /// Play DX7.
@@ -453,58 +522,7 @@ namespace LitDev
         public static Primitive PlayDX7(Primitive channels)
         {
             if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return "";
-
-            try
-            {
-                Initialise();
-                int i, iServo;
-                double duration = 0.0225;
-                int sampleCount = (int)(duration * waveFormat.SamplesPerSecond);
-
-                // buffer description         
-                SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
-                soundBufferDescription.Format = waveFormat;
-                soundBufferDescription.Flags = BufferFlags.Defer;
-                soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
-
-                SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
-
-                short[] rawsamples = new short[sampleCount];
-                int stopSamples = (int)(0.0004 * waveFormat.SamplesPerSecond);
-                List<int> servoSamples = new List<int>();
-                Primitive indices = SBArray.GetAllIndices(channels);
-                int servoCount = SBArray.GetItemCount(indices);
-                for (iServo = 1; iServo <= servoCount; iServo++)
-                {
-                    servoSamples.Add((int)((0.0007 + 0.0008 * channels[indices[iServo]]) * waveFormat.SamplesPerSecond));
-                }
-                //Lead-in
-                int leading = sampleCount - (servoCount + 1) * stopSamples - servoSamples.Sum();
-                int sample = 0;
-                for (i = 0; i < leading; i++) rawsamples[sample++] = 0;
-                //Servos
-                for (i = 0; i < stopSamples; i++) rawsamples[sample++] = (short)(-amplitude);
-                for (iServo = 0; iServo < servoCount; iServo++)
-                {
-                    for (i = 0; i < servoSamples[iServo]; i++) rawsamples[sample++] = amplitude;
-                    for (i = 0; i < stopSamples; i++) rawsamples[sample++] = (short)(-amplitude);
-                }
-                secondarySoundBuffer.Write(rawsamples, 0, LockFlags.EntireBuffer);
-
-                string name = NextName();
-                Buffer buffer = new Buffer(name, secondarySoundBuffer, 0, -1);
-                buffers.Add(buffer);
-
-                Thread thread = new Thread(new ParameterizedThreadStart(DoPlay));
-                thread.Start(buffer);
-                if (!bAsync) thread.Join();
-                return name;
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "";
-            }
+            return _PlayDX7(channels);
         }
     }
 }

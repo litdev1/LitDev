@@ -18,6 +18,7 @@
 using System;
 using SlimDX.DirectInput;
 using System.Windows;
+using Microsoft.SmallBasic.Library;
 
 namespace LitDev
 {
@@ -41,8 +42,9 @@ namespace LitDev
             }
             catch (Exception ex)
             {
-                MessageBox.Show("This extension object (" + objName + ") requires SlimDX runtime for .Net 4.0 to be installed.\nIt can be downloaded from http://slimdx.org/download.php.",
+                MessageBox.Show("This extension object (" + objName + ") requires SlimDX runtime for .Net 4.0 to be installed.\n\nIt can be downloaded from http://slimdx.org/download.php.",
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Program.End();
             }
             return false;
         }
