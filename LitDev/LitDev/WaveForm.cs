@@ -65,6 +65,8 @@ namespace LitDev
         private static short amplitude = 20262;
         private static bool bAsync = false;
         private static int index = 0;
+        private static int pan = 0;
+        private static int volume = 0;
         private static List<Buffer> buffers = new List<Buffer>();
 
         public static bool bLoop = false;
@@ -156,10 +158,12 @@ namespace LitDev
                 // buffer description         
                 SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
                 soundBufferDescription.Format = waveFormat;
-                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.Flags = BufferFlags.Defer | BufferFlags.ControlVolume | BufferFlags.ControlPan;
                 soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
 
                 SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+                secondarySoundBuffer.Pan = pan;
+                secondarySoundBuffer.Volume = volume;
 
                 short[] rawsamples = new short[sampleCount];
                 double frac, value;
@@ -214,10 +218,12 @@ namespace LitDev
                 // buffer description         
                 SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
                 soundBufferDescription.Format = waveFormat;
-                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.Flags = BufferFlags.Defer | BufferFlags.ControlVolume | BufferFlags.ControlPan;
                 soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
 
                 SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+                secondarySoundBuffer.Pan = pan;
+                secondarySoundBuffer.Volume = volume;
 
                 short[] rawsamples = new short[sampleCount];
                 int stopSamples = (int)(0.0004 * waveFormat.SamplesPerSecond);
@@ -267,10 +273,12 @@ namespace LitDev
                 // buffer description         
                 SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
                 soundBufferDescription.Format = waveFormat;
-                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.Flags = BufferFlags.Defer | BufferFlags.ControlVolume | BufferFlags.ControlPan;
                 soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
 
                 SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+                secondarySoundBuffer.Pan = pan;
+                secondarySoundBuffer.Volume = volume;
 
                 short[] rawsamples = new short[sampleCount];
                 double frac, value;
@@ -328,10 +336,12 @@ namespace LitDev
                 // buffer description         
                 SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
                 soundBufferDescription.Format = waveFormat;
-                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.Flags = BufferFlags.Defer | BufferFlags.ControlVolume | BufferFlags.ControlPan;
                 soundBufferDescription.SizeInBytes = sampleCount * waveFormat.BlockAlignment;
 
                 SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+                secondarySoundBuffer.Pan = pan;
+                secondarySoundBuffer.Volume = volume;
 
                 short[] rawsamples = new short[sampleCount];
                 double frac, value;
@@ -377,10 +387,13 @@ namespace LitDev
                 WaveStream waveFile = new WaveStream(fileName);
                 SoundBufferDescription soundBufferDescription = new SoundBufferDescription();
                 soundBufferDescription.Format = waveFile.Format;
-                soundBufferDescription.Flags = BufferFlags.Defer;
+                soundBufferDescription.Flags = BufferFlags.Defer | BufferFlags.ControlVolume | BufferFlags.ControlPan;
                 soundBufferDescription.SizeInBytes = (int)waveFile.Length;
 
                 SecondarySoundBuffer secondarySoundBuffer = new SecondarySoundBuffer(directSound, soundBufferDescription);
+                secondarySoundBuffer.Pan = pan;
+                secondarySoundBuffer.Volume = volume;
+
                 byte[] rawsamples = new byte[soundBufferDescription.SizeInBytes];
                 waveFile.Read(rawsamples, 0, soundBufferDescription.SizeInBytes);
                 waveFile.Close();
@@ -402,6 +415,24 @@ namespace LitDev
             }
         }
         
+        /// <summary>
+        /// The volume to play the waveform (0 to 100).
+        /// </summary>
+        public static Primitive Volume
+        {
+            get { return 100 + (volume / 100.0); }
+            set { volume = 100 * (System.Math.Min(100, System.Math.Max(0, value)) - 100); }
+        }
+
+        /// <summary>
+        /// The left (-100) to right (100) stereo panning, (default 0).
+        /// </summary>
+        public static Primitive Pan
+        {
+            get { return pan / 100.0; }
+            set { pan = 100 * System.Math.Min(100, System.Math.Max(0, value)); }
+        }
+
         /// <summary>
         /// Continuously loop the sound, "True" or "False" default.
         /// Lopping sounds can be stopped by calling Stop method as they are playing.

@@ -986,31 +986,39 @@ namespace LitDev
         /// The shape to modify.
         /// </param>
         /// <param name="group">
-        /// The group that the current shape belongs to (default 0).  This should be an integer between 0 and 7.
+        /// The group that the current shape belongs to (default 0).  This should be an integer between 0 and 15.
         /// </param>
         /// <param name="mask">
-        /// An array of groups that this shape will collide with (default all groups).
+        /// An array of groups that this shape will collide with (default all groups 0,1,2,..,14,15).
+        /// To allow the shape to only interact with groups 0, 1 and 4 would be "1=0;2=1;3=4;".
         /// </param>
         /// <returns>
         /// None.
         /// </returns>
         public static void SetGroup(Primitive shapeName, Primitive group, Primitive mask)
         {
-            ushort groupBits = (ushort)System.Math.Pow(2, group);
-            ushort maskBits = 0;
-            if (SBArray.IsArray(mask))
+            try
             {
-                Primitive indices = SBArray.GetAllIndices(mask);
-                for (int i = 1; i <= SBArray.GetItemCount(mask); i++)
+                ushort groupBits = (ushort)(1 << group);
+                ushort maskBits = 0;
+                if (SBArray.IsArray(mask))
                 {
-                    maskBits += (ushort)System.Math.Pow(2, mask[indices[i]]);
+                    Primitive indices = SBArray.GetAllIndices(mask);
+                    for (int i = 1; i <= SBArray.GetItemCount(mask); i++)
+                    {
+                        maskBits |= (ushort)(1 << mask[indices[i]]);
+                    }
                 }
+                else
+                {
+                    maskBits += (ushort)(1 << mask);
+                }
+                _Engine.setGroup(shapeName, groupBits, maskBits);
             }
-            else
+            catch (Exception ex)
             {
-                maskBits += (ushort)System.Math.Pow(2, mask);
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
-            _Engine.setGroup(shapeName, groupBits, maskBits);
         }
 
         /// <summary>
