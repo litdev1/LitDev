@@ -684,11 +684,11 @@ namespace LitDev
         // (1)
         public override void Add(ContactPoint point)
         {
+            engine.ContactPoints.Add(point);
+
             if (!world._contactFilter.ShouldCollide(point.Shape1, point.Shape2)) return;
             if (null != point.Shape1.UserData && point.Shape1.UserData.GetType() != typeof(Sprite)) return;
             if (null != point.Shape2.UserData && point.Shape2.UserData.GetType() != typeof(Sprite)) return;
-
-            engine.ContactPoints.Add(point);
 
             Sprite _Sprite1, _Sprite2;
 
@@ -741,6 +741,25 @@ namespace LitDev
             jd = null;
             body1 = null;
             body2 = null;
+        }
+    }
+
+    class Ray : IComparable
+    {
+        public string name;
+        public double angle;
+        public double lambda;
+
+        public Ray(string name, double angle, double distance)
+        {
+            this.name = name;
+            this.angle = angle;
+            this.lambda = distance;
+        }
+
+        public int CompareTo(object obj)
+        {
+            return lambda.CompareTo(((Ray)obj).lambda);
         }
     }
 
@@ -2244,6 +2263,66 @@ namespace LitDev
                     return;
                 }
             }
+        }
+
+        public Primitive rayCast(string shapeName, float[] angles, float distance, int maxCount = 10)
+        {
+            try
+            {
+                foreach (Sprite i in Sprites)
+                {
+                    if (i.name == shapeName)
+                    {
+                        float lambda = 0f;
+                        Vec2 normal = new Vec2(0f, 0f);
+                        Box2DX.Collision.Segment segment = new Box2DX.Collision.Segment();
+                        if (angles.Length > 1) maxCount = 2;
+                        Shape[] shapes = new Shape[maxCount];
+                        Shape userData = i.body.GetShapeList();
+                        Primitive result = "";
+                        Primitive details = "";
+                        List<Ray> rays = new List<Ray>();
+
+                        foreach (float angle in angles)
+                        {
+                            double theta = angle * pi / 180.0;
+                            segment.P1 = i.body.GetPosition();
+                            segment.P2 = segment.P1 + distance / scale * new Vec2((float)System.Math.Cos(theta), (float)System.Math.Sin(theta));
+                            int count = world.Raycast(segment, shapes, maxCount, false, userData);
+                            for (int j = 0; j < count; j++)
+                            {
+                                Sprite sprite = (Sprite)shapes[j].UserData;
+                                if (sprite == i) continue;
+                                string name = null == sprite ? "Wall" : sprite.name;
+                                shapes[j].TestSegment(shapes[j].GetBody().GetXForm(), out lambda, out normal, segment, 1f);
+                                Ray ray = rays.Find(item => item.name == name);
+
+                                if (null == ray)
+                                {
+                                    rays.Add(new Ray(name, angle, lambda));
+                                }
+                                else if (lambda < ray.lambda)
+                                {
+                                    ray.angle = angle;
+                                    ray.lambda = lambda;
+                                }
+                            }
+                        }
+                        rays.Sort();
+                        bool bOneRay = angles.Length == 1;
+                        foreach (Ray ray in rays)
+                        {
+                            result += Utilities.ArrayParse(ray.name) + "=" + (bOneRay ? distance * ray.lambda : ray.angle).ToString() + ";";
+                        }
+                        return Utilities.CreateArrayMap(result);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
         }
     }
 }

@@ -420,8 +420,8 @@ namespace LitDev
         /// </summary>
         public static Primitive Volume
         {
-            get { return 100 + (volume / 100.0); }
-            set { volume = 100 * (System.Math.Min(100, System.Math.Max(0, value)) - 100); }
+            get { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return ""; return 100 + (volume / 100.0); }
+            set { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return; volume = 100 * (System.Math.Min(100, System.Math.Max(0, value)) - 100); }
         }
 
         /// <summary>
@@ -429,8 +429,8 @@ namespace LitDev
         /// </summary>
         public static Primitive Pan
         {
-            get { return pan / 100.0; }
-            set { pan = 100 * System.Math.Min(100, System.Math.Max(0, value)); }
+            get { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return ""; return pan / 100.0; }
+            set { if (!VerifySlimDX.Verify(Utilities.GetCurrentMethod())) return; pan = 100 * System.Math.Min(100, System.Math.Max(0, value)); }
         }
 
         /// <summary>

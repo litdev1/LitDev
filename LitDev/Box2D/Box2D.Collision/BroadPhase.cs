@@ -898,8 +898,9 @@ namespace Box2DX.Collision
 					{
 						ptr2 += 4 / 4;
 					}
-                    int num2 = ((int)ptr2 - ((int)ptr) / 4) / 4;
-					if (maxCount != this._queryResultCount || num2 != this._queryResultCount)
+                    //int num2 = ((int)ptr2 - ((int)ptr) / 4) / 4;
+                    int num2 = (int)((ulong)ptr2 - (ulong)ptr) / 4; // STEVE
+                    if (maxCount != this._queryResultCount || num2 != this._queryResultCount)
 					{
 						if (maxCount == this._queryResultCount)
 						{

@@ -1503,5 +1503,38 @@ namespace LitDev
         {
             _Engine.wakeAll();
         }
+
+        /// <summary>
+        /// Cast an invisible ray to detect the proximity of shapes.
+        /// </summary>
+        /// <param name="shapeName">The shape to cast the ray from.</param>
+        /// <param name="angle">The angle in degrees to check, this can also be an array of angles.</param>
+        /// <param name="distance">A maximum distance to check.</param>
+        /// <returns>An array of results, indexed by the shape name ("Wall" for a static obstacle) with a value equal to its distance.
+        /// The shapes are sorted to list them nearest first.
+        /// If an array of input angles is used, then only the nearest shape for each angle is returned and the value is the angle, not the distance.</returns>
+        public static Primitive RayCast(Primitive shapeName, Primitive angle, Primitive distance)
+        {
+            try
+            {
+                if (SBArray.IsArray(angle))
+                {
+                    int count = SBArray.GetItemCount(angle);
+                    Primitive indices = SBArray.GetAllIndices(angle);
+                    float[] angles = new float[count];
+                    for (int i = 0; i < count; i++) angles[i] = angle[indices[i + 1]];
+                    return _Engine.rayCast(shapeName, angles, distance);
+                }
+                else
+                {
+                    return _Engine.rayCast(shapeName, new float[] { angle }, distance);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
     }
 }
