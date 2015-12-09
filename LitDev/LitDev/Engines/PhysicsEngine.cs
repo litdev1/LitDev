@@ -750,11 +750,11 @@ namespace LitDev
         public double angle;
         public double lambda;
 
-        public Ray(string name, double angle, double distance)
+        public Ray(string name, double angle, double lambda)
         {
             this.name = name;
             this.angle = angle;
-            this.lambda = distance;
+            this.lambda = lambda;
         }
 
         public int CompareTo(object obj)
