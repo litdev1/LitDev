@@ -3993,5 +3993,66 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
+
+        /// <summary>
+        /// Zoom all shapes.
+        /// </summary>
+        /// <param name="scaleX">The x-axis zoom level.</param>
+        /// <param name="scaleY">The y-axis zoom level.</param>
+        public static void ZoomAll(Primitive scaleX, Primitive scaleY)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Type ShapesType = typeof(Shapes);
+            Dictionary<string, UIElement> _objectsMap;
+            Dictionary<string, ScaleTransform> _scaleTransformMap;
+            string shapeName;
+            UIElement obj;
+            ScaleTransform scaleTransform;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                _scaleTransformMap = (Dictionary<string, ScaleTransform>)GraphicsWindowType.GetField("_scaleTransformMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        foreach (var pair in _objectsMap)
+                        {
+                            shapeName = pair.Key;
+                            obj = pair.Value;
+                            if (!(obj.RenderTransform is TransformGroup))
+                            {
+                                obj.RenderTransform = new TransformGroup();
+                            }
+                            if (!_scaleTransformMap.TryGetValue(shapeName, out scaleTransform))
+                            {
+                                scaleTransform = new ScaleTransform();
+                                _scaleTransformMap[shapeName] = scaleTransform;
+                                FrameworkElement frameworkElement = obj as FrameworkElement;
+                                if (frameworkElement != null)
+                                {
+                                    scaleTransform.CenterX = frameworkElement.ActualWidth / 2.0;
+                                    scaleTransform.CenterY = frameworkElement.ActualHeight / 2.0;
+                                }
+                                ((TransformGroup)obj.RenderTransform).Children.Add(scaleTransform);
+                            }
+                            scaleTransform.ScaleX = scaleX;
+                            scaleTransform.ScaleY = scaleY;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
     }
 }

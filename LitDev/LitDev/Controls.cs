@@ -496,7 +496,8 @@ namespace LitDev
             if (null == _MediaPlayerOpenedDelegate) return;
             _MediaPlayerOpenedDelegate();
         }
-        
+
+        private static double sliderMaximum = 100;
         private static string _LastSlider = "";
         private static double _LastSliderValue = 0;
         private static SmallBasicCallback _SliderChangedDelegate = null;
@@ -4203,7 +4204,7 @@ namespace LitDev
                         Slider slider = new Slider();
                         slider.Width = width;
                         slider.Height = height;
-                        slider.Maximum = 100;
+                        slider.Maximum = sliderMaximum;
                         slider.Orientation = ((string)orientation).ToLower() == "v" ? Orientation.Vertical : Orientation.Horizontal;
                         slider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(_SliderChangedEvent);
 
@@ -4224,6 +4225,16 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return "";
             }
+        }
+
+        /// <summary>
+        /// The maximum slider value, default is 100, the minimum is always 0.
+        /// Set this before calling AddSlider.
+        /// </summary>
+        public static Primitive SliderMaximum
+        {
+            get { return sliderMaximum; }
+            set { sliderMaximum = value; }
         }
 
         /// <summary>

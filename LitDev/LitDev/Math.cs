@@ -416,5 +416,49 @@ namespace LitDev
                 return "";
             }
         }
+
+        /// <summary>
+        /// Round a number to a fixed number of significant figures.
+        /// </summary>
+        /// <param name="number">The number to change.</param>
+        /// <param name="digits">The number of significant figures.</param>
+        /// <returns>The modified number.</returns>
+        public static Primitive FixSigFig(Primitive number, Primitive digits)
+        {
+            if (number == 0 || number+0 != number) return number;
+
+            double scale = System.Math.Pow(10, System.Math.Floor(System.Math.Log10(System.Math.Abs(number))) + 1);
+            return scale * System.Math.Round((double)number / scale, digits);
+        }
+
+        /// <summary>
+        /// Round a number to a fixed number of decimal places.  Additional training decimal 0s are added if required.
+        /// </summary>
+        /// <param name="number">The number to change.</param>
+        /// <param name="digits">The number of decimal places.</param>
+        /// <returns>The modified number.</returns>
+        public static Primitive FixDecimal(Primitive number, Primitive digits)
+        {
+            if (number + 0 != number) return number;
+
+            double scale = System.Math.Pow(10, digits);
+            return (Primitive)(1.0/scale) * (Primitive)System.Math.Round((double)number * scale);
+        }
+
+        /// <summary>
+        /// The minimum number that Small Basic can handle.
+        /// </summary>
+        public static Primitive MinNumber
+        {
+            get { return Decimal.MinValue; }
+        }
+
+        /// <summary>
+        /// The maximum number that Small Basic can handle.
+        /// </summary>
+        public static Primitive MaxNumber
+        {
+            get { return Decimal.MaxValue; }
+        }
     }
 }
