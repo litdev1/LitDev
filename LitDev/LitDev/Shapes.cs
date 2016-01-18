@@ -402,6 +402,154 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Get a shape property.  This is a .Net UIElement property.
+        /// </summary>
+        /// <param name="shapeName">The shape or control name.</param>
+        /// <param name="property">The property name to get.</param>
+        /// <returns>The value of the property.</returns>
+        [HideFromIntellisense]
+        public static Primitive GetProperty(Primitive shapeName, Primitive property)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            return obj.GetType().GetProperty(property).GetValue(obj, null).ToString();
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Get a list of shape properties.  These are .Net UIElement properties.
+        /// </summary>
+        /// <param name="shapeName">The shape or control name.</param>
+        /// <returns>An array of properties and their values.</returns>
+        [HideFromIntellisense]
+        public static Primitive GetProperties(Primitive shapeName)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            PropertyInfo[] properties = obj.GetType().GetProperties();
+                            string result = "";
+                            foreach (PropertyInfo property in properties)
+                            {
+                                Object value = property.GetValue(obj, null);
+                                if (null != value)
+                                {
+                                    if (TypeDescriptor.GetConverter(property.PropertyType).IsValid(value.ToString()))
+                                    {
+                                        result += Utilities.ArrayParse(property.Name) + "=" + Utilities.ArrayParse(value.ToString()) + ";";
+                                    }
+                                }
+                            }
+                            return Utilities.CreateArrayMap(result);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Set a shape property.  This is a .Net UIElement property.
+        /// </summary>
+        /// <param name="shapeName">The shape or control name.</param>
+        /// <param name="property">The property name to set.</param>
+        /// <param name="value">The value to set the property to.</param>
+        [HideFromIntellisense]
+        public static void SetProperty(Primitive shapeName, Primitive property, Primitive value)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            PropertyInfo propertyInfo = obj.GetType().GetProperty(property);
+                            propertyInfo.SetValue(obj, TypeDescriptor.GetConverter(propertyInfo.PropertyType).ConvertFromString((string)value), null);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
         /// Reset the Turtle after a GraphicsWindow.Clear().
         /// </summary>
         /// <returns>
@@ -3847,154 +3995,6 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Get a shape property.  This is a .Net UIElement property.
-        /// </summary>
-        /// <param name="shapeName">The shape or control name.</param>
-        /// <param name="property">The property name to get.</param>
-        /// <returns>The value of the property.</returns>
-        [HideFromIntellisense]
-        public static Primitive GetProperty(Primitive shapeName, Primitive property)
-        {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
-            try
-            {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                if (_objectsMap.TryGetValue((string)shapeName, out obj))
-                {
-                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
-                    {
-                        try
-                        {
-                            return obj.GetType().GetProperty(property).GetValue(obj, null).ToString();
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                            return "";
-                        }
-                    });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
-                }
-                else
-                {
-                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
-                    return "";
-                }
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "";
-            }
-        }
-
-        /// <summary>
-        /// Get a list of shape properties.  These are .Net UIElement properties.
-        /// </summary>
-        /// <param name="shapeName">The shape or control name.</param>
-        /// <returns>An array of properties and their values.</returns>
-        [HideFromIntellisense]
-        public static Primitive GetProperties(Primitive shapeName)
-        {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
-            try
-            {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                if (_objectsMap.TryGetValue((string)shapeName, out obj))
-                {
-                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
-                    {
-                        try
-                        {
-                            PropertyInfo[] properties = obj.GetType().GetProperties();
-                            string result = "";
-                            foreach (PropertyInfo property in properties)
-                            {
-                                Object value = property.GetValue(obj, null);
-                                if (null != value)
-                                {
-                                    if (TypeDescriptor.GetConverter(property.PropertyType).IsValid(value.ToString()))
-                                    {
-                                        result += Utilities.ArrayParse(property.Name) + "=" + Utilities.ArrayParse(value.ToString()) + ";";
-                                    }
-                                }
-                            }
-                            return Utilities.CreateArrayMap(result);
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                            return "";
-                        }
-                    });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
-                }
-                else
-                {
-                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
-                    return "";
-                }
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "";
-            }
-        }
-
-        /// <summary>
-        /// Set a shape property.  This is a .Net UIElement property.
-        /// </summary>
-        /// <param name="shapeName">The shape or control name.</param>
-        /// <param name="property">The property name to set.</param>
-        /// <param name="value">The value to set the property to.</param>
-        [HideFromIntellisense]
-        public static void SetProperty(Primitive shapeName, Primitive property, Primitive value)
-        {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
-            try
-            {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                if (_objectsMap.TryGetValue((string)shapeName, out obj))
-                {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            PropertyInfo propertyInfo = obj.GetType().GetProperty(property);
-                            propertyInfo.SetValue(obj, TypeDescriptor.GetConverter(propertyInfo.PropertyType).ConvertFromString((string)value), null);
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
-                }
-                else
-                {
-                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
-                }
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-            }
-        }
-
-        /// <summary>
         /// Zoom all shapes.
         /// </summary>
         /// <param name="scaleX">The x-axis zoom level.</param>
@@ -4006,7 +4006,6 @@ namespace LitDev
             Dictionary<string, UIElement> _objectsMap;
             Dictionary<string, ScaleTransform> _scaleTransformMap;
             string shapeName;
-            UIElement obj;
             ScaleTransform scaleTransform;
 
             try
@@ -4020,25 +4019,15 @@ namespace LitDev
                         foreach (var pair in _objectsMap)
                         {
                             shapeName = pair.Key;
-                            obj = pair.Value;
-                            if (!(obj.RenderTransform is TransformGroup))
+                            if (_scaleTransformMap.TryGetValue(shapeName, out scaleTransform))
                             {
-                                obj.RenderTransform = new TransformGroup();
+                                scaleTransform.ScaleX = scaleX;
+                                scaleTransform.ScaleY = scaleY;
                             }
-                            if (!_scaleTransformMap.TryGetValue(shapeName, out scaleTransform))
+                            else
                             {
-                                scaleTransform = new ScaleTransform();
-                                _scaleTransformMap[shapeName] = scaleTransform;
-                                FrameworkElement frameworkElement = obj as FrameworkElement;
-                                if (frameworkElement != null)
-                                {
-                                    scaleTransform.CenterX = frameworkElement.ActualWidth / 2.0;
-                                    scaleTransform.CenterY = frameworkElement.ActualHeight / 2.0;
-                                }
-                                ((TransformGroup)obj.RenderTransform).Children.Add(scaleTransform);
+                                Shapes.Zoom(shapeName, scaleX, scaleY);
                             }
-                            scaleTransform.ScaleX = scaleX;
-                            scaleTransform.ScaleY = scaleY;
                         }
                     }
                     catch (Exception ex)

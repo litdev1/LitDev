@@ -1163,5 +1163,66 @@ namespace LitDev
             IntPtr hWnd = User32.FindWindow(null, GraphicsWindow.Title);
             User32.SetForegroundWindow(hWnd);
         }
+
+        /// <summary>
+        /// Scale and move all Shapes and Contols within the GraphicsWindow.
+        /// This method resizes and moves the view rather than the shapes, so their positions and other properties remain unchanged but appear scaled within the repositioned region.
+        /// For example Shapes.GetLeft remains unchanged although the view has been repositioned and GraphicsWindow.MouseX reports the coordinates relative to the repositioned view.
+        /// All drawing remains within the original GraphicsWindow.
+        /// </summary>
+        /// <param name="scaleX">The X direction scaling of the view.</param>
+        /// <param name="scaleY">The Y direction scaling of the view.</param>
+        /// <param name="scaleCenterX">The X position of the center of scaling within the scaled view.</param>
+        /// <param name="scaleCenterY">The Y position of the center of scaling within the scaled view.</param>
+        /// <param name="viewX">The X position of scaleCenterX within the unscaled GraphicsWindow.</param>
+        /// <param name="viewY">The Y position of scaleCenterY within the unscaled GraphicsWindow.</param>
+        public static void Reposition(Primitive scaleX, Primitive scaleY, Primitive scaleCenterX, Primitive scaleCenterY, Primitive viewX, Primitive viewY)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Canvas _mainCanvas;
+            ScaleTransform scaleTransform;
+            TranslateTransform translateTransform;
+
+            try
+            {
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        FrameworkElement frameworkElement = _mainCanvas as FrameworkElement;
+                        if (!(_mainCanvas.RenderTransform is TransformGroup))
+                        {
+                            _mainCanvas.RenderTransform = new TransformGroup();
+                            scaleTransform = new ScaleTransform();
+                            translateTransform = new TranslateTransform();
+                            ((TransformGroup)_mainCanvas.RenderTransform).Children.Add(scaleTransform);
+                            ((TransformGroup)_mainCanvas.RenderTransform).Children.Add(translateTransform);
+                        }
+                        else
+                        {
+                            scaleTransform = (ScaleTransform)((TransformGroup)_mainCanvas.RenderTransform).Children[0];
+                            translateTransform = (TranslateTransform)((TransformGroup)_mainCanvas.RenderTransform).Children[1];
+                        }
+                        scaleTransform.CenterX = scaleCenterX;
+                        scaleTransform.CenterY = scaleCenterY;
+                        scaleTransform.ScaleX = scaleX;
+                        scaleTransform.ScaleY = scaleY;
+                        translateTransform.X = viewX - scaleCenterX;
+                        translateTransform.Y = viewY - scaleCenterY;
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
     }
 }
