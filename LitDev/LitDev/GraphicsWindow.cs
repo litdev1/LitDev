@@ -1164,24 +1164,55 @@ namespace LitDev
             User32.SetForegroundWindow(hWnd);
         }
 
+        private static ScaleTransform scaleTransform;
+        private static RotateTransform rotateTransform;
+        private static TranslateTransform translateTransform;
+        private static void GetTransforms(Canvas canvas)
+        {
+            if (!(canvas.RenderTransform is TransformGroup))
+            {
+                canvas.RenderTransform = new TransformGroup();
+
+                translateTransform = new TranslateTransform();
+                ((TransformGroup)canvas.RenderTransform).Children.Add(translateTransform);
+
+                scaleTransform = new ScaleTransform();
+                scaleTransform.CenterX = canvas.ActualWidth / 2.0;
+                scaleTransform.CenterY = canvas.ActualWidth / 2.0;
+                ((TransformGroup)canvas.RenderTransform).Children.Add(scaleTransform);
+
+                rotateTransform = new RotateTransform();
+                rotateTransform.CenterX = canvas.ActualWidth / 2.0;
+                rotateTransform.CenterY = canvas.ActualHeight / 2.0;
+                ((TransformGroup)canvas.RenderTransform).Children.Add(rotateTransform);
+            }
+            else
+            {
+                translateTransform = (TranslateTransform)((TransformGroup)canvas.RenderTransform).Children[0];
+                scaleTransform = (ScaleTransform)((TransformGroup)canvas.RenderTransform).Children[1];
+                rotateTransform = (RotateTransform)((TransformGroup)canvas.RenderTransform).Children[2];
+            }
+        }
+
         /// <summary>
         /// Scale and move all Shapes and Contols within the GraphicsWindow.
         /// This method resizes and moves the view rather than the shapes, so their positions and other properties remain unchanged but appear scaled within the repositioned region.
         /// For example Shapes.GetLeft remains unchanged although the view has been repositioned and GraphicsWindow.MouseX reports the coordinates relative to the repositioned view.
+        /// Imagine the entire view is repositioned as if it were a shape inside the GrapicsWindow.
+        /// The transformation between view coordinates (vX,vY) and GraphicsWindow coordinates (gwX,gwY) is:
+        /// gwX = (vX+panX)*scaleX + gw*(1-scaleX)/2
+        /// gwY = (vY+panY)*scaleY + gh*(1-scaleY)/2
         /// All drawing remains within the original GraphicsWindow.
         /// </summary>
         /// <param name="scaleX">The X direction scaling of the view.</param>
         /// <param name="scaleY">The Y direction scaling of the view.</param>
-        /// <param name="scaleCenterX">The X position of the center of scaling within the scaled view.</param>
-        /// <param name="scaleCenterY">The Y position of the center of scaling within the scaled view.</param>
-        /// <param name="viewX">The X position of scaleCenterX within the unscaled GraphicsWindow.</param>
-        /// <param name="viewY">The Y position of scaleCenterY within the unscaled GraphicsWindow.</param>
-        public static void Reposition(Primitive scaleX, Primitive scaleY, Primitive scaleCenterX, Primitive scaleCenterY, Primitive viewX, Primitive viewY)
+        /// <param name="panX">Pan the view in the X direction in the view scaling, 0 is centered in the GraphicsWindow.</param>
+        /// <param name="panY">Pan the view in the Y direction in the view scaling, 0 is centered in the GraphicsWindow.</param>
+        /// <param name="angle">An angle to rotate the view.</param>
+        public static void Reposition(Primitive scaleX, Primitive scaleY, Primitive panX, Primitive panY, Primitive angle)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Canvas _mainCanvas;
-            ScaleTransform scaleTransform;
-            TranslateTransform translateTransform;
 
             try
             {
@@ -1190,26 +1221,24 @@ namespace LitDev
                 {
                     try
                     {
-                        FrameworkElement frameworkElement = _mainCanvas as FrameworkElement;
-                        if (!(_mainCanvas.RenderTransform is TransformGroup))
-                        {
-                            _mainCanvas.RenderTransform = new TransformGroup();
-                            scaleTransform = new ScaleTransform();
-                            translateTransform = new TranslateTransform();
-                            ((TransformGroup)_mainCanvas.RenderTransform).Children.Add(scaleTransform);
-                            ((TransformGroup)_mainCanvas.RenderTransform).Children.Add(translateTransform);
-                        }
-                        else
-                        {
-                            scaleTransform = (ScaleTransform)((TransformGroup)_mainCanvas.RenderTransform).Children[0];
-                            translateTransform = (TranslateTransform)((TransformGroup)_mainCanvas.RenderTransform).Children[1];
-                        }
-                        scaleTransform.CenterX = scaleCenterX;
-                        scaleTransform.CenterY = scaleCenterY;
+                        GetTransforms(_mainCanvas);
+
+                        translateTransform.X = panX;
+                        translateTransform.Y = panY;
+
                         scaleTransform.ScaleX = scaleX;
                         scaleTransform.ScaleY = scaleY;
-                        translateTransform.X = viewX - scaleCenterX;
-                        translateTransform.Y = viewY - scaleCenterY;
+
+                        rotateTransform.Angle = angle;
+
+                        //Grid grid = (Grid)_mainCanvas.Parent;
+                        //System.Windows.Point pointView = new System.Windows.Point(GraphicsWindow.Width / 2, GraphicsWindow.Height / 2);
+                        //System.Windows.Point pointGW = grid.PointFromScreen(_mainCanvas.PointToScreen(pointView));
+                        //TextWindow.WriteLine(rotateTransform.CenterX + " , " + pointGW.X);
+                        //rotateTransform.CenterX = pointGW.X;
+                        //rotateTransform.CenterY = pointGW.Y;
+
+                        _mainCanvas.InvalidateVisual();
                     }
                     catch (Exception ex)
                     {
@@ -1222,6 +1251,125 @@ namespace LitDev
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Get coordinates transformed between GraphicsWindow and a repositioned View (See Reposition).
+        /// </summary>
+        /// <param name="x">The x coordinate to transform.</param>
+        /// <param name="y">The x coordinate to transform.</param>
+        /// <param name="toGW">Transfer from View to GraphicsWindow ("True") or from GraphicsWindow to View ("False").</param>
+        /// <returns>A 2D array of transformed coordinates indexed by 1 and 2.</returns>
+        public static Primitive RepositionPoint(Primitive x, Primitive y, Primitive toGW)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Canvas _mainCanvas;
+            Primitive result = "";
+
+            try
+            {
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        Grid grid = (Grid)_mainCanvas.Parent;
+                        if (toGW)
+                        {
+                            System.Windows.Point pointView = new System.Windows.Point(x, y);
+                            //System.Windows.Point pointGW = grid.PointFromScreen(_mainCanvas.PointToScreen(pointView));
+                            GeneralTransform transform = _mainCanvas.TransformToVisual(grid);
+                            System.Windows.Point pointGW = transform.Transform(pointView);
+                            result[1] = pointGW.X;
+                            result[2] = pointGW.Y;
+                        }
+                        else
+                        {
+                            System.Windows.Point pointGW = new System.Windows.Point(x, y);
+                            //System.Windows.Point pointView = _mainCanvas.PointFromScreen(grid.PointToScreen(pointGW));
+                            GeneralTransform transform = grid.TransformToVisual(_mainCanvas);
+                            System.Windows.Point pointView = transform.Transform(pointGW);
+                            result[1] = pointView.X;
+                            result[2] = pointView.Y;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// The mouse X GraphicsWindow coordinate in a repositioned view (see Reposition).
+        /// </summary>
+        public static Primitive RepositionedMouseX
+        {
+            get
+            {
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Canvas _mainCanvas;
+
+                try
+                {
+                    _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        System.Drawing.Point position = System.Windows.Forms.Cursor.Position;
+                        Grid grid = (Grid)_mainCanvas.Parent;
+                        GeneralTransform transform = _mainCanvas.TransformToVisual(grid);
+                        return transform.Transform(_mainCanvas.PointFromScreen(new System.Windows.Point(position.X, position.Y))).X;
+                        //return grid.PointFromScreen(new System.Windows.Point(position.X, position.Y)).X;
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    return "";
+                }
+            }
+        }
+
+        /// <summary>
+        /// The mouse GraphicsWindow Y coordinate in a repositioned view (see Reposition).
+        /// </summary>
+        public static Primitive RepositionedMouseY
+        {
+            get
+            {
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Canvas _mainCanvas;
+
+                try
+                {
+                    _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        System.Drawing.Point position = System.Windows.Forms.Cursor.Position;
+                        Grid grid = (Grid)_mainCanvas.Parent;
+                        GeneralTransform transform = _mainCanvas.TransformToVisual(grid);
+                        return transform.Transform(_mainCanvas.PointFromScreen(new System.Windows.Point(position.X, position.Y))).Y;
+                        //return grid.PointFromScreen(new System.Windows.Point(position.X, position.Y)).Y;
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    return "";
+                }
             }
         }
     }

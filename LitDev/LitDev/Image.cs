@@ -252,6 +252,13 @@ namespace LitDev
             }
         }
 
+        private static System.Drawing.ColorConverter colConvert = new System.Drawing.ColorConverter();
+
+        private static string Color2ARGB(System.Drawing.Color c)
+        {
+            return "#" + c.A.ToString("X2") + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
+        }
+
         /// <summary>
         /// Set a pixel colour.
         /// </summary>
@@ -282,7 +289,6 @@ namespace LitDev
                             System.Drawing.Bitmap dImg = getBitmap(img);
                             if (x >= 0 && x < dImg.Width && y >= 0 && y < dImg.Height)
                             {
-                                System.Drawing.ColorConverter colConvert = new System.Drawing.ColorConverter();
                                 System.Drawing.Color c = (System.Drawing.Color)colConvert.ConvertFromString(colour);
 
                                 dImg.SetPixel(x, y, c);
@@ -336,7 +342,7 @@ namespace LitDev
                             if (x >= 0 && x < dImg.Width && y >= 0 && y < dImg.Height)
                             {
                                 System.Drawing.Color c = dImg.GetPixel(x, y);
-                                colour = System.Drawing.ColorTranslator.ToHtml(c).ToString();
+                                colour = Color2ARGB(c);
                             }
                         }
                         catch (Exception ex)
@@ -1466,7 +1472,6 @@ namespace LitDev
                             string imageName = methodInfo.Invoke(null, new object[] { "ImageList" }).ToString();
 
                             Bitmap img = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                            System.Drawing.ColorConverter colConvert = new System.Drawing.ColorConverter();
 
                             Graphics.FromImage(img).FillRectangle(new SolidBrush((System.Drawing.Color)colConvert.ConvertFromString(colour)), 0, 0, width, height);
 
@@ -1488,6 +1493,109 @@ namespace LitDev
                     return "";
                 }
             }
+        }
+
+        /// <summary>
+        /// Get a 2D array filled with all the pixels in an image.
+        /// </summary>
+        /// <param name="image">The ImageList image.</param>
+        /// <returns>An array of hex based image pixel colours indexed by [x][y].</returns>
+        public static Primitive GetImagePixels(Primitive image)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Dictionary<string, BitmapSource> _savedImages;
+                BitmapSource img;
+                Primitive result = "";
+
+                try
+                {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue((string)image, out img)) return result;
+
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            for (int i = 0; i < dImg.Width; i++)
+                            {
+                                string row = "";
+                                for (int j = 0; j < dImg.Height; j++)
+                                {
+                                    System.Drawing.Color c = dImg.GetPixel(i, j);
+                                    row += (j + 1).ToString() + "=" + Utilities.ArrayParse(Color2ARGB(c)) + ";";
+                                }
+                                result[i + 1] = Utilities.CreateArrayMap(row);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Create a new image from a 2D array of pixel colour values - see GetImagePixels for format of pixels.
+        /// </summary>
+        /// <param name="pixels">An array of hex based image pixel colours indexed by [x][y].</param>
+        /// <returns>An ImageList image created from the pixels.</returns>
+        public static Primitive SetImagePixels(Primitive pixels)
+        {
+            Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Type ShapesType = typeof(Shapes);
+            Dictionary<string, BitmapSource> _savedImages;
+            string imageNew = "";
+
+            try
+            {
+                MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                imageNew = method.Invoke(null, new object[] { "ImageList" }).ToString();
+                _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        int width = SBArray.GetItemCount(pixels);
+                        int height = SBArray.GetItemCount(pixels[1]);
+                        Bitmap dImg = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        for (int i = 0; i < width; i++)
+                        {
+                            Primitive row = pixels[i + 1];
+                            for (int j = 0; j < height; j++)
+                            {
+                                dImg.SetPixel(i, j, (System.Drawing.Color)colConvert.ConvertFromString(row[j+1]));
+                            }
+                        }
+                        _savedImages[imageNew] = getBitmapImage(dImg);
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return imageNew;
         }
     }
 }
