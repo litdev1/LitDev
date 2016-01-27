@@ -40,6 +40,8 @@ namespace LitDev
     {
         private static bool rasterize = true;
         private static bool bKeyScroll = true;
+        private static bool bMouseScroll = true;
+        private static double panningRatio = 1.0;
 
         private static SmallBasicCallback _ScrollChangedDelegate = null;
         private static void _ScrollChangedEvent(Object sender, ScrollChangedEventArgs e)
@@ -145,6 +147,18 @@ namespace LitDev
             if (null != callback) callback();
         }
 
+        private static void _MouseWheelEvent(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            LDEvents._MouseWheelEvent(sender, e);
+            if (bMouseScroll && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
+            {
+                //ScrollViewer scrollviewer = (ScrollViewer)((Grid)sender).Parent;
+                HorizontalScroll += e.Delta;
+                e.Handled = true;
+            }
+            else e.Handled = !bMouseScroll;
+        }
+
         private static void setScrollBars(double width, double height)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -179,6 +193,7 @@ namespace LitDev
                             eventInfo.RemoveEventHandler(_window, methodDelegate);
                             _window.SizeChanged += new SizeChangedEventHandler(_WindowSizeChanged);
                         }
+                        scrollViewer.PanningRatio = panningRatio;
                         scrollViewer.HorizontalScrollBarVisibility = width > 0 ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
                         scrollViewer.VerticalScrollBarVisibility = height > 0 ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
                         width = System.Math.Max(width, _mainCanvas.ActualWidth);
@@ -194,7 +209,7 @@ namespace LitDev
                         grid.MouseDown += new System.Windows.Input.MouseButtonEventHandler(_MouseDownEvent);
                         //grid.MouseUp += new System.Windows.Input.MouseButtonEventHandler(_MouseUpEvent);
                         //grid.MouseMove += new System.Windows.Input.MouseEventHandler(_MouseMoveEvent);
-                        grid.MouseWheel += new System.Windows.Input.MouseWheelEventHandler(LDEvents._MouseWheelEvent);
+                        grid.MouseWheel += new System.Windows.Input.MouseWheelEventHandler(_MouseWheelEvent);
                         scrollViewer.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(_KeyDownEvent);
                         //grid.KeyUp += new System.Windows.Input.KeyEventHandler(_KeyUpEvent);
                         //grid.TextInput += new System.Windows.Input.TextCompositionEventHandler(_TextInputEvent);
@@ -337,6 +352,11 @@ namespace LitDev
                                 scrollViewer.VerticalScrollBarVisibility = value ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
                                 scrollViewer.HorizontalScrollBarVisibility = scrollViewer.VerticalScrollBarVisibility;
                                 break;
+                            case "getpanningratio":
+                                return scrollViewer.PanningRatio;
+                            case "setpanningratio":
+                                scrollViewer.PanningRatio = value;
+                                break;
                         }
 
                         return "";
@@ -364,6 +384,15 @@ namespace LitDev
         {
             get { return bKeyScroll ? "True" : "False"; }
             set { bKeyScroll = value; }
+        }
+
+        /// <summary>
+        /// Set if scrollbars will move with mouse wheel "True" (default) or "False".
+        /// </summary>
+        public static Primitive MouseScroll
+        {
+            get { return bMouseScroll ? "True" : "False"; }
+            set { bMouseScroll = value; }
         }
 
         /// <summary>
@@ -432,6 +461,16 @@ namespace LitDev
         {
             get { return propertyScrollBars("GetVisibility", 0); }
             set { propertyScrollBars("SetVisibility", value); }
+        }
+
+
+        // Get or Set the ScrollBars' panning ratio (default 1).
+        // This is the ratio of scolling to view movement.
+        [HideFromIntellisense]
+        public static Primitive PanningRatio
+        {
+            get { return propertyScrollBars("GetPanningRatio", 1); }
+            set { propertyScrollBars("SetPanningRatio", value); }
         }
 
         /// <summary>
