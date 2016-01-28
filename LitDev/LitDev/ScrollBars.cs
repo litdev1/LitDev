@@ -41,7 +41,6 @@ namespace LitDev
         private static bool rasterize = true;
         private static bool bKeyScroll = true;
         private static bool bMouseScroll = true;
-        private static double panningRatio = 1.0;
 
         private static SmallBasicCallback _ScrollChangedDelegate = null;
         private static void _ScrollChangedEvent(Object sender, ScrollChangedEventArgs e)
@@ -193,7 +192,6 @@ namespace LitDev
                             eventInfo.RemoveEventHandler(_window, methodDelegate);
                             _window.SizeChanged += new SizeChangedEventHandler(_WindowSizeChanged);
                         }
-                        scrollViewer.PanningRatio = panningRatio;
                         scrollViewer.HorizontalScrollBarVisibility = width > 0 ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
                         scrollViewer.VerticalScrollBarVisibility = height > 0 ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
                         width = System.Math.Max(width, _mainCanvas.ActualWidth);
