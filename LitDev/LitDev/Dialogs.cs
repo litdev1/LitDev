@@ -26,9 +26,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using Controls = System.Windows.Controls;
 using SBArray = Microsoft.SmallBasic.Library.Array;
-using Shapes = System.Windows.Shapes;
 
 namespace LitDev
 {
@@ -599,7 +597,15 @@ namespace LitDev
         /// <returns>"Yes", "No" or "Cancel"</returns>
         public static Primitive Confirm(Primitive text, Primitive title)
         {
-            return MessageBox.Show(text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question).ToString();
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+            InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+            {
+                if (null != _window) return MessageBox.Show(_window, text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question).ToString();
+                else return MessageBox.Show(text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question).ToString();
+            });
+            MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+            return method.Invoke(null, new object[] { ret }).ToString();
         }
     }
 }

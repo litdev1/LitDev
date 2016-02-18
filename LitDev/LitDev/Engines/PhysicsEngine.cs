@@ -293,6 +293,7 @@ namespace LitDev
             bodyDef.Position.Set(posXP, posYP);
             bodyDef.Angle = angleP;
             body = world.CreateBody(bodyDef);
+            body.SetUserData(this);
             widthS = scale * sizeXP;
             heightS = scale * sizeYP;
 
@@ -784,6 +785,9 @@ namespace LitDev
         Vec2 boxSprite1, boxSprite2;
 
         //Public
+        public World GetWorld() { return world; }
+        public List<Sprite> GetSprites() { return Sprites; }
+
         public float timeStep;
         public int velocityIterations, positionIterations;
         public int maxPolygonVertices
@@ -1160,11 +1164,11 @@ namespace LitDev
                     leftBodyDef.Position.Set(0f, 0f);
                     leftBody = world.CreateBody(leftBodyDef);
                     PolygonDef leftShapeDef = new PolygonDef();
-                    leftShapeDef.SetAsBox(width, rangeAABB.Y);
+                    leftShapeDef.SetAsBox(width / 2.0f, rangeAABB.Y / 2.0f);
                     leftShapeDef.Friction = 0.5f;
                     leftBody.CreateShape(leftShapeDef);
                 }
-                Vec2 posLeft = new Vec2((leftS / scale) - width, centreAABB.Y);
+                Vec2 posLeft = new Vec2((leftS / scale) - width / 2.0f, centreAABB.Y);
                 leftBody.SetXForm(posLeft, 0.0f);
             }
 
@@ -1184,11 +1188,11 @@ namespace LitDev
                     rightBodyDef.Position.Set(0f, 0f);
                     rightBody = world.CreateBody(rightBodyDef);
                     PolygonDef rightShapeDef = new PolygonDef();
-                    rightShapeDef.SetAsBox(width, rangeAABB.Y);
+                    rightShapeDef.SetAsBox(width / 2.0f, rangeAABB.Y / 2.0f);
                     rightShapeDef.Friction = 0.5f;
                     rightBody.CreateShape(rightShapeDef);
                 }
-                Vec2 posRight = new Vec2((rightS / scale) + width, centreAABB.Y);
+                Vec2 posRight = new Vec2((rightS / scale) + width / 2.0f, centreAABB.Y);
                 rightBody.SetXForm(posRight, 0.0f);
             }
 
@@ -1208,11 +1212,11 @@ namespace LitDev
                     topBodyDef.Position.Set(0f, 0f);
                     topBody = world.CreateBody(topBodyDef);
                     PolygonDef topShapeDef = new PolygonDef();
-                    topShapeDef.SetAsBox(rangeAABB.X, width);
+                    topShapeDef.SetAsBox(rangeAABB.X / 2.0f, width / 2.0f);
                     topShapeDef.Friction = 0.5f;
                     topBody.CreateShape(topShapeDef);
                 }
-                Vec2 posTop = new Vec2(centreAABB.X, (topS / scale) - width);
+                Vec2 posTop = new Vec2(centreAABB.X, (topS / scale) - width / 2.0f);
                 topBody.SetXForm(posTop, 0.0f);
             }
 
@@ -1232,11 +1236,11 @@ namespace LitDev
                     groundBodyDef.Position.Set(0f, 0f);
                     groundBody = world.CreateBody(groundBodyDef);
                     PolygonDef groundShapeDef = new PolygonDef();
-                    groundShapeDef.SetAsBox(rangeAABB.X, width);
+                    groundShapeDef.SetAsBox(rangeAABB.X / 2.0f, width / 2.0f);
                     groundShapeDef.Friction = 0.5f;
                     groundBody.CreateShape(groundShapeDef);
                 }
-                Vec2 posGround = new Vec2(centreAABB.X, (bottomS / scale) + width);
+                Vec2 posGround = new Vec2(centreAABB.X, (bottomS / scale) + width / 2.0f);
                 groundBody.SetXForm(posGround, 0.0f);
             }
         }

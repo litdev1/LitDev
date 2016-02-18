@@ -99,28 +99,28 @@ namespace LitDev
         }
 
         // We need to call this delegate since MouseDown is not propagated to Window
-        private static void _MouseDownEvent(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private static void _MouseDownEvent(object sender, MouseButtonEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseDown", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
         }
 
-        private static void _MouseUpEvent(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private static void _MouseUpEvent(object sender, MouseButtonEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseUp", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
         }
 
-        private static void _MouseMoveEvent(object sender, System.Windows.Input.MouseEventArgs e)
+        private static void _MouseMoveEvent(object sender, MouseEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseMove", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
         }
 
-        private static void _KeyDownEvent(object sender, System.Windows.Input.KeyEventArgs e)
+        private static void _KeyDownEvent(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
             {
@@ -132,21 +132,21 @@ namespace LitDev
             }
         }
 
-        private static void _KeyUpEvent(object sender, System.Windows.Input.KeyEventArgs e)
+        private static void _KeyUpEvent(object sender, KeyEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_keyUp", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
         }
 
-        private static void _TextInputEvent(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        private static void _TextInputEvent(object sender, TextCompositionEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_textInput", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
         }
 
-        private static void _MouseWheelEvent(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        private static void _MouseWheelEvent(object sender, MouseWheelEventArgs e)
         {
             LDEvents._MouseWheelEvent(sender, e);
             if (bMouseScroll && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
@@ -386,6 +386,7 @@ namespace LitDev
 
         /// <summary>
         /// Set if scrollbars will move with mouse wheel "True" (default) or "False".
+        /// Hold the shift key down to scroll horizontally with mouse wheel.
         /// </summary>
         public static Primitive MouseScroll
         {
@@ -460,7 +461,6 @@ namespace LitDev
             get { return propertyScrollBars("GetVisibility", 0); }
             set { propertyScrollBars("SetVisibility", value); }
         }
-
 
         // Get or Set the ScrollBars' panning ratio (default 1).
         // This is the ratio of scolling to view movement.

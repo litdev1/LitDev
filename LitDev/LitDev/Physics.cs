@@ -1536,5 +1536,110 @@ namespace LitDev
                 return "";
             }
         }
+
+        public static void WriteJson(Primitive fileName)
+        {
+            try
+            {
+                Json.JsonPhysics physicsJson = new Json.JsonPhysics(_Engine);
+                physicsJson.Write(fileName);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        public static void ReadJson(Primitive fileName)
+        {
+            try
+            {
+                //GraphicsWindow.Clear();
+                _Engine = new PhysicsEngine();
+                Json.JsonPhysics physicsJson = new Json.JsonPhysics(_Engine);
+                Json.JsonWorld world = physicsJson.Read(fileName);
+                _Engine.positionIterations = world.positionIterations;
+                _Engine.velocityIterations = world.velocityIterations;
+                _Engine.timeStep = 1.0f/(float)world.stepsPerSecond;
+                float scale = _Engine.scale;
+
+                Dictionary<int, string> images = new Dictionary<int, string>();
+                Dictionary<string, string> shapes = new Dictionary<string, string>();
+                foreach (Json.JsonImage image in world.image)
+                {
+                    images[image.body] = Shapes.AddImage(ImageList.LoadImage(image.file));
+                }
+                int iFixture = 0;
+                foreach (Json.JsonBody body in world.body)
+                {
+                    //TextWindow.WriteLine(body.name);
+                    foreach (Json.JsonFixture fixture in body.fixture)
+                    {
+                        //TextWindow.WriteLine(fixture.name);
+                        string image;
+                        if (images.TryGetValue(iFixture++, out image))
+                        {
+                            LoadImagesAsCircles = null == fixture.circle;
+                            shapes[fixture.name] = image;
+                        }
+                        else if (null != fixture.circle)
+                        {
+                            shapes[fixture.name] = Shapes.AddEllipse(2 * scale * fixture.circle.radius, 2 * scale * fixture.circle.radius);
+                        }
+                        else if (null != fixture.polygon)
+                        {
+                            Primitive points = "";
+                            for (int i = 0; i < fixture.polygon.vertices.x.Count; i++)
+                            {
+                                Primitive point = "";
+                                point[1] = scale * fixture.polygon.vertices.x[i];
+                                point[2] = scale * fixture.polygon.vertices.y[i];
+                                points[i + 1] = point;
+                                //TextWindow.WriteLine("Corner " + (i + 1) + " " + point[1] + ", " + point[2]);
+                            }
+                            shapes[fixture.name] = LDShapes.AddPolygon(points);
+                        }
+
+                        string shapeName = shapes[fixture.name];
+                        if (shapeName != "")
+                        {
+                            if (body.type == 0)
+                            {
+                                //TextWindow.WriteLine("Fixed Shape");
+                                AddFixedShape(shapeName, fixture.friction, fixture.restitution);
+                            }
+                            else
+                            {
+                                //TextWindow.WriteLine("Moving Shape");
+                                AddMovingShape(shapeName, fixture.friction, fixture.restitution, fixture.density);
+                            }
+                            //TextWindow.WriteLine("Filter "+fixture.filter_categoryBits+ " , " + fixture.filter_maskBits);
+                            int _categoryBits = fixture.filter_categoryBits - 1;
+                            Primitive _maskBits = "";
+                            int index = 1;
+                            for (int i = 1; i <= 16; i++)
+                            {
+                                if ((fixture.filter_maskBits & i) != 0) _maskBits[index++] = i-1;
+                            }
+                            //TextWindow.WriteLine("Filter "+ _categoryBits + " , " + _maskBits);
+                            SetGroup(shapeName, _categoryBits, _maskBits);
+                            if (fixture.name == body.name)
+                            {
+                                //TextWindow.WriteLine("Position "+ scale * body.position.x +", "+ scale * body.position.y);
+                                SetPosition(shapeName, scale * body.position.x, scale * body.position.y, 180.0f / System.Math.PI * body.angle);
+                                SetVelocity(shapeName, scale * body.linearVelocity.x, scale * body.linearVelocity.y);
+                                SetRotation(shapeName, 180.0f / System.Math.PI * body.angularVelocity);
+                                if (body.bullet) SetBullet(shapeName);
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
     }
 }

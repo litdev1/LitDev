@@ -1,6 +1,12 @@
 using Box2DX.Collision;
 using Box2DX.Common;
+using LitDev.Json;
+using Microsoft.SmallBasic.Library;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Windows.Media.Imaging;
+
 namespace Box2DX.Dynamics
 {
 	public class World : IDisposable
@@ -938,5 +944,185 @@ namespace Box2DX.Dynamics
 		{
 			return this._broadPhase.InRange(aabb);
 		}
-	}
+
+        // STEVE
+        public void SetJson(JsonWorld jsWorld)
+        {
+            jsWorld.gravity = new JsonVector(_gravity);
+            jsWorld.allowSleep = _allowSleep;
+
+            LitDev.Sprite sprite;
+            Dictionary<Body, int> bodies = new Dictionary<Body, int>();
+            jsWorld.body = new List<JsonBody>();
+            jsWorld.image = new List<JsonImage>();
+            jsWorld.joint = new List<JsonJoint>();
+            int iBody = 0;
+            int iFixture = 0;
+            int iJoint = 0;
+            for (Body body = _bodyList; body != null; body = body._next, iBody++)
+            {
+                JsonBody jsBody = new JsonBody();
+                jsWorld.body.Add(jsBody);
+
+                jsBody.name = "Body" + iBody;
+                bodies[body] = iBody;
+                jsBody.type = body.Type == Body.BodyType.Static ? 0 : 2;
+                jsBody.angle = body.GetAngle();
+                jsBody.angularDamping = body._angularDamping;
+                jsBody.angularVelocity = body.GetAngularVelocity();
+                jsBody.awake = (body.Flags & Body.BodyFlags.Sleep) != Body.BodyFlags.Sleep;
+                jsBody.bullet = (body.Flags & Body.BodyFlags.Bullet) == Body.BodyFlags.Bullet;
+                jsBody.fixedRotation = (body.Flags & Body.BodyFlags.FixedRotation) == Body.BodyFlags.FixedRotation;
+                jsBody.linearDamping = body._linearDamping;
+                jsBody.linearVelocity = new JsonVector(body.GetLinearVelocity());
+                jsBody.massData_mass = body.GetMass();
+                jsBody.massData_center = new JsonVector(body.GetLocalCenter());
+                jsBody.massData_I = body.GetInertia();
+                jsBody.position = new JsonVector(body.GetPosition());
+
+                jsBody.fixture = new List<JsonFixture>();
+                int iFixtureCount = 0;
+                for (Shape shape = body.GetShapeList(); shape != null; shape = shape.GetNext(), iFixture++, iFixtureCount++)
+                {
+                    JsonFixture jsFixture = new JsonFixture();
+                    jsBody.fixture.Add(jsFixture);
+
+                    jsFixture.name = iFixtureCount == 0 ? "Body" + iBody : "Fixture" + iFixture;
+                    jsFixture.density = shape.Density;
+                    jsFixture.filter_categoryBits = shape.FilterData.CategoryBits;
+                    jsFixture.filter_maskBits = shape.FilterData.MaskBits;
+                    jsFixture.filter_groupIndex = shape.FilterData.GroupIndex;
+                    jsFixture.friction = shape.Friction;
+                    jsFixture.restitution = shape.Restitution;
+                    jsFixture.sensor = shape.IsSensor;
+                    if (shape.GetType() == ShapeType.CircleShape)
+                    {
+                        CircleShape circle = (CircleShape)shape;
+                        jsFixture.circle = new JsonCircle(new JsonVector(circle.GetLocalPosition()), circle.GetRadius());
+                        jsFixture.circle.center = new JsonVector(((CircleShape)shape).GetLocalPosition());
+                        jsFixture.circle.radius = ((CircleShape)shape).GetRadius();
+                    }
+                    else if (shape.GetType() == ShapeType.PolygonShape)
+                    {
+                        PolygonShape polygon = (PolygonShape)shape;
+                        List<float> x = new List<float>();
+                        List<float> y = new List<float>();
+                        for (int i = 0; i < ((PolygonShape)shape).VertexCount; i++)
+                        {
+                            x.Add(polygon.GetVertices()[i].X);
+                            y.Add(polygon.GetVertices()[i].Y);
+                        }
+                        jsFixture.polygon = new JsonPolygon(new JsonVectorArray(x, y));
+                    }
+
+                    if (null == shape.UserData || shape.UserData.GetType() != typeof(LitDev.Sprite)) continue;
+                    sprite = (LitDev.Sprite)shape.UserData;
+                    jsFixture.name = sprite.name;
+                    if (!sprite.name.StartsWith("Image")) continue;
+
+                    JsonImage image = new JsonImage();
+                    jsWorld.image.Add(image);
+
+                    image.name = sprite.name;
+                    image.body = iFixture;
+                    Type ImageListType = typeof(ImageList);
+                    Dictionary<string, BitmapSource> _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    BitmapSource img;
+                    if (!_savedImages.TryGetValue(sprite.name, out img))
+                    {
+                        System.Drawing.Bitmap dImg = LitDev.LDImage.getBitmap(img);
+                        string fileName = Program.Directory + "\\" + sprite.name + ".png";
+                        dImg.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
+                        image.file = fileName;
+                    }
+                }
+                if (null == body.GetUserData() || body.GetUserData().GetType() != typeof(LitDev.Sprite)) continue;
+                sprite = (LitDev.Sprite)body.GetUserData();
+                jsBody.name = sprite.name;
+            }
+            for (Joint joint = _jointList; joint != null; joint = joint._next, iJoint++)
+            {
+                JsonJoint jsJoint = new JsonJoint();
+                jsWorld.joint.Add(jsJoint);
+
+                jsJoint.name = "Joint" + iJoint;
+                switch (joint.GetType())
+                {
+                    case JointType.RevoluteJoint:
+                        {
+                            RevoluteJoint _joint = (RevoluteJoint)joint;
+                            jsJoint.type = "revolute";
+                            jsJoint.anchorA = new JsonVector(_joint.Anchor1);
+                            jsJoint.anchorB = new JsonVector(_joint.Anchor2);
+                            jsJoint.bobyA = bodies[_joint.GetBody1()];
+                            jsJoint.bobyB = bodies[_joint.GetBody2()];
+                            jsJoint.collideConnected = _joint._collideConnected;
+                            jsJoint.enableLimit = _joint._enableLimit;
+                            jsJoint.enableMotor = _joint._enableMotor;
+                            jsJoint.jointSpeed = _joint.JointSpeed;
+                            jsJoint.lowerLimit = _joint.LowerLimit;
+                            jsJoint.maxMotorTorque = _joint.MotorTorque;
+                            jsJoint.motorSpeed = _joint.MotorSpeed;
+                            jsJoint.refAngle = _joint.JointAngle;
+                            jsJoint.upperLimit = _joint.UpperLimit;
+                        }
+                        break;
+                    case JointType.DistanceJoint:
+                        {
+                            DistanceJoint _joint = (DistanceJoint)joint;
+                            jsJoint.type = "distance";
+                            jsJoint.anchorA = new JsonVector(_joint.Anchor1);
+                            jsJoint.anchorB = new JsonVector(_joint.Anchor2);
+                            jsJoint.bobyA = bodies[_joint.GetBody1()];
+                            jsJoint.bobyB = bodies[_joint.GetBody2()];
+                            jsJoint.collideConnected = _joint._collideConnected;
+                            jsJoint.dampingRatio = _joint._dampingRatio;
+                            jsJoint.frequency = _joint._frequencyHz;
+                            jsJoint.length = _joint._length;
+                        }
+                        break;
+                    case JointType.PrismaticJoint:
+                        {
+                            PrismaticJoint _joint = (PrismaticJoint)joint;
+                            jsJoint.type = "prismatic";
+                            jsJoint.anchorA = new JsonVector(_joint.Anchor1);
+                            jsJoint.anchorB = new JsonVector(_joint.Anchor2);
+                            jsJoint.bobyA = bodies[_joint.GetBody1()];
+                            jsJoint.bobyB = bodies[_joint.GetBody2()];
+                            jsJoint.collideConnected = _joint._collideConnected;
+                            jsJoint.enableLimit = _joint._enableLimit;
+                            jsJoint.enableMotor = _joint._enableMotor;
+                            jsJoint.localAxisA = new JsonVector(_joint._axis);
+                            jsJoint.jointSpeed = _joint.JointSpeed;
+                            jsJoint.lowerLimit = _joint.LowerLimit;
+                            jsJoint.maxMotorForce = _joint.MotorForce;
+                            jsJoint.motorSpeed = _joint.MotorSpeed;
+                            jsJoint.refAngle = _joint._refAngle;
+                            jsJoint.upperLimit = _joint.UpperLimit;
+                        }
+                        break;
+                    case JointType.GearJoint:
+                        {
+
+                        }
+                        break;
+                    case JointType.LineJoint:
+                        {
+
+                        }
+                        break;
+                    case JointType.MouseJoint:
+                        {
+
+                        }
+                        break;
+                    case JointType.PulleyJoint:
+                        {
+
+                        }
+                        break;
+                }
+            }
+        }
+    }
 }

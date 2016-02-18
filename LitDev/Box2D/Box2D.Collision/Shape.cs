@@ -16,7 +16,14 @@ namespace Box2DX.Collision
 		protected bool _isSensor;
 		protected FilterData _filter;
 		protected object _userData;
-		public float Friction
+        public float Density // STEVE
+        {
+            get
+            {
+                return this._density;
+            }
+        }
+        public float Friction
 		{
 			get
 			{
