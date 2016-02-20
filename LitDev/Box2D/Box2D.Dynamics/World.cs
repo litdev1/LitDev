@@ -963,9 +963,14 @@ namespace Box2DX.Dynamics
             {
                 JsonBody jsBody = new JsonBody();
                 jsWorld.body.Add(jsBody);
+                bodies[body] = iBody;
 
                 jsBody.name = "Body" + iBody;
-                bodies[body] = iBody;
+                if (null != body.GetUserData() && body.GetUserData().GetType() == typeof(LitDev.Sprite))
+                {
+                    sprite = (LitDev.Sprite)body.GetUserData();
+                    jsBody.name = sprite.name;
+                }
                 jsBody.type = body.Type == Body.BodyType.Static ? 0 : 2;
                 jsBody.angle = body.GetAngle();
                 jsBody.angularDamping = body._angularDamping;
@@ -987,7 +992,7 @@ namespace Box2DX.Dynamics
                     JsonFixture jsFixture = new JsonFixture();
                     jsBody.fixture.Add(jsFixture);
 
-                    jsFixture.name = iFixtureCount == 0 ? "Body" + iBody : "Fixture" + iFixture;
+                    jsFixture.name = iFixtureCount == 0 ? jsBody.name : "Fixture" + iFixture;
                     jsFixture.density = shape.Density;
                     jsFixture.filter_categoryBits = shape.FilterData.CategoryBits;
                     jsFixture.filter_maskBits = shape.FilterData.MaskBits;
@@ -1009,8 +1014,8 @@ namespace Box2DX.Dynamics
                         List<float> y = new List<float>();
                         for (int i = 0; i < ((PolygonShape)shape).VertexCount; i++)
                         {
-                            x.Add(polygon.GetVertices()[i].X);
-                            y.Add(polygon.GetVertices()[i].Y);
+                            x.Add(polygon.GetVertices()[i].X + jsBody.position.x);
+                            y.Add(polygon.GetVertices()[i].Y + jsBody.position.y);
                         }
                         jsFixture.polygon = new JsonPolygon(new JsonVectorArray(x, y));
                     }
@@ -1036,9 +1041,6 @@ namespace Box2DX.Dynamics
                         image.file = fileName;
                     }
                 }
-                if (null == body.GetUserData() || body.GetUserData().GetType() != typeof(LitDev.Sprite)) continue;
-                sprite = (LitDev.Sprite)body.GetUserData();
-                jsBody.name = sprite.name;
             }
             for (Joint joint = _jointList; joint != null; joint = joint._next, iJoint++)
             {
@@ -1054,8 +1056,8 @@ namespace Box2DX.Dynamics
                             jsJoint.type = "revolute";
                             jsJoint.anchorA = new JsonVector(_joint.Anchor1);
                             jsJoint.anchorB = new JsonVector(_joint.Anchor2);
-                            jsJoint.bobyA = bodies[_joint.GetBody1()];
-                            jsJoint.bobyB = bodies[_joint.GetBody2()];
+                            jsJoint.bodyA = bodies[_joint.GetBody1()];
+                            jsJoint.bodyB = bodies[_joint.GetBody2()];
                             jsJoint.collideConnected = _joint._collideConnected;
                             jsJoint.enableLimit = _joint._enableLimit;
                             jsJoint.enableMotor = _joint._enableMotor;
@@ -1073,8 +1075,8 @@ namespace Box2DX.Dynamics
                             jsJoint.type = "distance";
                             jsJoint.anchorA = new JsonVector(_joint.Anchor1);
                             jsJoint.anchorB = new JsonVector(_joint.Anchor2);
-                            jsJoint.bobyA = bodies[_joint.GetBody1()];
-                            jsJoint.bobyB = bodies[_joint.GetBody2()];
+                            jsJoint.bodyA = bodies[_joint.GetBody1()];
+                            jsJoint.bodyB = bodies[_joint.GetBody2()];
                             jsJoint.collideConnected = _joint._collideConnected;
                             jsJoint.dampingRatio = _joint._dampingRatio;
                             jsJoint.frequency = _joint._frequencyHz;
@@ -1087,8 +1089,8 @@ namespace Box2DX.Dynamics
                             jsJoint.type = "prismatic";
                             jsJoint.anchorA = new JsonVector(_joint.Anchor1);
                             jsJoint.anchorB = new JsonVector(_joint.Anchor2);
-                            jsJoint.bobyA = bodies[_joint.GetBody1()];
-                            jsJoint.bobyB = bodies[_joint.GetBody2()];
+                            jsJoint.bodyA = bodies[_joint.GetBody1()];
+                            jsJoint.bodyB = bodies[_joint.GetBody2()];
                             jsJoint.collideConnected = _joint._collideConnected;
                             jsJoint.enableLimit = _joint._enableLimit;
                             jsJoint.enableMotor = _joint._enableMotor;

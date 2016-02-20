@@ -237,11 +237,13 @@ namespace LitDev
 
             try
             {
+                points = Utilities.CreateArrayMap(points);
                 _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(points);
 
                 foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
                 {
-                    _pointMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(kvp.Value);
+                    Primitive value = Utilities.CreateArrayMap(kvp.Value);
+                    _pointMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(value);
                     int i = 0;
                     Point _point = new Point();
                     if (_pointMap.Count == 2)

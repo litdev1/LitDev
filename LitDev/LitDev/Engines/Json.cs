@@ -252,10 +252,10 @@ namespace LitDev.Json
         public JsonVector anchorB;
 
         [DataMember]
-        public int bobyA;
+        public int bodyA;
 
         [DataMember]
-        public int bobyB;
+        public int bodyB;
 
         [DataMember]
         public bool collideConnected = false;
@@ -285,7 +285,7 @@ namespace LitDev.Json
         public float upperLimit;
 
         [DataMember]
-        public float dampingRatio;
+        public float dampingRatio = 0;
 
         [DataMember]
         public float frequency;
