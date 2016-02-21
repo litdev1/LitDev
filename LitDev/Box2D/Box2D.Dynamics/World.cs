@@ -2,9 +2,12 @@ using Box2DX.Collision;
 using Box2DX.Common;
 using LitDev.Json;
 using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
 namespace Box2DX.Dynamics
@@ -1000,12 +1003,14 @@ namespace Box2DX.Dynamics
                     jsFixture.friction = shape.Friction;
                     jsFixture.restitution = shape.Restitution;
                     jsFixture.sensor = shape.IsSensor;
+                    float angle = body.GetAngle();
                     if (shape.GetType() == ShapeType.CircleShape)
                     {
                         CircleShape circle = (CircleShape)shape;
-                        jsFixture.circle = new JsonCircle(new JsonVector(circle.GetLocalPosition()), circle.GetRadius());
-                        jsFixture.circle.center = new JsonVector(((CircleShape)shape).GetLocalPosition());
-                        jsFixture.circle.radius = ((CircleShape)shape).GetRadius();
+                        Vec2 position = body.GetPosition();
+                        position.X += circle.GetLocalPosition().X * (float)System.Math.Cos(angle) - circle.GetLocalPosition().Y * (float)System.Math.Sin(angle);
+                        position.Y += circle.GetLocalPosition().X * (float)System.Math.Sin(angle) + circle.GetLocalPosition().Y * (float)System.Math.Cos(angle);
+                        jsFixture.circle = new JsonCircle(new JsonVector(position), circle.GetRadius());
                     }
                     else if (shape.GetType() == ShapeType.PolygonShape)
                     {
@@ -1014,8 +1019,11 @@ namespace Box2DX.Dynamics
                         List<float> y = new List<float>();
                         for (int i = 0; i < ((PolygonShape)shape).VertexCount; i++)
                         {
-                            x.Add(polygon.GetVertices()[i].X + jsBody.position.x);
-                            y.Add(polygon.GetVertices()[i].Y + jsBody.position.y);
+                            Vec2 position = body.GetPosition();
+                            position.X += polygon.GetVertices()[i].X * (float)System.Math.Cos(angle) - polygon.GetVertices()[i].Y * (float)System.Math.Sin(angle);
+                            position.Y += polygon.GetVertices()[i].X * (float)System.Math.Sin(angle) + polygon.GetVertices()[i].Y * (float)System.Math.Cos(angle);
+                            x.Add(position.X);
+                            y.Add(position.Y);
                         }
                         jsFixture.polygon = new JsonPolygon(new JsonVectorArray(x, y));
                     }
@@ -1029,17 +1037,25 @@ namespace Box2DX.Dynamics
                     jsWorld.image.Add(image);
 
                     image.name = sprite.name;
-                    image.body = iFixture;
-                    Type ImageListType = typeof(ImageList);
-                    Dictionary<string, BitmapSource> _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                    BitmapSource img;
-                    if (!_savedImages.TryGetValue(sprite.name, out img))
+                    image.body = iBody;
+
+                    Type GraphicsWindowType = typeof(GraphicsWindow);
+                    Dictionary<string, UIElement> _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    UIElement obj;
+                    if (!_objectsMap.TryGetValue(sprite.name, out obj)) continue;
+                    if (obj.GetType() != typeof(Image)) continue;
+
+                    InvokeHelper ret = new InvokeHelper(delegate
                     {
+                        Image imageObj = (Image)obj;
+                        BitmapSource img = (BitmapSource)imageObj.Source;
                         System.Drawing.Bitmap dImg = LitDev.LDImage.getBitmap(img);
                         string fileName = Program.Directory + "\\" + sprite.name + ".png";
                         dImg.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
                         image.file = fileName;
-                    }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
                 }
             }
             for (Joint joint = _jointList; joint != null; joint = joint._next, iJoint++)

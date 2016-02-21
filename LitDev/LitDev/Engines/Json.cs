@@ -1,6 +1,8 @@
 ﻿using Box2DX.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
@@ -410,6 +412,9 @@ namespace LitDev.Json
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(JsonWorld));
             ser.WriteObject(stream1, world);
             stream1.Close();
+
+            string content = File.ReadAllText(filename);
+            File.WriteAllText(filename,FormatJson(content));
         }
 
         public JsonWorld Read(string filename)
@@ -420,6 +425,27 @@ namespace LitDev.Json
             stream1.Close();
 
             return world;
+        }
+
+        private const string INDENT_STRING = "  ";
+
+        static string FormatJson(string json)
+        {
+            int indentation = 0;
+            int quoteCount = 0;
+            var result =
+                from ch in json
+                let quotes = ch == '"' ? quoteCount++ : quoteCount
+                let lineBreak = ch == ',' && quotes % 2 == 0 ? ch + Environment.NewLine + String.Concat(Enumerable.Repeat(INDENT_STRING, indentation)) : null
+                let openChar = ch == '{' || ch == '[' ? ch + Environment.NewLine + String.Concat(Enumerable.Repeat(INDENT_STRING, ++indentation)) : ch.ToString()
+                let closeChar = ch == '}' || ch == ']' ? Environment.NewLine + String.Concat(Enumerable.Repeat(INDENT_STRING, --indentation)) + ch : ch.ToString()
+                select lineBreak == null
+                            ? openChar.Length > 1
+                                ? openChar
+                                : closeChar
+                            : lineBreak;
+
+            return string.Concat(result);
         }
     }
 }
