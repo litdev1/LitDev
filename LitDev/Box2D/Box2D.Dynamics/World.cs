@@ -964,14 +964,16 @@ namespace Box2DX.Dynamics
             int iJoint = 0;
             Body body = _bodyList;
             while (null != body._next) body = body._next;
-            for (; body != null; body = body._prev, iBody++)
-            //for (Body body = _bodyList; body != null; body = body._next, iBody++)
+            for (; body != null; body = body._prev)
+            //for (Body body = _bodyList; body != null; body = body._next)
             {
+                if (body._shapeCount == 0) continue;
+
                 JsonBody jsBody = new JsonBody();
                 jsWorld.body.Add(jsBody);
-                bodies[body] = iBody;
 
-                jsBody.name = "Body" + iBody;
+                bodies[body] = iBody;
+                jsBody.name = "Body" + (iBody + 1);
                 if (null != body.GetUserData() && body.GetUserData().GetType() == typeof(LitDev.Sprite))
                 {
                     sprite = (LitDev.Sprite)body.GetUserData();
@@ -993,12 +995,12 @@ namespace Box2DX.Dynamics
 
                 jsBody.fixture = new List<JsonFixture>();
                 int iFixtureCount = 0;
-                for (Shape shape = body.GetShapeList(); shape != null; shape = shape.GetNext(), iFixture++, iFixtureCount++)
+                for (Shape shape = body.GetShapeList(); shape != null; shape = shape.GetNext(), iFixtureCount++)
                 {
                     JsonFixture jsFixture = new JsonFixture();
                     jsBody.fixture.Add(jsFixture);
 
-                    jsFixture.name = iFixtureCount == 0 ? jsBody.name : "Fixture" + iFixture;
+                    jsFixture.name = iFixtureCount == 0 ? jsBody.name : "Fixture" + ++iFixture;
                     jsFixture.density = shape.Density;
                     jsFixture.filter_categoryBits = shape.FilterData.CategoryBits;
                     jsFixture.filter_maskBits = shape.FilterData.MaskBits;
@@ -1060,17 +1062,16 @@ namespace Box2DX.Dynamics
                     MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                     method.Invoke(null, new object[] { ret });
                 }
+                iBody++;
                 //jsBody.fixture.Reverse();
             }
             Joint joint = _jointList;
             while (null != joint._next) joint = joint._next;
-            for (; joint != null; joint = joint._prev, iJoint++)
-            //for (Joint joint = _jointList; joint != null; joint = joint._next, iJoint++)
+            for (; joint != null; joint = joint._prev)
+            //for (Joint joint = _jointList; joint != null; joint = joint._next)
             {
                 JsonJoint jsJoint = new JsonJoint();
-                jsWorld.joint.Add(jsJoint);
 
-                jsJoint.name = "Joint" + iJoint;
                 switch (joint.GetType())
                 {
                     case JointType.RevoluteJoint:
@@ -1090,6 +1091,8 @@ namespace Box2DX.Dynamics
                             jsJoint.motorSpeed = _joint.MotorSpeed;
                             jsJoint.refAngle = _joint.JointAngle;
                             jsJoint.upperLimit = _joint.UpperLimit;
+                            jsJoint.name = "Joint" + ++iJoint;
+                            jsWorld.joint.Add(jsJoint);
                         }
                         break;
                     case JointType.DistanceJoint:
@@ -1104,6 +1107,8 @@ namespace Box2DX.Dynamics
                             jsJoint.dampingRatio = _joint._dampingRatio;
                             jsJoint.frequency = _joint._frequencyHz;
                             jsJoint.length = _joint._length;
+                            jsJoint.name = "Joint" + ++iJoint;
+                            jsWorld.joint.Add(jsJoint);
                         }
                         break;
                     case JointType.PrismaticJoint:
@@ -1124,26 +1129,28 @@ namespace Box2DX.Dynamics
                             jsJoint.motorSpeed = _joint.MotorSpeed;
                             jsJoint.refAngle = _joint._refAngle;
                             jsJoint.upperLimit = _joint.UpperLimit;
+                            jsJoint.name = "Joint" + ++iJoint;
+                            jsWorld.joint.Add(jsJoint);
                         }
                         break;
                     case JointType.GearJoint:
                         {
-
+                            TextWindow.WriteLine("Gear joint is not implemented or the conversion is ambiguous");
                         }
                         break;
                     case JointType.LineJoint:
                         {
-
+                            TextWindow.WriteLine("Line joint is not implemented or the conversion is ambiguous");
                         }
                         break;
                     case JointType.MouseJoint:
                         {
-
+                            TextWindow.WriteLine("Mouse joint is not implemented or the conversion is ambiguous");
                         }
                         break;
                     case JointType.PulleyJoint:
                         {
-
+                            TextWindow.WriteLine("Pulley joint is not implemented or the conversion is ambiguous");
                         }
                         break;
                 }

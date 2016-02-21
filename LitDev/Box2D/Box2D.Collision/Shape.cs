@@ -45,14 +45,21 @@ namespace Box2DX.Collision
 				this._restitution = value;
 			}
 		}
-		public bool IsSensor
-		{
-			get
-			{
-				return this._isSensor;
-			}
-		}
-		public FilterData FilterData
+        public bool IsSensor
+        {
+            get
+            {
+                return this._isSensor;
+            }
+        }
+        public bool SetSensor //STEVE
+        {
+            set
+            {
+                this._isSensor = value;
+            }
+        }
+        public FilterData FilterData
 		{
 			get
 			{

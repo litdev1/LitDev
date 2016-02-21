@@ -168,7 +168,7 @@ namespace LitDev.Json
         public float restitution;
 
         [DataMember]
-        public bool sensor;
+        public bool sensor = false;
 
         [DataMember]
         public JsonCircle circle = null;

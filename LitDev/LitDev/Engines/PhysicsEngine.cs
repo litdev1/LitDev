@@ -2271,6 +2271,21 @@ namespace LitDev
             }
         }
 
+        public void toggleSensor(string shapeName)
+        {
+            foreach (Sprite i in Sprites)
+            {
+                for (Shape shape = i.body.GetShapeList(); shape != null; shape = shape._next)
+                {
+                    if (null != shape.UserData && shape.UserData.GetType() == typeof(Sprite) && ((Sprite)shape.UserData).name  == shapeName)
+                    {
+                        shape.SetSensor = !shape.IsSensor;
+                        return;
+                    }
+                }
+            }
+        }
+
         public Primitive rayCast(string shapeName, float[] angles, float distance, int maxCount = 10)
         {
             try
