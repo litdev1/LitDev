@@ -1580,7 +1580,6 @@ namespace LitDev
                 float scale = _Engine.scale;
 
                 Dictionary<int, string> imageFiles = new Dictionary<int, string>();
-                Dictionary<string, string> shapeNames = new Dictionary<string, string>();
                 Dictionary<int, string> bodyNames = new Dictionary<int, string>();
                 foreach (Json.JsonImage image in world.image)
                 {
@@ -1597,6 +1596,7 @@ namespace LitDev
                     {
                         //TextWindow.WriteLine("Fixture " + fixture.name);
                         string imageFile;
+                        string shapeName = "";
                         if (imageFiles.TryGetValue(iBody, out imageFile))
                         {
                             if (LoadImagesAsCircles == (null == fixture.circle))
@@ -1604,13 +1604,13 @@ namespace LitDev
                                 LoadImagesAsCircles = null != fixture.circle;
                                 result.Add("LDPhysics.LoadImagesAsCircles = " + (null != fixture.circle ? "\"True\"" : "\"False\""));
                             }
-                            shapeNames[fixture.name] = Shapes.AddImage(ImageList.LoadImage(imageFile));
-                            result.Add(shapeNames[fixture.name] + " = Shapes.AddImage(ImageList.LoadImage(\"" + imageFile + "\"))");
+                            shapeName = Shapes.AddImage(ImageList.LoadImage(imageFile));
+                            result.Add(shapeName + " = Shapes.AddImage(ImageList.LoadImage(\"" + imageFile + "\"))");
                         }
                         else if (null != fixture.circle)
                         {
-                            shapeNames[fixture.name] = Shapes.AddEllipse(2 * scale * fixture.circle.radius, 2 * scale * fixture.circle.radius);
-                            result.Add(shapeNames[fixture.name] + " = Shapes.AddEllipse(" + Cast(2 * scale * fixture.circle.radius) + "," + Cast(2 * scale * fixture.circle.radius) + ")");
+                            shapeName = Shapes.AddEllipse(2 * scale * fixture.circle.radius, 2 * scale * fixture.circle.radius);
+                            result.Add(shapeName + " = Shapes.AddEllipse(" + Cast(2 * scale * fixture.circle.radius) + "," + Cast(2 * scale * fixture.circle.radius) + ")");
                         }
                         else if (null != fixture.polygon)
                         {
@@ -1625,24 +1625,23 @@ namespace LitDev
                             }
                             if (fixture.polygon.vertices.x.Count == 3)//Triangle
                             {
-                                shapeNames[fixture.name] = Shapes.AddTriangle(points[1][1], points[1][2], points[2][1], points[2][2], points[3][1], points[3][2]);
-                                result.Add(shapeNames[fixture.name] + " = Shapes.AddTriangle(" + points[1][1] + "," + points[1][2] + "," + points[2][2] + "," + points[2][2] + "," + points[3][2] + "," + points[3][2] + ")");
+                                shapeName = Shapes.AddTriangle(points[1][1], points[1][2], points[2][1], points[2][2], points[3][1], points[3][2]);
+                                result.Add(shapeName + " = Shapes.AddTriangle(" + points[1][1] + "," + points[1][2] + "," + points[2][2] + "," + points[2][2] + "," + points[3][2] + "," + points[3][2] + ")");
                             }
                             if (fixture.polygon.vertices.x.Count == 4 && points[1][1] == points[4][1] && points[2][1] == points[3][1] && points[1][2] == points[2][2] && points[4][2] == points[3][2])//Rectangle
                             {
                                 Primitive dx = System.Math.Abs(points[2][1] - points[1][1]);
                                 Primitive dy = System.Math.Abs(points[4][2] - points[1][2]);
-                                shapeNames[fixture.name] = Shapes.AddRectangle(dx, dy);
-                                result.Add(shapeNames[fixture.name] + " = Shapes.AddRectangle(" + dx + "," + dy + ")");
+                                shapeName = Shapes.AddRectangle(dx, dy);
+                                result.Add(shapeName + " = Shapes.AddRectangle(" + dx + "," + dy + ")");
                             }
                             else
                             {
-                                shapeNames[fixture.name] = LDShapes.AddPolygon(points);
-                                result.Add(shapeNames[fixture.name] + " = LDShapes.AddPolygon(\"" + points + "\")");
+                                shapeName = LDShapes.AddPolygon(points);
+                                result.Add(shapeName + " = LDShapes.AddPolygon(\"" + points + "\")");
                             }
                         }
 
-                        string shapeName = shapeNames[fixture.name];
                         if (shapeName != "")
                         {
                             if (body.type == 0)
@@ -1689,6 +1688,7 @@ namespace LitDev
                                 x /= (float)fixture.polygon.vertices.x.Count;
                                 y /= (float)fixture.polygon.vertices.x.Count;
                             }
+                            body.angle = 0; //Position already includes any rotation
                             SetPosition(shapeName, scale * x, scale * y, 180.0f / System.Math.PI * body.angle);
                             result.Add("LDPhysics.SetPosition(" + shapeName + "," + Cast(scale * x) + "," + Cast(scale * y) + "," + Cast(180.0f / System.Math.PI * body.angle) + ")");
 
@@ -1720,6 +1720,7 @@ namespace LitDev
                     iBody++;
                 }
 
+                if (world.joint.Count > 0) result.Add("");
                 foreach (Json.JsonJoint joint in world.joint)
                 {
                     // "Distance" - damping ratio (default 0)
@@ -1731,7 +1732,6 @@ namespace LitDev
                     // "Pulley" - pulley ratio (block and tackle) (default 1)
                     // "Revolute" - lower angle, upper angle (default no limits)
                     string jointName = "";
-                    result.Add("");
                     Primitive parameters = "";
                     switch (joint.type)
                     {

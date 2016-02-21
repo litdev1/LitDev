@@ -962,7 +962,10 @@ namespace Box2DX.Dynamics
             int iBody = 0;
             int iFixture = 0;
             int iJoint = 0;
-            for (Body body = _bodyList; body != null; body = body._next, iBody++)
+            Body body = _bodyList;
+            while (null != body._next) body = body._next;
+            for (; body != null; body = body._prev, iBody++)
+            //for (Body body = _bodyList; body != null; body = body._next, iBody++)
             {
                 JsonBody jsBody = new JsonBody();
                 jsWorld.body.Add(jsBody);
@@ -1057,8 +1060,12 @@ namespace Box2DX.Dynamics
                     MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                     method.Invoke(null, new object[] { ret });
                 }
+                //jsBody.fixture.Reverse();
             }
-            for (Joint joint = _jointList; joint != null; joint = joint._next, iJoint++)
+            Joint joint = _jointList;
+            while (null != joint._next) joint = joint._next;
+            for (; joint != null; joint = joint._prev, iJoint++)
+            //for (Joint joint = _jointList; joint != null; joint = joint._next, iJoint++)
             {
                 JsonJoint jsJoint = new JsonJoint();
                 jsWorld.joint.Add(jsJoint);

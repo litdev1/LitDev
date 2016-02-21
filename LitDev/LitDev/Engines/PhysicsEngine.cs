@@ -1148,7 +1148,8 @@ namespace LitDev
         public void setBoundaries(float leftS, float rightS, float topS, float bottomS)
         {
             float width = 1.0f;
-            if (leftS < 0)
+            float tol = 1.0e-3f;
+            if (leftS < -tol)
             {
                 if (null != leftBody)
                 {
@@ -1172,7 +1173,7 @@ namespace LitDev
                 leftBody.SetXForm(posLeft, 0.0f);
             }
 
-            if (rightS > GraphicsWindow.Width)
+            if (rightS > GraphicsWindow.Width+tol)
             {
                 if (null != rightBody)
                 {
@@ -1196,7 +1197,7 @@ namespace LitDev
                 rightBody.SetXForm(posRight, 0.0f);
             }
 
-            if (topS < 0)
+            if (topS < -tol)
             {
                 if (null != topBody)
                 {
@@ -1220,7 +1221,7 @@ namespace LitDev
                 topBody.SetXForm(posTop, 0.0f);
             }
 
-            if (bottomS > GraphicsWindow.Height)
+            if (bottomS > GraphicsWindow.Height+tol)
             {
                 if (null != groundBody)
                 {
