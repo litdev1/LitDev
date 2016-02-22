@@ -1012,7 +1012,7 @@ namespace Box2DX.Dynamics
                     if (shape.GetType() == ShapeType.CircleShape)
                     {
                         CircleShape circle = (CircleShape)shape;
-                        Vec2 position = body.GetPosition();
+                        Vec2 position = new Vec2(0, 0);
                         position.X += circle.GetLocalPosition().X * (float)System.Math.Cos(angle) - circle.GetLocalPosition().Y * (float)System.Math.Sin(angle);
                         position.Y += circle.GetLocalPosition().X * (float)System.Math.Sin(angle) + circle.GetLocalPosition().Y * (float)System.Math.Cos(angle);
                         jsFixture.circle = new JsonCircle(new JsonVector(position), circle.GetRadius());
@@ -1024,7 +1024,7 @@ namespace Box2DX.Dynamics
                         List<float> y = new List<float>();
                         for (int i = 0; i < ((PolygonShape)shape).VertexCount; i++)
                         {
-                            Vec2 position = body.GetPosition();
+                            Vec2 position = new Vec2(0, 0);
                             position.X += polygon.GetVertices()[i].X * (float)System.Math.Cos(angle) - polygon.GetVertices()[i].Y * (float)System.Math.Sin(angle);
                             position.Y += polygon.GetVertices()[i].X * (float)System.Math.Sin(angle) + polygon.GetVertices()[i].Y * (float)System.Math.Cos(angle);
                             x.Add(position.X);

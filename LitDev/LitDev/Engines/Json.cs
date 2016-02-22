@@ -417,12 +417,48 @@ namespace LitDev.Json
             File.WriteAllText(filename,FormatJson(content));
         }
 
+        private List<string> vectors = new List<string>
+        {
+            "gravity",
+            "linearVelocity",
+            "massData-center",
+            "position",
+            "center",
+            "anchorA",
+            "anchorB",
+            "localAxisA",
+            "nextVertex",
+            "prevVertex"
+        };
+
         public JsonWorld Read(string filename)
         {
-            FileStream stream1 = new FileStream(filename, FileMode.Open);
+            //Preparse json
+            //string tempFile = Path.GetTempFileName();
+            string tempFile = filename+"X";
+            string[] content = File.ReadAllLines(filename);
+            List<string> newContent = new List<string>();
+            foreach (string line in content)
+            {
+                string newLine = line;
+                while (newLine.Contains("  ")) newLine = newLine.Replace("  ", " ");
+                while (newLine.IndexOf("//") >= 0) newLine = newLine.Substring(0, newLine.IndexOf("//"));
+                foreach (string vector in vectors)
+                {
+                    string check = "\"" + vector + "\" : 0,";
+                    //Microsoft.SmallBasic.Library.TextWindow.WriteLine(check);
+                    string replace = "\"" + vector + "\" : {\"x\": 0,\"y\": 0},";
+                    newLine = newLine.Replace(check, replace);
+                }
+                newContent.Add(newLine);
+            }
+            File.WriteAllLines(tempFile, newContent);
+
+            FileStream stream1 = new FileStream(tempFile, FileMode.Open);
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(JsonWorld));
             JsonWorld world = (JsonWorld)ser.ReadObject(stream1);
             stream1.Close();
+            //File.Delete(tempFile);
 
             return world;
         }
