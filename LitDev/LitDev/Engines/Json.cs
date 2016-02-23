@@ -434,8 +434,8 @@ namespace LitDev.Json
         public JsonWorld Read(string filename)
         {
             //Preparse json
-            //string tempFile = Path.GetTempFileName();
-            string tempFile = filename+"X";
+            string tempFile = Path.GetTempFileName();
+            //string tempFile = filename+"X";
             string[] content = File.ReadAllLines(filename);
             List<string> newContent = new List<string>();
             foreach (string line in content)
@@ -458,7 +458,7 @@ namespace LitDev.Json
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(JsonWorld));
             JsonWorld world = (JsonWorld)ser.ReadObject(stream1);
             stream1.Close();
-            //File.Delete(tempFile);
+            File.Delete(tempFile);
 
             return world;
         }
