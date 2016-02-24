@@ -1642,8 +1642,8 @@ namespace LitDev
                             break;
                         case joinType.REVOLUTE:
                             ((RevoluteJoint)i.jd).EnableMotor(maxForce != 0);
-                            ((RevoluteJoint)i.jd).SetMaxMotorTorque(maxForce / scale);
-                            ((RevoluteJoint)i.jd).MotorSpeed = speed / scale;
+                            ((RevoluteJoint)i.jd).SetMaxMotorTorque(maxForce / scale / scale);
+                            ((RevoluteJoint)i.jd).MotorSpeed = speed * pi/ 180.0f;
                             break;
                     }
                     return;

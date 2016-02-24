@@ -1578,8 +1578,9 @@ namespace LitDev
         /// <param name="fileName">The full path to the json file to read.</param>
         /// <param name="scale">Scale all shapes, default 1 (no scaling).</param>
         /// <param name="reverseY">Reverse the Y direction up to down ("True" or "False").</param>
+        /// <param name="stationary">Set all shapes to be initially at rest, joint motors are still enabled ("True" or "False").</param>
         /// <returns>A text array containing the LDPhysics commands used to create the model.</returns>
-        public static Primitive ReadJson(Primitive fileName, Primitive scale, Primitive reverseY)
+        public static Primitive ReadJson(Primitive fileName, Primitive scale, Primitive reverseY, Primitive stationary)
         {
             try
             {
@@ -1591,7 +1592,7 @@ namespace LitDev
                 Json.JsonPhysics physicsJson = new Json.JsonPhysics(_Engine);
                 Json.JsonWorld world = physicsJson.Read(fileName);
                 result.Add("LDGraphicsWindow.State = 2");
-                float x, y;
+                Primitive x, y;
 
                 if (world.positionIterations > 0)
                 {
@@ -1610,8 +1611,8 @@ namespace LitDev
                 }
                 if (null != world.gravity)
                 {
-                    x = Cast(scale * world.gravity.x, false);
-                    y = Cast((reverseY ? -scale : scale) * world.gravity.y, false);
+                    x = Cast(_Engine.scale * world.gravity.x, false);
+                    y = Cast((reverseY ? -_Engine.scale : _Engine.scale) * world.gravity.y, false);
                     SetGravity(x, y);
                     result.Add("LDPhysics.SetGravity(" + x + "," + y + ")");
                 }
@@ -1761,10 +1762,13 @@ namespace LitDev
                                 {
                                     x = Cast(scale * body.linearVelocity.x, false);
                                     y = Cast(scale * body.linearVelocity.y, reverseY);
-                                    SetVelocity(shapeName, x, y);
-                                    SetRotation(shapeName, 180.0f / System.Math.PI * body.angularVelocity);
-                                    if (body.linearVelocity.x != 0 || body.linearVelocity.y != 0) result.Add("LDPhysics.SetVelocity(" + fixture.name + "," + x + "," + y + ")");
-                                    if (body.angularVelocity != 0) result.Add("LDPhysics.SetRotation(" + fixture.name + "," + Cast(180.0f / System.Math.PI * body.angularVelocity, false) + ")");
+                                    if (!stationary)
+                                    {
+                                        SetVelocity(shapeName, x, y);
+                                        SetRotation(shapeName, 180.0f / System.Math.PI * body.angularVelocity);
+                                        if (body.linearVelocity.x != 0 || body.linearVelocity.y != 0) result.Add("LDPhysics.SetVelocity(" + fixture.name + "," + x + "," + y + ")");
+                                        if (body.angularVelocity != 0) result.Add("LDPhysics.SetRotation(" + fixture.name + "," + Cast(180.0f / System.Math.PI * body.angularVelocity, false) + ")");
+                                    }
                                     if (body.bullet)
                                     {
                                         SetBullet(shapeName);
@@ -1830,8 +1834,8 @@ namespace LitDev
                                     result.Add(joint.name + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyA] + "," + firstFixtureNames[joint.bodyB] + ",\"Revolute\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
                                     if (joint.enableMotor)
                                     {
-                                        SetJointMotor(jointName, joint.motorSpeed, joint.maxMotorTorque);
-                                        result.Add("LDPhysics.SetJointMotor(" + joint.name + "," + Cast(joint.motorSpeed, false) + "," + Cast(joint.maxMotorTorque, false) + ")");
+                                        SetJointMotor(jointName, 180.0f / System.Math.PI * joint.motorSpeed, scale * scale * joint.maxMotorTorque);
+                                        result.Add("LDPhysics.SetJointMotor(" + joint.name + "," + Cast(180.0f / System.Math.PI * joint.motorSpeed, false) + "," + Cast(scale * scale * joint.maxMotorTorque, false) + ")");
                                     }
                                 }
                                 break;
@@ -1855,8 +1859,8 @@ namespace LitDev
                                     result.Add(joint.name + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyA] + "," + firstFixtureNames[joint.bodyB] + ",\"Prismatic_H\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
                                     if (joint.enableMotor)
                                     {
-                                        SetJointMotor(jointName, joint.motorSpeed, joint.maxMotorForce);
-                                        result.Add("LDPhysics.SetJointMotor(" + joint.name + "," + Cast(joint.motorSpeed, false) + "," + Cast(joint.maxMotorForce, false) + ")");
+                                        SetJointMotor(jointName, scale * joint.motorSpeed, scale * joint.maxMotorForce);
+                                        result.Add("LDPhysics.SetJointMotor(" + joint.name + "," + Cast(scale * joint.motorSpeed, false) + "," + Cast(scale * joint.maxMotorForce, false) + ")");
                                     }
                                 }
                                 break;
