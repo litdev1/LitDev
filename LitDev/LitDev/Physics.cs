@@ -57,8 +57,18 @@ namespace LitDev
 
         private static Primitive Cast(double value, bool reverseY)
         {
-            return reverseY ? GraphicsWindow.Height - (Primitive)System.Math.Round(value, 6) : (Primitive)System.Math.Round(value,6);
+            return reverseY ? - (Primitive)System.Math.Round(value, 6) : (Primitive)System.Math.Round(value,6);
             //return (Primitive)double.Parse(value.ToString("G6"));
+        }
+
+        private static Dictionary<string, int> jointNames = new Dictionary<string, int>();
+        private static string GetJointName(Json.JsonJoint joint)
+        {
+            string jointName = null != joint.name ? joint.name : "Joint";
+            if (jointNames.ContainsKey(jointName)) jointNames[jointName] += 1;
+            else jointNames[jointName] = 1;
+            jointName += jointNames[jointName];
+            return jointName;
         }
 
         /// <summary>
@@ -1579,8 +1589,10 @@ namespace LitDev
         /// <param name="scale">Scale all shapes, default 1 (no scaling).</param>
         /// <param name="reverseY">Reverse the Y direction up to down ("True" or "False").</param>
         /// <param name="stationary">Set all shapes to be initially at rest, joint motors are still enabled ("True" or "False").</param>
+        /// <param name="offsetX">Add an x coordinate offset to all shapes.</param>
+        /// <param name="offsetY">Add a y coordinate offset to all shapes, especially useful when reverseY is set.</param>
         /// <returns>A text array containing the LDPhysics commands used to create the model.</returns>
-        public static Primitive ReadJson(Primitive fileName, Primitive scale, Primitive reverseY, Primitive stationary)
+        public static Primitive ReadJson(Primitive fileName, Primitive scale, Primitive reverseY, Primitive stationary, Primitive offsetX, Primitive offsetY)
         {
             try
             {
@@ -1592,6 +1604,8 @@ namespace LitDev
                 Json.JsonPhysics physicsJson = new Json.JsonPhysics(_Engine);
                 Json.JsonWorld world = physicsJson.Read(fileName);
                 result.Add("LDGraphicsWindow.State = 2");
+                result.Add("GraphicsWindow.PenWidth = 1");
+                result.Add("LDPhysics.Reset()");
                 Primitive x, y;
 
                 if (world.positionIterations > 0)
@@ -1630,19 +1644,29 @@ namespace LitDev
                 if (null != world.body)
                 {
                     int iBody = 0;
-                    int iFixture = 0;
+                    int iImage = 0;
+                    int iEllipse = 0;
+                    int iTriangle = 0;
+                    int iRectangle = 0;
+                    int iPolygon = 0;
                     foreach (Json.JsonBody body in world.body)
                     {
-                        if (null == body.fixture) continue;
+                        result.Add("");
+                        result.Add("'Body " + iBody);
+
+                        if (null == body.fixture || body.fixture.Count == 0)
+                        {
+                            result.Add("'WARNING: Body has no fixures");
+                            iBody++;
+                            continue;
+                        }
                         //TextWindow.WriteLine("Body " + body.name);
-                        if (body.fixture.Count > 0) result.Add("");
                         string firstShapeName = "";
                         string firstFixtureName = "";
                         bool firstFixture = true;
+                        body.fixture.Reverse(); //Last fixture was first added
                         foreach (Json.JsonFixture fixture in body.fixture)
                         {
-                            if (null == fixture.name) fixture.name = "Fixture" + ++iFixture;
-                            //TextWindow.WriteLine("Fixture " + fixture.name);
                             string imageFile;
                             string shapeName = "";
                             if (imageFiles.TryGetValue(iBody, out imageFile))
@@ -1653,6 +1677,7 @@ namespace LitDev
                                     result.Add("LDPhysics.LoadImagesAsCircles = " + (null != fixture.circle ? "\"True\"" : "\"False\""));
                                 }
                                 shapeName = Shapes.AddImage(ImageList.LoadImage(imageFile));
+                                fixture.name = "Image" + ++iImage;
                                 result.Add(fixture.name + " = Shapes.AddImage(ImageList.LoadImage(\"" + imageFile + "\"))");
                             }
                             else if (null != fixture.circle)
@@ -1660,6 +1685,7 @@ namespace LitDev
                                 x = Cast(2 * scale * fixture.circle.radius, false);
                                 y = Cast(2 * scale * fixture.circle.radius, false);
                                 shapeName = Shapes.AddEllipse(x, y);
+                                fixture.name = "Ellipse" + ++iEllipse;
                                 result.Add(fixture.name + " = Shapes.AddEllipse(" + x + "," + y + ")");
                             }
                             else if (null != fixture.polygon)
@@ -1668,14 +1694,15 @@ namespace LitDev
                                 for (int i = 0; i < fixture.polygon.vertices.x.Count; i++)
                                 {
                                     Primitive point = "";
-                                    point[1] = Cast(scale * (body.position.x + fixture.polygon.vertices.x[i]), false);
-                                    point[2] = Cast(scale * (body.position.y + fixture.polygon.vertices.y[i]), reverseY);
+                                    point[1] = offsetX + Cast(scale * (body.position.x + fixture.polygon.vertices.x[i]), false);
+                                    point[2] = offsetY + Cast(scale * (body.position.y + fixture.polygon.vertices.y[i]), reverseY);
                                     points[i + 1] = point;
                                     //TextWindow.WriteLine("Corner " + (i + 1) + " " + point[1] + ", " + point[2]);
                                 }
                                 if (fixture.polygon.vertices.x.Count == 3)//Triangle
                                 {
                                     shapeName = Shapes.AddTriangle(points[1][1], points[1][2], points[2][1], points[2][2], points[3][1], points[3][2]);
+                                    fixture.name = "Triangle" + ++iTriangle;
                                     result.Add(fixture.name + " = Shapes.AddTriangle(" + points[1][1] + "," + points[1][2] + "," + points[2][2] + "," + points[2][2] + "," + points[3][2] + "," + points[3][2] + ")");
                                 }
                                 if (fixture.polygon.vertices.x.Count == 4 && points[1][1] == points[4][1] && points[2][1] == points[3][1] && points[1][2] == points[2][2] && points[4][2] == points[3][2])//Rectangle
@@ -1683,13 +1710,19 @@ namespace LitDev
                                     Primitive dx = System.Math.Abs(points[2][1] - points[1][1]);
                                     Primitive dy = System.Math.Abs(points[4][2] - points[1][2]);
                                     shapeName = Shapes.AddRectangle(dx, dy);
+                                    fixture.name = "Rectangle" + ++iRectangle;
                                     result.Add(fixture.name + " = Shapes.AddRectangle(" + dx + "," + dy + ")");
                                 }
                                 else
                                 {
                                     shapeName = LDShapes.AddPolygon(points);
+                                    fixture.name = "Polygon" + ++iPolygon;
                                     result.Add(fixture.name + " = LDShapes.AddPolygon(\"" + points + "\")");
                                 }
+                            }
+                            else
+                            {
+                                result.Add("'WARNING: Fixture is not an image, triangle, rectangle, circle or polygon");
                             }
 
                             if (shapeName != "")
@@ -1709,8 +1742,8 @@ namespace LitDev
                                         y += fixture.polygon.vertices.y[i] / (float)fixture.polygon.vertices.x.Count;
                                     }
                                 }
-                                x = Cast(scale * x, false);
-                                y = Cast(scale * y, reverseY);
+                                x = offsetX + Cast(scale * x, false);
+                                y = offsetY + Cast(scale * y, reverseY);
                                 bool bSetPosition = false;
                                 if (null != fixture.circle || shapeName.StartsWith("Rectangle"))
                                 {
@@ -1806,10 +1839,15 @@ namespace LitDev
 
                 if (null != world.joint)
                 {
-                    int iJoint = 0;
-                    if (world.joint.Count > 0) result.Add("");
+                    jointNames.Clear();
                     foreach (Json.JsonJoint joint in world.joint)
                     {
+                        result.Add("");
+                        string jointName = GetJointName(joint);
+
+                        string jointVar = "";
+                        Primitive parameters = "";
+                        result.Add("'Joint (Body " + joint.bodyB + ",Body " + joint.bodyA + ")");
                         // "Distance" - damping ratio (default 0)
                         // "Gear" - gear ratio, first joint, second joint (default 1, auto detect joints)
                         // "Line" - X direction, Y direction, lower translation, upper translation (default line connecting shapes, no limits)
@@ -1818,9 +1856,12 @@ namespace LitDev
                         // "Prismatic_V" - X direction, Y direction, lower translation, upper translation  (default 0,1, no limits)
                         // "Pulley" - pulley ratio (block and tackle) (default 1)
                         // "Revolute" - lower angle, upper angle (default no limits)
-                        if (null == joint.name) joint.name = "Joint" + ++iJoint;
-                        string jointName = "";
-                        Primitive parameters = "";
+                        string name;
+                        if (!firstFixtureNames.TryGetValue(joint.bodyA, out name) || !firstFixtureNames.TryGetValue(joint.bodyB, out name))
+                        {
+                            result.Add("'WARNING: Bodies not found");
+                            continue;
+                        }
                         switch (joint.type)
                         {
                             case "revolute":
@@ -1830,20 +1871,20 @@ namespace LitDev
                                         parameters[1] = Cast(180.0f / System.Math.PI * joint.lowerLimit, false);
                                         parameters[2] = Cast(180.0f / System.Math.PI * joint.upperLimit, false);
                                     }
-                                    jointName = AttachShapesWithJoint(bodyNames[joint.bodyA], bodyNames[joint.bodyB], "Revolute", joint.collideConnected, parameters);
-                                    result.Add(joint.name + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyA] + "," + firstFixtureNames[joint.bodyB] + ",\"Revolute\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
+                                    jointVar = AttachShapesWithJoint(bodyNames[joint.bodyB], bodyNames[joint.bodyA], "Revolute", joint.collideConnected, parameters);
+                                    result.Add(jointName + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyB] + "," + firstFixtureNames[joint.bodyA] + ",\"Revolute\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
                                     if (joint.enableMotor)
                                     {
-                                        SetJointMotor(jointName, 180.0f / System.Math.PI * joint.motorSpeed, scale * scale * joint.maxMotorTorque);
-                                        result.Add("LDPhysics.SetJointMotor(" + joint.name + "," + Cast(180.0f / System.Math.PI * joint.motorSpeed, false) + "," + Cast(scale * scale * joint.maxMotorTorque, false) + ")");
+                                        SetJointMotor(jointVar, 180.0f / System.Math.PI * joint.motorSpeed, scale * scale * joint.maxMotorTorque);
+                                        result.Add("LDPhysics.SetJointMotor(" + jointName + "," + Cast(180.0f / System.Math.PI * joint.motorSpeed, false) + "," + Cast(scale * scale * joint.maxMotorTorque, false) + ")");
                                     }
                                 }
                                 break;
                             case "distance":
                                 {
                                     parameters[1] = Cast(joint.dampingRatio, false);
-                                    jointName = AttachShapesWithJoint(bodyNames[joint.bodyA], bodyNames[joint.bodyB], "Distance", joint.collideConnected, parameters);
-                                    result.Add(joint.name + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyA] + "," + firstFixtureNames[joint.bodyB] + ",\"Distance\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
+                                    jointVar = AttachShapesWithJoint(bodyNames[joint.bodyB], bodyNames[joint.bodyA], "Distance", joint.collideConnected, parameters);
+                                    result.Add(jointName + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyB] + "," + firstFixtureNames[joint.bodyA] + ",\"Distance\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
                                 }
                                 break;
                             case "prismatic":
@@ -1855,19 +1896,37 @@ namespace LitDev
                                         parameters[3] = Cast(scale * joint.lowerLimit, false);
                                         parameters[4] = Cast(scale * joint.upperLimit, false);
                                     }
-                                    jointName = AttachShapesWithJoint(bodyNames[joint.bodyA], bodyNames[joint.bodyB], "Prismatic_H", joint.collideConnected, parameters);
-                                    result.Add(joint.name + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyA] + "," + firstFixtureNames[joint.bodyB] + ",\"Prismatic_H\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
+                                    jointVar = AttachShapesWithJoint(bodyNames[joint.bodyB], bodyNames[joint.bodyA], "Prismatic_H", joint.collideConnected, parameters);
+                                    result.Add(jointName + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyB] + "," + firstFixtureNames[joint.bodyA] + ",\"Prismatic_H\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
                                     if (joint.enableMotor)
                                     {
-                                        SetJointMotor(jointName, scale * joint.motorSpeed, scale * joint.maxMotorForce);
-                                        result.Add("LDPhysics.SetJointMotor(" + joint.name + "," + Cast(scale * joint.motorSpeed, false) + "," + Cast(scale * joint.maxMotorForce, false) + ")");
+                                        SetJointMotor(jointVar, scale * joint.motorSpeed, scale * joint.maxMotorForce);
+                                        result.Add("LDPhysics.SetJointMotor(" + jointName + "," + Cast(scale * joint.motorSpeed, false) + "," + Cast(scale * joint.maxMotorForce, false) + ")");
                                     }
                                 }
                                 break;
                             case "wheel":
                                 {
-                                    AttachShapesWithRotation(bodyNames[joint.bodyA], bodyNames[joint.bodyB]);
-                                    result.Add("LDPhysics.AttachShapesWithRotation(" + firstFixtureNames[joint.bodyA] + "," + firstFixtureNames[joint.bodyB] + ")");
+                                    //This is a non standard compound joint I think
+                                    //AttachShapesWithJoint(bodyNames[joint.bodyB], bodyNames[joint.bodyA], "Line", joint.collideConnected, "\"\"");
+                                    //result.Add("LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyB] + "," + firstFixtureNames[joint.bodyA] + ",\"Line\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"\")");
+                                    jointVar = AttachShapesWithJoint(bodyNames[joint.bodyB], bodyNames[joint.bodyA], "Distance", joint.collideConnected, "\"\"");
+                                    result.Add(jointName + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyB] + "," + firstFixtureNames[joint.bodyA] + ",\"Distance\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"\")");
+                                    //AttachShapesWithRotation(bodyNames[joint.bodyB], bodyNames[joint.bodyA]);
+                                    //result.Add("LDPhysics.AttachShapesWithRotation(" + firstFixtureNames[joint.bodyB] + "," + firstFixtureNames[joint.bodyA] + ")");
+                                    jointName = GetJointName(joint);
+                                    if (joint.enableLimit)
+                                    {
+                                        parameters[1] = Cast(180.0f / System.Math.PI * joint.lowerLimit, false);
+                                        parameters[2] = Cast(180.0f / System.Math.PI * joint.upperLimit, false);
+                                    }
+                                    jointVar = AttachShapesWithJoint(bodyNames[joint.bodyB], bodyNames[joint.bodyA], "Revolute", joint.collideConnected, parameters);
+                                    result.Add(jointName + " = LDPhysics.AttachShapesWithJoint(" + firstFixtureNames[joint.bodyB] + "," + firstFixtureNames[joint.bodyA] + ",\"Revolute\"," + (joint.collideConnected ? "\"True\"" : "\"False\"") + ",\"" + parameters + "\")");
+                                    if (joint.enableMotor)
+                                    {
+                                        SetJointMotor(jointVar, 180.0f / System.Math.PI * joint.motorSpeed, scale * scale * joint.maxMotorTorque);
+                                        result.Add("LDPhysics.SetJointMotor(" + jointName + "," + Cast(180.0f / System.Math.PI * joint.motorSpeed, false) + "," + Cast(scale * scale * joint.maxMotorTorque, false) + ")");
+                                    }
                                 }
                                 break;
                             case "rope":
@@ -1876,11 +1935,10 @@ namespace LitDev
                             case "friction":
                             default:
                                 {
-                                    TextWindow.WriteLine("Joint type " + joint.type + " is not implemented or the conversion is ambiguous");
+                                    result.Add("'WARNING: Type " + joint.type + " not found or inconsistent conversion");
                                 }
                                 break;
                         }
-                        if (jointName == "") continue;
                     }
                 }
 
@@ -1888,6 +1946,7 @@ namespace LitDev
                 result.Add("While(\"True\")");
                 result.Add("  LDPhysics.DoTimestep()");
                 result.Add("  Program.Delay(" + Cast(1000 * TimeStep, false) + ")");
+                result.Add("  GraphicsWindow.Title=LDPhysics.GetAllShapesAt(GraphicsWindow.MouseX,GraphicsWindow.MouseY)");
                 result.Add("EndWhile");
                 string code = "";
                 foreach (string line in result)

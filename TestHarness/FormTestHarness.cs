@@ -705,7 +705,7 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            LDPhysics.ReadJson("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\LDPysics.json", 1, "False", "False");
+            LDPhysics.ReadJson("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\LDPysics.json", 1, "False", "False", 0, 0);
 
             LDWaveForm.PlayWave(256, 1000, "0=-1;1=1;5=0;");
 

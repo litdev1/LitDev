@@ -1065,10 +1065,10 @@ namespace Box2DX.Dynamics
                 iBody++;
                 //jsBody.fixture.Reverse();
             }
-            Joint joint = _jointList;
-            while (null != joint._next) joint = joint._next;
-            for (; joint != null; joint = joint._prev)
-            //for (Joint joint = _jointList; joint != null; joint = joint._next)
+            //Joint joint = _jointList;
+            //while (null != joint._next) joint = joint._next;
+            //for (; joint != null; joint = joint._prev)
+            for (Joint joint = _jointList; joint != null; joint = joint._next)
             {
                 JsonJoint jsJoint = new JsonJoint();
 
@@ -1078,10 +1078,10 @@ namespace Box2DX.Dynamics
                         {
                             RevoluteJoint _joint = (RevoluteJoint)joint;
                             jsJoint.type = "revolute";
-                            jsJoint.anchorA = new JsonVector(_joint.Anchor1);
-                            jsJoint.anchorB = new JsonVector(_joint.Anchor2);
-                            jsJoint.bodyA = bodies[_joint.GetBody1()];
-                            jsJoint.bodyB = bodies[_joint.GetBody2()];
+                            jsJoint.anchorA = new JsonVector(_joint.Anchor2);
+                            jsJoint.anchorB = new JsonVector(_joint.Anchor1);
+                            jsJoint.bodyA = bodies[_joint.GetBody2()];
+                            jsJoint.bodyB = bodies[_joint.GetBody1()];
                             jsJoint.collideConnected = _joint._collideConnected;
                             jsJoint.enableLimit = _joint._enableLimit;
                             jsJoint.enableMotor = _joint._enableMotor;
@@ -1099,10 +1099,10 @@ namespace Box2DX.Dynamics
                         {
                             DistanceJoint _joint = (DistanceJoint)joint;
                             jsJoint.type = "distance";
-                            jsJoint.anchorA = new JsonVector(_joint.Anchor1);
-                            jsJoint.anchorB = new JsonVector(_joint.Anchor2);
-                            jsJoint.bodyA = bodies[_joint.GetBody1()];
-                            jsJoint.bodyB = bodies[_joint.GetBody2()];
+                            jsJoint.anchorA = new JsonVector(_joint.Anchor2);
+                            jsJoint.anchorB = new JsonVector(_joint.Anchor1);
+                            jsJoint.bodyA = bodies[_joint.GetBody2()];
+                            jsJoint.bodyB = bodies[_joint.GetBody1()];
                             jsJoint.collideConnected = _joint._collideConnected;
                             jsJoint.dampingRatio = _joint._dampingRatio;
                             jsJoint.frequency = _joint._frequencyHz;
@@ -1115,10 +1115,10 @@ namespace Box2DX.Dynamics
                         {
                             PrismaticJoint _joint = (PrismaticJoint)joint;
                             jsJoint.type = "prismatic";
-                            jsJoint.anchorA = new JsonVector(_joint.Anchor1);
-                            jsJoint.anchorB = new JsonVector(_joint.Anchor2);
-                            jsJoint.bodyA = bodies[_joint.GetBody1()];
-                            jsJoint.bodyB = bodies[_joint.GetBody2()];
+                            jsJoint.anchorA = new JsonVector(_joint.Anchor2);
+                            jsJoint.anchorB = new JsonVector(_joint.Anchor1);
+                            jsJoint.bodyA = bodies[_joint.GetBody2()];
+                            jsJoint.bodyB = bodies[_joint.GetBody1()];
                             jsJoint.collideConnected = _joint._collideConnected;
                             jsJoint.enableLimit = _joint._enableLimit;
                             jsJoint.enableMotor = _joint._enableMotor;
