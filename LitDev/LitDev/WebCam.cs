@@ -64,7 +64,7 @@ namespace LitDev
         [DllImport("user32", EntryPoint = "SendMessage")]
         private static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, Int32 wParam, Int32 lParam);
 
-         [DllImport("avicap32.dll", EntryPoint = "capCreateCaptureWindowA")]
+        [DllImport("avicap32.dll", EntryPoint = "capCreateCaptureWindowA")]
         private static extern IntPtr capCreateCaptureWindowA(string lpszWindowName, int dwStyle, int X, int Y, int nWidth, int nHeight, IntPtr hwndParent, int nID);
 
         private const int WM_USER = 1024;
@@ -88,7 +88,7 @@ namespace LitDev
         private static bool connected = false;
         private static string shapeName;
         private static PictureBox pictureBox = new PictureBox();
-        private static Image image;
+        private static List<Image> images = new List<Image>();
         private static System.Windows.Forms.Timer timer;
         private static int interval = 20;
         private static MethodInfo method1 = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
@@ -646,7 +646,10 @@ namespace LitDev
                             bImg.BeginInit();
                             bImg.StreamSource = ms;
                             bImg.EndInit();
-                            image.Source = bImg;
+                            foreach (Image image in images)
+                            {
+                                image.Source = bImg;
+                            }
                         });
                         method1.Invoke(null, new object[] { ret });
                     }
@@ -752,7 +755,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Start a webcam display object (SmallBasic shape).
+        /// Start a webcam display object (SmallBasic shape).  If this is called more than once, multiple copies af the same webcam image are be generated.
         /// 
         /// This object can be moved, zommed, rotated etc using the standard Shapes methods.
         /// 
@@ -763,7 +766,6 @@ namespace LitDev
         /// <returns>The name of the webcam display object.</returns>
         public static Primitive Start(Primitive width, Primitive height)
         {
-            if (connected) return "";
             _width = width;
             _height = height;
             GraphicsWindow.Show();
@@ -785,7 +787,8 @@ namespace LitDev
                 {
                     try
                     {
-                        image = new Image();
+                        Image image = new Image();
+                        images.Add(image);
                         image.Name = shapeName;
                         image.Width = _width;
                         image.Height = _height;
@@ -794,7 +797,7 @@ namespace LitDev
                         _objectsMap[shapeName] = (UIElement)image;
                         _mainCanvas.Children.Add(image);
 
-                        Connect();
+                        if (!connected) Connect();
 
                         return shapeName;
                     }
