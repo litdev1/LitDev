@@ -103,6 +103,8 @@ namespace LitDev
             }
         }
 
+        private static Dictionary<string, Bitmap> _workingImages = new Dictionary<string, Bitmap>();
+
         private static Primitive statistics(string image)
         {
             lock (LockingVar)
@@ -1596,6 +1598,138 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
             return imageNew;
+        }
+
+        /// <summary>
+        /// Open a temporary working image for fast pixel level manipulation.
+        /// After the temporary working image is finished with it should be set to the image using CloseWorkingImage.
+        /// </summary>
+        /// <param name="image">The ImageList image to open as a temporary working image.</param>
+        public static void OpenWorkingImage(Primitive image)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+                Type GraphicsWindowType = typeof(Microsoft.SmallBasic.Library.GraphicsWindow);
+                Dictionary<string, BitmapSource> _savedImages;
+                BitmapSource img;
+
+                try
+                {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue((string)image, out img)) return;
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            _workingImages[image] = getBitmap(img);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Close and reset the image from a temporary working image.
+        /// </summary>
+        /// <param name="image">The working image, previously opened with OpenWorkingImage.</param>
+        public static void CloseWorkingImage(Primitive image)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+                Type ShapesType = typeof(Microsoft.SmallBasic.Library.Shapes);
+                Type GraphicsWindowType = typeof(Microsoft.SmallBasic.Library.GraphicsWindow);
+                Dictionary<string, BitmapSource> _savedImages;
+                BitmapSource img;
+                Bitmap workingImg;
+
+                try
+                {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue((string)image, out img)) return;
+                    if (!_workingImages.TryGetValue((string)image, out workingImg)) return;
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            _savedImages[image] = getBitmapImage(workingImg);
+                            _workingImages.Remove(image);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get the colour of a pixel from a temporary working image.
+        /// </summary>
+        /// <param name="image">The working image, previously opened with OpenWorkingImage.</param>
+        /// <param name="x">The x pixel coordinate.</param>
+        /// <param name="y">The y pixel coordinate.</param>
+        /// <returns>The pixel colour or "" on failure.</returns>
+        public static Primitive GetWorkingImagePixel(Primitive image, Primitive x, Primitive y)
+        {
+            lock (LockingVar)
+            {
+                Bitmap workingImg;
+                if (!_workingImages.TryGetValue((string)image, out workingImg)) return "";
+                try
+                {
+                    return Color2ARGB(workingImg.GetPixel(x - 1, y - 1));
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    return "";
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the colour of a pixel in a temporary working image.
+        /// </summary>
+        /// <param name="image">The working image, previously opened with OpenWorkingImage.</param>
+        /// <param name="x">The x pixel coordinate.</param>
+        /// <param name="y">The y pixel coordinate.</param>
+        /// <param name="colour">The colour to set the pixel to.</param>
+        public static void SetWorkingImagePixel(Primitive image, Primitive x, Primitive y, Primitive colour)
+        {
+            lock (LockingVar)
+            {
+                Bitmap workingImg;
+                if (!_workingImages.TryGetValue((string)image, out workingImg)) return;
+                try
+                {
+                    workingImg.SetPixel(x - 1, y - 1, (System.Drawing.Color)colConvert.ConvertFromString(colour));
+                }
+                    catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
         }
     }
 }
