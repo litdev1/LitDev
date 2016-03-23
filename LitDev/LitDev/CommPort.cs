@@ -69,7 +69,7 @@ namespace LitDev
         /// Integer baud rate.
         /// </param>
         /// <returns>Error message, "SUCCESS", "NOSERIALPORTS", "PORTNOTFOUND" or "CONNECTIONFAILED".
-        /// "</returns>
+        /// </returns>
         public static Primitive OpenPort(Primitive portname, Primitive baudrate)
         {
             string[] portnames = SerialPort.GetPortNames();

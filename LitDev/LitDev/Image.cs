@@ -21,9 +21,11 @@ using Svg;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SBArray = Microsoft.SmallBasic.Library.Array;
@@ -1728,6 +1730,51 @@ namespace LitDev
                     catch (Exception ex)
                 {
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get an array of image metadata.
+        /// </summary>
+        /// <param name="imageFile">The image file (not an ImageList image).</param>
+        /// <returns>An array of metadata values indexed by hex id.
+        /// See https://msdn.microsoft.com/en-us/library/system.drawing.imaging.propertyitem.id%28v=vs.110%29.aspx for a list of ids.</returns>
+        public static Primitive MetaData(Primitive imageFile)
+        {
+            lock (LockingVar)
+            {
+                try
+                {
+                    Image image = new Bitmap(imageFile);
+                    PropertyItem[] propItems = image.PropertyItems;
+                    Primitive result = "";
+                    foreach (PropertyItem item in propItems)
+                    {
+                        switch (item.Type)
+                        {
+                            case 1:
+                                break;
+                            case 2:
+                                result[item.Id.ToString("x")] = new ASCIIEncoding().GetString(item.Value);
+                                break;
+                            case 3:
+                                result[item.Id.ToString("x")] = BitConverter.ToInt16(item.Value, 0);
+                                break;
+                            case 4:
+                                result[item.Id.ToString("x")] = BitConverter.ToInt32(item.Value, 0);
+                                break;
+                            case 5:
+                                result[item.Id.ToString("x")] = BitConverter.ToDouble(item.Value, 0);
+                                break;
+                        }
+                    }
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    return "";
                 }
             }
         }
