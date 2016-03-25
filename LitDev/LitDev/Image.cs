@@ -1738,7 +1738,7 @@ namespace LitDev
         /// Get an array of image metadata.
         /// </summary>
         /// <param name="imageFile">The image file (not an ImageList image).</param>
-        /// <returns>An array of metadata values indexed by hex id.
+        /// <returns>An array of metadata values indexed by hex id (Use quotes for indices with a to f in the hex values).
         /// See https://msdn.microsoft.com/en-us/library/system.drawing.imaging.propertyitem.id%28v=vs.110%29.aspx for a list of ids.</returns>
         public static Primitive MetaData(Primitive imageFile)
         {
@@ -1754,6 +1754,7 @@ namespace LitDev
                         switch (item.Type)
                         {
                             case 1:
+                                result[item.Id.ToString("x")] = item.Value[0];
                                 break;
                             case 2:
                                 result[item.Id.ToString("x")] = new ASCIIEncoding().GetString(item.Value);
