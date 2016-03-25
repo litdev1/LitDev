@@ -19,6 +19,7 @@
 
 using Microsoft.SmallBasic.Library;
 using System;
+using System.Collections.Generic;
 using System.IO.Ports;
 using System.Text;
 
@@ -31,17 +32,40 @@ namespace LitDev
     [SmallBasicType]
     public static class LDCommPort
     {
-        private static SerialPort _tty = null;
-        private static string _portname;
-        private static bool ComparePortName(String s)
-        {
-            return (s == _portname);
-        }
+        private static Dictionary<string, SerialPort> ports = new Dictionary<string, SerialPort>();
+        private static SerialPort port = null;
+        private static string lastPort = "";
+        private static string lastError = "";
 
         private static SmallBasicCallback DataReceivedDelegate = null;
         private static void DataReceivedEvent(Object sender, SerialDataReceivedEventArgs e)
         {
+            lastPort = ((SerialPort)sender).PortName;
             if (null != DataReceivedDelegate) DataReceivedDelegate();
+        }
+
+        private static SmallBasicCallback ErrorReceivedDelegate = null;
+        private static void ErrorReceivedEvent(Object sender, SerialErrorReceivedEventArgs e)
+        {
+            lastPort = ((SerialPort)sender).PortName;
+            lastError = e.EventType.ToString();
+            if (null != ErrorReceivedDelegate) ErrorReceivedDelegate();
+        }
+
+        /// <summary>
+        /// The last port name for which an event was raised.
+        /// </summary>
+        public static Primitive LastPort
+        {
+            get { return lastPort; }
+        }
+
+        /// <summary>
+        /// The last error for which an error event was raised.
+        /// </summary>
+        public static Primitive LastError
+        {
+            get { return lastError; }
         }
 
         /// <summary>
@@ -60,29 +84,52 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Event when the serial port receives an error.
+        /// </summary>
+        public static event SmallBasicCallback ErrorReceived
+        {
+            add
+            {
+                ErrorReceivedDelegate = value;
+            }
+            remove
+            {
+                ErrorReceivedDelegate = null;
+            }
+        }
+
+        /// <summary>
         /// Opens a serial port for use.  Assumes 8 databits, no parity.
         /// </summary>
-        /// <param name="portname">
-        /// String identifying which port to open in the form of "COM8".  If the passed string is invalid or the port doesn't exist, the highest available port is opened.
+        /// <param name="portName">
+        /// String identifying which port to open in the form of "COM8".
         /// </param>
-        /// <param name="baudrate">
-        /// Integer baud rate.
+        /// <param name="baudRate">
+        /// Integer baud rate, for example 9600.
         /// </param>
         /// <returns>Error message, "SUCCESS", "NOSERIALPORTS", "PORTNOTFOUND" or "CONNECTIONFAILED".
         /// </returns>
-        public static Primitive OpenPort(Primitive portname, Primitive baudrate)
+        public static Primitive OpenPort(Primitive portName, Primitive baudRate)
         {
             string[] portnames = SerialPort.GetPortNames();
             if (portnames.Length == 0) return "NOSERIALPORTS";
-            _portname = ((string)portname).ToUpper();
+            string _portName = ((string)portName).ToUpper();
+            if (ports.TryGetValue(_portName, out port))
+            {
+                port.BaudRate = baudRate;
+                return "SUCCESS";
+            }
 
-            if (System.Array.Exists(portnames, ComparePortName))
+            if (System.Array.Exists(portnames, element => element == _portName))
             {
                 try
                 {
-                    _tty = new SerialPort(_portname, baudrate, Parity.None, 8, StopBits.One);
-                    _tty.Open();
-                    _tty.DataReceived += new SerialDataReceivedEventHandler(DataReceivedEvent);
+                    port = new SerialPort(_portName, baudRate);
+                    port.PortName = _portName;
+                    ports[_portName] = port;
+                    port.Open();
+                    port.DataReceived += new SerialDataReceivedEventHandler(DataReceivedEvent);
+                    port.ErrorReceived += new SerialErrorReceivedEventHandler(ErrorReceivedEvent);
                     return "SUCCESS";
                 }
                 catch (Exception ex)
@@ -98,6 +145,19 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Switch the current active port to a previously opened port.
+        /// </summary>
+        /// <param name="portName">String identifying a port that is already opened.</param>
+        /// <returns>Error message, "SUCCESS" or "PORTNOTFOUND".</returns>
+        public static Primitive SwapPort(Primitive portName)
+        {
+            SerialPort _port;
+            if (!ports.TryGetValue(((string)portName).ToUpper(), out _port)) return "PORTNOTFOUND";
+            port = _port;
+            return "SUCCESS";
+        }
+
+        /// <summary>
         /// Reads one byte from the open serial port and returns that byte as an integer.
         /// </summary>
         /// <returns>
@@ -105,10 +165,10 @@ namespace LitDev
         /// </returns>
         public static Primitive RXByte()
         {
-            if (null == _tty) return "NOCONNECTION";
+            if (null == port) return "NOCONNECTION";
             try
             {
-                return _tty.ReadByte();
+                return port.ReadByte();
             }
             catch
             {
@@ -124,10 +184,10 @@ namespace LitDev
         /// </returns>
         public static Primitive RXChar()
         {
-            if (null == _tty) return "NOCONNECTION";
+            if (null == port) return "NOCONNECTION";
             try
             {
-                return Convert.ToString(_tty.ReadByte());
+                return Convert.ToString(port.ReadByte());
             }
             catch
             {
@@ -143,10 +203,10 @@ namespace LitDev
         /// </returns>
         public static Primitive RXAll()
         {
-            if (null == _tty) return "NOCONNECTION";
+            if (null == port) return "NOCONNECTION";
             try
             {
-                return _tty.ReadExisting();
+                return port.ReadExisting();
             }
             catch
             {
@@ -162,10 +222,11 @@ namespace LitDev
         /// </returns>
         public static Primitive ClosePort()
         {
-            if (null == _tty) return "NOCONNECTION";
+            if (null == port) return "NOCONNECTION";
             try
             {
-                _tty.Close();
+                port.Close();
+                ports.Remove(port.PortName);
                 return "SUCCESS";
             }
             catch
@@ -185,9 +246,9 @@ namespace LitDev
             string[] portnames = SerialPort.GetPortNames();
             Primitive portlist = "";
             int count = 1;
-            foreach (string s in portnames)
+            foreach (string portname in portnames)
             {
-                portlist[count++] = s;
+                portlist[count++] = portname;
             }
             return portlist;
         }
@@ -195,19 +256,19 @@ namespace LitDev
         /// <summary>
         /// Sends one byte to the serial port.
         /// </summary>
-        /// <param name="databyte">
+        /// <param name="dataByte">
         /// The byte to be written to the port.
         /// </param>
         /// <returns>
         /// "SUCCESS", "NOCONNECTION" or "FAILED".
         /// </returns>
-        public static Primitive TXByte(Primitive databyte)
+        public static Primitive TXByte(Primitive dataByte)
         {
-            if (null == _tty) return "NOCONNECTION";
+            if (null == port) return "NOCONNECTION";
             try
             {
-                byte[] b = { (byte)databyte };
-                _tty.Write(b, 0, 1);
+                byte[] b = { (byte)dataByte };
+                port.Write(b, 0, 1);
                 return "SUCCESS";
             }
             catch
@@ -219,18 +280,18 @@ namespace LitDev
         /// <summary>
         /// Sends a string to the serial port.
         /// </summary>
-        /// <param name="datastring">
+        /// <param name="dataString">
         /// String value to be sent.
         /// </param>
         /// <returns>
         /// "SUCCESS", "NOCONNECTION" or "FAILED".
         /// </returns>
-        public static Primitive TXString(Primitive datastring)
+        public static Primitive TXString(Primitive dataString)
         {
-            if (null == _tty) return "NOCONNECTION";
+            if (null == port) return "NOCONNECTION";
             try
             {
-                _tty.Write(datastring);
+                port.Write(dataString);
                 return "SUCCESS";
             }
             catch
@@ -240,27 +301,35 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Sets or clears hardware flow control.
+        /// Sets or clears hardware flow control for the current port.
         /// </summary>
         /// <param name="handshake">
-        /// "H" or "h" to select hardware flow control, any other character to clear.
+        /// "H" to select hardware flow control, "HX" for hardware and software flow control, "X" for software fow control, any other character to clear.
         /// </param>
         /// <returns>
         /// "SUCCESS", "NOCONNECTION" or "FAILED".
         /// </returns>
         public static Primitive SetHandshake(Primitive handshake)
         {
-            if (null == _tty) return "NOCONNECTION";
+            if (null == port) return "NOCONNECTION";
             try
             {
-                string _handshake = ((string)handshake).ToUpper();
-                if (_handshake == "H")
+                string value = ((string)handshake).ToUpper();
+                if (value == "H")
                 {
-                    _tty.Handshake = Handshake.RequestToSend;
+                    port.Handshake = Handshake.RequestToSend;
+                }
+                if (value == "HX")
+                {
+                    port.Handshake = Handshake.RequestToSendXOnXOff;
+                }
+                if (value == "X")
+                {
+                    port.Handshake = Handshake.XOnXOff;
                 }
                 else
                 {
-                    _tty.Handshake = Handshake.None;
+                    port.Handshake = Handshake.None;
                 }
                 return "SUCCESS";
             }
@@ -271,7 +340,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Sets the encoding for send and receive text conversion.
+        /// Sets current port encoding for send and receive text conversion.
         /// </summary>
         /// <param name="encoding">The encoding:
         /// "Ascii" (default), "Unicode", "UTF7", "UTF8", "UTF32" or "BigEndianUnicode".
@@ -281,33 +350,147 @@ namespace LitDev
         /// </returns>
         public static Primitive SetEncoding(Primitive encoding)
         {
-            if (null == _tty) return "NOCONNECTION";
+            if (null == port) return "NOCONNECTION";
             try
             {
-                string _encoding = ((string)encoding).ToUpper();
-                if (_encoding == "ASCII")
+                string value = ((string)encoding).ToUpper();
+                if (value == "ASCII")
                 {
-                    _tty.Encoding = Encoding.ASCII;
+                    port.Encoding = Encoding.ASCII;
                 }
-                else if (_encoding == "UNICODE")
+                else if (value == "UNICODE")
                 {
-                    _tty.Encoding = Encoding.Unicode;
+                    port.Encoding = Encoding.Unicode;
                 }
-                else if (_encoding == "UTF7")
+                else if (value == "UTF7")
                 {
-                    _tty.Encoding = Encoding.UTF7;
+                    port.Encoding = Encoding.UTF7;
                 }
-                else if (_encoding == "UTF8")
+                else if (value == "UTF8")
                 {
-                    _tty.Encoding = Encoding.UTF8;
+                    port.Encoding = Encoding.UTF8;
                 }
-                else if (_encoding == "UTF32")
+                else if (value == "UTF32")
                 {
-                    _tty.Encoding = Encoding.UTF32;
+                    port.Encoding = Encoding.UTF32;
                 }
-                else if (_encoding == "BIGENDIANUNICODE")
+                else if (value == "BIGENDIANUNICODE")
                 {
-                    _tty.Encoding = Encoding.BigEndianUnicode;
+                    port.Encoding = Encoding.BigEndianUnicode;
+                }
+                else
+                {
+                    return "FAILED";
+                }
+                return "SUCCESS";
+            }
+            catch
+            {
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Sets current port parity. 
+        /// </summary>
+        /// <param name="parity">The parity:
+        /// "None" (default), "Even", "Mark", "Odd" or "Space".
+        /// </param>
+        /// <returns>
+        /// "SUCCESS", "NOCONNECTION" or "FAILED".
+        /// </returns>
+        public static Primitive SetParity(Primitive parity)
+        {
+            if (null == port) return "NOCONNECTION";
+            try
+            {
+                string value = ((string)parity).ToUpper();
+                if (value == "NONE")
+                {
+                    port.Parity = Parity.None;
+                }
+                else if (value == "EVEN")
+                {
+                    port.Parity = Parity.Even;
+                }
+                else if (value == "MARK")
+                {
+                    port.Parity = Parity.Mark;
+                }
+                else if (value == "ODD")
+                {
+                    port.Parity = Parity.Odd;
+                }
+                else if (value == "Space")
+                {
+                    port.Parity = Parity.Space;
+                }
+                else
+                {
+                    return "FAILED";
+                }
+                return "SUCCESS";
+            }
+            catch
+            {
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Sets current port data bits. 
+        /// 5 to 8 (default).
+        /// </summary>
+        /// <param name="dataBits">The data bits:
+        /// 5 to 8 (default).
+        /// </param>
+        /// <returns>
+        /// "SUCCESS", "NOCONNECTION" or "FAILED".
+        /// </returns>
+        public static Primitive SetDataBits(Primitive dataBits)
+        {
+            if (null == port) return "NOCONNECTION";
+            try
+            {
+                port.DataBits = dataBits;
+                return "SUCCESS";
+            }
+            catch
+            {
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Current port stop bits. 
+        /// </summary>
+        /// <param name="stopBits">The stop bits:
+        /// "One" (default), "None", "OnePointFive" or "Two".
+        /// </param>
+        /// <returns>
+        /// "SUCCESS", "NOCONNECTION" or "FAILED".
+        /// </returns>
+        public static Primitive SetStopBits(Primitive stopBits)
+        {
+            if (null == port) return "NOCONNECTION";
+            try
+            {
+                string value = ((string)stopBits).ToUpper();
+                if (value == "NONE")
+                {
+                    port.StopBits = StopBits.None;
+                }
+                else if (value == "ONE")
+                {
+                    port.StopBits = StopBits.One;
+                }
+                else if (value == "ONEPOINTFIVE")
+                {
+                    port.StopBits = StopBits.OnePointFive;
+                }
+                else if (value == "TWO")
+                {
+                    port.StopBits = StopBits.Two;
                 }
                 else
                 {
