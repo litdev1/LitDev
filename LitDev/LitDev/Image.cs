@@ -1095,6 +1095,7 @@ namespace LitDev
             result[i++] = "Fisheye";
             result[i++] = "Bulge";
             result[i++] = "Swirl";
+            result[i++] = "Posterise";
             return result;
         }
 
@@ -1305,6 +1306,16 @@ namespace LitDev
         public static void EffectSwirl(Primitive image, Primitive parameter)
         {
             DoEffect(image, eEffect.SWIRL, parameter);
+        }
+
+        /// <summary>
+        /// Converts to posterise effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="parameter">Posterise level (default 50).</param>
+        public static void EffectPosterise(Primitive image, Primitive parameter)
+        {
+            DoEffect(image, eEffect.POSTERISE, parameter);
         }
 
         /// <summary>

@@ -53,6 +53,7 @@ namespace LitDev
         FISHEYE,
         BULGE,
         SWIRL,
+        POSTERISE,
     }
 
     /// <summary>
@@ -99,7 +100,7 @@ namespace LitDev
         private static Boolean useAvicap = false;
         private static Object lockUpdate = new Object();
 
-        public static Primitive[] pEffect = new Primitive[] { "", "", "", "", "", "", "", "", "", 25, 4, 2, 5, 0, 4, 0, 16, 2, 2, 2, 1 };
+        public static Primitive[] pEffect = new Primitive[] { "", "", "", "", "", "", "", "", "", 25, 4, 2, 5, 0, 4, 0, 16, 2, 2, 2, 1, 50 };
 
         //public static bits to be threadsafe
         public static System.Drawing.Bitmap bitmap = null;
@@ -551,6 +552,28 @@ namespace LitDev
                         }
                     }
                     break;
+                case eEffect.POSTERISE: //Posterise
+                    {
+                        int level = parameter;
+                        if (level <= 0) level = pEffect[(int)_effect];
+                        System.Drawing.Color c;
+                        double R, G, B;
+
+                        for (int i = 0; i < bmap.Width; i++)
+                        {
+                            for (int j = 0; j < bmap.Height; j++)
+                            {
+                                c = bmap.GetPixel(i, j);
+
+                                R = ((int)(c.R / level)) * level;
+                                G = ((int)(c.G / level)) * level;
+                                B = ((int)(c.B / level)) * level;
+
+                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
+                            }
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
@@ -973,6 +996,10 @@ namespace LitDev
         /// 
         /// </summary>
         public static Primitive EffectSwirl { get { return (int)eEffect.SWIRL; } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Primitive EffectPosterise { get { return (int)eEffect.POSTERISE; } }
 
         /// <summary>
         /// Effect parameter - see LDImage effects for the parameter values for effects.
