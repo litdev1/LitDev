@@ -1096,6 +1096,9 @@ namespace LitDev
             result[i++] = "Bulge";
             result[i++] = "Swirl";
             result[i++] = "Posterise";
+            result[i++] = "Hue";
+            result[i++] = "Saturation";
+            result[i++] = "Lightness";
             return result;
         }
 
@@ -1316,6 +1319,36 @@ namespace LitDev
         public static void EffectPosterise(Primitive image, Primitive parameter)
         {
             DoEffect(image, eEffect.POSTERISE, parameter);
+        }
+
+        /// <summary>
+        /// Converts to modify Hue.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="parameter">Hue modification (0 to 360, default 180).</param>
+        public static void EffectHue(Primitive image, Primitive parameter)
+        {
+            DoEffect(image, eEffect.HUE, parameter);
+        }
+
+        /// <summary>
+        /// Converts to modify Saturation.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="parameter">Saturation multiplier (default 2).</param>
+        public static void EffectSaturation(Primitive image, Primitive parameter)
+        {
+            DoEffect(image, eEffect.SATURATION, parameter);
+        }
+
+        /// <summary>
+        /// Converts to modify Lightness.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="parameter">Lightness multiplier (default 2).</param>
+        public static void EffectLightness(Primitive image, Primitive parameter)
+        {
+            DoEffect(image, eEffect.LIGHTNESS, parameter);
         }
 
         /// <summary>

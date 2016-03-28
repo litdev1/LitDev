@@ -54,6 +54,9 @@ namespace LitDev
         BULGE,
         SWIRL,
         POSTERISE,
+        HUE,
+        SATURATION,
+        LIGHTNESS,
     }
 
     /// <summary>
@@ -100,7 +103,7 @@ namespace LitDev
         private static Boolean useAvicap = false;
         private static Object lockUpdate = new Object();
 
-        public static Primitive[] pEffect = new Primitive[] { "", "", "", "", "", "", "", "", "", 25, 4, 2, 5, 0, 4, 0, 16, 2, 2, 2, 1, 50 };
+        public static Primitive[] pEffect = new Primitive[] { " ", " ", " ", " ", " ", " ", " ", " ", " ", 25, 4, 2, 5, 0, 4, 0, 16, 2, 2, 2, 1, 50, 180, 2, 2 };
 
         //public static bits to be threadsafe
         public static System.Drawing.Bitmap bitmap = null;
@@ -574,6 +577,72 @@ namespace LitDev
                         }
                     }
                     break;
+                case eEffect.HUE: //Hue
+                    {
+                        double hue = parameter;
+                        if (hue <= 0) hue = pEffect[(int)_effect];
+                        System.Drawing.Color c;
+                        double[] HSL;
+                        double[] RGB;
+
+                        for (int i = 0; i < bmap.Width; i++)
+                        {
+                            for (int j = 0; j < bmap.Height; j++)
+                            {
+                                c = bmap.GetPixel(i, j);
+
+                                HSL = LDColours.RGB2HSL(c.R, c.G, c.B);
+                                RGB = LDColours.HSL2RGB(HSL[0] + hue, HSL[1], HSL[2]);
+
+                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255*RGB[0]+0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
+                            }
+                        }
+                    }
+                    break;
+                case eEffect.SATURATION: //Saturation
+                    {
+                        double saturation = parameter;
+                        if (saturation <= 0) saturation = pEffect[(int)_effect];
+                        System.Drawing.Color c;
+                        double[] HSL;
+                        double[] RGB;
+
+                        for (int i = 0; i < bmap.Width; i++)
+                        {
+                            for (int j = 0; j < bmap.Height; j++)
+                            {
+                                c = bmap.GetPixel(i, j);
+
+                                HSL = LDColours.RGB2HSL(c.R, c.G, c.B);
+                                RGB = LDColours.HSL2RGB(HSL[0], HSL[1] * saturation, HSL[2]);
+
+                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255 * RGB[0] + 0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
+                            }
+                        }
+                    }
+                    break;
+                case eEffect.LIGHTNESS: //Lightness
+                    {
+                        double lightness = parameter;
+                        if (lightness <= 0) lightness = pEffect[(int)_effect];
+                        System.Drawing.Color c;
+                        double[] HSL;
+                        double[] RGB;
+
+                        for (int i = 0; i < bmap.Width; i++)
+                        {
+                            for (int j = 0; j < bmap.Height; j++)
+                            {
+                                c = bmap.GetPixel(i, j);
+
+                                HSL = LDColours.RGB2HSL(c.R, c.G, c.B);
+                                RGB = LDColours.HSL2RGB(HSL[0], HSL[1], HSL[2] * lightness);
+
+                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255 * RGB[0] + 0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
+                            }
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
@@ -1000,6 +1069,18 @@ namespace LitDev
         /// 
         /// </summary>
         public static Primitive EffectPosterise { get { return (int)eEffect.POSTERISE; } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Primitive EffectHue { get { return (int)eEffect.HUE; } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Primitive EffectSaturation { get { return (int)eEffect.SATURATION; } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Primitive EffectLightness { get { return (int)eEffect.LIGHTNESS; } }
 
         /// <summary>
         /// Effect parameter - see LDImage effects for the parameter values for effects.

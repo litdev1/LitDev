@@ -28,7 +28,7 @@ namespace LitDev
     [SmallBasicType]
     public static class LDColours
     {
-        private static double[] HSL2RGB(double H, double S, double L)
+        public static double[] HSL2RGB(double H, double S, double L)
         {
             while (H < 0.0) H += 360.0;
             while (H > 360.0) H -= 360.0;
@@ -55,7 +55,7 @@ namespace LitDev
             return RGB;
         }
 
-        private static double[] RGB2HSL(double R, double G, double B)
+        public static double[] RGB2HSL(double R, double G, double B)
         {
             R = R < 0.0 ? 0.0 : R > 255.0 ? 1.0 : R / 255.0;
             G = G < 0.0 ? 0.0 : G > 255.0 ? 1.0 : G / 255.0;

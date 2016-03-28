@@ -20,7 +20,7 @@
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Error handling, additional settings and multiple ports supported");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDCommPort", new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Posterise effect added");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Posterise, Hue, Saturation and Lightness effects added");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("LDImage and LDWebCam", new System.Windows.Forms.TreeNode[] {
             treeNode3});
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Version 1.2.7.0", new System.Windows.Forms.TreeNode[] {
@@ -1550,7 +1550,7 @@
             treeNode2.Name = "Node1";
             treeNode2.Text = "LDCommPort";
             treeNode3.Name = "Node1";
-            treeNode3.Text = "Posterise effect added";
+            treeNode3.Text = "Posterise, Hue, Saturation and Lightness effects added";
             treeNode4.Name = "Node0";
             treeNode4.Text = "LDImage and LDWebCam";
             treeNode5.Name = "Node0";
