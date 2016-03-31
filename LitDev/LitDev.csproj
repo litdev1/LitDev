@@ -235,6 +235,7 @@
     <Compile Include="LitDev\Engines\SlimDX.cs" />
     <Compile Include="LitDev\Figures.cs" />
     <Compile Include="LitDev\Effects.cs" />
+    <Compile Include="LitDev\Bits.cs" />
     <Compile Include="LitDev\Logic.cs" />
     <Compile Include="LitDev\Clipboard.cs" />
     <Compile Include="LitDev\Chart.cs" />

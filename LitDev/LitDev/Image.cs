@@ -1325,7 +1325,7 @@ namespace LitDev
         /// Converts to modify Hue.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Hue modification (0 to 360, default 180).</param>
+        /// <param name="parameter">Hue shift (0 to 360, default 180).</param>
         public static void EffectHue(Primitive image, Primitive parameter)
         {
             DoEffect(image, eEffect.HUE, parameter);
