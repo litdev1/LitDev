@@ -25,7 +25,7 @@ namespace LitDev
     /// Bitwise logic to store binary flags in a single number as bits.
     /// A 32 bit number is used internally.
     /// This is like a 32 dimension array of 1s and 0s stored in single number.
-    /// The bits (0 to 31) are indexed from 0.
+    /// The bits (1 to 32) are indexed from 1.
     /// </summary>
     [SmallBasicType]
     public static class LDBits
@@ -36,13 +36,13 @@ namespace LitDev
         /// Set a bit in a number.
         /// </summary>
         /// <param name="var">The number to set the bit.</param>
-        /// <param name="bit">A zero indexed bit to set (0 to 31).</param>
+        /// <param name="bit">A bit to set (1 to 32).</param>
         /// <returns>The modified number with bit set.</returns>
         public static Primitive SetBit(Primitive var, Primitive bit)
         {
             try
             {
-                return (varType)var | (one << bit);
+                return (varType)var | (one << bit - 1);
             }
             catch (Exception ex)
             {
@@ -55,13 +55,13 @@ namespace LitDev
         /// Unset a bit in a number.
         /// </summary>
         /// <param name="var">The number to unset the bit.</param>
-        /// <param name="bit">A zero indexed bit to unset (0 to 31).</param>
+        /// <param name="bit">A bit to unset (1 to 32).</param>
         /// <returns>The modified number with bit unset.</returns>
         public static Primitive UnsetBit(Primitive var, Primitive bit)
         {
             try
             {
-                return (varType)var & ~(one << bit);
+                return (varType)var & ~(one << bit - 1);
             }
             catch (Exception ex)
             {
@@ -74,13 +74,13 @@ namespace LitDev
         /// Get the bit value in a number.
         /// </summary>
         /// <param name="var">The number to test.</param>
-        /// <param name="bit">A zero indexed bit to test (0 to 31).</param>
+        /// <param name="bit">A bit to test (1 to 32).</param>
         /// <returns>0 (unset) or 1 (set).</returns>
         public static Primitive GetBit(Primitive var, Primitive bit)
         {
             try
             {
-                return ((varType)var & (one << bit)) == 0 ? 0 : 1;
+                return ((varType)var & (one << bit - 1)) == 0 ? 0 : 1;
             }
             catch (Exception ex)
             {
@@ -156,6 +156,29 @@ namespace LitDev
             try
             {
                 return (varType)var1 ^ (varType)var2;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Get an array of bit values.
+        /// </summary>
+        /// <param name="var">The number to get the bits.</param>
+        /// <returns>A 32 dimension array of bits (0 or 1).</returns>
+        public static Primitive GetBits(Primitive var)
+        {
+            try
+            {
+                string result = "";
+                for (int i = 0; i < 32; i++)
+                {
+                    result += (i + 1).ToString() + "=" + (((varType)var & (one << i)) == 0 ? 0 : 1).ToString() + ";";
+                }
+                return Utilities.CreateArrayMap(result);
             }
             catch (Exception ex)
             {
