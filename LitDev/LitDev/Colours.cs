@@ -76,7 +76,7 @@ namespace LitDev
             while (H > 360.0) H -= 360.0;
             H = H % 360.0;
             L = (M + m) / 2.0;
-            S = (C == 0) ? 0.0 : C / (1.0 - System.Math.Abs(2.0 * L - 1.0));
+            S = (C == 0 || L == 1) ? 0.0 : C / (1.0 - System.Math.Abs(2.0 * L - 1.0));
 
             return new double[] { H, S, L };
         }

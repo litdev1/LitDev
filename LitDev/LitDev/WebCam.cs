@@ -57,6 +57,11 @@ namespace LitDev
         HUE,
         SATURATION,
         LIGHTNESS,
+        OILPAINT,
+        CHARCOAL,
+        SKETCH,
+        CARTOON,
+        EDGE,
     }
 
     /// <summary>
@@ -103,7 +108,8 @@ namespace LitDev
         private static Boolean useAvicap = false;
         private static Object lockUpdate = new Object();
 
-        public static Primitive[] pEffect = new Primitive[] { " ", " ", " ", " ", " ", " ", " ", " ", " ", 25, 4, 2, 5, 0, 4, 0, 16, 2, 2, 2, 1, 50, 180, 2, 2 };
+        public static Primitive[] pEffect = new Primitive[] { "", "", "", "", "", "", "", "", "", 25, 4, 2, 5, "", 4, "", 16, 2, 2, 2, 1, 50, 180, 2, 2, "1=7;2=20;", "", "", "1=7;2=20;3=40;", "" };
+        private static FIP fip = new FIP();
 
         //public static bits to be threadsafe
         public static System.Drawing.Bitmap bitmap = null;
@@ -643,6 +649,44 @@ namespace LitDev
                         }
                     }
                     break;
+                case eEffect.OILPAINT: //Oil Paint
+                    {
+                        int radius = parameter[1];
+                        int levels = parameter[2];
+                        if (radius <= 0) radius = pEffect[(int)_effect][1];
+                        if (levels <= 0) levels = pEffect[(int)_effect][2];
+                        if (radius % 2 == 0) radius++;
+                        bmap = fip.OilPaint(bmap, radius, levels);
+                    }
+                    break;
+                case eEffect.CHARCOAL: //Charcoal
+                    {
+                        bmap = fip.SketchCharcoal(bmap);
+                    }
+                    break;
+                case eEffect.SKETCH: //Pen sketch
+                    {
+                        bmap = fip.Sketch(bmap);
+                    }
+                    break;
+                case eEffect.CARTOON: //Cartool
+                    {
+                        int radius = parameter[1];
+                        int levels = parameter[2];
+                        int inverse = parameter[3];
+                        if (radius <= 0) radius = pEffect[(int)_effect][1];
+                        if (levels <= 0) levels = pEffect[(int)_effect][2];
+                        if (inverse <= 0) inverse = pEffect[(int)_effect][3];
+                        if (radius % 2 == 0) radius++;
+                        bmap = fip.Cartoon(bmap, radius, levels, inverse, fip.LaplaceF1());
+                    }
+                    break;
+                case eEffect.EDGE: //Edge
+                    {
+                        bmap = fip.ImagePrewittFilterColor(bmap);
+                        //bmap = fip.ImagePrewittFilterGS(bmap);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -1081,6 +1125,10 @@ namespace LitDev
         /// 
         /// </summary>
         public static Primitive EffectLightness { get { return (int)eEffect.LIGHTNESS; } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Primitive EffectOilPaint { get { return (int)eEffect.OILPAINT; } }
 
         /// <summary>
         /// Effect parameter - see LDImage effects for the parameter values for effects.

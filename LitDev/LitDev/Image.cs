@@ -1099,6 +1099,11 @@ namespace LitDev
             result[i++] = "Hue";
             result[i++] = "Saturation";
             result[i++] = "Lightness";
+            result[i++] = "OilPaint";
+            result[i++] = "Charcoal";
+            result[i++] = "Sketch";
+            result[i++] = "Cartoon";
+            result[i++] = "Edge";
             return result;
         }
 
@@ -1349,6 +1354,63 @@ namespace LitDev
         public static void EffectLightness(Primitive image, Primitive parameter)
         {
             DoEffect(image, eEffect.LIGHTNESS, parameter);
+        }
+
+        /// <summary>
+        /// Converts to oil paint effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="radius">Oil paint radius (odd number, default 7).</param>
+        /// <param name="levels">Oil paint levels (default 20).</param>
+        public static void EffectOilPaint(Primitive image, Primitive radius, Primitive levels)
+        {
+            Primitive parameter = new Primitive();
+            parameter[1] = radius;
+            parameter[2] = levels;
+            DoEffect(image, eEffect.OILPAINT, parameter);
+        }
+
+        /// <summary>
+        /// Converts to charcoal effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        public static void EffectCartoon(Primitive image)
+        {
+            DoEffect(image, eEffect.CHARCOAL, "");
+        }
+
+        /// <summary>
+        /// Converts to pen sketch effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        public static void EffectSketch(Primitive image)
+        {
+            DoEffect(image, eEffect.SKETCH, "");
+        }
+
+        /// <summary>
+        /// Converts to cartoon effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="radius">Cartoon radius (odd number, default 7).</param>
+        /// <param name="levels">Cartoon levels (default 20).</param>
+        /// <param name="inverse">Cartoon inverse threhold (default 40).</param>
+        public static void EffectCartoon(Primitive image, Primitive radius, Primitive levels, Primitive inverse)
+        {
+            Primitive parameter = new Primitive();
+            parameter[1] = radius;
+            parameter[2] = levels;
+            parameter[3] = inverse;
+            DoEffect(image, eEffect.CARTOON, parameter);
+        }
+
+        /// <summary>
+        /// Converts to Prewitt edge effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        public static void EffectEdge(Primitive image)
+        {
+            DoEffect(image, eEffect.EDGE, "");
         }
 
         /// <summary>
