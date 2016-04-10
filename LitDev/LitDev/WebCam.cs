@@ -62,6 +62,9 @@ namespace LitDev
         SKETCH,
         CARTOON,
         EDGE,
+        ACCENT,
+        SEPIA,
+        NOISEREMOVAL,
     }
 
     /// <summary>
@@ -108,7 +111,7 @@ namespace LitDev
         private static Boolean useAvicap = false;
         private static Object lockUpdate = new Object();
 
-        public static Primitive[] pEffect = new Primitive[] { "", "", "", "", "", "", "", "", "", 25, 4, 2, 5, "", 4, "", 16, 2, 2, 2, 1, 50, 180, 2, 2, "1=7;2=20;", "", "", "1=7;2=20;3=40;", "" };
+        public static Primitive[] pEffect = new Primitive[] { "", "", "", "", "", "", "", "", "", 25, 4, 2, 5, "", 4, "", 16, 2, 2, 2, 1, 50, 180, 2, 2, "1=7;2=20;", "", "", "1=7;2=10;3=40;", "", "1=0;2=40;", 30, "" };
         private static FIP fip = new FIP();
 
         //public static bits to be threadsafe
@@ -678,13 +681,35 @@ namespace LitDev
                         if (levels <= 0) levels = pEffect[(int)_effect][2];
                         if (inverse <= 0) inverse = pEffect[(int)_effect][3];
                         if (radius % 2 == 0) radius++;
-                        bmap = fip.Cartoon(bmap, radius, levels, inverse, fip.LaplaceF1());
+                        bmap = fip.Cartoon(bmap, radius, levels, inverse);
+                        //bmap = fip.Cartoon(bmap, radius, levels, inverse, fip.LaplaceF1());
                     }
                     break;
                 case eEffect.EDGE: //Edge
                     {
                         bmap = fip.ImagePrewittFilterColor(bmap);
                         //bmap = fip.ImagePrewittFilterGS(bmap);
+                    }
+                    break;
+                case eEffect.ACCENT: //Accent
+                    {
+                        int hue = parameter[1];
+                        int range = parameter[2];
+                        if (hue <= 0) hue = pEffect[(int)_effect][1];
+                        if (range <= 0) range = pEffect[(int)_effect][2];
+                        bmap = fip.ColorAccent(bmap, hue, range);
+                    }
+                    break;
+                case eEffect.SEPIA: //Sepia
+                    {
+                        int threshhold = parameter;
+                        if (threshhold <= 0) threshhold = pEffect[(int)_effect];
+                        bmap = fip.Sepia(bmap, threshhold);
+                    }
+                    break;
+                case eEffect.NOISEREMOVAL: //Noise removal
+                    {
+                        bmap = fip.ImageSDROMFilterColor(bmap);
                     }
                     break;
                 default:

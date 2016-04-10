@@ -1104,6 +1104,9 @@ namespace LitDev
             result[i++] = "Sketch";
             result[i++] = "Cartoon";
             result[i++] = "Edge";
+            result[i++] = "Accent";
+            result[i++] = "Sepia";
+            result[i++] = "NoiseRemoval";
             return result;
         }
 
@@ -1200,160 +1203,160 @@ namespace LitDev
         /// Converts to snow effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">1 in parameter pixels are randomly snow (default 25).</param>
-        public static void EffectSnow(Primitive image, Primitive parameter)
+        /// <param name="level">1 in level pixels are randomly snow (default 25).</param>
+        public static void EffectSnow(Primitive image, Primitive level)
         {
-            DoEffect(image, eEffect.SNOW, parameter);
+            DoEffect(image, eEffect.SNOW, level);
         }
 
         /// <summary>
         /// Converts to fuzzy effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Pixel region to make fuzzy (default 4).</param>
-        public static void EffectFuzzy(Primitive image, Primitive parameter)
+        /// <param name="size">Pixel region to make fuzzy (default 4).</param>
+        public static void EffectFuzzy(Primitive image, Primitive size)
         {
-            DoEffect(image, eEffect.FUZZY, parameter);
+            DoEffect(image, eEffect.FUZZY, size);
         }
 
         /// <summary>
         /// Converts to high contrast effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Contrast factor (default 2), less than 1 reduces contrast.</param>
-        public static void EffectContrast(Primitive image, Primitive parameter)
+        /// <param name="contrast">Contrast factor (default 2), less than 1 reduces contrast.</param>
+        public static void EffectContrast(Primitive image, Primitive contrast)
         {
-            DoEffect(image, eEffect.CONTRAST, parameter);
+            DoEffect(image, eEffect.CONTRAST, contrast);
         }
 
         /// <summary>
         /// Converts to block effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Blocking factor (default 5).</param>
-        public static void EffectBlocks(Primitive image, Primitive parameter)
+        /// <param name="size">Blocking size factor (default 5).</param>
+        public static void EffectBlocks(Primitive image, Primitive size)
         {
-            DoEffect(image, eEffect.BLOCKS, parameter);
+            DoEffect(image, eEffect.BLOCKS, size);
         }
 
         /// <summary>
         /// Converts to X or Y reflection effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">0 to flip X and 1 to flip Y (default 0).</param>
-        public static void EffectReflect(Primitive image, Primitive parameter)
+        /// <param name="flip">0 to flip X and 1 to flip Y (default 0).</param>
+        public static void EffectReflect(Primitive image, Primitive flip)
         {
-            DoEffect(image, eEffect.REFLECT, parameter);
+            DoEffect(image, eEffect.REFLECT, flip);
         }
 
         /// <summary>
         /// Converts to jagged effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Pixel region to make jagged (default 4).</param>
-        public static void EffectJagged(Primitive image, Primitive parameter)
+        /// <param name="size">Pixel region size to make jagged (default 4).</param>
+        public static void EffectJagged(Primitive image, Primitive size)
         {
-            DoEffect(image, eEffect.JAGGED, parameter);
+            DoEffect(image, eEffect.JAGGED, size);
         }
 
         /// <summary>
         /// Converts to 90 degree rotation effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">0 for +90, 1 for 180 and 2 for 270(-90) degree rotation (default 0).</param>
-        public static void EffectRotate(Primitive image, Primitive parameter)
+        /// <param name="rotation">0 for +90, 1 for 180 and 2 for 270(-90) degree rotation (default 0).</param>
+        public static void EffectRotate(Primitive image, Primitive rotation)
         {
-            DoEffect(image, eEffect.ROTATE, parameter);
+            DoEffect(image, eEffect.ROTATE, rotation);
         }
 
         /// <summary>
         /// Converts to pixelate effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Pixelating factor (default 16).</param>
-        public static void EffectPixelate(Primitive image, Primitive parameter)
+        /// <param name="size">Pixelating size factor (default 16).</param>
+        public static void EffectPixelate(Primitive image, Primitive size)
         {
-            DoEffect(image, eEffect.PIXELATE, parameter);
+            DoEffect(image, eEffect.PIXELATE, size);
         }
 
         /// <summary>
         /// Converts to gamma effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Gamma factor, values less than 1 lighten and greater than 1 darken (default 2).</param>
-        public static void EffectGamma(Primitive image, Primitive parameter)
+        /// <param name="gamma">Gamma factor, values less than 1 lighten and greater than 1 darken (default 2).</param>
+        public static void EffectGamma(Primitive image, Primitive gamma)
         {
-            DoEffect(image, eEffect.GAMMA, parameter);
+            DoEffect(image, eEffect.GAMMA, gamma);
         }
 
         /// <summary>
         /// Converts to fisheye effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">FishEye factor, should be greater than 1 (default 2).</param>
-        public static void EffectFishEye(Primitive image, Primitive parameter)
+        /// <param name="factor">FishEye factor, should be greater than 1 (default 2).</param>
+        public static void EffectFishEye(Primitive image, Primitive factor)
         {
-            DoEffect(image, eEffect.FISHEYE, parameter);
+            DoEffect(image, eEffect.FISHEYE, factor);
         }
 
         /// <summary>
         /// Converts to bulge effect (similar to FishEye).
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Bulge factor, may be less than 1 for pinch effect (default 2).</param>
-        public static void EffectBulge(Primitive image, Primitive parameter)
+        /// <param name="factor">Bulge factor, may be less than 1 for pinch effect (default 2).</param>
+        public static void EffectBulge(Primitive image, Primitive factor)
         {
-            DoEffect(image, eEffect.BULGE, parameter);
+            DoEffect(image, eEffect.BULGE, factor);
         }
 
         /// <summary>
         /// Converts to swirl effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Swirl factor (default 1).</param>
-        public static void EffectSwirl(Primitive image, Primitive parameter)
+        /// <param name="factor">Swirl factor (default 1).</param>
+        public static void EffectSwirl(Primitive image, Primitive factor)
         {
-            DoEffect(image, eEffect.SWIRL, parameter);
+            DoEffect(image, eEffect.SWIRL, factor);
         }
 
         /// <summary>
         /// Converts to posterise effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Posterise level (default 50).</param>
-        public static void EffectPosterise(Primitive image, Primitive parameter)
+        /// <param name="level">Posterise level (default 50).</param>
+        public static void EffectPosterise(Primitive image, Primitive level)
         {
-            DoEffect(image, eEffect.POSTERISE, parameter);
+            DoEffect(image, eEffect.POSTERISE, level);
         }
 
         /// <summary>
         /// Converts to modify Hue.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Hue shift (0 to 360, default 180).</param>
-        public static void EffectHue(Primitive image, Primitive parameter)
+        /// <param name="hue">Hue shift (0 to 360, default 180).</param>
+        public static void EffectHue(Primitive image, Primitive hue)
         {
-            DoEffect(image, eEffect.HUE, parameter);
+            DoEffect(image, eEffect.HUE, hue);
         }
 
         /// <summary>
         /// Converts to modify Saturation.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Saturation multiplier (default 2).</param>
-        public static void EffectSaturation(Primitive image, Primitive parameter)
+        /// <param name="saturation">Saturation multiplier (default 2).</param>
+        public static void EffectSaturation(Primitive image, Primitive saturation)
         {
-            DoEffect(image, eEffect.SATURATION, parameter);
+            DoEffect(image, eEffect.SATURATION, saturation);
         }
 
         /// <summary>
         /// Converts to modify Lightness.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        /// <param name="parameter">Lightness multiplier (default 2).</param>
-        public static void EffectLightness(Primitive image, Primitive parameter)
+        /// <param name="lightness">Lightness multiplier (default 2).</param>
+        public static void EffectLightness(Primitive image, Primitive lightness)
         {
-            DoEffect(image, eEffect.LIGHTNESS, parameter);
+            DoEffect(image, eEffect.LIGHTNESS, lightness);
         }
 
         /// <summary>
@@ -1374,7 +1377,7 @@ namespace LitDev
         /// Converts to charcoal effect.
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
-        public static void EffectCartoon(Primitive image)
+        public static void EffectCharcoal(Primitive image)
         {
             DoEffect(image, eEffect.CHARCOAL, "");
         }
@@ -1393,7 +1396,7 @@ namespace LitDev
         /// </summary>
         /// <param name="image">The ImageList image to modify.</param>
         /// <param name="radius">Cartoon radius (odd number, default 7).</param>
-        /// <param name="levels">Cartoon levels (default 20).</param>
+        /// <param name="levels">Cartoon levels (default 10).</param>
         /// <param name="inverse">Cartoon inverse threhold (default 40).</param>
         public static void EffectCartoon(Primitive image, Primitive radius, Primitive levels, Primitive inverse)
         {
@@ -1411,6 +1414,39 @@ namespace LitDev
         public static void EffectEdge(Primitive image)
         {
             DoEffect(image, eEffect.EDGE, "");
+        }
+
+        /// <summary>
+        /// Converts to colour accent effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="hue">Accent Hue (0 o 360, default 0 (red)).</param>
+        /// <param name="range">Accent range (default 40).</param>
+        public static void EffectAccent(Primitive image, Primitive hue, Primitive range)
+        {
+            Primitive parameter = new Primitive();
+            parameter[1] = hue;
+            parameter[2] = range;
+            DoEffect(image, eEffect.ACCENT, parameter);
+        }
+
+        /// <summary>
+        /// Converts to sepia effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="threshold">Sepia threshold (default 30).</param>
+        public static void EffectSepia(Primitive image, Primitive threshold)
+        {
+            DoEffect(image, eEffect.SEPIA, threshold);
+        }
+
+        /// <summary>
+        /// Converts to noise removal effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        public static void EffectNoiseRemoval(Primitive image)
+        {
+            DoEffect(image, eEffect.NOISEREMOVAL, "");
         }
 
         /// <summary>

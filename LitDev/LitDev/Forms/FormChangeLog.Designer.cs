@@ -21,7 +21,7 @@
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDCommPort", new System.Windows.Forms.TreeNode[] {
             treeNode1});
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Posterise, Hue, Saturation and Lightness effects added");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("More image effects, OilPaint, Charcoal, Sketch, Cartoon and Edge added");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("More image effects, OilPaint, Charcoal, Sketch, Cartoon, Edge and Accent added");
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("LDImage and LDWebCam", new System.Windows.Forms.TreeNode[] {
             treeNode3,
             treeNode4});
@@ -1562,7 +1562,7 @@
             treeNode3.Name = "Node1";
             treeNode3.Text = "Posterise, Hue, Saturation and Lightness effects added";
             treeNode4.Name = "Node1";
-            treeNode4.Text = "More image effects, OilPaint, Charcoal, Sketch, Cartoon and Edge added";
+            treeNode4.Text = "More image effects, OilPaint, Charcoal, Sketch, Cartoon, Edge, Accent, Sepia and Noise removal added";
             treeNode5.Name = "Node0";
             treeNode5.Text = "LDImage and LDWebCam";
             treeNode6.Name = "Node1";
