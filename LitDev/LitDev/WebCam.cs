@@ -65,6 +65,7 @@ namespace LitDev
         ACCENT,
         SEPIA,
         NOISEREMOVAL,
+        SOLARISE,
     }
 
     /// <summary>
@@ -111,7 +112,7 @@ namespace LitDev
         private static Boolean useAvicap = false;
         private static Object lockUpdate = new Object();
 
-        public static Primitive[] pEffect = new Primitive[] { "", "", "", "", "", "", "", "", "", 25, 4, 2, 5, "", 4, "", 16, 2, 2, 2, 1, 50, 180, 2, 2, "1=7;2=20;", "", "", "1=7;2=10;3=40;", "", "1=0;2=40;", 30, "" };
+        public static Primitive[] pEffect = new Primitive[] { " ", " ", " ", " ", " ", " ", " ", " ", " ", 25, 4, 2, 5, " ", 4, " ", 16, 2, 2, 2, 1, 50, 180, 2, 2, "1=7;2=20;", " ", " ", "1=7;2=10;3=40;", " ", "1=0;2=40;", 30, " ", 2 };
         private static FIP fip = new FIP();
 
         //public static bits to be threadsafe
@@ -710,6 +711,32 @@ namespace LitDev
                 case eEffect.NOISEREMOVAL: //Noise removal
                     {
                         bmap = fip.ImageSDROMFilterColor(bmap);
+                    }
+                    break;
+                case eEffect.SOLARISE: //Solarise
+                    {
+                        double power = parameter;
+                        if (power <= 0) power = pEffect[(int)_effect];
+                        System.Drawing.Color c;
+                        double R, G, B;
+
+                        for (int i = 0; i < bmap.Width; i++)
+                        {
+                            for (int j = 0; j < bmap.Height; j++)
+                            {
+                                c = bmap.GetPixel(i, j);
+
+                                R = c.R / 255.0;
+                                G = c.G / 255.0;
+                                B = c.B / 255.0;
+
+                                R = System.Math.Pow(R < 0.5 ? 1 - 2 * R : 2 * R - 1, power) * 255.0;
+                                G = System.Math.Pow(G < 0.5 ? 1 - 2 * G : 2 * G - 1, power) * 255.0;
+                                B = System.Math.Pow(B < 0.5 ? 1 - 2 * B : 2 * B - 1, power) * 255.0;
+
+                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
+                            }
+                        }
                     }
                     break;
                 default:

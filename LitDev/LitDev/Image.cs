@@ -1107,6 +1107,7 @@ namespace LitDev
             result[i++] = "Accent";
             result[i++] = "Sepia";
             result[i++] = "NoiseRemoval";
+            result[i++] = "Solarise";
             return result;
         }
 
@@ -1447,6 +1448,16 @@ namespace LitDev
         public static void EffectNoiseRemoval(Primitive image)
         {
             DoEffect(image, eEffect.NOISEREMOVAL, "");
+        }
+
+        /// <summary>
+        /// Converts to solarise effect.
+        /// </summary>
+        /// <param name="image">The ImageList image to modify.</param>
+        /// <param name="power">Solarise power (default 2, quadratic).</param>
+        public static void EffectSolarise(Primitive image, Primitive power)
+        {
+            DoEffect(image, eEffect.SOLARISE, power);
         }
 
         /// <summary>
@@ -1843,6 +1854,32 @@ namespace LitDev
                 try
                 {
                     return Color2ARGB(workingImg.GetPixel(x - 1, y - 1));
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    return "";
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get the colour of a pixel from a temporary working image.
+        /// </summary>
+        /// <param name="image">The working image, previously opened with OpenWorkingImage.</param>
+        /// <param name="x">The x pixel coordinate.</param>
+        /// <param name="y">The y pixel coordinate.</param>
+        /// <returns>The pixel colour, an array of A,R,G,B components indexed by "A", "R", "G", "B" or "" on failure.</returns>
+        public static Primitive GetWorkingImagePixelARGB(Primitive image, Primitive x, Primitive y)
+        {
+            lock (LockingVar)
+            {
+                Bitmap workingImg;
+                if (!_workingImages.TryGetValue((string)image, out workingImg)) return "";
+                try
+                {
+                    System.Drawing.Color col = workingImg.GetPixel(x - 1, y - 1);
+                    return Utilities.CreateArrayMap("A=" + col.A + ";R=" + col.R + ";G=" + col.G + ";B=" + col.B + ";");
                 }
                 catch (Exception ex)
                 {

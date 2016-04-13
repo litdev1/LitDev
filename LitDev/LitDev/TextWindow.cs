@@ -376,13 +376,48 @@ namespace LitDev
             }
         }
 
-        //private static ColorConverter colConvert = new ColorConverter();
-        //public static void SetColours(Primitive foregroundColor, Primitive backgroundColor)
-        //{
-        //    Color fg = (Color)colConvert.ConvertFromString((string)foregroundColor);
-        //    Color bg = (Color)colConvert.ConvertFromString((string)backgroundColor);
-        //    ScreenColors.SetColors(fg, bg);
-        //}
+        /// <summary>
+        /// Replace one of the standard TextWindow colours.
+        /// There are 16 available colours, by default they are indexed 0 to 15:
+        /// Black (0), DarkBlue (1), DarGreen (2), DarkCyan (3), DarkRed (4), DarkMagenta (5), DarkYellow (6), Gray (7),
+        /// DrakGray (8), Blue (9), Green (10), Cyan (11), Red (12), Magenta (13), Yellow (14), White (15).
+        /// Note that you can still use TextWindow.BackgroundColor and TextWindow.ForegroundColor to use the new colours (with the original colour names), alternatively the colours can be selected using LDTextWindow.SetColours from the indixes.
+        /// The colours must be set using either method before they are applied.
+        /// </summary>
+        /// <param name="index">The stanadard colour index colour to replace.</param>
+        /// <param name="colour">Any colour to replace a standard colour with.</param>
+        public static void SetColour(Primitive index, Primitive colour)
+        {
+            try
+            {
+                TextWindow.Show();
+                ColorConverter colConvert = new ColorConverter();
+                Color col = (Color)colConvert.ConvertFromString((string)colour);
+                ScreenColors.SetColor(index, col);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Set the current foreground and background colour indices.
+        /// </summary>
+        /// <param name="fgIndex">The foreground colour index (0 to 15).</param>
+        /// <param name="bgIndex">The background colour index (0 to 15).</param>
+        public static void SetColours(Primitive fgIndex, Primitive bgIndex)
+        {
+            try
+            {
+                TextWindow.Show();
+                ScreenColors.SetColours(fgIndex, bgIndex);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
     }
 
     class ScreenColors
@@ -471,29 +506,17 @@ namespace LitDev
         private static extern bool SetConsoleScreenBufferInfoEx(IntPtr hConsoleOutput, ref CONSOLE_SCREEN_BUFFER_INFO_EX csbe);
 
         [DllImport("kernel32", SetLastError = true)]
-        public static extern bool AllocConsole();
+        private static extern bool SetConsoleTextAttribute(IntPtr hConsoleOutput, ushort wAttributes);
 
-        [DllImport("kernel32", SetLastError = true)]
-        static extern bool SetConsoleTextAttribute(IntPtr hConsoleOutput, ushort wAttributes);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern IntPtr GetConsoleWindow();
-        
-        // Set a specific console color to an RGB color
-        // The default console colors used are gray (foreground) and black (background)
-        public static int SetColor(ConsoleColor consoleColor, Color targetColor)
+        public static int SetColor(int index, Color colour)
         {
-            int iRet = SetColor(consoleColor, targetColor.R, targetColor.G, targetColor.B);
-            return iRet;
-        }
+            byte r = colour.R;
+            byte g = colour.G;
+            byte b = colour.B;
 
-        public static int SetColor(ConsoleColor color, uint r, uint g, uint b)
-        {
             CONSOLE_SCREEN_BUFFER_INFO_EX csbe = new CONSOLE_SCREEN_BUFFER_INFO_EX();
             csbe.cbSize = (int)Marshal.SizeOf(csbe);                    // 96 = 0x60
             IntPtr hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);    // 7
-            //hConsoleOutput = User32.FindWindow(null, TextWindow.Title);
-            //hConsoleOutput = GetConsoleWindow();
             if (hConsoleOutput == INVALID_HANDLE_VALUE)
             {
                 return Marshal.GetLastWin32Error();
@@ -501,11 +524,10 @@ namespace LitDev
             bool brc = GetConsoleScreenBufferInfoEx(hConsoleOutput, ref csbe);
             if (!brc)
             {
-                Sound.PlayClickAndWait();
                 return Marshal.GetLastWin32Error();
             }
 
-            switch (color)
+            switch ((ConsoleColor)index)
             {
                 case ConsoleColor.Black:
                     csbe.black = new COLORREF(r, g, b);
@@ -558,26 +580,20 @@ namespace LitDev
             }
             ++csbe.srWindow.Bottom;
             ++csbe.srWindow.Right;
+
             brc = SetConsoleScreenBufferInfoEx(hConsoleOutput, ref csbe);
             if (!brc)
             {
                 return Marshal.GetLastWin32Error();
             }
-            //AllocConsole();
-            //SetConsoleTextAttribute(hConsoleOutput, 255);
-            //Console.ResetColor();
+
             return 0;
         }
 
-        public static int SetColors(Color foregroundColor, Color backgroundColor)
+        public static void SetColours(int fgIndex, int bgIndex)
         {
-            int irc;
-            irc = SetColor(ConsoleColor.Gray, foregroundColor);
-            if (irc != 0) return irc;
-            irc = SetColor(ConsoleColor.Black, backgroundColor);
-            if (irc != 0) return irc;
-
-            return 0;
+            IntPtr hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+            SetConsoleTextAttribute(hConsoleOutput, (ushort)(16 * bgIndex + fgIndex));
         }
     }
 }

@@ -681,6 +681,62 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Rasterise all turtle trail lines.
+        /// When the number of turtle trails is large the program may slow due to the number of line shapes (trails) present.
+        /// This converts the turtle trails from line shapes to background drawings. 
+        /// </summary>
+        public static void RasteriseTurtleLines()
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            FieldInfo _penField;
+            Pen _pen;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                _penField = GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                _pen = (Pen)_penField.GetValue(null);
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        Pen pen = new Pen();
+                        Line line;
+                        List<string> shapes = new List<string>();
+                        foreach (KeyValuePair<string, UIElement> obj in _objectsMap)
+                        {
+                            if (obj.Key.StartsWith("_turtleLine"))
+                            {
+                                line = (Line)obj.Value;
+                                pen.Brush = line.Stroke;
+                                pen.Thickness = line.StrokeThickness;
+                                _penField.SetValue(null, pen);
+                                GraphicsWindow.DrawLine(line.X1, line.Y1, line.X2, line.Y2);
+                                shapes.Add(obj.Key);
+                            }
+                        }
+                        foreach (string shape in shapes)
+                        {
+                            Shapes.Remove(shape);
+                        }
+                        _penField.SetValue(null, _pen);
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
         /// Moves a line shape.
         /// </summary>
         /// <param name="shapeName">
