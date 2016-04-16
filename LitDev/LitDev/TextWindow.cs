@@ -379,9 +379,9 @@ namespace LitDev
         /// <summary>
         /// Replace one of the standard TextWindow colours.
         /// There are 16 available colours, by default they are indexed 0 to 15:
-        /// Black (0), DarkBlue (1), DarGreen (2), DarkCyan (3), DarkRed (4), DarkMagenta (5), DarkYellow (6), Gray (7),
-        /// DrakGray (8), Blue (9), Green (10), Cyan (11), Red (12), Magenta (13), Yellow (14), White (15).
-        /// Note that you can still use TextWindow.BackgroundColor and TextWindow.ForegroundColor to use the new colours (with the original colour names), alternatively the colours can be selected using LDTextWindow.SetColours from the indixes.
+        /// Black (0), DarkBlue (1), DarkGreen (2), DarkCyan (3), DarkRed (4), DarkMagenta (5), DarkYellow (6), Gray (7),
+        /// DarkGray (8), Blue (9), Green (10), Cyan (11), Red (12), Magenta (13), Yellow (14), White (15).
+        /// Note that you can still use TextWindow.BackgroundColor and TextWindow.ForegroundColor to use the new colours (with the original colour names), alternatively the colours can be selected using LDTextWindow.SetColours from the indices.
         /// The colours must be set using either method before they are applied.
         /// </summary>
         /// <param name="index">The stanadard colour index colour to replace.</param>

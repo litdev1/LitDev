@@ -1398,7 +1398,7 @@ namespace LitDev
         /// <param name="image">The ImageList image to modify.</param>
         /// <param name="radius">Cartoon radius (odd number, default 7).</param>
         /// <param name="levels">Cartoon levels (default 10).</param>
-        /// <param name="inverse">Cartoon inverse threhold (default 40).</param>
+        /// <param name="inverse">Cartoon inverse threshold (default 40).</param>
         public static void EffectCartoon(Primitive image, Primitive radius, Primitive levels, Primitive inverse)
         {
             Primitive parameter = new Primitive();
