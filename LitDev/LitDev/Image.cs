@@ -267,8 +267,8 @@ namespace LitDev
         /// Set a pixel colour.
         /// </summary>
         /// <param name="image">The ImageList image.</param>
-        /// <param name="x">The x pixel.</param>
-        /// <param name="y">The y pixel.</param>
+        /// <param name="x">The x pixel (indexed from 1).</param>
+        /// <param name="y">The y pixel (indexed from 1).</param>
         /// <param name="colour">The colour to set the pixel.</param>
         public static void SetPixel(Primitive image, Primitive x, Primitive y, Primitive colour)
         {
@@ -318,8 +318,8 @@ namespace LitDev
         /// Get a pixel colour.
         /// </summary>
         /// <param name="image">The ImageList image.</param>
-        /// <param name="x">The x pixel.</param>
-        /// <param name="y">The y pixel.</param>
+        /// <param name="x">The x pixel (indexed from 1).</param>
+        /// <param name="y">The y pixel (indexed from 1).</param>
         /// <returns>The pixel colour.</returns>
         public static Primitive GetPixel(Primitive image, Primitive x, Primitive y)
         {
@@ -1867,8 +1867,8 @@ namespace LitDev
         /// Get the colour of a pixel from a temporary working image.
         /// </summary>
         /// <param name="image">The working image, previously opened with OpenWorkingImage.</param>
-        /// <param name="x">The x pixel coordinate.</param>
-        /// <param name="y">The y pixel coordinate.</param>
+        /// <param name="x">The x pixel coordinate (indexed from 1).</param>
+        /// <param name="y">The y pixel coordinate (indexed from 1).</param>
         /// <returns>The pixel colour, an array of A,R,G,B components indexed by "A", "R", "G", "B" or "" on failure.</returns>
         public static Primitive GetWorkingImagePixelARGB(Primitive image, Primitive x, Primitive y)
         {
@@ -1893,8 +1893,8 @@ namespace LitDev
         /// Set the colour of a pixel in a temporary working image.
         /// </summary>
         /// <param name="image">The working image, previously opened with OpenWorkingImage.</param>
-        /// <param name="x">The x pixel coordinate.</param>
-        /// <param name="y">The y pixel coordinate.</param>
+        /// <param name="x">The x pixel coordinate (indexed from 1).</param>
+        /// <param name="y">The y pixel coordinate (indexed from 1).</param>
         /// <param name="colour">The colour to set the pixel to.</param>
         public static void SetWorkingImagePixel(Primitive image, Primitive x, Primitive y, Primitive colour)
         {
