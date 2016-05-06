@@ -400,6 +400,7 @@ namespace LitDev
 
             try
             {
+                data = Utilities.CreateArrayMap(data);
                 _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(data);
 
                 Matrix matrix = new Matrix(order, order, -1);

@@ -69,10 +69,10 @@ namespace LitDev
         private static List<pair> sort(Primitive array)
         {
             bNumber = true;
-            array = Utilities.CreateArrayMap(array);
             List<pair> values = new List<pair>();
             Type PrimitiveType = typeof(Primitive);
             Dictionary<Primitive, Primitive> _arrayMap;
+            array = Utilities.CreateArrayMap(array);
             _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(array);
             foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
             {

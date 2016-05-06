@@ -1266,6 +1266,7 @@ namespace LitDev
 
             try
             {
+                data = Utilities.CreateArrayMap(data);
                 _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(data);
 
                 foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)

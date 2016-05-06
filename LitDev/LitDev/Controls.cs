@@ -2358,6 +2358,8 @@ namespace LitDev
         /// list[2] = "Option 2"
         /// list[3] = "Option 3"
         /// list[4] = "Option 4"
+        /// 
+        /// Alternatively, this can be a LDArray or LDList.
         /// </param>
         /// <param name="width">The width of the control.</param>
         /// <param name="height">The height of the control.</param>
@@ -2384,18 +2386,55 @@ namespace LitDev
                         listBox.Width = width;
                         listBox.Height = height;
 
-                        Primitive index, value;
-                        Primitive listIndex = SBArray.GetAllIndices(list);
-                        for (int i = 1; i <= SBArray.GetItemCount(listIndex); i++)
-                        {
-                            index = listIndex[i];
-                            value = list[index];
+                        List<Primitive> listStore;
+                        LDList._listMap.TryGetValue(list, out listStore);
+                        Array arrayStore = LDArray.getArray(list);
 
-                            ListBoxItem item = new ListBoxItem();
-                            item.Content = value;
-                            item.Name = "Index" + index;
-                            item.PreviewMouseDown += new MouseButtonEventHandler(_ListBoxItemChangedEvent);
-                            listBox.Items.Add(item);
+                        if (null != listStore)
+                        {
+                            int index = 1;
+                            foreach (Primitive value in listStore)
+                            {
+                                ListBoxItem item = new ListBoxItem();
+                                item.Content = value;
+                                item.Name = "Index" + index++;
+                                item.PreviewMouseDown += new MouseButtonEventHandler(_ListBoxItemChangedEvent);
+                                listBox.Items.Add(item);
+                            }
+                        }
+                        else if (null != arrayStore)
+                        {
+                            int index;
+                            string value;
+                            for (int i = 0; i < arrayStore.maxNumber; i++)
+                            {
+                                index = i + 1;
+                                value = arrayStore.array[i];
+                                if (value != "")
+                                {
+                                    ListBoxItem item = new ListBoxItem();
+                                    item.Content = value;
+                                    item.Name = "Index" + index;
+                                    item.PreviewMouseDown += new MouseButtonEventHandler(_ListBoxItemChangedEvent);
+                                    listBox.Items.Add(item);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Primitive listIndex = SBArray.GetAllIndices(list);
+                            Primitive index, value;
+                            for (int i = 1; i <= SBArray.GetItemCount(listIndex); i++)
+                            {
+                                index = listIndex[i];
+                                value = list[index];
+
+                                ListBoxItem item = new ListBoxItem();
+                                item.Content = value;
+                                item.Name = "Index" + index;
+                                item.PreviewMouseDown += new MouseButtonEventHandler(_ListBoxItemChangedEvent);
+                                listBox.Items.Add(item);
+                            }
                         }
 
                         listBox.SelectionChanged += new SelectionChangedEventHandler(_ListBoxItemChangedEvent);
@@ -3958,6 +3997,8 @@ namespace LitDev
         /// list[2] = "Option 2"
         /// list[3] = "Option 3"
         /// list[4] = "Option 4"
+        /// 
+        /// Alternatively, this can be a LDArray or LDList.
         /// </param>
         public static void ListBoxContent(Primitive shapeName, Primitive list)
         {
@@ -3983,18 +4024,55 @@ namespace LitDev
                             listBox.SelectionChanged -= new SelectionChangedEventHandler(_ListBoxItemChangedEvent);
                             listBox.Items.Clear();
 
-                            Primitive index, value;
-                            Primitive listIndex = SBArray.GetAllIndices(list);
-                            for (int i = 1; i <= SBArray.GetItemCount(listIndex); i++)
-                            {
-                                index = listIndex[i];
-                                value = list[index];
+                            List<Primitive> listStore;
+                            LDList._listMap.TryGetValue(list, out listStore);
+                            Array arrayStore = LDArray.getArray(list);
 
-                                ListBoxItem item = new ListBoxItem();
-                                item.Content = value;
-                                item.Name = "Index" + index;
-                                item.PreviewMouseDown += new MouseButtonEventHandler(_ListBoxItemChangedEvent);
-                                listBox.Items.Add(item);
+                            if (null != listStore)
+                            {
+                                int index = 1;
+                                foreach (Primitive value in listStore)
+                                {
+                                    ListBoxItem item = new ListBoxItem();
+                                    item.Content = value;
+                                    item.Name = "Index" + index++;
+                                    item.PreviewMouseDown += new MouseButtonEventHandler(_ListBoxItemChangedEvent);
+                                    listBox.Items.Add(item);
+                                }
+                            }
+                            else if (null != arrayStore)
+                            {
+                                int index;
+                                string value;
+                                for (int i = 0; i < arrayStore.maxNumber; i++)
+                                {
+                                    index = i + 1;
+                                    value = arrayStore.array[i];
+                                    if (value != "")
+                                    {
+                                        ListBoxItem item = new ListBoxItem();
+                                        item.Content = value;
+                                        item.Name = "Index" + index;
+                                        item.PreviewMouseDown += new MouseButtonEventHandler(_ListBoxItemChangedEvent);
+                                        listBox.Items.Add(item);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Primitive listIndex = SBArray.GetAllIndices(list);
+                                Primitive index, value;
+                                for (int i = 1; i <= SBArray.GetItemCount(listIndex); i++)
+                                {
+                                    index = listIndex[i];
+                                    value = list[index];
+
+                                    ListBoxItem item = new ListBoxItem();
+                                    item.Content = value;
+                                    item.Name = "Index" + index;
+                                    item.PreviewMouseDown += new MouseButtonEventHandler(_ListBoxItemChangedEvent);
+                                    listBox.Items.Add(item);
+                                }
                             }
 
                             listBox.SelectionChanged += new SelectionChangedEventHandler(_ListBoxItemChangedEvent);

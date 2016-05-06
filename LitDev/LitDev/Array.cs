@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 
 namespace LitDev
 {
@@ -57,7 +58,7 @@ namespace LitDev
         }
     }
 
-    class Array
+    public class Array
     {
         public int maxNumber;
         public int number;
@@ -204,7 +205,7 @@ namespace LitDev
     {
         private static List<Array> Arrays = new List<Array>();
 
-        private static Array getArray(string name)
+        public static Array getArray(string name)
         {
             foreach (Array _array in Arrays)
             {
@@ -638,6 +639,72 @@ namespace LitDev
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return 0;
+            }
+        }
+
+        /// <summary>
+        /// Create a new array from the indices of a Small Basic array.
+        /// </summary>
+        /// <param name="sbArray">The SB array.</param>
+        /// <returns>
+        /// The new array or "FAILED".
+        /// </returns>
+        public static Primitive CreateFromIndices(Primitive sbArray)
+        {
+            try
+            {
+                Type PrimitiveType = typeof(Primitive);
+                Dictionary<Primitive, Primitive> _arrayMap;
+                sbArray = Utilities.CreateArrayMap(sbArray);
+                _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(sbArray);
+
+                Array _array = new Array(_arrayMap.Count, getNewNumber());
+                int i = 0;
+                foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
+                {
+                    _array.array[i++] = kvp.Key;
+                }
+
+                Arrays.Add(_array);
+                return _array.name;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Create a new array from the values of a Small Basic array.
+        /// </summary>
+        /// <param name="sbArray">The SB array.</param>
+        /// <returns>
+        /// The new array or "FAILED".
+        /// </returns>
+        public static Primitive CreateFromValues(Primitive sbArray)
+        {
+            try
+            {
+                Type PrimitiveType = typeof(Primitive);
+                Dictionary<Primitive, Primitive> _arrayMap;
+                sbArray = Utilities.CreateArrayMap(sbArray);
+                _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(sbArray);
+
+                Array _array = new Array(_arrayMap.Count, getNewNumber());
+                int i = 0;
+                foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
+                {
+                    _array.array[i++] = kvp.Value;
+                }
+
+                Arrays.Add(_array);
+                return _array.name;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
             }
         }
     }
