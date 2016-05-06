@@ -1842,8 +1842,8 @@ namespace LitDev
         /// Get the colour of a pixel from a temporary working image.
         /// </summary>
         /// <param name="image">The working image, previously opened with OpenWorkingImage.</param>
-        /// <param name="x">The x pixel coordinate.</param>
-        /// <param name="y">The y pixel coordinate.</param>
+        /// <param name="x">The x pixel coordinate (indexed from 1).</param>
+        /// <param name="y">The y pixel coordinate (indexed from 1).</param>
         /// <returns>The pixel colour or "" on failure.</returns>
         public static Primitive GetWorkingImagePixel(Primitive image, Primitive x, Primitive y)
         {

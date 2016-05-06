@@ -867,7 +867,7 @@ namespace LitDev
         /// </summary>
         /// <param name="sbArray">The SB array.</param>
         /// <returns>
-        /// The new array or "FAILED".
+        /// The new list or "FAILED".
         /// </returns>
         public static Primitive CreateFromIndices(Primitive sbArray)
         {
@@ -902,7 +902,7 @@ namespace LitDev
         /// </summary>
         /// <param name="sbArray">The SB array.</param>
         /// <returns>
-        /// The new array or "FAILED".
+        /// The new list or "FAILED".
         /// </returns>
         public static Primitive CreateFromValues(Primitive sbArray)
         {
