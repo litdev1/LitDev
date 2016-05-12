@@ -833,5 +833,22 @@ namespace TestHarness
         {
             Process.Start("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\LitDev_Zips.exe");
         }
+
+        private void buttonUnits_Click(object sender, EventArgs e)
+        {
+            UnitSystem unitSystem = new UnitSystem();
+            double[] values = new double[10];
+            int i = 0;
+            values[i++] = unitSystem.Convert(1, "Kg/min2", "g/hr2");
+            values[i++] = unitSystem.Convert(1, "mm", "m");
+            values[i++] = unitSystem.Convert(1, "1/cN2", "1/N2");
+            values[i++] = unitSystem.Convert(1, "pi.KJ", "N.m");
+            values[i++] = unitSystem.Convert(100, "mC", "F");
+            values[i++] = unitSystem.Convert(1, "BTU2", "J2");
+            values[i++] = unitSystem.Convert(1, "ton", "tonne");
+            values[i++] = unitSystem.Convert(1, "W", "V.I");
+            values[i++] = unitSystem.Convert(1, "psi", "lbf/in2");
+            values[i++] = unitSystem.Convert(1, "Kpsig", "Kpsi");
+        }
     }
 }
