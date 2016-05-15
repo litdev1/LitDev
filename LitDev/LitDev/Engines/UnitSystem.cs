@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace LitDev
 {
     enum eLeafType { NONE, COMPOUND, VALUE, PREFIX, NUMBER, UNIT, DERIVEDUNIT, POWER }
-    enum eParentLevel { SAME, OPPOSITE }
+    enum eOperatorType { NONE, MULTIPLY, DIVIDE, ADD, SUBTRACT }
 
     public class BaseUnit
     {
@@ -22,16 +22,6 @@ namespace LitDev
             this.name = name;
             this.mult = mult;
             this.add = add;
-        }
-
-        public double ToBase(double value)
-        {
-            return (value + add) * mult;
-        }
-
-        public double ToUser(double value)
-        {
-            return (value / mult) - add;
         }
     }
 
@@ -57,16 +47,22 @@ namespace LitDev
         public static Dictionary<string, double> Constants = new Dictionary<string, double>();
         public static List<string> Dimensions = new List<string>();
         public static List<string> Errors = new List<string>();
+        private static bool bInitialised = false;
 
         public UnitSystem()
         {
-            Errors.Clear();
-            Initialise();
-            SetBaseUnits();
+            if (!bInitialised) Initialise();
+            Validate();
         }
 
         private void Initialise()
         {
+            BaseUnits.Clear();
+            DerivedUnits.Clear();
+            Prefixes.Clear();
+            Constants.Clear();
+            Dimensions.Clear();
+
             //PREFIXES
             Prefixes["Y"] = 1.0e24;
             Prefixes["Yotta"] = 1.0e24;
@@ -120,7 +116,6 @@ namespace LitDev
 
             //TEMPERATURE
             BaseUnits.Add(new BaseUnit("TEMPERATURE", "K", 1, 0));
-            BaseUnits.Add(new BaseUnit("TEMPERATURE", "R", 5.0/9.0, 0));
 
             //Charge
             BaseUnits.Add(new BaseUnit("CHARGE", "Q", 1, 0));
@@ -140,7 +135,7 @@ namespace LitDev
             //LENGTH
             DerivedUnits.Add(new DerivedUnit("ft", "(0.3048)m"));
             DerivedUnits.Add(new DerivedUnit("yd", "(3)ft"));
-            DerivedUnits.Add(new DerivedUnit("in", "(2.54).cm"));
+            DerivedUnits.Add(new DerivedUnit("in", "(2.54)cm"));
             DerivedUnits.Add(new DerivedUnit("mile", "(1760)yd"));
 
             //MASS
@@ -151,6 +146,7 @@ namespace LitDev
             DerivedUnits.Add(new DerivedUnit("tonne", "(1000)Kg"));
 
             //TEMPERATURE
+            DerivedUnits.Add(new DerivedUnit("R", "(5/9)K", 0));
             DerivedUnits.Add(new DerivedUnit("C", "K", 273.15));
             DerivedUnits.Add(new DerivedUnit("F", "R", 459.67));
 
@@ -197,15 +193,81 @@ namespace LitDev
 
             //Resistance
             DerivedUnits.Add(new DerivedUnit("ohm", "V/I"));
+
+            bInitialised = true;
         }
 
-        private void SetBaseUnits()
+        private void Validate()
+        {
+            Errors.Clear();
+
+            for (int i = 0; i < BaseUnits.Count; i++)
+            {
+                for (int j = i + 1; j < BaseUnits.Count; j++)
+                {
+                    if (BaseUnits[i].name == BaseUnits[j].name)
+                    {
+                        Errors.Add("Repeated base unit " + BaseUnits[i].name);
+                    }
+                }
+                for (int j = 0; j < DerivedUnits.Count; j++)
+                {
+                    if (BaseUnits[i].name == DerivedUnits[j].name)
+                    {
+                        Errors.Add("Base and derived unit conflict " + BaseUnits[i].name);
+                    }
+                }
+            }
+
+            for (int i = 0; i < DerivedUnits.Count; i++)
+            {
+                for (int j = i + 1; j < DerivedUnits.Count; j++)
+                {
+                    if (DerivedUnits[i].name == DerivedUnits[j].name)
+                    {
+                        Errors.Add("Repeated derived unit " + DerivedUnits[i].name);
+                    }
+                }
+            }
+
+            for (int i = 0; i < Prefixes.Count; i++)
+            {
+                for (int j = i + 1; j < Prefixes.Count; j++)
+                {
+                    if (Prefixes.ElementAt(i).Key == Prefixes.ElementAt(j).Key)
+                    {
+                        Errors.Add("Repeated prefix " + Prefixes.ElementAt(i).Key);
+                    }
+                }
+                for (int j = 0; j < Constants.Count; j++)
+                {
+                    if (Prefixes.ElementAt(i).Key == Constants.ElementAt(j).Key)
+                    {
+                        Errors.Add("Prefix and constant conflict " + Prefixes.ElementAt(i).Key);
+                    }
+                }
+            }
+
+            for (int i = 0; i < Constants.Count; i++)
+            {
+                for (int j = i + 1; j < Constants.Count; j++)
+                {
+                    if (Constants.ElementAt(i).Key == Constants.ElementAt(j).Key)
+                    {
+                        Errors.Add("Repeated constant " + Constants.ElementAt(i).Key);
+                    }
+                }
+            }
+
+            SetDimensions();
+        }
+
+        private void SetDimensions()
         {
             foreach (BaseUnit unit in BaseUnits)
             {
                 if (!Dimensions.Contains(unit.dimension)) Dimensions.Add(unit.dimension);
             }
-
         }
 
         public double Convert(double value, string fromUnit, string toUnit)
@@ -214,17 +276,12 @@ namespace LitDev
             try
             {
                 //Parse units
-                Leaf fromLeaf = new Leaf(null, eParentLevel.SAME, eLeafType.COMPOUND, fromUnit);
-                Leaf toLeaf = new Leaf(null, eParentLevel.SAME, eLeafType.COMPOUND, toUnit);
+                Leaf fromLeaf = new Leaf(eOperatorType.MULTIPLY, eLeafType.COMPOUND, fromUnit);
+                Leaf toLeaf = new Leaf(eOperatorType.MULTIPLY, eLeafType.COMPOUND, toUnit);
 
                 //Check dimensionality is correct
-                LeafResult resultFrom = fromLeaf.Multiplier();
-                LeafResult resultTo = toLeaf.Multiplier();
-                if (resultFrom.dimensions.Count != resultTo.dimensions.Count)
-                {
-                    Errors.Add("Inconsistent Diemsnions");
-                    return double.NaN;
-                }
+                LeafResult resultFrom = fromLeaf.leafResult;
+                LeafResult resultTo = toLeaf.leafResult;
                 foreach (KeyValuePair<string, double> kvp in resultFrom.dimensions)
                 {
                     if (kvp.Value != resultTo.dimensions[kvp.Key])
@@ -235,8 +292,8 @@ namespace LitDev
                 }
 
                 //Derived units with multipliers and additive for pure units
-                double result = (value * resultFrom.prefix + fromLeaf.Additive) * resultFrom.number * resultFrom.unit;
-                result = (result / resultTo.number / resultTo.unit - toLeaf.Additive) / resultTo.prefix;
+                double result = (value * fromLeaf.Prefix + fromLeaf.Additive) * fromLeaf.Multiplier;
+                result = (result / toLeaf.Multiplier - toLeaf.Additive) / toLeaf.Prefix;
                 return result;
             }
             catch (Exception ex)
@@ -252,10 +309,10 @@ namespace LitDev
             try
             {
                 //Parse units
-                Leaf leaf = new Leaf(null, eParentLevel.SAME, eLeafType.COMPOUND, unit);
+                Leaf leaf = new Leaf(eOperatorType.MULTIPLY, eLeafType.COMPOUND, unit);
 
                 //Check dimensionality is correct
-                return leaf.Multiplier().dimensions;
+                return leaf.leafResult.dimensions;
             }
             catch (Exception ex)
             {
@@ -321,18 +378,44 @@ namespace LitDev
 
         public void AddBaseUnit(string name, string dimension, double mult, double add)
         {
-            BaseUnits.Add(new BaseUnit(dimension, name, mult, add));
-            SetBaseUnits();
+            Errors.Clear();
+            try
+            {
+                BaseUnits.Add(new BaseUnit(dimension, name, mult, add));
+                Validate();
+            }
+            catch (Exception ex)
+            {
+                Errors.Add(ex.Message);
+            }
         }
 
         public void AddDerivedUnit(string name, string units, double add)
         {
-            DerivedUnits.Add(new DerivedUnit(name, units, add));
+            Errors.Clear();
+            try
+            {
+                DerivedUnits.Add(new DerivedUnit(name, units, add));
+                Validate();
+            }
+            catch (Exception ex)
+            {
+                Errors.Add(ex.Message);
+            }
         }
 
         public void AddConstant(string name, double value)
         {
-            Constants.Add(name, value);
+            Errors.Clear();
+            try
+            {
+                Constants.Add(name, value);
+                Validate();
+            }
+            catch (Exception ex)
+            {
+                Errors.Add(ex.Message);
+            }
         }
     }
 
@@ -342,6 +425,7 @@ namespace LitDev
         public double number = 1;
         public double unit = 1;
         public double power = 1;
+        public double add = 0;
         public Dictionary<string, double> dimensions = new Dictionary<string, double>();
 
         public LeafResult()
@@ -357,24 +441,50 @@ namespace LitDev
     {
         string rawPart = "";
         eLeafType eLeaf = eLeafType.NONE;
-        Leaf parent = null;
-        eParentLevel eParent = eParentLevel.SAME;
+        eOperatorType eOperator = eOperatorType.NONE;
 
         string part = "";
         List<Leaf> children = new List<Leaf>();
         BaseUnit baseUnit = null;
-        double value = double.NaN;
-        double add = 0;
+        double value = 0;
 
         public double Additive
         {
-            get { return add; }
+            get
+            {
+                return leafResult.add;
+            }
         }
 
-        public Leaf(Leaf parent, eParentLevel eParent, eLeafType eLeaf, string rawPart)
+        public double Multiplier
         {
-            this.parent = parent;
-            this.eParent = eParent;
+            get
+            {
+                if (eLeaf == eLeafType.VALUE)
+                {
+                    return children[1].value;
+                }
+                return value;
+            }
+        }
+
+        public double Prefix
+        {
+            get
+            {
+                if (eLeaf == eLeafType.VALUE)
+                {
+                    return value / children[1].value;
+                }
+                return 1;
+            }
+        }
+
+        public LeafResult leafResult = new LeafResult();
+
+        public Leaf(eOperatorType eOperator, eLeafType eLeaf, string rawPart)
+        {
+            this.eOperator = eOperator;
             this.eLeaf = eLeaf;
             this.rawPart = rawPart;
 
@@ -383,131 +493,223 @@ namespace LitDev
 
         private void Parse()
         {
+            double number = 0;
+
+            //Trim any start and end bits
             part = Trim(rawPart);
 
-            bool bNumber = double.TryParse(part, out value);
-
-            if (bNumber)
+            //Empty part is default values
+            if (part == "")
             {
-                if (eLeaf == eLeafType.NUMBER || eLeaf == eLeafType.POWER) return;
-                eLeaf = eLeafType.VALUE;
-                children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.NUMBER, part));
+                if (eLeaf == eLeafType.UNIT) value = 1; //A null unit for a pure number value
                 return;
             }
 
-            if (eLeaf == eLeafType.NUMBER)
+            //Part is a Prefix
+            if (eLeaf == eLeafType.PREFIX)
             {
-                foreach (KeyValuePair<string, double> kvp in UnitSystem.Prefixes)
+                string[] vals = part.Split(new char[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string val in vals)
                 {
-                    if (part == kvp.Key)
+                    string[] bits = val.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < bits.Length; i++)
                     {
-                        Leaf topLeaf = parent;
-                        if (null != topLeaf) topLeaf = topLeaf.parent;
-                        if (null == topLeaf) eLeaf = eLeafType.PREFIX; //Top level prefix for additive conversion
-                        value = kvp.Value;
-                        return;
+                        string bit = bits[i];
+                        if (double.TryParse(bit, out number))
+                        {
+                            if (i == 0) leafResult.prefix *= number;
+                            else leafResult.prefix /= number;
+                            goto nextBit;
+                        }
+                        foreach (KeyValuePair<string, double> kvp in UnitSystem.Prefixes)
+                        {
+                            if (bit == kvp.Key)
+                            {
+                                if (i == 0) leafResult.prefix *= kvp.Value;
+                                else leafResult.prefix /= kvp.Value;
+                                goto nextBit;
+                            }
+                        }
+                        foreach (KeyValuePair<string, double> kvp in UnitSystem.Constants)
+                        {
+                            if (bit == kvp.Key)
+                            {
+                                if (i == 0) leafResult.prefix *= kvp.Value;
+                                else leafResult.prefix /= kvp.Value;
+                                goto nextBit;
+                            }
+                        }
+                        UnitSystem.Errors.Add("Prefix could not be found : " + part);
+                        nextBit:;
                     }
                 }
+                return;
             }
 
+            //Part is a Power
+            if (eLeaf == eLeafType.POWER)
+            {
+                if (double.TryParse(part, out leafResult.power))
+                {
+                    return;
+                }
+                UnitSystem.Errors.Add("Power could not be found : " + part);
+                return;
+            }
+
+            //Part is a base unit
             if (eLeaf == eLeafType.UNIT)
             {
                 foreach (BaseUnit unit in UnitSystem.BaseUnits)
                 {
                     if (part == unit.name)
                     {
+                        leafResult.dimensions[unit.dimension] = 1;
                         baseUnit = unit;
+                        value = unit.mult;
                         return;
                     }
                 }
+                UnitSystem.Errors.Add("Base unit could not be found : " + part);
+                return;
             }
 
-            SplitOperators();
-            if (children.Count > 0) return;
-
-            SplitBrackets();
-            if (children.Count > 0) return;
-
+            //Split operators
+            if (!double.TryParse(part, out number)) SplitOperators();
+            if (children.Count > 0)
+            {
+                UpdateCompound();
+                return;
+            }
+            
+            //Parse a possible derived unit
             foreach (DerivedUnit unit in UnitSystem.DerivedUnits)
             {
-                if (part == unit.name)
+                int pos = part.LastIndexOf(unit.name);
+                if (pos < 0) continue;
+
+                children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part.Substring(0, pos)));
+                children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.DERIVEDUNIT, unit.baseUnits));
+                children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, part.Substring(pos + unit.name.Length)));
+
+                if (UnitSystem.Errors.Count > 0)
                 {
-                    eLeaf = eLeafType.VALUE;
-                    add = unit.add;
-                    children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.DERIVEDUNIT, unit.baseUnits));
-                    return;
+                    children.Clear();
+                    UnitSystem.Errors.Clear();
+                    continue;
                 }
-                else
-                {
-                    int pos = part.LastIndexOf(unit.name);
-                    if (pos < 0) continue;
 
-                    string power = part.Substring(pos + unit.name.Length);
-                    double number = 0;
-                    if (power.Length > 0 && !double.TryParse(Trim(power), out number)) continue;
-
-                    string prefix = part.Substring(0, pos);
-                    if (prefix.Length > 0 && !double.TryParse(Trim(prefix), out number) && !UnitSystem.Prefixes.ContainsKey(prefix)) continue;
-
-                    eLeaf = eLeafType.VALUE;
-                    add = unit.add;
-                    if (prefix.Length > 0) children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.NUMBER, prefix));
-                    children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.DERIVEDUNIT, unit.baseUnits));
-                    if (power.Length > 0) children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.POWER, power));
-                    return;
-                }
+                UpdateValue();
+                leafResult.add = unit.add;
+                return;
             }
 
+            //Parse a possible base unit
             foreach (BaseUnit unit in UnitSystem.BaseUnits)
             {
-                if (part == unit.name)
+                int pos = part.LastIndexOf(unit.name);
+                if (pos < 0) continue;
+
+                children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part.Substring(0, pos)));
+                children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.UNIT, unit.name));
+                children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, part.Substring(pos + unit.name.Length)));
+
+                if (UnitSystem.Errors.Count > 0)
                 {
-                    eLeaf = eLeafType.VALUE;
-                    add = unit.add;
-                    children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.UNIT, unit.name));
-                    return;
+                    children.Clear();
+                    UnitSystem.Errors.Clear();
+                    continue;
                 }
-                else
-                {
-                    int pos = part.LastIndexOf(unit.name);
-                    if (pos < 0) continue;
 
-                    string power = part.Substring(pos + unit.name.Length);
-                    double number = 0;
-                    if (power.Length > 0 && !double.TryParse(Trim(power), out number)) continue;
-
-                    string prefix = part.Substring(0, pos);
-                    if (prefix.Length > 0 && !double.TryParse(Trim(prefix), out number) && !UnitSystem.Prefixes.ContainsKey(prefix)) continue;
-
-                    eLeaf = eLeafType.VALUE;
-                    add = unit.add;
-                    if (prefix.Length > 0) children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.NUMBER, prefix));
-                    children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.UNIT, unit.name));
-                    if (power.Length > 0) children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.POWER, power));
-                    return;
-                }
+                UpdateValue();
+                leafResult.add = unit.add;
+                return;
             }
 
-            foreach (KeyValuePair<string, double> kvp in UnitSystem.Constants)
+            //Parse a pure number
+            children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part));
+            children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.UNIT, ""));
+            children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, ""));
+
+            if (UnitSystem.Errors.Count > 0)
             {
-                if (part == kvp.Key)
-                {
-                    eLeaf = eLeafType.VALUE;
-                    children.Add(new Leaf(this, eParentLevel.SAME, eLeafType.NUMBER, kvp.Value.ToString()));
-                    return;
-                }
+                UnitSystem.Errors.Add("Unit could not be found : " + part);
+                return;
             }
 
-            UnitSystem.Errors.Add("Unit could not be found : "+ part);
+            UpdateValue();
+        }
 
-            eLeaf = eLeafType.NONE;
+        private void UpdateValue()
+        {
+            eLeaf = eLeafType.VALUE;
+
+            leafResult.number *= children[0].leafResult.number;
+            leafResult.prefix *= children[0].leafResult.prefix;
+            leafResult.power *= children[2].leafResult.power;
+
+            value = Math.Pow(leafResult.number * leafResult.prefix * children[1].value, leafResult.power);
+            foreach (KeyValuePair<string, double> kvp in children[1].leafResult.dimensions)
+            {
+                leafResult.dimensions[kvp.Key] = kvp.Value * leafResult.power;
+            }
+        }
+
+        private void UpdateCompound()
+        {
+            foreach (Leaf child in children)
+            {
+                switch (child.eOperator)
+                {
+                    case eOperatorType.NONE:
+                        break;
+                    case eOperatorType.MULTIPLY:
+                        if (value == 0) value = child.value;
+                        else value *= child.value;
+                        foreach (KeyValuePair<string, double> kvp in child.leafResult.dimensions)
+                        {
+                            leafResult.dimensions[kvp.Key] += kvp.Value;
+                        }
+                        break;
+                    case eOperatorType.DIVIDE:
+                        if (value == 0) value = 1 / child.value;
+                        else value /= child.value;
+                        foreach (KeyValuePair<string, double> kvp in child.leafResult.dimensions)
+                        {
+                            leafResult.dimensions[kvp.Key] -= kvp.Value;
+                        }
+                        break;
+                    case eOperatorType.ADD:
+                        value += child.value;
+                        foreach (KeyValuePair<string, double> kvp in child.leafResult.dimensions)
+                        {
+                            if (leafResult.dimensions[kvp.Key] == 0) leafResult.dimensions[kvp.Key] = kvp.Value;
+                            if (leafResult.dimensions[kvp.Key] != kvp.Value)
+                            {
+                                UnitSystem.Errors.Add("Cannot add incompatible dimensions : " + part + " and " + children[1].part);
+                            }
+                        }
+                        break;
+                    case eOperatorType.SUBTRACT:
+                        value -= child.value;
+                        foreach (KeyValuePair<string, double> kvp in child.leafResult.dimensions)
+                        {
+                            if (leafResult.dimensions[kvp.Key] == 0) leafResult.dimensions[kvp.Key] = kvp.Value;
+                            if (leafResult.dimensions[kvp.Key] != kvp.Value)
+                            {
+                                UnitSystem.Errors.Add("Cannot subtract incompatible dimensions : " + part + " and " + children[1].part);
+                            }
+                        }
+                        break;
+                }
+            }
         }
 
         private void SplitOperators()
         {
             int iBracket = 0;
             string childPart = "";
-            eParentLevel childLevel = eParentLevel.SAME;
+            eOperatorType childLevel = eOperatorType.MULTIPLY;
             for (int i = 0; i < part.Length; i++)
             {
                 char c = part[i];
@@ -522,8 +724,8 @@ namespace LitDev
                     case '.':
                         if (iBracket == 0)
                         {
-                            children.Add(new Leaf(this, childLevel, eLeaf, childPart));
-                            childLevel = eParentLevel.SAME;
+                            children.Add(new Leaf(childLevel, eLeaf, childPart));
+                            childLevel = eOperatorType.MULTIPLY;
                             childPart = "";
                         }
                         else
@@ -532,8 +734,28 @@ namespace LitDev
                     case '/':
                         if (iBracket == 0)
                         {
-                            children.Add(new Leaf(this, childLevel, eLeaf, childPart));
-                            childLevel = eParentLevel.OPPOSITE;
+                            children.Add(new Leaf(childLevel, eLeaf, childPart));
+                            childLevel = eOperatorType.DIVIDE;
+                            childPart = "";
+                        }
+                        else
+                            childPart += c;
+                        break;
+                    case '+':
+                        if (iBracket == 0)
+                        {
+                            children.Add(new Leaf(childLevel, eLeaf, childPart));
+                            childLevel = eOperatorType.ADD;
+                            childPart = "";
+                        }
+                        else
+                            childPart += c;
+                        break;
+                    case '-':
+                        if (iBracket == 0)
+                        {
+                            children.Add(new Leaf(childLevel, eLeaf, childPart));
+                            childLevel = eOperatorType.SUBTRACT;
                             childPart = "";
                         }
                         else
@@ -546,152 +768,13 @@ namespace LitDev
                         break;
                 }
             }
-            if (children.Count > 0) children.Add(new Leaf(this, childLevel, eLeaf, childPart));
-        }
-
-        private void SplitBrackets()
-        {
-            int iBracket = 0;
-            string childPart = "";
-            for (int i = 0; i < part.Length; i++)
-            {
-                char c = part[i];
-                switch (c)
-                {
-                    case '(':
-                        if (iBracket == 0 && childPart.Length > 0)
-                        {
-                            children.Add(new Leaf(this, eParentLevel.SAME, eLeaf, childPart));
-                            childPart = "";
-                        }
-                        iBracket++;
-                        break;
-                    case ')':
-                        iBracket--;
-                        if (iBracket == 0 && childPart.Length > 0)
-                        {
-                            children.Add(new Leaf(this, eParentLevel.SAME, eLeaf, childPart));
-                            childPart = "";
-                        }
-                        break;
-                    case ' ':
-                        break;
-                    default:
-                        childPart += c;
-                        break;
-                }
-            }
-            if (children.Count > 0) children.Add(new Leaf(this, eParentLevel.SAME, eLeaf, childPart));
-        }
-
-        public LeafResult Multiplier()
-        {
-            LeafResult leafResult = new LeafResult();
-            double prefix = 1.0;
-            double number = 1.0;
-            double unit = 1.0;
-            double power = 1.0;
-            LeafResult leaf = new LeafResult();
-
-            foreach (Leaf child in children)
-            {
-                LeafResult childResult = child.Multiplier();
-                switch (child.eLeaf)
-                {
-                    case eLeafType.COMPOUND:
-                    case eLeafType.VALUE:
-                        leafResult.prefix *= childResult.prefix;
-                        leafResult.number *= childResult.number;
-                        leafResult.unit *= childResult.unit;
-                        leafResult.power *= childResult.power;
-                        foreach (KeyValuePair<string, double> kvp in childResult.dimensions)
-                        {
-                            leafResult.dimensions[kvp.Key] += kvp.Value;
-                        }
-                        break;
-                    case eLeafType.POWER:
-                        power = childResult.power;
-                        break;
-                    case eLeafType.PREFIX:
-                        prefix = childResult.prefix;
-                        break;
-                    case eLeafType.NUMBER:
-                        number = childResult.number;
-                        break;
-                    case eLeafType.UNIT:
-                        unit = childResult.unit;
-                        foreach (KeyValuePair<string, double> kvp in childResult.dimensions)
-                        {
-                            leaf.dimensions[kvp.Key] += kvp.Value;
-                        }
-                        break;
-                    case eLeafType.DERIVEDUNIT:
-                        prefix *= childResult.prefix;
-                        number *= childResult.number;
-                        unit *= childResult.unit;
-                        power *= childResult.power;
-                        foreach (KeyValuePair<string, double> kvp in childResult.dimensions)
-                        {
-                            leaf.dimensions[kvp.Key] += kvp.Value;
-                        }
-                        break;
-                    case eLeafType.NONE:
-                        break;
-                }
-            }
-
-            switch (eLeaf)
-            {
-                case eLeafType.POWER:
-                    leafResult.power *= value;
-                    break;
-                case eLeafType.PREFIX:
-                    leafResult.prefix *= value;
-                    break;
-                case eLeafType.NUMBER:
-                    leafResult.number *= value;
-                    break;
-                case eLeafType.UNIT:
-                    leafResult.unit = baseUnit.mult;
-                    leafResult.dimensions[baseUnit.dimension] = 1;
-                    break;
-                case eLeafType.VALUE:
-                    bool bSet = false;
-                    foreach (Leaf child in children)
-                    {
-                        if (child.eLeaf == eLeafType.VALUE) bSet = true; //already set
-                    }
-                    leafResult.prefix = Math.Pow(prefix, power);
-                    if (!bSet)
-                    {
-                        leafResult.number = Math.Pow(number, power);
-                        leafResult.unit = Math.Pow(unit, power);
-                        foreach (KeyValuePair<string, double> kvp in leaf.dimensions)
-                        {
-                            leafResult.dimensions[kvp.Key] += leaf.dimensions[kvp.Key] * (eParent == eParentLevel.OPPOSITE ? -power : power);
-                        }
-                    }
-                    break;
-                case eLeafType.COMPOUND:
-                case eLeafType.DERIVEDUNIT:
-                    break;
-                case eLeafType.NONE:
-                    break;
-            }
-
-            if (eParent == eParentLevel.OPPOSITE)
-            {
-                leafResult.prefix = 1 / leafResult.prefix;
-                leafResult.number = 1 / leafResult.number;
-                leafResult.unit = 1 / leafResult.unit;
-            }
-            return leafResult;
+            if (children.Count > 0) children.Add(new Leaf(childLevel, eLeaf, childPart));
         }
 
         private string Trim(string part)
         {
             part = part.Trim();
-            if (part.StartsWith("(") && part.StartsWith(")")) part = part.Trim(new char[] { ' ', '(', ')' });
+            if (part.StartsWith("(") && part.EndsWith(")")) part = part.Trim(new char[] { ' ', '(', ')' });
             return part;
         }
     }

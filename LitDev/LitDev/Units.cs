@@ -55,7 +55,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Get an array of error messages if a Convert fails.
+        /// Get an array of error messages if a Convert fails or conflicts are found for added units or constants.
         /// </summary>
         /// <returns>Array of error messages or "".</returns>
         public static Primitive GetErrors()

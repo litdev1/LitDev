@@ -837,8 +837,9 @@ namespace TestHarness
         private void buttonUnits_Click(object sender, EventArgs e)
         {
             UnitSystem unitSystem = new UnitSystem();
-            double[] values = new double[10];
+            double[] values = new double[11];
             int i = 0;
+            values[i++] = unitSystem.Convert(1, "in", "mm+m");
             values[i++] = unitSystem.Convert(1, "Kg/min2", "g/hr2");
             values[i++] = unitSystem.Convert(1, "mm", "m");
             values[i++] = unitSystem.Convert(1, "1/cN2", "1/N2");
