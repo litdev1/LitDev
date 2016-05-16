@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LitDev
 {
@@ -13,15 +16,11 @@ namespace LitDev
     {
         public string dimension;
         public string name = "";
-        public double mult = 1;
-        public double add = 0;
 
-        public BaseUnit(string dimension, string name, double mult, double add)
+        public BaseUnit(string dimension, string name)
         {
             this.dimension = dimension;
             this.name = name;
-            this.mult = mult;
-            this.add = add;
         }
     }
 
@@ -106,19 +105,19 @@ namespace LitDev
             Prefixes["yocto"] = 1.0e-24;
 
             //TIME
-            BaseUnits.Add(new BaseUnit("TIME", "s", 1, 0));
+            BaseUnits.Add(new BaseUnit("TIME", "s"));
 
             //LENGTH
-            BaseUnits.Add(new BaseUnit("LENGTH",  "m", 1, 0));
+            BaseUnits.Add(new BaseUnit("LENGTH",  "m"));
 
             //MASS
-            BaseUnits.Add(new BaseUnit("MASS", "g", 1, 0));
+            BaseUnits.Add(new BaseUnit("MASS", "g"));
 
             //TEMPERATURE
-            BaseUnits.Add(new BaseUnit("TEMPERATURE", "K", 1, 0));
+            BaseUnits.Add(new BaseUnit("TEMPERATURE", "K"));
 
             //Charge
-            BaseUnits.Add(new BaseUnit("CHARGE", "Q", 1, 0));
+            BaseUnits.Add(new BaseUnit("CHARGE", "Q"));
 
             //CONSTANTS
             Constants.Add("pi", Math.PI);
@@ -131,10 +130,11 @@ namespace LitDev
             DerivedUnits.Add(new DerivedUnit("hr", "(60)min"));
             DerivedUnits.Add(new DerivedUnit("day", "(24)hr"));
             DerivedUnits.Add(new DerivedUnit("week", "(7)day"));
+            DerivedUnits.Add(new DerivedUnit("year", "(365.25)day"));
 
             //LENGTH
             DerivedUnits.Add(new DerivedUnit("ft", "(0.3048)m"));
-            DerivedUnits.Add(new DerivedUnit("yd", "(3)ft"));
+            DerivedUnits.Add(new DerivedUnit("yard", "(3)ft"));
             DerivedUnits.Add(new DerivedUnit("in", "(2.54)cm"));
             DerivedUnits.Add(new DerivedUnit("mile", "(1760)yd"));
 
@@ -186,15 +186,51 @@ namespace LitDev
             DerivedUnits.Add(new DerivedUnit("psig", "psi", 14.69));
 
             //Current
-            DerivedUnits.Add(new DerivedUnit( "I", "Q/s"));
+            DerivedUnits.Add(new DerivedUnit( "Amp", "Q/s"));
 
             //Voltage
-            DerivedUnits.Add(new DerivedUnit( "V", "J/Q"));
+            DerivedUnits.Add(new DerivedUnit( "Volt", "J/Q"));
 
             //Resistance
-            DerivedUnits.Add(new DerivedUnit("ohm", "V/I"));
+            DerivedUnits.Add(new DerivedUnit("Ohm", "V/I"));
+
+            SetCurrency();
 
             bInitialised = true;
+        }
+
+        private void SetCurrency()
+        {
+            try
+            {
+                WebRequest webRequest = WebRequest.Create("http://api.fixer.io/latest");
+                WebResponse webResponse = webRequest.GetResponse();
+                StreamReader stream = new StreamReader(webResponse.GetResponseStream());
+                string[] data = stream.ReadLine().Split(new char[] { '"', ',', ':', '{', '}' }, StringSplitOptions.RemoveEmptyEntries);
+
+                bool bRates = false;
+                string baseCurrency = "";
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (data[i] == "base")
+                    {
+                        baseCurrency = data[++i];
+                        BaseUnits.Add(new BaseUnit("CURRENCY", baseCurrency));
+                    }
+                    else if (data[i] == "rates")
+                    {
+                        bRates = true;
+                    }
+                    else if (bRates)
+                    {
+                        DerivedUnits.Add(new DerivedUnit(data[i], "(" + (1 / double.Parse(data[++i])) + ")" + baseCurrency));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Errors.Add(ex.Message);
+            }
         }
 
         private void Validate()
@@ -259,6 +295,41 @@ namespace LitDev
                 }
             }
 
+            foreach (KeyValuePair<string, double>kvp in Prefixes)
+            {
+                if (kvp.Key.Length > 1)
+                {
+                    foreach (BaseUnit check in BaseUnits)
+                    {
+                        if (kvp.Key == check.name)
+                        {
+                            Errors.Add("Prefix and base unit conflict " + kvp.Key);
+                        }
+                    }
+                    foreach (DerivedUnit check in DerivedUnits)
+                    {
+                        if (kvp.Key == check.name)
+                        {
+                            Errors.Add("Prefix and base derived unit conflict " + kvp.Key);
+                        }
+                    }
+                    foreach (KeyValuePair<string, double> check in Constants)
+                    {
+                        if (kvp.Key == check.Key)
+                        {
+                            Errors.Add("Prefix and constant conflict " + kvp.Key);
+                        }
+                    }
+                }
+            }
+
+            if (Errors.Count > 0)
+            {
+                foreach (string error in Errors)
+                {
+                    Microsoft.SmallBasic.Library.TextWindow.WriteLine(error);
+                }
+            }
             SetDimensions();
         }
 
@@ -376,12 +447,12 @@ namespace LitDev
             return units;
         }
 
-        public void AddBaseUnit(string name, string dimension, double mult, double add)
+        public void AddBaseUnit(string name, string dimension)
         {
             Errors.Clear();
             try
             {
-                BaseUnits.Add(new BaseUnit(dimension, name, mult, add));
+                BaseUnits.Add(new BaseUnit(dimension, name));
                 Validate();
             }
             catch (Exception ex)
@@ -417,6 +488,76 @@ namespace LitDev
                 Errors.Add(ex.Message);
             }
         }
+
+        public void Serialise(string fileName, bool write)
+        {
+            Errors.Clear();
+            try
+            {
+                if (write)
+                {
+                    using (StreamWriter sw = new StreamWriter(fileName, false, Encoding.UTF8))
+                    {
+                        foreach (BaseUnit unit in BaseUnits)
+                        {
+                            sw.WriteLine("BaseUnit#" + unit.dimension + "#" + unit.name);
+                        }
+                        foreach (DerivedUnit unit in DerivedUnits)
+                        {
+                            if (unit.add == 0) sw.WriteLine("DerivedUnit#" + unit.name + "#" + unit.baseUnits);
+                            else sw.WriteLine("DerivedUnit#" + unit.name + "#" + unit.baseUnits + "#" + unit.add);
+                        }
+                        foreach (KeyValuePair<string, double> kvp in Constants)
+                        {
+                            sw.WriteLine("Constant#" + kvp.Key + "#" + kvp.Value);
+                        }
+                        //foreach (KeyValuePair<string, double> kvp in Prefixes)
+                        //{
+                        //    sw.WriteLine("Prefix#" + kvp.Key + "#" + kvp.Value);
+                        //}
+                    }
+                }
+                else
+                {
+                    BaseUnits.Clear();
+                    DerivedUnits.Clear();
+                    Constants.Clear();
+                    //Prefixes.Clear();
+                    using (StreamReader sr = new StreamReader(fileName, Encoding.UTF8))
+                    {
+                        while (!sr.EndOfStream)
+                        {
+                            string line = sr.ReadLine();
+                            string[] parts = line.Split(new char[] { '#' }, StringSplitOptions.RemoveEmptyEntries);
+                            for (int i = 0; i < parts.Length; i++) parts[i] = parts[i].Trim();
+
+                            switch (parts[0])
+                            {
+                                case "BaseUnit":
+                                    if (parts.Length == 3) BaseUnits.Add(new BaseUnit(parts[1], parts[2]));
+                                    break;
+                                case "DerivedUnit":
+                                    if (parts.Length == 3) DerivedUnits.Add(new DerivedUnit(parts[1], parts[2]));
+                                    if (parts.Length == 4) DerivedUnits.Add(new DerivedUnit(parts[1], parts[2], double.Parse(parts[3])));
+                                    break;
+                                case "Constant":
+                                    if (parts.Length == 3) Constants[parts[1]] = double.Parse(parts[2]);
+                                    break;
+                                case "Prefix":
+                                    if (parts.Length == 3) Prefixes[parts[1]] = double.Parse(parts[2]);
+                                    break;
+                            }
+                        }
+                    }
+                    Validate();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errors.Add(ex.Message);
+            }
+
+        }
     }
 
     class LeafResult
@@ -447,6 +588,7 @@ namespace LitDev
         List<Leaf> children = new List<Leaf>();
         BaseUnit baseUnit = null;
         double value = 0;
+        public LeafResult leafResult = new LeafResult();
 
         public double Additive
         {
@@ -479,8 +621,6 @@ namespace LitDev
                 return 1;
             }
         }
-
-        public LeafResult leafResult = new LeafResult();
 
         public Leaf(eOperatorType eOperator, eLeafType eLeaf, string rawPart)
         {
@@ -566,7 +706,7 @@ namespace LitDev
                     {
                         leafResult.dimensions[unit.dimension] = 1;
                         baseUnit = unit;
-                        value = unit.mult;
+                        value = 1;
                         return;
                     }
                 }
@@ -622,7 +762,6 @@ namespace LitDev
                 }
 
                 UpdateValue();
-                leafResult.add = unit.add;
                 return;
             }
 

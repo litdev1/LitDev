@@ -18,6 +18,8 @@
 using Microsoft.SmallBasic.Library;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using varType = System.Int32;
 
 namespace LitDev
@@ -25,7 +27,7 @@ namespace LitDev
     /// <summary>
     /// A general editable unit conversion system.
     /// All units and dimensions are case sensitive.
-    /// A base unit consists of a name and conversion factors (multiplier and additive term, usually 1 and 0).
+    /// A base unit consists of a dimension and name.
     /// A derived unit consists of a name and units definition and optional additive term, usually 0.
     /// A unit is parsed by separting . and /, then recursively resolving derived unit conversions, bracketed () terms first.
     /// Values (especially those with a decimal point '.') should be contained in ().
@@ -33,6 +35,7 @@ namespace LitDev
     /// Any unit may be postfixed by a power.
     /// A typical unit may be "mile/hr" or "Kg.m/s2" etc.
     /// An additive value is only used for non-compound unit conversions (e.g. C to F).
+    /// Currency conversions are updated daily.
     /// </summary>
     [SmallBasicType]
     public static class LDUnits
@@ -182,11 +185,9 @@ namespace LitDev
         /// </summary>
         /// <param name="name">The unit name (be careful it doesn't confict with existing unit names).</param>
         /// <param name="dimension">The base unit dimension (e.g. TEMPERATURE).</param>
-        /// <param name="mult">An multiplier term (default 1).</param>
-        /// <param name="add">An addition term (default 0).</param>
-        public static void AddBaseUnit(Primitive name, Primitive dimension, Primitive mult, Primitive add)
+        public static void AddBaseUnit(Primitive name, Primitive dimension)
         {
-            unitSystem.AddBaseUnit(name, dimension, mult, add);
+            unitSystem.AddBaseUnit(name, dimension);
         }
 
         /// <summary>
@@ -208,6 +209,24 @@ namespace LitDev
         public static void AddConstant(Primitive name, Primitive value)
         {
             unitSystem.AddConstant(name, value);
+        }
+
+        /// <summary>
+        /// Export the current unit system to a file (units.txt in the current program folder).
+        /// </summary>
+        public static void Export()
+        {
+            string fileName = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\units.txt";
+            unitSystem.Serialise(fileName, true);
+        }
+
+        /// <summary>
+        /// Import a unit system from a file (units.txt in the current program folder).
+        /// </summary>
+        public static void Import()
+        {
+            string fileName = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\units.txt";
+            unitSystem.Serialise(fileName, false);
         }
     }
 }
