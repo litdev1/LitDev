@@ -33,7 +33,7 @@ namespace LitDev
     /// Values (especially those with a decimal point '.') should be contained in ().
     /// A unit may be prefixed by a prefix or number value (e.g. m is mili 0.001, K is kilo 1000 etc).
     /// Any unit may be postfixed by a power.
-    /// A typical unit may be "mile/hr" or "Kg.m/s2" etc.
+    /// A typical unit may be "mile/hr" or "Kg.m/s2" etc, any pair of unis that are dimensionally the same can be converted.
     /// An additive value is only used for non-compound unit conversions (e.g. C to F).
     /// Currency conversions are updated daily.
     /// </summary>
@@ -75,9 +75,9 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Get an arrof dimensions for a unit.
+        /// Get an array of dimensions for a unit.
         /// </summary>
-        /// <param name="unit">The unit to get dimensinsof.</param>
+        /// <param name="unit">The unit to get dimensins of.</param>
         /// <returns>
         /// An array indexed by dimension and value of the dimension power or "".
         /// </returns>

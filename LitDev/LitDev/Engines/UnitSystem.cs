@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 using System.Text;
 
 namespace LitDev
@@ -343,12 +341,15 @@ namespace LitDev
 
         public double Convert(double value, string fromUnit, string toUnit)
         {
-            Errors.Clear();
             try
             {
                 //Parse units
+                Errors.Clear();
                 Leaf fromLeaf = new Leaf(eOperatorType.MULTIPLY, eLeafType.COMPOUND, fromUnit);
+                if (Errors.Count > 0) return double.NaN;
+                Errors.Clear();
                 Leaf toLeaf = new Leaf(eOperatorType.MULTIPLY, eLeafType.COMPOUND, toUnit);
+                if (Errors.Count > 0) return double.NaN;
 
                 //Check dimensionality is correct
                 LeafResult resultFrom = fromLeaf.leafResult;
@@ -819,24 +820,38 @@ namespace LitDev
                         }
                         break;
                     case eOperatorType.ADD:
-                        value += child.value;
-                        foreach (KeyValuePair<string, double> kvp in child.leafResult.dimensions)
+                        if (child.leafResult.dimensions.Values.Sum() == 0) //A dimensionless number
                         {
-                            if (leafResult.dimensions[kvp.Key] == 0) leafResult.dimensions[kvp.Key] = kvp.Value;
-                            if (leafResult.dimensions[kvp.Key] != kvp.Value)
+                            value *= 1 + child.value;
+                        }
+                        else
+                        {
+                            value += child.value;
+                            foreach (KeyValuePair<string, double> kvp in child.leafResult.dimensions)
                             {
-                                UnitSystem.Errors.Add("Cannot add incompatible dimensions : " + part + " and " + children[1].part);
+                                if (leafResult.dimensions[kvp.Key] == 0) leafResult.dimensions[kvp.Key] = kvp.Value;
+                                if (leafResult.dimensions[kvp.Key] != kvp.Value)
+                                {
+                                    UnitSystem.Errors.Add("Cannot add incompatible dimensions : " + part);
+                                }
                             }
                         }
                         break;
                     case eOperatorType.SUBTRACT:
-                        value -= child.value;
-                        foreach (KeyValuePair<string, double> kvp in child.leafResult.dimensions)
+                        if (child.leafResult.dimensions.Values.Sum() == 0) //A dimensionless number
                         {
-                            if (leafResult.dimensions[kvp.Key] == 0) leafResult.dimensions[kvp.Key] = kvp.Value;
-                            if (leafResult.dimensions[kvp.Key] != kvp.Value)
+                            value *= 1 - child.value;
+                        }
+                        else
+                        {
+                            value -= child.value;
+                            foreach (KeyValuePair<string, double> kvp in child.leafResult.dimensions)
                             {
-                                UnitSystem.Errors.Add("Cannot subtract incompatible dimensions : " + part + " and " + children[1].part);
+                                if (leafResult.dimensions[kvp.Key] == 0) leafResult.dimensions[kvp.Key] = kvp.Value;
+                                if (leafResult.dimensions[kvp.Key] != kvp.Value)
+                                {
+                                    UnitSystem.Errors.Add("Cannot subtract incompatible dimensions : " + part);
+                                }
                             }
                         }
                         break;
@@ -848,7 +863,7 @@ namespace LitDev
         {
             int iBracket = 0;
             string childPart = "";
-            eOperatorType childLevel = eOperatorType.MULTIPLY;
+            eOperatorType childOperator = eOperatorType.MULTIPLY;
             for (int i = 0; i < part.Length; i++)
             {
                 char c = part[i];
@@ -863,8 +878,8 @@ namespace LitDev
                     case '.':
                         if (iBracket == 0)
                         {
-                            children.Add(new Leaf(childLevel, eLeaf, childPart));
-                            childLevel = eOperatorType.MULTIPLY;
+                            children.Add(new Leaf(childOperator, eLeaf, childPart));
+                            childOperator = eOperatorType.MULTIPLY;
                             childPart = "";
                         }
                         else
@@ -873,8 +888,8 @@ namespace LitDev
                     case '/':
                         if (iBracket == 0)
                         {
-                            children.Add(new Leaf(childLevel, eLeaf, childPart));
-                            childLevel = eOperatorType.DIVIDE;
+                            children.Add(new Leaf(childOperator, eLeaf, childPart));
+                            childOperator = eOperatorType.DIVIDE;
                             childPart = "";
                         }
                         else
@@ -883,8 +898,8 @@ namespace LitDev
                     case '+':
                         if (iBracket == 0)
                         {
-                            children.Add(new Leaf(childLevel, eLeaf, childPart));
-                            childLevel = eOperatorType.ADD;
+                            children.Add(new Leaf(childOperator, eLeaf, childPart));
+                            childOperator = eOperatorType.ADD;
                             childPart = "";
                         }
                         else
@@ -893,8 +908,8 @@ namespace LitDev
                     case '-':
                         if (iBracket == 0)
                         {
-                            children.Add(new Leaf(childLevel, eLeaf, childPart));
-                            childLevel = eOperatorType.SUBTRACT;
+                            children.Add(new Leaf(childOperator, eLeaf, childPart));
+                            childOperator = eOperatorType.SUBTRACT;
                             childPart = "";
                         }
                         else
@@ -907,7 +922,7 @@ namespace LitDev
                         break;
                 }
             }
-            if (children.Count > 0) children.Add(new Leaf(childLevel, eLeaf, childPart));
+            if (children.Count > 0) children.Add(new Leaf(childOperator, eLeaf, childPart));
         }
 
         private string Trim(string part)
