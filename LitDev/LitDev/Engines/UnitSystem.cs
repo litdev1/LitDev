@@ -117,6 +117,9 @@ namespace LitDev
             //Charge
             BaseUnits.Add(new BaseUnit("CHARGE", "Q"));
 
+            //Charge
+            BaseUnits.Add(new BaseUnit("MOLE", "mol"));
+
             //CONSTANTS
             Constants.Add("pi", Math.PI);
             Constants.Add("e", Math.E);
@@ -134,7 +137,7 @@ namespace LitDev
             DerivedUnits.Add(new DerivedUnit("ft", "(0.3048)m"));
             DerivedUnits.Add(new DerivedUnit("yard", "(3)ft"));
             DerivedUnits.Add(new DerivedUnit("in", "(2.54)cm"));
-            DerivedUnits.Add(new DerivedUnit("mile", "(1760)yd"));
+            DerivedUnits.Add(new DerivedUnit("mile", "(1760)yard"));
 
             //MASS
             DerivedUnits.Add(new DerivedUnit("lb", "(453.59237)g"));
@@ -164,17 +167,18 @@ namespace LitDev
             DerivedUnits.Add(new DerivedUnit("hp", "(745.7)W"));
 
             //AREA
-            DerivedUnits.Add(new DerivedUnit("acre", "(4840)yd2"));
-            DerivedUnits.Add(new DerivedUnit("hectare", "(10000)m2"));
+            DerivedUnits.Add(new DerivedUnit("Acre", "(4840).yard2"));
+            DerivedUnits.Add(new DerivedUnit("Hectare", "(10000).m2"));
+            DerivedUnits.Add(new DerivedUnit("Darcy", "(9.869233e-13).m2"));
 
             //VOLUME
-            DerivedUnits.Add(new DerivedUnit("cc", "(1.0e-6)m3"));
-            DerivedUnits.Add(new DerivedUnit("bbl", "(5.615)ft3"));
-            DerivedUnits.Add(new DerivedUnit("l", "(1.0e-3)m3"));
-            DerivedUnits.Add(new DerivedUnit("pintUK", "(568)l"));
-            DerivedUnits.Add(new DerivedUnit("pintUS", "(473)l"));
-            DerivedUnits.Add(new DerivedUnit("galUK", "(4.54609)l"));
-            DerivedUnits.Add(new DerivedUnit("galUS", "(0.8327)galUK"));
+            DerivedUnits.Add(new DerivedUnit("cc", "(1.0e-6).m3"));
+            DerivedUnits.Add(new DerivedUnit("bbl", "(5.615).ft3"));
+            DerivedUnits.Add(new DerivedUnit("l", "(1.0e-3).m3"));
+            DerivedUnits.Add(new DerivedUnit("PintUK", "(568)l"));
+            DerivedUnits.Add(new DerivedUnit("PintUS", "(473)l"));
+            DerivedUnits.Add(new DerivedUnit("GalUK", "(G.54609)l"));
+            DerivedUnits.Add(new DerivedUnit("GalUS", "(0.8327)GalUK"));
 
             //PRESSURE
             DerivedUnits.Add(new DerivedUnit("Pa", "N/m2"));
@@ -184,13 +188,22 @@ namespace LitDev
             DerivedUnits.Add(new DerivedUnit("psig", "psi", 14.69));
 
             //Current
-            DerivedUnits.Add(new DerivedUnit( "Amp", "Q/s"));
+            DerivedUnits.Add(new DerivedUnit("Amp", "Q/s"));
 
             //Voltage
-            DerivedUnits.Add(new DerivedUnit( "Volt", "J/Q"));
+            DerivedUnits.Add(new DerivedUnit("Volt", "J/Q"));
 
             //Resistance
             DerivedUnits.Add(new DerivedUnit("Ohm", "V/I"));
+
+            //Siscosity
+            DerivedUnits.Add(new DerivedUnit("cP", "(0.001).Pa.s"));
+
+            //Substance
+            DerivedUnits.Add(new DerivedUnit("NA", "(6.0221408578e23)/mol"));
+            DerivedUnits.Add(new DerivedUnit("Molarirty", "mol/l"));
+            DerivedUnits.Add(new DerivedUnit("Molality", "mol/mol"));
+            DerivedUnits.Add(new DerivedUnit("ppm", "(1.0e-6).g/g"));
 
             SetCurrency();
 
@@ -637,7 +650,8 @@ namespace LitDev
             double number = 0;
 
             //Trim any start and end bits
-            part = Trim(rawPart);
+            part = rawPart;
+            if (eLeaf != eLeafType.COMPOUND && eLeaf != eLeafType.DERIVEDUNIT) part = Trim(rawPart);
 
             //Empty part is default values
             if (part == "")
@@ -789,6 +803,7 @@ namespace LitDev
             leafResult.power *= children[2].leafResult.power;
 
             value = Math.Pow(leafResult.number * leafResult.prefix * children[1].value, leafResult.power);
+            //value = leafResult.number * leafResult.prefix * Math.Pow(children[1].value, leafResult.power);
             foreach (KeyValuePair<string, double> kvp in children[1].leafResult.dimensions)
             {
                 leafResult.dimensions[kvp.Key] = kvp.Value * leafResult.power;
@@ -871,9 +886,11 @@ namespace LitDev
                 {
                     case '(':
                         iBracket++;
+                        childPart += c;
                         break;
                     case ')':
                         iBracket--;
+                        childPart += c;
                         break;
                     case '.':
                         if (iBracket == 0)
