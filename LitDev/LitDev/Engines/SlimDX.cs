@@ -20,7 +20,7 @@ using SlimDX.DirectInput;
 using System.Windows;
 using Microsoft.SmallBasic.Library;
 
-namespace LitDev
+namespace LitDev.Engines
 {
     class CheckForSlimDX
     {

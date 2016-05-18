@@ -18,6 +18,7 @@
 using System.Collections.Generic;
 using Microsoft.SmallBasic.Library;
 using SlimDX.DirectInput;
+using LitDev.Engines;
 
 namespace LitDev
 {

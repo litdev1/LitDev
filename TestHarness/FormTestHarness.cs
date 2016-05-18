@@ -19,6 +19,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Drawing.Text;
 using System.Net;
+using LitDev.Engines;
 
 namespace TestHarness
 {
@@ -839,7 +840,7 @@ namespace TestHarness
             UnitSystem unitSystem = new UnitSystem();
             double[] values = new double[16];
             int i = 0;
-            values[i++] = unitSystem.Convert(1, "NA.Molarirty.l", "1");
+            values[i++] = unitSystem.Convert(1, "Avagadro.Molarity.l", "1");
             values[i++] = unitSystem.Convert(1, "Darcy.ft/cP.psi", "ft3/day");
             values[i++] = unitSystem.Convert(1, "psi+(14.69)", "psig");
             values[i++] = unitSystem.Convert(1, "Kilo.ft3/day", "ft3/day");

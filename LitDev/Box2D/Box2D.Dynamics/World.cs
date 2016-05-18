@@ -1,6 +1,6 @@
 using Box2DX.Collision;
 using Box2DX.Common;
-using LitDev.Json;
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
@@ -954,7 +954,7 @@ namespace Box2DX.Dynamics
             jsWorld.gravity = new JsonVector(_gravity);
             jsWorld.allowSleep = _allowSleep;
 
-            LitDev.Sprite sprite;
+            Sprite sprite;
             Dictionary<Body, int> bodies = new Dictionary<Body, int>();
             jsWorld.body = new List<JsonBody>();
             jsWorld.image = new List<JsonImage>();
@@ -974,9 +974,9 @@ namespace Box2DX.Dynamics
 
                 bodies[body] = iBody;
                 jsBody.name = "Body" + (iBody + 1);
-                if (null != body.GetUserData() && body.GetUserData().GetType() == typeof(LitDev.Sprite))
+                if (null != body.GetUserData() && body.GetUserData().GetType() == typeof(Sprite))
                 {
-                    sprite = (LitDev.Sprite)body.GetUserData();
+                    sprite = (Sprite)body.GetUserData();
                     jsBody.name = sprite.name;
                 }
                 jsBody.type = body.Type == Body.BodyType.Static ? 0 : 2;
@@ -1033,8 +1033,8 @@ namespace Box2DX.Dynamics
                         jsFixture.polygon = new JsonPolygon(new JsonVectorArray(x, y));
                     }
 
-                    if (null == shape.UserData || shape.UserData.GetType() != typeof(LitDev.Sprite)) continue;
-                    sprite = (LitDev.Sprite)shape.UserData;
+                    if (null == shape.UserData || shape.UserData.GetType() != typeof(Sprite)) continue;
+                    sprite = (Sprite)shape.UserData;
                     jsFixture.name = sprite.name;
                     if (!sprite.name.StartsWith("Image")) continue;
 

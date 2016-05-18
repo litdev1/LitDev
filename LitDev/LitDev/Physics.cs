@@ -35,6 +35,7 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
@@ -62,7 +63,7 @@ namespace LitDev
         }
 
         private static Dictionary<string, int> jointNames = new Dictionary<string, int>();
-        private static string GetJointName(Json.JsonJoint joint)
+        private static string GetJointName(JsonJoint joint)
         {
             string jointName = null != joint.name ? joint.name : "Joint";
             if (jointNames.ContainsKey(jointName)) jointNames[jointName] += 1;
@@ -1572,7 +1573,7 @@ namespace LitDev
         {
             try
             {
-                Json.JsonPhysics physicsJson = new Json.JsonPhysics(_Engine);
+                JsonPhysics physicsJson = new JsonPhysics(_Engine);
                 physicsJson.Write(fileName);
             }
             catch (Exception ex)
@@ -1601,8 +1602,8 @@ namespace LitDev
                 //GraphicsWindow.Clear();
                 _Engine = new PhysicsEngine();
                 scale *= _Engine.scale;
-                Json.JsonPhysics physicsJson = new Json.JsonPhysics(_Engine);
-                Json.JsonWorld world = physicsJson.Read(fileName);
+                JsonPhysics physicsJson = new JsonPhysics(_Engine);
+                JsonWorld world = physicsJson.Read(fileName);
                 result.Add("LDGraphicsWindow.State = 2");
                 result.Add("GraphicsWindow.PenWidth = 1");
                 result.Add("LDPhysics.Reset()");
@@ -1636,7 +1637,7 @@ namespace LitDev
                 Dictionary<int, string> firstFixtureNames = new Dictionary<int, string>();
                 if (null != world.image)
                 {
-                    foreach (Json.JsonImage image in world.image)
+                    foreach (JsonImage image in world.image)
                     {
                         imageFiles[image.body] = image.file;
                     }
@@ -1649,7 +1650,7 @@ namespace LitDev
                     int iTriangle = 0;
                     int iRectangle = 0;
                     int iPolygon = 0;
-                    foreach (Json.JsonBody body in world.body)
+                    foreach (JsonBody body in world.body)
                     {
                         result.Add("");
                         result.Add("'Body " + iBody);
@@ -1665,7 +1666,7 @@ namespace LitDev
                         string firstFixtureName = "";
                         bool firstFixture = true;
                         body.fixture.Reverse(); //Last fixture was first added
-                        foreach (Json.JsonFixture fixture in body.fixture)
+                        foreach (JsonFixture fixture in body.fixture)
                         {
                             string imageFile;
                             string shapeName = "";
@@ -1840,7 +1841,7 @@ namespace LitDev
                 if (null != world.joint)
                 {
                     jointNames.Clear();
-                    foreach (Json.JsonJoint joint in world.joint)
+                    foreach (JsonJoint joint in world.joint)
                     {
                         result.Add("");
                         string jointName = GetJointName(joint);

@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using System;
 using System.Collections.Generic;
@@ -100,8 +101,8 @@ namespace LitDev
         /// Get a list of current base units.
         /// </summary>
         /// <returns>
-        /// An array of available base units, indexed by unit name.
-        /// The array value is the base unit dimension.
+        /// An array of available base units, indexed by unit dimension.
+        /// The array value is the base unit names.
         /// </returns>
         public static Primitive GetBaseUnits()
         {
@@ -183,11 +184,11 @@ namespace LitDev
         /// <summary>
         /// Add a base unit to the system.
         /// </summary>
-        /// <param name="name">The unit name (be careful it doesn't confict with existing unit names).</param>
         /// <param name="dimension">The base unit dimension (e.g. TEMPERATURE).</param>
-        public static void AddBaseUnit(Primitive name, Primitive dimension)
+        /// <param name="name">The unit name (be careful it doesn't confict with existing unit names).</param>
+        public static void AddBaseUnit(Primitive dimension, Primitive name)
         {
-            unitSystem.AddBaseUnit(name, dimension);
+            unitSystem.AddBaseUnit(dimension, name);
         }
 
         /// <summary>

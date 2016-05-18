@@ -48,7 +48,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 
-namespace LitDev
+namespace LitDev.Engines
 {
     enum spriteType { FIXED, MOVING, INACTIVE }
     enum joinType { DISTANCE, GEAR, LINE, MOUSE, PRISMATIC_H, PRISMATIC_V, PULLEY, REVOLUTE }

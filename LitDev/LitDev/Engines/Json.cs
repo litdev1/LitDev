@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
-namespace LitDev.Json
+namespace LitDev.Engines
 {
     [DataContract]
     public class JsonWorld

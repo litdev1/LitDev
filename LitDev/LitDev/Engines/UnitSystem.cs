@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace LitDev
+namespace LitDev.Engines
 {
     enum eLeafType { NONE, COMPOUND, VALUE, PREFIX, NUMBER, UNIT, DERIVEDUNIT, POWER }
     enum eOperatorType { NONE, MULTIPLY, DIVIDE, ADD, SUBTRACT }
@@ -118,7 +118,10 @@ namespace LitDev
             BaseUnits.Add(new BaseUnit("CHARGE", "Q"));
 
             //Charge
-            BaseUnits.Add(new BaseUnit("MOLE", "mol"));
+            BaseUnits.Add(new BaseUnit("SUBSTANCE", "mol"));
+
+            //Luminance
+            BaseUnits.Add(new BaseUnit("LUMINANCE", "candella"));
 
             //CONSTANTS
             Constants.Add("pi", Math.PI);
@@ -174,7 +177,8 @@ namespace LitDev
             //VOLUME
             DerivedUnits.Add(new DerivedUnit("cc", "(1.0e-6).m3"));
             DerivedUnits.Add(new DerivedUnit("bbl", "(5.615).ft3"));
-            DerivedUnits.Add(new DerivedUnit("l", "(1.0e-3).m3"));
+            DerivedUnits.Add(new DerivedUnit("litre", "(1.0e-3).m3"));
+            DerivedUnits.Add(new DerivedUnit("l", "litre"));
             DerivedUnits.Add(new DerivedUnit("PintUK", "(568)l"));
             DerivedUnits.Add(new DerivedUnit("PintUS", "(473)l"));
             DerivedUnits.Add(new DerivedUnit("GalUK", "(G.54609)l"));
@@ -196,14 +200,21 @@ namespace LitDev
             //Resistance
             DerivedUnits.Add(new DerivedUnit("Ohm", "V/I"));
 
-            //Siscosity
-            DerivedUnits.Add(new DerivedUnit("cP", "(0.001).Pa.s"));
+            //Viscosity
+            DerivedUnits.Add(new DerivedUnit("Poise", "(0.1).Pa.s"));
+            DerivedUnits.Add(new DerivedUnit("cP", "(0.01)Poise"));
 
             //Substance
-            DerivedUnits.Add(new DerivedUnit("NA", "(6.0221408578e23)/mol"));
-            DerivedUnits.Add(new DerivedUnit("Molarirty", "mol/l"));
+            DerivedUnits.Add(new DerivedUnit("Avagadro", "(6.0221408578e23)/mol"));
+            DerivedUnits.Add(new DerivedUnit("Molarity", "mol/l"));
             DerivedUnits.Add(new DerivedUnit("Molality", "mol/mol"));
             DerivedUnits.Add(new DerivedUnit("ppm", "(1.0e-6).g/g"));
+
+            //Frequency
+            DerivedUnits.Add(new DerivedUnit("Hz", "1/s"));
+
+            //Luminance
+            DerivedUnits.Add(new DerivedUnit("cd", "candella"));
 
             SetCurrency();
 
@@ -417,7 +428,7 @@ namespace LitDev
 
             foreach (BaseUnit unit in BaseUnits)
             {
-                units[unit.name] = unit.dimension.ToString();
+                units[unit.dimension.ToString()] = unit.name;
             }
 
             return units;
@@ -461,7 +472,7 @@ namespace LitDev
             return units;
         }
 
-        public void AddBaseUnit(string name, string dimension)
+        public void AddBaseUnit(string dimension, string name)
         {
             Errors.Clear();
             try

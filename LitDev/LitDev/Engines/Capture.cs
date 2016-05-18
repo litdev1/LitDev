@@ -16,7 +16,7 @@ using System.Diagnostics;
 using DirectShowLib;
 
 
-namespace LitDev
+namespace LitDev.Engines
 {
     /// <summary> Summary description for MainForm. </summary>
     public class Capture : ISampleGrabberCB, IDisposable

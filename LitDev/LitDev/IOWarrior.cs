@@ -15,12 +15,11 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
@@ -39,28 +38,28 @@ namespace LitDev
         public IOWDevice(uint id)
         {
             this.id = id;
-            this.handle = IOWarrior.Functions.IowKitGetDeviceHandle(id);
-            this.pid = IOWarrior.Functions.IowKitGetProductId(handle);
-            IOWarrior.Functions.IowKitSetTimeout(handle, LDIOWarrior.timeout);
-            IOWarrior.Functions.IowKitSetWriteTimeout(handle, LDIOWarrior.timeout);
-            IOWarrior.Functions.IowKitGetSerialNumber(handle, sn);
-            version = IOWarrior.Functions.IowKitGetRevision(handle);
+            this.handle = Functions.IowKitGetDeviceHandle(id);
+            this.pid = Functions.IowKitGetProductId(handle);
+            Functions.IowKitSetTimeout(handle, LDIOWarrior.timeout);
+            Functions.IowKitSetWriteTimeout(handle, LDIOWarrior.timeout);
+            Functions.IowKitGetSerialNumber(handle, sn);
+            version = Functions.IowKitGetRevision(handle);
             switch (this.pid)
             {
-                case IOWarrior.Defines.IOWKIT_PID_IOW40:
+                case Defines.IOWKIT_PID_IOW40:
                     this.name = "IO-Warrior40";
-                    this.reportSize = IOWarrior.Defines.IOWKIT40_IO_REPORT_SIZE;
-                    this.specialReportSize = IOWarrior.Defines.IOWKIT_SPECIAL_REPORT_SIZE;
+                    this.reportSize = Defines.IOWKIT40_IO_REPORT_SIZE;
+                    this.specialReportSize = Defines.IOWKIT_SPECIAL_REPORT_SIZE;
                     break;
-                case IOWarrior.Defines.IOWKIT_PID_IOW24:
+                case Defines.IOWKIT_PID_IOW24:
                     this.name = "IO-Warrior24";
-                    this.reportSize = IOWarrior.Defines.IOWKIT24_IO_REPORT_SIZE;
-                    this.specialReportSize = IOWarrior.Defines.IOWKIT_SPECIAL_REPORT_SIZE;
+                    this.reportSize = Defines.IOWKIT24_IO_REPORT_SIZE;
+                    this.specialReportSize = Defines.IOWKIT_SPECIAL_REPORT_SIZE;
                     break;
-                case IOWarrior.Defines.IOWKIT_PID_IOW56:
+                case Defines.IOWKIT_PID_IOW56:
                     this.name = "IO-Warrior56";
-                    this.reportSize = IOWarrior.Defines.IOWKIT56_IO_REPORT_SIZE;
-                    this.specialReportSize = IOWarrior.Defines.IOWKIT56_SPECIAL_REPORT_SIZE;
+                    this.reportSize = Defines.IOWKIT56_IO_REPORT_SIZE;
+                    this.specialReportSize = Defines.IOWKIT56_SPECIAL_REPORT_SIZE;
                     break;
             }
         }
@@ -69,17 +68,17 @@ namespace LitDev
         {
             if (bBlocking)
             {
-                return IOWarrior.Functions.IowKitRead(handle, channel, buffer, length);
+                return Functions.IowKitRead(handle, channel, buffer, length);
             }
             else
             {
-                return IOWarrior.Functions.IowKitReadNonBlocking(handle, channel, buffer, length);
+                return Functions.IowKitReadNonBlocking(handle, channel, buffer, length);
             }
         }
 
         public uint Write(uint channel, byte[] buffer, uint length)
         {
-            return IOWarrior.Functions.IowKitWrite(handle, channel, buffer, length);
+            return Functions.IowKitWrite(handle, channel, buffer, length);
         }
     }
 
@@ -117,16 +116,16 @@ namespace LitDev
         {
             IOWDevice device = GetDevice(id);
             if (null == device) return;
-            IOWarrior.Functions.IowKitCloseDevice(device.handle);
+            Functions.IowKitCloseDevice(device.handle);
             IOWDevices.Remove(device);
         }
 
         private static int LoadAll()
         {
             ExtractDll();
-            IOWarrior.Functions.IowKitOpenDevice();
+            Functions.IowKitOpenDevice();
 
-            int count = (int)IOWarrior.Functions.IowKitGetNumDevs();
+            int count = (int)Functions.IowKitGetNumDevs();
             for (uint i = 0; i < count; i++)
             {
                 AddDevice(i+1);
@@ -139,7 +138,7 @@ namespace LitDev
         {
             foreach (IOWDevice i in IOWDevices)
             {
-                IOWarrior.Functions.IowKitCloseDevice(i.handle);
+                Functions.IowKitCloseDevice(i.handle);
             }
             IOWDevices.Clear();
         }
@@ -203,7 +202,7 @@ namespace LitDev
         /// <returns>Last error number.</returns>
         public static Primitive LastError()
         {
-            uint error = IOWarrior.Functions.GetLastError();
+            uint error = Functions.GetLastError();
             if (error == 0) return "";
             return new System.ComponentModel.Win32Exception((int)error).Message;
         }
@@ -363,7 +362,7 @@ namespace LitDev
         {
             try
             {
-                return Convert.ToString(IOWarrior.Defines.IOWKIT_VID, 16);
+                return Convert.ToString(Defines.IOWKIT_VID, 16);
             }
             catch (Exception ex)
             {
@@ -424,8 +423,8 @@ namespace LitDev
                 timeout = (uint)value;
                 foreach (IOWDevice i in IOWDevices)
                 {
-                    IOWarrior.Functions.IowKitSetTimeout(i.handle, timeout);
-                    IOWarrior.Functions.IowKitSetWriteTimeout(i.handle, timeout);
+                    Functions.IowKitSetTimeout(i.handle, timeout);
+                    Functions.IowKitSetWriteTimeout(i.handle, timeout);
                 }
             }
         }

@@ -30,7 +30,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace LitDev
+namespace LitDev.Engines
 {
     public enum eLineType { LINE, HISTOGRAM, POINTS }
 

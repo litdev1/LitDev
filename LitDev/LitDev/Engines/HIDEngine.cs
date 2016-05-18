@@ -44,7 +44,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 using Microsoft.SmallBasic.Library;
 
-namespace LitDev
+namespace LitDev.Engines
 {
     #region Custom exception
     public class HIDDeviceException : ApplicationException

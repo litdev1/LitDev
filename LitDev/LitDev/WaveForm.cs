@@ -23,6 +23,7 @@ using SlimDX.DirectSound;
 using SlimDX.Multimedia;
 using SBArray = Microsoft.SmallBasic.Library.Array;
 using System.Threading;
+using LitDev.Engines;
 
 //Based on https://www.insecure.ws/2010/03/09/control-rc-aircrafts-from-your-computer-for-0
 
