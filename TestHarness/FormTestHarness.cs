@@ -838,10 +838,12 @@ namespace TestHarness
         private void buttonUnits_Click(object sender, EventArgs e)
         {
             UnitSystem unitSystem = new UnitSystem();
-            double[] values = new double[16];
+            double[] values = new double[18];
             int i = 0;
+            values[i++] = unitSystem.Convert(6, "min/mile", "min/Km");
+            values[i++] = unitSystem.Convert(9.81, "m/s2", "ft/s2");
             values[i++] = unitSystem.Convert(1, "Avagadro.Molarity.l", "1");
-            values[i++] = unitSystem.Convert(1, "Darcy.ft/cP.psi", "ft3/day");
+            values[i++] = unitSystem.Convert(1, "D.ft/cP.psi", "ft3/day");
             values[i++] = unitSystem.Convert(1, "psi+(14.69)", "psig");
             values[i++] = unitSystem.Convert(1, "Kilo.ft3/day", "ft3/day");
             values[i++] = unitSystem.Convert(1, "m(-1)", "1/in");
@@ -855,7 +857,7 @@ namespace TestHarness
             values[i++] = unitSystem.Convert(1, "W", "Volt.Amp");
             values[i++] = unitSystem.Convert(1, "psi", "lbf/in2");
             values[i++] = unitSystem.Convert(1, "Kpsig", "Kpsi");
-            values[i++] = unitSystem.Convert(1, "GBP/day", "USD/year");
+            values[i++] = unitSystem.Convert(1, "USD", "GBP");
         }
     }
 }

@@ -1,4 +1,21 @@
-﻿using System;
+﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+//Copyright (C) <2011 - 2015> litdev@hotmail.co.uk
+//This file is part of the LitDev Extension for Small Basic.
+
+//LitDev Extension is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+
+//LitDev Extension is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+
+//You should have received a copy of the GNU General Public License
+//along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,19 +35,21 @@ namespace LitDev.Engines
         public BaseUnit(string dimension, string name)
         {
             this.dimension = dimension;
-            this.name = name;
+            this.name = name.Replace(' ', '_');
         }
     }
 
     public class DerivedUnit
     {
+        public string description = "";
         public string name = "";
         public string baseUnits = "";
         public double add = 0;
 
-        public DerivedUnit(string name, string baseUnits, double add = 0)
+        public DerivedUnit(string description, string name, string baseUnits, double add = 0)
         {
-            this.name = name;
+            this.description = description;
+            this.name = name.Replace(' ', '_');
             this.baseUnits = baseUnits;
             this.add = add;
         }
@@ -130,91 +149,96 @@ namespace LitDev.Engines
             //Derived Units
 
             //TIME
-            DerivedUnits.Add(new DerivedUnit("min", "(60)s"));
-            DerivedUnits.Add(new DerivedUnit("hr", "(60)min"));
-            DerivedUnits.Add(new DerivedUnit("day", "(24)hr"));
-            DerivedUnits.Add(new DerivedUnit("week", "(7)day"));
-            DerivedUnits.Add(new DerivedUnit("year", "(365.25)day"));
+            DerivedUnits.Add(new DerivedUnit("Minute", "min", "(60)s"));
+            DerivedUnits.Add(new DerivedUnit("Hour", "hr", "(60)min"));
+            DerivedUnits.Add(new DerivedUnit("Day", "day", "(24)hr"));
+            DerivedUnits.Add(new DerivedUnit("Week", "week", "(7)day"));
+            DerivedUnits.Add(new DerivedUnit("Year", "year", "(365.25)day"));
 
             //LENGTH
-            DerivedUnits.Add(new DerivedUnit("ft", "(0.3048)m"));
-            DerivedUnits.Add(new DerivedUnit("yard", "(3)ft"));
-            DerivedUnits.Add(new DerivedUnit("in", "(2.54)cm"));
-            DerivedUnits.Add(new DerivedUnit("mile", "(1760)yard"));
+            DerivedUnits.Add(new DerivedUnit("Foot", "ft", "(0.3048)m"));
+            DerivedUnits.Add(new DerivedUnit("Yard", "yard", "(3)ft"));
+            DerivedUnits.Add(new DerivedUnit("Inch", "in", "(2.54)cm"));
+            DerivedUnits.Add(new DerivedUnit("Mile", "mile", "(1760)yard"));
 
             //MASS
-            DerivedUnits.Add(new DerivedUnit("lb", "(453.59237)g"));
-            DerivedUnits.Add(new DerivedUnit("oz", "(1/16)lb"));
-            DerivedUnits.Add(new DerivedUnit("st", "(14)lb"));
-            DerivedUnits.Add(new DerivedUnit("ton", "(160)st"));
-            DerivedUnits.Add(new DerivedUnit("tonne", "(1000)Kg"));
+            DerivedUnits.Add(new DerivedUnit("Pound", "lb", "(453.59237)g"));
+            DerivedUnits.Add(new DerivedUnit("Ounze", "oz", "(1/16)lb"));
+            DerivedUnits.Add(new DerivedUnit("Stone", "st", "(14)lb"));
+            DerivedUnits.Add(new DerivedUnit("Imperial Ton", "ton", "(160)st"));
+            DerivedUnits.Add(new DerivedUnit("Metric Tonne", "tonne", "(1000)Kg"));
 
             //TEMPERATURE
-            DerivedUnits.Add(new DerivedUnit("R", "(5/9)K", 0));
-            DerivedUnits.Add(new DerivedUnit("C", "K", 273.15));
-            DerivedUnits.Add(new DerivedUnit("F", "R", 459.67));
+            DerivedUnits.Add(new DerivedUnit("Rankine", "R", "(5/9)K", 0));
+            DerivedUnits.Add(new DerivedUnit("Centigrade", "C", "K", 273.15));
+            DerivedUnits.Add(new DerivedUnit("Farenheight", "F", "R", 459.67));
 
             //FORCE
-            DerivedUnits.Add(new DerivedUnit("N", "Kg.m/s2"));
-            DerivedUnits.Add(new DerivedUnit("lbf", "(4.4482216152605)N"));
+            DerivedUnits.Add(new DerivedUnit("Newton", "N", "Kg.m/s2"));
+            DerivedUnits.Add(new DerivedUnit("Pound Force", "lbf", "(4.4482216152605)N"));
 
             //ENERGY
-            DerivedUnits.Add(new DerivedUnit("J", "N.m"));
-            DerivedUnits.Add(new DerivedUnit("BTU", "(1055.06)J"));
-            DerivedUnits.Add(new DerivedUnit("erg", "(1.0e-7)J"));
-            DerivedUnits.Add(new DerivedUnit("kcal", "(4.184e3)J"));
-            DerivedUnits.Add(new DerivedUnit("cal", "(4.184)J"));
+            DerivedUnits.Add(new DerivedUnit("Joule", "J", "N.m"));
+            DerivedUnits.Add(new DerivedUnit("British Thermal Unit", "BTU", "(1055.06)J"));
+            DerivedUnits.Add(new DerivedUnit("Erg", "erg", "(1.0e-7)J"));
+            DerivedUnits.Add(new DerivedUnit("Kilo Calorie", "kcal", "(4.184e3)J"));
+            DerivedUnits.Add(new DerivedUnit("Calorie", "cal", "(4.184)J"));
 
             //POWER
-            DerivedUnits.Add(new DerivedUnit("W", "J/s"));
-            DerivedUnits.Add(new DerivedUnit("hp", "(745.7)W"));
+            DerivedUnits.Add(new DerivedUnit("Watt", "W", "J/s"));
+            DerivedUnits.Add(new DerivedUnit("Horesepower", "hp", "(745.7)W"));
 
             //AREA
-            DerivedUnits.Add(new DerivedUnit("Acre", "(4840).yard2"));
-            DerivedUnits.Add(new DerivedUnit("Hectare", "(10000).m2"));
-            DerivedUnits.Add(new DerivedUnit("Darcy", "(9.869233e-13).m2"));
+            DerivedUnits.Add(new DerivedUnit("Acre", "Acre", "(4840).yard2"));
+            DerivedUnits.Add(new DerivedUnit("Hectare", "Hectare", "(10000).m2"));
+            DerivedUnits.Add(new DerivedUnit("Darcy", "D", "(9.869233e-13).m2"));
 
             //VOLUME
-            DerivedUnits.Add(new DerivedUnit("cc", "(1.0e-6).m3"));
-            DerivedUnits.Add(new DerivedUnit("bbl", "(5.615).ft3"));
-            DerivedUnits.Add(new DerivedUnit("litre", "(1.0e-3).m3"));
-            DerivedUnits.Add(new DerivedUnit("l", "litre"));
-            DerivedUnits.Add(new DerivedUnit("PintUK", "(568)l"));
-            DerivedUnits.Add(new DerivedUnit("PintUS", "(473)l"));
-            DerivedUnits.Add(new DerivedUnit("GalUK", "(G.54609)l"));
-            DerivedUnits.Add(new DerivedUnit("GalUS", "(0.8327)GalUK"));
+            DerivedUnits.Add(new DerivedUnit("Cubic Centimeter", "cc", "(1.0e-6).m3"));
+            DerivedUnits.Add(new DerivedUnit("Barrel", "bbl", "(5.615).ft3"));
+            DerivedUnits.Add(new DerivedUnit("Litre", "litre", "(1.0e-3).m3"));
+            DerivedUnits.Add(new DerivedUnit("Litre", "l", "litre"));
+            DerivedUnits.Add(new DerivedUnit("UK Pint", "PintUK", "(568)l"));
+            DerivedUnits.Add(new DerivedUnit("US Pint", "PintUS", "(473)l"));
+            DerivedUnits.Add(new DerivedUnit("UK Gallon", "GalUK", "(G.54609)l"));
+            DerivedUnits.Add(new DerivedUnit("US Gallon", "GalUS", "(0.8327)GalUK"));
 
             //PRESSURE
-            DerivedUnits.Add(new DerivedUnit("Pa", "N/m2"));
-            DerivedUnits.Add(new DerivedUnit("Bar", "(1.0e5)Pa"));
-            DerivedUnits.Add(new DerivedUnit("Atm", "(1.013)Bar"));
-            DerivedUnits.Add(new DerivedUnit("psi", "(6894.75729)Pa"));
-            DerivedUnits.Add(new DerivedUnit("psig", "psi", 14.69));
+            DerivedUnits.Add(new DerivedUnit("Pascal", "Pa", "N/m2"));
+            DerivedUnits.Add(new DerivedUnit("Bar", "Bar", "(1.0e5)Pa"));
+            DerivedUnits.Add(new DerivedUnit("Atmosphere", "Atm", "(1.013)Bar"));
+            DerivedUnits.Add(new DerivedUnit("Pound Per Square Inch", "psi", "(6894.75729)Pa"));
+            DerivedUnits.Add(new DerivedUnit("Gauge Pound Per Square Inch", "psig", "psi", 14.69));
 
             //Current
-            DerivedUnits.Add(new DerivedUnit("Amp", "Q/s"));
+            DerivedUnits.Add(new DerivedUnit("Ampere", "Amp", "Q/s"));
 
             //Voltage
-            DerivedUnits.Add(new DerivedUnit("Volt", "J/Q"));
+            DerivedUnits.Add(new DerivedUnit("Voltage", "Volt", "J/Q"));
 
             //Resistance
-            DerivedUnits.Add(new DerivedUnit("Ohm", "V/I"));
+            DerivedUnits.Add(new DerivedUnit("Electrical Resistance", "Ohm", "V/I"));
 
             //Viscosity
-            DerivedUnits.Add(new DerivedUnit("Poise", "(0.1).Pa.s"));
-            DerivedUnits.Add(new DerivedUnit("cP", "(0.01)Poise"));
+            DerivedUnits.Add(new DerivedUnit("Viscosity Poise", "P", "(0.1).Pa.s"));
 
             //Substance
-            DerivedUnits.Add(new DerivedUnit("Avagadro", "(6.0221408578e23)/mol"));
-            DerivedUnits.Add(new DerivedUnit("Molarity", "mol/l"));
-            DerivedUnits.Add(new DerivedUnit("Molality", "mol/mol"));
-            DerivedUnits.Add(new DerivedUnit("ppm", "(1.0e-6).g/g"));
+            DerivedUnits.Add(new DerivedUnit("Molarity", "Molarity", "mol/l"));
+            DerivedUnits.Add(new DerivedUnit("Molality", "Molality", "mol/mol"));
+            DerivedUnits.Add(new DerivedUnit("Parts Per Million", "ppm", "(1.0e-6).g/g"));
 
             //Frequency
-            DerivedUnits.Add(new DerivedUnit("Hz", "1/s"));
+            DerivedUnits.Add(new DerivedUnit("Frequency", "Hz", "1/s"));
 
             //Luminance
-            DerivedUnits.Add(new DerivedUnit("cd", "candella"));
+            DerivedUnits.Add(new DerivedUnit("Luminance", "cd", "candella"));
+
+            //Constant with units
+            DerivedUnits.Add(new DerivedUnit("Avagadro Constant", "Avagadro", "(6.0221408578e23)/mol"));
+            DerivedUnits.Add(new DerivedUnit("Plank Constant", "h", "(6.626070041e−34).J.s"));
+            DerivedUnits.Add(new DerivedUnit("Speed of Light", "c", "(299792458).m/s"));
+            DerivedUnits.Add(new DerivedUnit("Electron Charge", "eQ", "(1.6021766209e−19)Q"));
+            DerivedUnits.Add(new DerivedUnit("Boltzman Constant", "k", "(1.38064853e−23).J/K"));
 
             SetCurrency();
 
@@ -245,7 +269,7 @@ namespace LitDev.Engines
                     }
                     else if (bRates)
                     {
-                        DerivedUnits.Add(new DerivedUnit(data[i], "(" + (1 / double.Parse(data[++i])) + ")" + baseCurrency));
+                        DerivedUnits.Add(new DerivedUnit("Currency", data[i], "(" + (1 / double.Parse(data[++i])) + ")" + baseCurrency));
                     }
                 }
             }
@@ -275,6 +299,10 @@ namespace LitDev.Engines
                         Errors.Add("Base and derived unit conflict " + BaseUnits[i].name);
                     }
                 }
+                if (BaseUnits[i].name.ToLower() == "e")
+                {
+                    Errors.Add("Base unit cannot be 'e' or 'E'");
+                }
             }
 
             for (int i = 0; i < DerivedUnits.Count; i++)
@@ -285,6 +313,10 @@ namespace LitDev.Engines
                     {
                         Errors.Add("Repeated derived unit " + DerivedUnits[i].name);
                     }
+                }
+                if (DerivedUnits[i].name.ToLower() == "e")
+                {
+                    Errors.Add("Derived unit cannot be 'e' or 'E'");
                 }
             }
 
@@ -323,23 +355,23 @@ namespace LitDev.Engines
                 {
                     foreach (BaseUnit check in BaseUnits)
                     {
-                        if (kvp.Key == check.name)
+                        if (check.name.Contains(kvp.Key))
                         {
-                            Errors.Add("Prefix and base unit conflict " + kvp.Key);
+                            Errors.Add("Prefix and base unit conflict " + kvp.Key + " " + check.name);
                         }
                     }
                     foreach (DerivedUnit check in DerivedUnits)
                     {
-                        if (kvp.Key == check.name)
+                        if (check.name.Contains(kvp.Key))
                         {
-                            Errors.Add("Prefix and base derived unit conflict " + kvp.Key);
+                            Errors.Add("Prefix and base unit conflict " + kvp.Key + " " + check.name);
                         }
                     }
                     foreach (KeyValuePair<string, double> check in Constants)
                     {
-                        if (kvp.Key == check.Key)
+                        if (check.Key.Contains(kvp.Key))
                         {
-                            Errors.Add("Prefix and constant conflict " + kvp.Key);
+                            Errors.Add("Prefix and constant conflict " + kvp.Key + " " + check.Key);
                         }
                     }
                 }
@@ -443,6 +475,7 @@ namespace LitDev.Engines
                 units[unit.name] = unit.baseUnits;
                 if (unit.add > 0) units[unit.name] += " + " + unit.add;
                 else if (unit.add < 0) units[unit.name] += " - " + unit.add;
+                units[unit.name] += " (" + unit.description + ")";
             }
 
             return units;
@@ -486,12 +519,12 @@ namespace LitDev.Engines
             }
         }
 
-        public void AddDerivedUnit(string name, string units, double add)
+        public void AddDerivedUnit(string description, string name, string units, double add)
         {
             Errors.Clear();
             try
             {
-                DerivedUnits.Add(new DerivedUnit(name, units, add));
+                DerivedUnits.Add(new DerivedUnit(description, name, units, add));
                 Validate();
             }
             catch (Exception ex)
@@ -529,8 +562,8 @@ namespace LitDev.Engines
                         }
                         foreach (DerivedUnit unit in DerivedUnits)
                         {
-                            if (unit.add == 0) sw.WriteLine("DerivedUnit#" + unit.name + "#" + unit.baseUnits);
-                            else sw.WriteLine("DerivedUnit#" + unit.name + "#" + unit.baseUnits + "#" + unit.add);
+                            if (unit.add == 0) sw.WriteLine("DerivedUnit#" + unit.description + "#" + unit.name + "#" + unit.baseUnits);
+                            else sw.WriteLine("DerivedUnit#" + unit.description + "#" + unit.name + "#" + unit.baseUnits + "#" + unit.add);
                         }
                         foreach (KeyValuePair<string, double> kvp in Constants)
                         {
@@ -562,8 +595,8 @@ namespace LitDev.Engines
                                     if (parts.Length == 3) BaseUnits.Add(new BaseUnit(parts[1], parts[2]));
                                     break;
                                 case "DerivedUnit":
-                                    if (parts.Length == 3) DerivedUnits.Add(new DerivedUnit(parts[1], parts[2]));
-                                    if (parts.Length == 4) DerivedUnits.Add(new DerivedUnit(parts[1], parts[2], double.Parse(parts[3])));
+                                    if (parts.Length == 4) DerivedUnits.Add(new DerivedUnit(parts[1], parts[2], parts[3]));
+                                    if (parts.Length == 5) DerivedUnits.Add(new DerivedUnit(parts[1], parts[2], parts[3], double.Parse(parts[4])));
                                     break;
                                 case "Constant":
                                     if (parts.Length == 3) Constants[parts[1]] = double.Parse(parts[2]);
@@ -755,15 +788,11 @@ namespace LitDev.Engines
                 if (pos < 0) continue;
 
                 children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part.Substring(0, pos)));
+                if (ErrorCheck()) continue;
                 children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.DERIVEDUNIT, unit.baseUnits));
+                if (ErrorCheck()) continue;
                 children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, part.Substring(pos + unit.name.Length)));
-
-                if (UnitSystem.Errors.Count > 0)
-                {
-                    children.Clear();
-                    UnitSystem.Errors.Clear();
-                    continue;
-                }
+                if (ErrorCheck()) continue;
 
                 UpdateValue();
                 leafResult.add = unit.add;
@@ -777,15 +806,11 @@ namespace LitDev.Engines
                 if (pos < 0) continue;
 
                 children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part.Substring(0, pos)));
+                if (ErrorCheck()) continue;
                 children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.UNIT, unit.name));
+                if (ErrorCheck()) continue;
                 children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, part.Substring(pos + unit.name.Length)));
-
-                if (UnitSystem.Errors.Count > 0)
-                {
-                    children.Clear();
-                    UnitSystem.Errors.Clear();
-                    continue;
-                }
+                if (ErrorCheck()) continue;
 
                 UpdateValue();
                 return;
@@ -805,6 +830,16 @@ namespace LitDev.Engines
             UpdateValue();
         }
 
+        private bool ErrorCheck()
+        {
+            if (UnitSystem.Errors.Count > 0)
+            {
+                children.Clear();
+                UnitSystem.Errors.Clear();
+                return true;
+            }
+            return false;
+        }
         private void UpdateValue()
         {
             eLeaf = eLeafType.VALUE;
@@ -907,6 +942,7 @@ namespace LitDev.Engines
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
+                            if (ErrorCheck()) return;
                             childOperator = eOperatorType.MULTIPLY;
                             childPart = "";
                         }
@@ -917,6 +953,7 @@ namespace LitDev.Engines
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
+                            if (ErrorCheck()) return;
                             childOperator = eOperatorType.DIVIDE;
                             childPart = "";
                         }
@@ -927,6 +964,7 @@ namespace LitDev.Engines
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
+                            if (ErrorCheck()) return;
                             childOperator = eOperatorType.ADD;
                             childPart = "";
                         }
@@ -937,6 +975,7 @@ namespace LitDev.Engines
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
+                            if (ErrorCheck()) return;
                             childOperator = eOperatorType.SUBTRACT;
                             childPart = "";
                         }
@@ -950,7 +989,11 @@ namespace LitDev.Engines
                         break;
                 }
             }
-            if (children.Count > 0) children.Add(new Leaf(childOperator, eLeaf, childPart));
+            if (children.Count > 0)
+            {
+                children.Add(new Leaf(childOperator, eLeaf, childPart));
+                if (ErrorCheck()) return;
+            }
         }
 
         private string Trim(string part)

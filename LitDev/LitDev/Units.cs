@@ -121,7 +121,7 @@ namespace LitDev
         /// Get a list of current derived units.
         /// </summary>
         /// <returns>
-        /// An array of available derived units, indexed by unit name.
+        /// An array of available derived units, indexed by unit name with (description).
         /// The array value is the base (or derived units) used for conversion.
         /// </returns>
         public static Primitive GetDerivedUnits()
@@ -194,12 +194,13 @@ namespace LitDev
         /// <summary>
         /// Add a derived unit to the system.
         /// </summary>
+        /// <param name="description">An optional long name or description of the derived unit.</param>
         /// <param name="name">The unit name (be careful it doesn't confict with existing unit names).</param>
         /// <param name="units">The derived unit definition.</param>
         /// <param name="add">An ooptional addition term.</param>
-        public static void AddDerivedUnit(Primitive name, Primitive units, Primitive add)
+        public static void AddDerivedUnit(Primitive description, Primitive name, Primitive units, Primitive add)
         {
-            unitSystem.AddDerivedUnit(name, units, add);
+            unitSystem.AddDerivedUnit(description, name, units, add);
         }
 
         /// <summary>
