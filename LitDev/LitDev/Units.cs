@@ -29,13 +29,14 @@ namespace LitDev
     /// A general editable unit conversion system.
     /// All units and dimensions are case sensitive.
     /// A base unit consists of a dimension and name.
-    /// A derived unit consists of a name and units definition and optional additive term, usually 0.
+    /// A derived unit consists of a description, name and units definition and optional additive term, usually 0.
     /// A unit is parsed by separting . and /, then recursively resolving derived unit conversions, bracketed () terms first.
-    /// Values (especially those with a decimal point '.') should be contained in ().
+    /// Values (especially those with a decimal point '.' or minus '-') should be contained in ().
     /// A unit may be prefixed by a prefix or number value (e.g. m is mili 0.001, K is kilo 1000 etc).
     /// Any unit may be postfixed by a power.
     /// A typical unit may be "mile/hr" or "Kg.m/s2" etc, any pair of unis that are dimensionally the same can be converted.
     /// An additive value is only used for non-compound unit conversions (e.g. C to F).
+    /// To avoid obscure prefix unit conflicts use a full prefix name (e.g. min could be 60 seconds or 0.001 inches, the latter should be milliin).  
     /// Currency conversions are updated daily.
     /// </summary>
     [SmallBasicType]

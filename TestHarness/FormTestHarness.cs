@@ -838,8 +838,9 @@ namespace TestHarness
         private void buttonUnits_Click(object sender, EventArgs e)
         {
             UnitSystem unitSystem = new UnitSystem();
-            double[] values = new double[18];
+            double[] values = new double[19];
             int i = 0;
+            values[i++] = unitSystem.Convert(6, "min", "m");
             values[i++] = unitSystem.Convert(6, "min/mile", "min/Km");
             values[i++] = unitSystem.Convert(9.81, "m/s2", "ft/s2");
             values[i++] = unitSystem.Convert(1, "Avagadro.Molarity.l", "1");

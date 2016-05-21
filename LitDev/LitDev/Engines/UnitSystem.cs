@@ -24,7 +24,7 @@ using System.Text;
 
 namespace LitDev.Engines
 {
-    enum eLeafType { NONE, COMPOUND, VALUE, PREFIX, NUMBER, UNIT, DERIVEDUNIT, POWER }
+    enum eLeafType { COMPOUND, VALUE, PREFIX, UNIT, DERIVEDUNIT, POWER }
     enum eOperatorType { NONE, MULTIPLY, DIVIDE, ADD, SUBTRACT }
 
     public class BaseUnit
@@ -35,7 +35,7 @@ namespace LitDev.Engines
         public BaseUnit(string dimension, string name)
         {
             this.dimension = dimension;
-            this.name = name.Replace(' ', '_');
+            this.name = name;
         }
     }
 
@@ -49,7 +49,7 @@ namespace LitDev.Engines
         public DerivedUnit(string description, string name, string baseUnits, double add = 0)
         {
             this.description = description;
-            this.name = name.Replace(' ', '_');
+            this.name = name;
             this.baseUnits = baseUnits;
             this.add = add;
         }
@@ -189,8 +189,8 @@ namespace LitDev.Engines
             DerivedUnits.Add(new DerivedUnit("Horesepower", "hp", "(745.7)W"));
 
             //AREA
-            DerivedUnits.Add(new DerivedUnit("Acre", "Acre", "(4840).yard2"));
-            DerivedUnits.Add(new DerivedUnit("Hectare", "Hectare", "(10000).m2"));
+            DerivedUnits.Add(new DerivedUnit("Acre", "acre", "(4840).yard2"));
+            DerivedUnits.Add(new DerivedUnit("Hectare", "hectare", "(10000).m2"));
             DerivedUnits.Add(new DerivedUnit("Darcy", "D", "(9.869233e-13).m2"));
 
             //VOLUME
@@ -198,10 +198,10 @@ namespace LitDev.Engines
             DerivedUnits.Add(new DerivedUnit("Barrel", "bbl", "(5.615).ft3"));
             DerivedUnits.Add(new DerivedUnit("Litre", "litre", "(1.0e-3).m3"));
             DerivedUnits.Add(new DerivedUnit("Litre", "l", "litre"));
-            DerivedUnits.Add(new DerivedUnit("UK Pint", "PintUK", "(568)l"));
-            DerivedUnits.Add(new DerivedUnit("US Pint", "PintUS", "(473)l"));
-            DerivedUnits.Add(new DerivedUnit("UK Gallon", "GalUK", "(G.54609)l"));
-            DerivedUnits.Add(new DerivedUnit("US Gallon", "GalUS", "(0.8327)GalUK"));
+            DerivedUnits.Add(new DerivedUnit("UK Pint", "pintUK", "(568)l"));
+            DerivedUnits.Add(new DerivedUnit("US Pint", "pintUS", "(473)l"));
+            DerivedUnits.Add(new DerivedUnit("UK Gallon", "galUK", "(G.54609)l"));
+            DerivedUnits.Add(new DerivedUnit("US Gallon", "galUS", "(0.8327)GalUK"));
 
             //PRESSURE
             DerivedUnits.Add(new DerivedUnit("Pascal", "Pa", "N/m2"));
@@ -215,6 +215,7 @@ namespace LitDev.Engines
 
             //Voltage
             DerivedUnits.Add(new DerivedUnit("Voltage", "Volt", "J/Q"));
+            DerivedUnits.Add(new DerivedUnit("Voltage", "V", "Volt"));
 
             //Resistance
             DerivedUnits.Add(new DerivedUnit("Electrical Resistance", "Ohm", "V/I"));
@@ -233,7 +234,7 @@ namespace LitDev.Engines
             //Luminance
             DerivedUnits.Add(new DerivedUnit("Luminance", "cd", "candella"));
 
-            //Constant with units
+            //Constants with units
             DerivedUnits.Add(new DerivedUnit("Avagadro Constant", "Avagadro", "(6.0221408578e23)/mol"));
             DerivedUnits.Add(new DerivedUnit("Plank Constant", "h", "(6.626070041e−34).J.s"));
             DerivedUnits.Add(new DerivedUnit("Speed of Light", "c", "(299792458).m/s"));
@@ -639,12 +640,13 @@ namespace LitDev.Engines
     class Leaf
     {
         string rawPart = "";
-        eLeafType eLeaf = eLeafType.NONE;
+        eLeafType eLeaf = eLeafType.COMPOUND;
         eOperatorType eOperator = eOperatorType.NONE;
 
         string part = "";
         List<Leaf> children = new List<Leaf>();
         BaseUnit baseUnit = null;
+        DerivedUnit derivedUnit = null;
         double value = 0;
         public LeafResult leafResult = new LeafResult();
 
@@ -662,7 +664,7 @@ namespace LitDev.Engines
             {
                 if (eLeaf == eLeafType.VALUE)
                 {
-                    return children[1].value;
+                    return children[2].value;
                 }
                 return value;
             }
@@ -674,7 +676,7 @@ namespace LitDev.Engines
             {
                 if (eLeaf == eLeafType.VALUE)
                 {
-                    return value / children[1].value;
+                    return value / children[2].value;
                 }
                 return 1;
             }
@@ -691,11 +693,9 @@ namespace LitDev.Engines
 
         private void Parse()
         {
-            double number = 0;
-
             //Trim any start and end bits
             part = rawPart;
-            if (eLeaf != eLeafType.COMPOUND && eLeaf != eLeafType.DERIVEDUNIT) part = Trim(rawPart);
+            if (eLeaf != eLeafType.COMPOUND) part = Trim(rawPart);
 
             //Empty part is default values
             if (part == "")
@@ -704,153 +704,195 @@ namespace LitDev.Engines
                 return;
             }
 
-            //Part is a Prefix
-            if (eLeaf == eLeafType.PREFIX)
+            switch (eLeaf)
             {
-                string[] vals = part.Split(new char[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string val in vals)
-                {
-                    string[] bits = val.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                    for (int i = 0; i < bits.Length; i++)
+                case eLeafType.PREFIX:
+                    ParsePrefix();
+                    break;
+                case eLeafType.POWER:
+                    if (double.TryParse(part, out leafResult.power))
                     {
-                        string bit = bits[i];
-                        if (double.TryParse(bit, out number))
-                        {
-                            if (i == 0) leafResult.prefix *= number;
-                            else leafResult.prefix /= number;
-                            goto nextBit;
-                        }
-                        foreach (KeyValuePair<string, double> kvp in UnitSystem.Prefixes)
-                        {
-                            if (bit == kvp.Key)
-                            {
-                                if (i == 0) leafResult.prefix *= kvp.Value;
-                                else leafResult.prefix /= kvp.Value;
-                                goto nextBit;
-                            }
-                        }
-                        foreach (KeyValuePair<string, double> kvp in UnitSystem.Constants)
-                        {
-                            if (bit == kvp.Key)
-                            {
-                                if (i == 0) leafResult.prefix *= kvp.Value;
-                                else leafResult.prefix /= kvp.Value;
-                                goto nextBit;
-                            }
-                        }
-                        UnitSystem.Errors.Add("Prefix could not be found : " + part);
-                        nextBit:;
-                    }
-                }
-                return;
-            }
-
-            //Part is a Power
-            if (eLeaf == eLeafType.POWER)
-            {
-                if (double.TryParse(part, out leafResult.power))
-                {
-                    return;
-                }
-                UnitSystem.Errors.Add("Power could not be found : " + part);
-                return;
-            }
-
-            //Part is a base unit
-            if (eLeaf == eLeafType.UNIT)
-            {
-                foreach (BaseUnit unit in UnitSystem.BaseUnits)
-                {
-                    if (part == unit.name)
-                    {
-                        leafResult.dimensions[unit.dimension] = 1;
-                        baseUnit = unit;
-                        value = 1;
                         return;
                     }
-                }
-                UnitSystem.Errors.Add("Base unit could not be found : " + part);
-                return;
+                    UnitSystem.Errors.Add("Power could not be found : " + part);
+                    break;
+                case eLeafType.UNIT:
+                    foreach (BaseUnit unit in UnitSystem.BaseUnits)
+                    {
+                        if (part == unit.name)
+                        {
+                            leafResult.dimensions[unit.dimension] = 1;
+                            baseUnit = unit;
+                            value = 1;
+                            return;
+                        }
+                    }
+                    UnitSystem.Errors.Add("Base unit could not be found : " + part);
+                    break;
+                case eLeafType.DERIVEDUNIT:
+                    foreach (DerivedUnit unit in UnitSystem.DerivedUnits)
+                    {
+                        if (part == unit.name)
+                        {
+                            children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.COMPOUND, unit.baseUnits));
+                            if (ErrorCheck(false, 1)) continue;
+                            derivedUnit = unit;
+                            UpdateCompound();
+                            return;
+                        }
+                    }
+                    UnitSystem.Errors.Add("Derived unit could not be found : " + part);
+                    break;
+                case eLeafType.COMPOUND:
+                    //Split operators
+                    double number = 0;
+                    if (!double.TryParse(part, out number))
+                    {
+                        SplitOperators();
+                        if (UnitSystem.Errors.Count > 0) return;
+                        if (children.Count > 0)
+                        {
+                            UpdateCompound();
+                            return;
+                        }
+                    }
+
+                    //Parse a possible derived unit
+                    ParseUnit(UnitSystem.DerivedUnits, eLeafType.DERIVEDUNIT);
+                    if (children.Count == 3)
+                    {
+                        UpdateValue();
+                        return;
+                    }
+
+                    //Parse a possible base unit
+                    ParseUnit(UnitSystem.BaseUnits, eLeafType.UNIT);
+                    if (children.Count == 3)
+                    {
+                        UpdateValue();
+                        return;
+                    }
+
+                    //Parse a pure number
+                    children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part));
+                    children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, ""));
+                    children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.UNIT, ""));
+                    if (UnitSystem.Errors.Count > 0)
+                    {
+                        UnitSystem.Errors.Add("Unit could not be found : " + part);
+                        return;
+                    }
+                    UpdateValue();
+                    break;
             }
-
-            //Split operators
-            if (!double.TryParse(part, out number)) SplitOperators();
-            if (children.Count > 0)
-            {
-                UpdateCompound();
-                return;
-            }
-            
-            //Parse a possible derived unit
-            foreach (DerivedUnit unit in UnitSystem.DerivedUnits)
-            {
-                int pos = part.LastIndexOf(unit.name);
-                if (pos < 0) continue;
-
-                children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part.Substring(0, pos)));
-                if (ErrorCheck()) continue;
-                children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.DERIVEDUNIT, unit.baseUnits));
-                if (ErrorCheck()) continue;
-                children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, part.Substring(pos + unit.name.Length)));
-                if (ErrorCheck()) continue;
-
-                UpdateValue();
-                leafResult.add = unit.add;
-                return;
-            }
-
-            //Parse a possible base unit
-            foreach (BaseUnit unit in UnitSystem.BaseUnits)
-            {
-                int pos = part.LastIndexOf(unit.name);
-                if (pos < 0) continue;
-
-                children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part.Substring(0, pos)));
-                if (ErrorCheck()) continue;
-                children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.UNIT, unit.name));
-                if (ErrorCheck()) continue;
-                children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, part.Substring(pos + unit.name.Length)));
-                if (ErrorCheck()) continue;
-
-                UpdateValue();
-                return;
-            }
-
-            //Parse a pure number
-            children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part));
-            children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.UNIT, ""));
-            children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, ""));
-
-            if (UnitSystem.Errors.Count > 0)
-            {
-                UnitSystem.Errors.Add("Unit could not be found : " + part);
-                return;
-            }
-
-            UpdateValue();
         }
 
-        private bool ErrorCheck()
+        private void ParsePrefix()
+        {
+            double number = 0;
+            string[] vals = part.Split(new char[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string val in vals)
+            {
+                string[] bits = val.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < bits.Length; i++)
+                {
+                    string bit = bits[i];
+                    if (double.TryParse(bit, out number))
+                    {
+                        if (i == 0) leafResult.prefix *= number;
+                        else leafResult.prefix /= number;
+                        goto nextBit;
+                    }
+                    foreach (KeyValuePair<string, double> kvp in UnitSystem.Prefixes)
+                    {
+                        if (bit == kvp.Key)
+                        {
+                            if (i == 0) leafResult.prefix *= kvp.Value;
+                            else leafResult.prefix /= kvp.Value;
+                            goto nextBit;
+                        }
+                    }
+                    foreach (KeyValuePair<string, double> kvp in UnitSystem.Constants)
+                    {
+                        if (bit == kvp.Key)
+                        {
+                            if (i == 0) leafResult.prefix *= kvp.Value;
+                            else leafResult.prefix /= kvp.Value;
+                            goto nextBit;
+                        }
+                    }
+                    UnitSystem.Errors.Add("Prefix could not be found : " + part);
+                    nextBit:;
+                }
+            }
+        }
+
+        private void ParseUnit<T>(List<T> units, eLeafType eChildLeaf)
+        {
+            string name = "";
+
+            foreach (T unit in units)
+            {
+                if (eChildLeaf == eLeafType.UNIT)
+                {
+                    BaseUnit baseUnit = (BaseUnit)Convert.ChangeType(unit, typeof(BaseUnit));
+                    name = baseUnit.name;
+                }
+                else
+                {
+                    DerivedUnit derivedUnit = (DerivedUnit)Convert.ChangeType(unit, typeof(DerivedUnit));
+                    name = derivedUnit.name;
+                }
+
+                int pos = part.LastIndexOf(name);
+                if (pos < 0) continue;
+
+                children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part.Substring(0, pos)));
+                if (ErrorCheck(true, 1)) continue;
+                children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, part.Substring(pos + name.Length)));
+                if (ErrorCheck(true, 2)) continue;
+                children.Add(new Leaf(eOperatorType.MULTIPLY, eChildLeaf, name));
+                if (ErrorCheck(true, 3)) continue;
+
+                if (children.Count == 6)
+                {
+                    if (pos == 0)
+                    {
+                        for (int i = 0; i < 3; i++) children.RemoveAt(0);
+                        break;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 3; i++) children.RemoveAt(children.Count - 1);
+                    }
+                }
+                else if (pos == 0) break;
+            }
+        }
+
+        private bool ErrorCheck(bool bClearErrors, int numRemove)
         {
             if (UnitSystem.Errors.Count > 0)
             {
-                children.Clear();
-                UnitSystem.Errors.Clear();
+                for (int i = 0; i < numRemove; i++) children.RemoveAt(children.Count - 1);
+                if (bClearErrors) UnitSystem.Errors.Clear();
                 return true;
             }
             return false;
         }
+
         private void UpdateValue()
         {
             eLeaf = eLeafType.VALUE;
 
             leafResult.number *= children[0].leafResult.number;
             leafResult.prefix *= children[0].leafResult.prefix;
-            leafResult.power *= children[2].leafResult.power;
+            leafResult.power *= children[1].leafResult.power;
+            if (null != children[2].derivedUnit) leafResult.add = children[2].derivedUnit.add;
 
-            value = Math.Pow(leafResult.number * leafResult.prefix * children[1].value, leafResult.power);
-            //value = leafResult.number * leafResult.prefix * Math.Pow(children[1].value, leafResult.power);
-            foreach (KeyValuePair<string, double> kvp in children[1].leafResult.dimensions)
+            value = Math.Pow(leafResult.number * leafResult.prefix * children[2].value, leafResult.power);
+            //value = leafResult.number * leafResult.prefix * Math.Pow(children[2].value, leafResult.power);
+            foreach (KeyValuePair<string, double> kvp in children[2].leafResult.dimensions)
             {
                 leafResult.dimensions[kvp.Key] = kvp.Value * leafResult.power;
             }
@@ -942,7 +984,7 @@ namespace LitDev.Engines
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
-                            if (ErrorCheck()) return;
+                            if (ErrorCheck(false, 1)) return;
                             childOperator = eOperatorType.MULTIPLY;
                             childPart = "";
                         }
@@ -953,7 +995,7 @@ namespace LitDev.Engines
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
-                            if (ErrorCheck()) return;
+                            if (ErrorCheck(false, 1)) return;
                             childOperator = eOperatorType.DIVIDE;
                             childPart = "";
                         }
@@ -964,7 +1006,7 @@ namespace LitDev.Engines
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
-                            if (ErrorCheck()) return;
+                            if (ErrorCheck(false, 1)) return;
                             childOperator = eOperatorType.ADD;
                             childPart = "";
                         }
@@ -975,7 +1017,7 @@ namespace LitDev.Engines
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
-                            if (ErrorCheck()) return;
+                            if (ErrorCheck(false, 1)) return;
                             childOperator = eOperatorType.SUBTRACT;
                             childPart = "";
                         }
@@ -992,7 +1034,7 @@ namespace LitDev.Engines
             if (children.Count > 0)
             {
                 children.Add(new Leaf(childOperator, eLeaf, childPart));
-                if (ErrorCheck()) return;
+                if (ErrorCheck(false, 1)) return;
             }
         }
 
