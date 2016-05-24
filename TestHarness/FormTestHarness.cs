@@ -838,12 +838,13 @@ namespace TestHarness
         private void buttonUnits_Click(object sender, EventArgs e)
         {
             UnitSystem unitSystem = new UnitSystem();
-            double[] values = new double[19];
+            double[] values = new double[20];
             int i = 0;
-            values[i++] = unitSystem.Convert(6, "min", "m");
+            values[i++] = unitSystem.Convert(1, "RC", "J/K/mol");
+            values[i++] = unitSystem.Convert(1, "eQ", "Q");
             values[i++] = unitSystem.Convert(6, "min/mile", "min/Km");
             values[i++] = unitSystem.Convert(9.81, "m/s2", "ft/s2");
-            values[i++] = unitSystem.Convert(1, "Avagadro.Molarity.l", "1");
+            values[i++] = unitSystem.Convert(1, "Avagadro.M.l", "1");
             values[i++] = unitSystem.Convert(1, "D.ft/cP.psi", "ft3/day");
             values[i++] = unitSystem.Convert(1, "psi+(14.69)", "psig");
             values[i++] = unitSystem.Convert(1, "Kilo.ft3/day", "ft3/day");

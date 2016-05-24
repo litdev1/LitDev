@@ -51,7 +51,7 @@ namespace LitDev
         /// <param name="fromUnit">The units to convert from.</param>
         /// <param name="toUnit">The units to convert to.</param>
         /// <returns>
-        /// The converted value or "FAILED" (usually non-existant unit or invalid conversion).
+        /// The converted value or "FAILED" (usually non-existant unit or inconsistant dimensions).
         /// </returns>
         public static Primitive Convert(Primitive value, Primitive fromUnit, Primitive toUnit)
         {

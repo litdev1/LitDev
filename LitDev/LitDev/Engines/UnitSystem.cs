@@ -157,9 +157,12 @@ namespace LitDev.Engines
 
             //LENGTH
             DerivedUnits.Add(new DerivedUnit("Foot", "ft", "(0.3048)m"));
-            DerivedUnits.Add(new DerivedUnit("Yard", "yard", "(3)ft"));
+            DerivedUnits.Add(new DerivedUnit("Yard", "yd", "(3)ft"));
             DerivedUnits.Add(new DerivedUnit("Inch", "in", "(2.54)cm"));
-            DerivedUnits.Add(new DerivedUnit("Mile", "mile", "(1760)yard"));
+            DerivedUnits.Add(new DerivedUnit("Mile", "mile", "(1760)yd"));
+            DerivedUnits.Add(new DerivedUnit("Parsec", "pc", "(3.0856776e16)m"));
+            DerivedUnits.Add(new DerivedUnit("Astronomical Unit", "au", "(1.4960e11)m"));
+            DerivedUnits.Add(new DerivedUnit("Light Year", "ly", "(9.4607e15)m"));
 
             //MASS
             DerivedUnits.Add(new DerivedUnit("Pound", "lb", "(453.59237)g"));
@@ -189,9 +192,10 @@ namespace LitDev.Engines
             DerivedUnits.Add(new DerivedUnit("Horesepower", "hp", "(745.7)W"));
 
             //AREA
-            DerivedUnits.Add(new DerivedUnit("Acre", "acre", "(4840).yard2"));
+            DerivedUnits.Add(new DerivedUnit("Acre", "acre", "(4840).yd2"));
             DerivedUnits.Add(new DerivedUnit("Hectare", "hectare", "(10000).m2"));
             DerivedUnits.Add(new DerivedUnit("Darcy", "D", "(9.869233e-13).m2"));
+            DerivedUnits.Add(new DerivedUnit("Barn", "b", "(1e-28).m2"));
 
             //VOLUME
             DerivedUnits.Add(new DerivedUnit("Cubic Centimeter", "cc", "(1.0e-6).m3"));
@@ -200,8 +204,8 @@ namespace LitDev.Engines
             DerivedUnits.Add(new DerivedUnit("Litre", "l", "litre"));
             DerivedUnits.Add(new DerivedUnit("UK Pint", "pintUK", "(568)l"));
             DerivedUnits.Add(new DerivedUnit("US Pint", "pintUS", "(473)l"));
-            DerivedUnits.Add(new DerivedUnit("UK Gallon", "galUK", "(G.54609)l"));
-            DerivedUnits.Add(new DerivedUnit("US Gallon", "galUS", "(0.8327)GalUK"));
+            DerivedUnits.Add(new DerivedUnit("UK Gallon", "galUK", "(4.54609)l"));
+            DerivedUnits.Add(new DerivedUnit("US Gallon", "galUS", "(0.8327)galUK"));
 
             //PRESSURE
             DerivedUnits.Add(new DerivedUnit("Pascal", "Pa", "N/m2"));
@@ -218,14 +222,14 @@ namespace LitDev.Engines
             DerivedUnits.Add(new DerivedUnit("Voltage", "V", "Volt"));
 
             //Resistance
-            DerivedUnits.Add(new DerivedUnit("Electrical Resistance", "Ohm", "V/I"));
+            DerivedUnits.Add(new DerivedUnit("Electrical Resistance", "Ohm", "V/Amp"));
 
             //Viscosity
             DerivedUnits.Add(new DerivedUnit("Viscosity Poise", "P", "(0.1).Pa.s"));
 
             //Substance
-            DerivedUnits.Add(new DerivedUnit("Molarity", "Molarity", "mol/l"));
-            DerivedUnits.Add(new DerivedUnit("Molality", "Molality", "mol/mol"));
+            DerivedUnits.Add(new DerivedUnit("Molarity", "M", "mol/l"));
+            DerivedUnits.Add(new DerivedUnit("Molality", "molal", "mol/Kg"));
             DerivedUnits.Add(new DerivedUnit("Parts Per Million", "ppm", "(1.0e-6).g/g"));
 
             //Frequency
@@ -236,10 +240,13 @@ namespace LitDev.Engines
 
             //Constants with units
             DerivedUnits.Add(new DerivedUnit("Avagadro Constant", "Avagadro", "(6.0221408578e23)/mol"));
-            DerivedUnits.Add(new DerivedUnit("Plank Constant", "h", "(6.626070041e−34).J.s"));
+            DerivedUnits.Add(new DerivedUnit("Plank Constant", "h", "(6.626070041e-34).J.s"));
             DerivedUnits.Add(new DerivedUnit("Speed of Light", "c", "(299792458).m/s"));
-            DerivedUnits.Add(new DerivedUnit("Electron Charge", "eQ", "(1.6021766209e−19)Q"));
-            DerivedUnits.Add(new DerivedUnit("Boltzman Constant", "k", "(1.38064853e−23).J/K"));
+            DerivedUnits.Add(new DerivedUnit("Electron Charge", "eQ", "(1.6021766209e-19)Q"));
+            DerivedUnits.Add(new DerivedUnit("Electron Mass", "eM", "(9.10938356e-31).Kg"));
+            DerivedUnits.Add(new DerivedUnit("Boltzman Constant", "k", "(1.38064853e-23).J/K"));
+            DerivedUnits.Add(new DerivedUnit("Gas Constant", "RC", "k.Avagadro"));
+            DerivedUnits.Add(new DerivedUnit("Gravitation Constant", "G", "(6.674e-11).N.m2/Kg2"));
 
             SetCurrency();
 
@@ -385,7 +392,19 @@ namespace LitDev.Engines
                     Microsoft.SmallBasic.Library.TextWindow.WriteLine(error);
                 }
             }
+
             SetDimensions();
+
+            foreach (DerivedUnit unit in DerivedUnits)
+            {
+                Errors.Clear();
+                Leaf fromLeaf = new Leaf(eOperatorType.MULTIPLY, eLeafType.COMPOUND, unit.name);
+                foreach (string error in Errors)
+                {
+                    Microsoft.SmallBasic.Library.TextWindow.WriteLine(error);
+                }
+            }
+
         }
 
         private void SetDimensions()
@@ -415,7 +434,7 @@ namespace LitDev.Engines
                 {
                     if (kvp.Value != resultTo.dimensions[kvp.Key])
                     {
-                        Errors.Add("Inconsistent Diemsnions");
+                        Errors.Add("Inconsistent Dimensions");
                         return double.NaN;
                     }
                 }
@@ -712,7 +731,7 @@ namespace LitDev.Engines
                 case eLeafType.POWER:
                     if (double.TryParse(part, out leafResult.power))
                     {
-                        return;
+                        break;
                     }
                     UnitSystem.Errors.Add("Power could not be found : " + part);
                     break;
@@ -745,16 +764,11 @@ namespace LitDev.Engines
                     break;
                 case eLeafType.COMPOUND:
                     //Split operators
-                    double number = 0;
-                    if (!double.TryParse(part, out number))
+                    SplitOperators();
+                    if (children.Count > 0)
                     {
-                        SplitOperators();
-                        if (UnitSystem.Errors.Count > 0) return;
-                        if (children.Count > 0)
-                        {
-                            UpdateCompound();
-                            return;
-                        }
+                        UpdateCompound();
+                        break;
                     }
 
                     //Parse a possible derived unit
@@ -762,7 +776,7 @@ namespace LitDev.Engines
                     if (children.Count == 3)
                     {
                         UpdateValue();
-                        return;
+                        break;
                     }
 
                     //Parse a possible base unit
@@ -770,19 +784,19 @@ namespace LitDev.Engines
                     if (children.Count == 3)
                     {
                         UpdateValue();
-                        return;
+                        break;
                     }
 
                     //Parse a pure number
                     children.Add(new Leaf(eOperatorType.NONE, eLeafType.PREFIX, part));
                     children.Add(new Leaf(eOperatorType.NONE, eLeafType.POWER, ""));
                     children.Add(new Leaf(eOperatorType.MULTIPLY, eLeafType.UNIT, ""));
+                    UpdateValue();
+
                     if (UnitSystem.Errors.Count > 0)
                     {
                         UnitSystem.Errors.Add("Unit could not be found : " + part);
-                        return;
                     }
-                    UpdateValue();
                     break;
             }
         }
@@ -964,6 +978,9 @@ namespace LitDev.Engines
 
         private void SplitOperators()
         {
+            double number = 0;
+            if (double.TryParse(part, out number)) return;
+
             int iBracket = 0;
             string childPart = "";
             eOperatorType childOperator = eOperatorType.MULTIPLY;
