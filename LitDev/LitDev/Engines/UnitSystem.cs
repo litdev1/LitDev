@@ -55,12 +55,26 @@ namespace LitDev.Engines
         }
     }
 
+    public class Constant
+    {
+        public string description = "";
+        public string name = "";
+        public double value = 0;
+
+        public Constant(string description, string name, double value)
+        {
+            this.description = description;
+            this.name = name;
+            this.value = value;
+        }
+    }
+
     public class UnitSystem
     {
         public static List<BaseUnit> BaseUnits = new List<BaseUnit>();
         public static List<DerivedUnit> DerivedUnits = new List<DerivedUnit>();
+        public static List<Constant> Constants = new List<Constant>();
         public static Dictionary<string, double> Prefixes = new Dictionary<string, double>();
-        public static Dictionary<string, double> Constants = new Dictionary<string, double>();
         public static List<string> Dimensions = new List<string>();
         public static List<string> Errors = new List<string>();
         private static bool bInitialised = false;
@@ -143,8 +157,8 @@ namespace LitDev.Engines
             BaseUnits.Add(new BaseUnit("LUMINANCE", "candella"));
 
             //CONSTANTS
-            Constants.Add("pi", Math.PI);
-            Constants.Add("e", Math.E);
+            Constants.Add(new Constant("Ratio of Circumerance to Diameter", "pi", Math.PI));
+            Constants.Add(new Constant("Natural Logarithm Base", "e", Math.E));
 
             //Derived Units
 
@@ -223,6 +237,9 @@ namespace LitDev.Engines
 
             //Resistance
             DerivedUnits.Add(new DerivedUnit("Electrical Resistance", "Ohm", "V/Amp"));
+            DerivedUnits.Add(new DerivedUnit("Electrical Capacitance", "Farad", "Q/V"));
+            DerivedUnits.Add(new DerivedUnit("Electrical Inductance", "Henry", "J/Amp2"));
+            DerivedUnits.Add(new DerivedUnit("Magnetic Field Strength", "Tesla", "V.s/m2"));
 
             //Viscosity
             DerivedUnits.Add(new DerivedUnit("Viscosity Poise", "P", "(0.1).Pa.s"));
@@ -243,10 +260,15 @@ namespace LitDev.Engines
             DerivedUnits.Add(new DerivedUnit("Plank Constant", "h", "(6.626070041e-34).J.s"));
             DerivedUnits.Add(new DerivedUnit("Speed of Light", "c", "(299792458).m/s"));
             DerivedUnits.Add(new DerivedUnit("Electron Charge", "eQ", "(1.6021766209e-19)Q"));
-            DerivedUnits.Add(new DerivedUnit("Electron Mass", "eM", "(9.10938356e-31).Kg"));
+            DerivedUnits.Add(new DerivedUnit("Electron Mass", "Me", "(9.10938356e-31).Kg"));
+            DerivedUnits.Add(new DerivedUnit("Proton Mass", "Mp", "(1.672621898e-27).Kg"));
+            DerivedUnits.Add(new DerivedUnit("Neutron Mass", "Mn", "(1.674927471e-27).Kg"));
+            DerivedUnits.Add(new DerivedUnit("Atomic Mass Unit", "amu", "(1.6605402e-27).Kg"));
             DerivedUnits.Add(new DerivedUnit("Boltzman Constant", "k", "(1.38064853e-23).J/K"));
             DerivedUnits.Add(new DerivedUnit("Gas Constant", "RC", "k.Avagadro"));
             DerivedUnits.Add(new DerivedUnit("Gravitation Constant", "G", "(6.674e-11).N.m2/Kg2"));
+            DerivedUnits.Add(new DerivedUnit("Vacuum Permitivity", "e0", "(8.854187817e-12).Farad/m")); //Q2/J/m
+            DerivedUnits.Add(new DerivedUnit("Vacuum Permeability", "mu0", "(4e-7*pi).N/Amp2")); //J/m/Q2.s2
 
             SetCurrency();
 
@@ -339,7 +361,7 @@ namespace LitDev.Engines
                 }
                 for (int j = 0; j < Constants.Count; j++)
                 {
-                    if (Prefixes.ElementAt(i).Key == Constants.ElementAt(j).Key)
+                    if (Prefixes.ElementAt(i).Key == Constants[j].name)
                     {
                         Errors.Add("Prefix and constant conflict " + Prefixes.ElementAt(i).Key);
                     }
@@ -350,9 +372,9 @@ namespace LitDev.Engines
             {
                 for (int j = i + 1; j < Constants.Count; j++)
                 {
-                    if (Constants.ElementAt(i).Key == Constants.ElementAt(j).Key)
+                    if (Constants[i].name == Constants[j].name)
                     {
-                        Errors.Add("Repeated constant " + Constants.ElementAt(i).Key);
+                        Errors.Add("Repeated constant " + Constants[i].name);
                     }
                 }
             }
@@ -375,11 +397,11 @@ namespace LitDev.Engines
                             Errors.Add("Prefix and base unit conflict " + kvp.Key + " " + check.name);
                         }
                     }
-                    foreach (KeyValuePair<string, double> check in Constants)
+                    foreach (Constant check in Constants)
                     {
-                        if (check.Key.Contains(kvp.Key))
+                        if (check.name.Contains(kvp.Key))
                         {
-                            Errors.Add("Prefix and constant conflict " + kvp.Key + " " + check.Key);
+                            Errors.Add("Prefix and constant conflict " + kvp.Key + " " + check.name);
                         }
                     }
                 }
@@ -505,9 +527,9 @@ namespace LitDev.Engines
         {
             Dictionary<string, string> units = new Dictionary<string, string>();
 
-            foreach (KeyValuePair<string, double> kvp in Constants)
+            foreach (Constant constant in Constants)
             {
-                units[kvp.Key] = kvp.Value.ToString();
+                units[constant.name + " (" + constant.description + ")"] = constant.value.ToString();
             }
 
             return units;
@@ -553,12 +575,12 @@ namespace LitDev.Engines
             }
         }
 
-        public void AddConstant(string name, double value)
+        public void AddConstant(string description, string name, double value)
         {
             Errors.Clear();
             try
             {
-                Constants.Add(name, value);
+                Constants.Add(new Constant(description, name, value));
                 Validate();
             }
             catch (Exception ex)
@@ -585,9 +607,9 @@ namespace LitDev.Engines
                             if (unit.add == 0) sw.WriteLine("DerivedUnit#" + unit.description + "#" + unit.name + "#" + unit.baseUnits);
                             else sw.WriteLine("DerivedUnit#" + unit.description + "#" + unit.name + "#" + unit.baseUnits + "#" + unit.add);
                         }
-                        foreach (KeyValuePair<string, double> kvp in Constants)
+                        foreach (Constant constant in Constants)
                         {
-                            sw.WriteLine("Constant#" + kvp.Key + "#" + kvp.Value);
+                            sw.WriteLine("Constant#" + constant.description + "#" + constant.name + "#" + constant.value);
                         }
                         //foreach (KeyValuePair<string, double> kvp in Prefixes)
                         //{
@@ -619,7 +641,7 @@ namespace LitDev.Engines
                                     if (parts.Length == 5) DerivedUnits.Add(new DerivedUnit(parts[1], parts[2], parts[3], double.Parse(parts[4])));
                                     break;
                                 case "Constant":
-                                    if (parts.Length == 3) Constants[parts[1]] = double.Parse(parts[2]);
+                                    if (parts.Length == 4) Constants.Add(new Constant(parts[1], parts[2], double.Parse(parts[3])));
                                     break;
                                 case "Prefix":
                                     if (parts.Length == 3) Prefixes[parts[1]] = double.Parse(parts[2]);
@@ -804,7 +826,7 @@ namespace LitDev.Engines
         private void ParsePrefix()
         {
             double number = 0;
-            string[] vals = part.Split(new char[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] vals = part.Split(new char[] { '(', ')', '*' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string val in vals)
             {
                 string[] bits = val.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -826,12 +848,12 @@ namespace LitDev.Engines
                             goto nextBit;
                         }
                     }
-                    foreach (KeyValuePair<string, double> kvp in UnitSystem.Constants)
+                    foreach (Constant constant in UnitSystem.Constants)
                     {
-                        if (bit == kvp.Key)
+                        if (bit == constant.name)
                         {
-                            if (i == 0) leafResult.prefix *= kvp.Value;
-                            else leafResult.prefix /= kvp.Value;
+                            if (i == 0) leafResult.prefix *= constant.value;
+                            else leafResult.prefix /= constant.value;
                             goto nextBit;
                         }
                     }
@@ -998,6 +1020,7 @@ namespace LitDev.Engines
                         childPart += c;
                         break;
                     case '.':
+                    case '*':
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));

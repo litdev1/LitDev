@@ -28,13 +28,14 @@ namespace LitDev
     /// <summary>
     /// A general editable unit conversion system.
     /// All units and dimensions are case sensitive.
-    /// A base unit consists of a dimension and name.
-    /// A derived unit consists of a description, name and units definition and optional additive term, usually 0.
-    /// A unit is parsed by separting . and /, then recursively resolving derived unit conversions, bracketed () terms first.
+    /// A base unit consists of a single dimension and name, and are all independent.
+    /// A derived unit consists of a description, name and units definition consisting of base or other derived units, and optional additive term, usually 0.
+    /// A unit is parsed by separting . / + - and *, then recursively resolving derived unit conversions, bracketed () terms first.
     /// Values (especially those with a decimal point '.' or minus '-') should be contained in ().
     /// A unit may be prefixed by a prefix or number value (e.g. m is mili 0.001, K is kilo 1000 etc).
     /// Any unit may be postfixed by a power.
-    /// A typical unit may be "mile/hr" or "Kg.m/s2" etc, any pair of unis that are dimensionally the same can be converted.
+    /// A typical unit may be "mile/hr", "m/s2" or "MJ/day" etc and can be any combination of base and derived units.
+    /// Any pair of unis that are dimensionally the same can be converted.
     /// An additive value is only used for non-compound unit conversions (e.g. C to F).
     /// To avoid obscure prefix unit conflicts use a full prefix name (e.g. min could be 60 seconds or 0.001 inches, the latter should be milliin).  
     /// Currency conversions are updated daily.
@@ -103,7 +104,7 @@ namespace LitDev
         /// </summary>
         /// <returns>
         /// An array of available base units, indexed by unit dimension.
-        /// The array value is the base unit names.
+        /// The array values are the base unit names.
         /// </returns>
         public static Primitive GetBaseUnits()
         {
@@ -123,7 +124,7 @@ namespace LitDev
         /// </summary>
         /// <returns>
         /// An array of available derived units, indexed by unit name with (description).
-        /// The array value is the base (or derived units) used for conversion.
+        /// The array values are the base (or derived units) used for conversion.
         /// </returns>
         public static Primitive GetDerivedUnits()
         {
@@ -141,8 +142,8 @@ namespace LitDev
         /// <summary>
         /// Get a list of current constants.
         /// </summary>
-        /// <returns>An array of available constants, indexed by constant name.
-        /// The array value is the constant value.
+        /// <returns>An array of available constants, indexed by constant name with (description).
+        /// The array values are the constant values.
         /// </returns>
         public static Primitive GetConstants()
         {
@@ -198,20 +199,21 @@ namespace LitDev
         /// <param name="description">An optional long name or description of the derived unit.</param>
         /// <param name="name">The unit name (be careful it doesn't confict with existing unit names).</param>
         /// <param name="units">The derived unit definition.</param>
-        /// <param name="add">An ooptional addition term.</param>
+        /// <param name="add">An optional addition term.</param>
         public static void AddDerivedUnit(Primitive description, Primitive name, Primitive units, Primitive add)
         {
             unitSystem.AddDerivedUnit(description, name, units, add);
         }
 
         /// <summary>
-        /// Add a constant to the system.
+        /// Add a dimensionless constant to the system.
         /// </summary>
+        /// <param name="description">An optional long name or description of the constant.</param>
         /// <param name="name">The constant name (be careful it doesn't confict with existing constant names).</param>
         /// <param name="value">The derived constant value.</param>
-        public static void AddConstant(Primitive name, Primitive value)
+        public static void AddConstant(Primitive description, Primitive name, Primitive value)
         {
-            unitSystem.AddConstant(name, value);
+            unitSystem.AddConstant(description, name, value);
         }
 
         /// <summary>
