@@ -72,7 +72,7 @@ namespace LitDev
             int i = 1;
             foreach (string error in errors)
             {
-                result += (i++).ToString() + Utilities.ArrayParse(error) + ";";
+                result += (i++).ToString() + "=" + Utilities.ArrayParse(error) + ";";
             }
             return Utilities.CreateArrayMap(result);
         }

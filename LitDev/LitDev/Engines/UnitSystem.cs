@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text;
 
@@ -157,7 +159,7 @@ namespace LitDev.Engines
             BaseUnits.Add(new BaseUnit("LUMINANCE", "candella"));
 
             //CONSTANTS
-            Constants.Add(new Constant("Ratio of Circumerance to Diameter", "pi", Math.PI));
+            Constants.Add(new Constant("Ratio of Circumference to Diameter", "pi", Math.PI));
             Constants.Add(new Constant("Natural Logarithm Base", "e", Math.E));
 
             //Derived Units
@@ -180,7 +182,7 @@ namespace LitDev.Engines
 
             //MASS
             DerivedUnits.Add(new DerivedUnit("Pound", "lb", "(453.59237)g"));
-            DerivedUnits.Add(new DerivedUnit("Ounze", "oz", "(1/16)lb"));
+            DerivedUnits.Add(new DerivedUnit("Ounce", "oz", "(1/16)lb"));
             DerivedUnits.Add(new DerivedUnit("Stone", "st", "(14)lb"));
             DerivedUnits.Add(new DerivedUnit("Imperial Ton", "ton", "(160)st"));
             DerivedUnits.Add(new DerivedUnit("Metric Tonne", "tonne", "(1000)Kg"));
@@ -203,7 +205,7 @@ namespace LitDev.Engines
 
             //POWER
             DerivedUnits.Add(new DerivedUnit("Watt", "W", "J/s"));
-            DerivedUnits.Add(new DerivedUnit("Horesepower", "hp", "(745.7)W"));
+            DerivedUnits.Add(new DerivedUnit("Horsepower", "hp", "(745.7)W"));
 
             //AREA
             DerivedUnits.Add(new DerivedUnit("Acre", "acre", "(4840).yd2"));
@@ -748,7 +750,7 @@ namespace LitDev.Engines
             switch (eLeaf)
             {
                 case eLeafType.PREFIX:
-                    ParsePrefix();
+                    ParsePrefix(part);
                     break;
                 case eLeafType.POWER:
                     if (double.TryParse(part, out leafResult.power))
@@ -823,12 +825,86 @@ namespace LitDev.Engines
             }
         }
 
-        private void ParsePrefix()
+        private void ParsePrefix(string prefix)
         {
             double number = 0;
-            string[] vals = part.Split(new char[] { '(', ')', '*' }, StringSplitOptions.RemoveEmptyEntries);
+
+            //A prefix must be at the end - check long first
+            foreach (KeyValuePair<string, double> kvp in UnitSystem.Prefixes)
+            {
+                if (kvp.Key.Length > 1 && prefix.EndsWith(kvp.Key))
+                {
+                    leafResult.prefix *= kvp.Value;
+                    prefix = prefix.Substring(0, prefix.Length - kvp.Key.Length);
+                    break;
+                }
+            }
+            foreach (KeyValuePair<string, double> kvp in UnitSystem.Prefixes)
+            {
+                if (prefix.EndsWith(kvp.Key))
+                {
+                    leafResult.prefix *= kvp.Value;
+                    prefix = prefix.Substring(0, prefix.Length - kvp.Key.Length);
+                    break;
+                }
+            }
+
+            if (prefix == "") return;
+
+            //Replace constants if not a number before (to handle e)
+            Dictionary<string, string> replaced = new Dictionary<string, string>();
+            foreach (Constant constant in UnitSystem.Constants)
+            {
+                int pos = prefix.IndexOf(constant.name);
+                while (pos >= 0)
+                {
+                    string before = prefix.Substring(0, pos);
+                    string after = prefix.Substring(pos + constant.name.Length);
+                    if (before.Length > 0)
+                    {
+                        string charBefore = before.Substring(before.Length - 1);
+                        if (double.TryParse(charBefore, out number))
+                        {
+                            replaced["XXX" + pos] = constant.name;
+                            prefix = before + "XXX" + pos + after;
+                        }
+                        else
+                        {
+                            prefix = before + constant.value.ToString() + after;
+                        }
+                    }
+                    else
+                    {
+                        prefix = before + constant.value.ToString() + after;
+                    }
+                    pos = prefix.IndexOf(constant.name);
+                }
+            }
+            foreach (KeyValuePair<string, string> kvp in replaced)
+            {
+                prefix = prefix.Replace(kvp.Key, kvp.Value);
+            }
+
+            try
+            {
+                ParameterExpression pe = Expression.Parameter(typeof(string), "IntegerAsReal");
+                ExpressionParser parser = new ExpressionParser(new ParameterExpression[] { pe }, prefix, null);
+                LambdaExpression expr = Expression.Lambda(parser.Parse(typeof(double)), null);
+                var del = (Func<double>)expr.Compile();
+                number = del();
+                leafResult.prefix *= number;
+            }
+            catch
+            {
+                UnitSystem.Errors.Add("Prefix could not be found : " + part);
+            }
+
+            return;
+
+            string[] vals = prefix.Split(new char[] { '(', ')', '*' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string val in vals)
             {
+                //handle +-./
                 string[] bits = val.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < bits.Length; i++)
                 {
@@ -961,7 +1037,8 @@ namespace LitDev.Engines
                     case eOperatorType.ADD:
                         if (child.leafResult.dimensions.Values.Sum() == 0) //A dimensionless number
                         {
-                            value *= 1 + child.value;
+                            if (leafResult.dimensions.Values.Sum() == 0) value += child.value;
+                            else value *= 1 + child.value; //Add a number in the parent units
                         }
                         else
                         {
@@ -979,7 +1056,8 @@ namespace LitDev.Engines
                     case eOperatorType.SUBTRACT:
                         if (child.leafResult.dimensions.Values.Sum() == 0) //A dimensionless number
                         {
-                            value *= 1 - child.value;
+                            if (leafResult.dimensions.Values.Sum() == 0) value -= child.value;
+                            else value *= 1 - child.value; //Subtract a number in the parent units
                         }
                         else
                         {
@@ -1081,7 +1159,22 @@ namespace LitDev.Engines
         private string Trim(string part)
         {
             part = part.Trim();
-            if (part.StartsWith("(") && part.EndsWith(")")) part = part.Trim(new char[] { ' ', '(', ')' });
+            //if (part.StartsWith("(") && part.EndsWith(")")) part = part.Substring(1, part.Length - 2);
+            //Remove unnecessary end brackets only
+            if (part.StartsWith("(") && part.EndsWith(")"))
+            {
+                int iBracket = 0;
+                bool bRemove = true;
+                for (int i = 0; i < part.Length; i++)
+                {
+                    char c = part[i];
+                    if (c == '(') iBracket++;
+                    else if (c == ')') iBracket--;
+                    if (iBracket == 0 && i < part.Length - 1) bRemove = false;
+                }
+                if (bRemove) part = part.Substring(1, part.Length - 2);
+            }
+            part = part.Trim();
             return part;
         }
     }

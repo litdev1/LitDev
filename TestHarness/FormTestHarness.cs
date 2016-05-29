@@ -838,8 +838,9 @@ namespace TestHarness
         private void buttonUnits_Click(object sender, EventArgs e)
         {
             UnitSystem unitSystem = new UnitSystem();
-            double[] values = new double[21];
+            double[] values = new double[22];
             int i = 0;
+            values[i++] = unitSystem.Convert(1, "((e)+(pi))/2", "1");
             values[i++] = unitSystem.Convert(1, "e0.mu0", "1/c2");
             values[i++] = unitSystem.Convert(1, "RC", "J/K/mol");
             values[i++] = unitSystem.Convert(1, "eQ", "Q");
