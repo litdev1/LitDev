@@ -840,8 +840,8 @@ namespace TestHarness
             UnitSystem unitSystem = new UnitSystem();
             double[] values = new double[22];
             int i = 0;
-            values[i++] = unitSystem.Convert(1, "((e)+(pi))/2", "1");
-            values[i++] = unitSystem.Convert(1, "e0.mu0", "1/c2");
+            values[i++] = unitSystem.Convert(1, "[D.ft/cP.psi]+[ft3/day]", "ft3/day");
+            values[i++] = unitSystem.Convert(1, "mu0.e0", "1/c2");
             values[i++] = unitSystem.Convert(1, "RC", "J/K/mol");
             values[i++] = unitSystem.Convert(1, "eQ", "Q");
             values[i++] = unitSystem.Convert(6, "min/mile", "min/Km");

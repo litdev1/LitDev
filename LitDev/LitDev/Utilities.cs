@@ -321,6 +321,94 @@ namespace LitDev
             return iState;
         }
 
+        public static void setWindowResize(int iState)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            ResizeMode state = ResizeMode.CanResize;
+            switch (iState)
+            {
+                case 0:
+                    state = ResizeMode.CanMinimize;
+                    break;
+                case 1:
+                    state = ResizeMode.CanResize;
+                    break;
+                case 2:
+                    state = ResizeMode.CanResizeWithGrip;
+                    break;
+                case 3:
+                    state = ResizeMode.NoResize;
+                    break;
+            }
+
+            try
+            {
+                Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                InvokeHelper ret = delegate
+                {
+                    try
+                    {
+                        _window.ResizeMode = state;
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                };
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        public static int getWindowResize()
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            ResizeMode state = ResizeMode.CanResize;
+
+            try
+            {
+                Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                InvokeHelper ret = delegate
+                {
+                    try
+                    {
+                        state = _window.ResizeMode;
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                };
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            int iState = 0;
+            switch (state)
+            {
+                case ResizeMode.CanMinimize:
+                    iState = 0;
+                    break;
+                case ResizeMode.CanResize:
+                    iState = 1;
+                    break;
+                case ResizeMode.CanResizeWithGrip:
+                    iState = 2;
+                    break;
+                case ResizeMode.NoResize:
+                    iState = 2;
+                    break;
+            }
+            return iState;
+        }
+
         public static void setWindowStyle(int iStyle)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);

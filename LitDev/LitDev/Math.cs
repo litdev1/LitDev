@@ -427,7 +427,7 @@ namespace LitDev
         {
             if (number == 0 || number+0 != number) return number;
 
-            double scale = System.Math.Pow(10, System.Math.Floor(System.Math.Log10(System.Math.Abs(number))) + 1);
+            double scale = System.Math.Pow(10, System.Math.Floor(System.Math.Log10(System.Math.Abs((double)number))) + 1);
             return scale * System.Math.Round((double)number / scale, digits);
         }
 

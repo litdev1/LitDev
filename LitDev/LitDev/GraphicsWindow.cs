@@ -242,7 +242,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Set the GraphicsWindow Icon
+        /// Set the GraphicsWindow Icon, "" sets to Small Basic icon.
         /// </summary>
         public static Primitive Icon
         {
@@ -256,7 +256,14 @@ namespace LitDev
                     {
                         try
                         {
-                            _window.Icon = BitmapFrame.Create(new Uri(value), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                            if (value == "")
+                            {
+                                _window.Icon = LDImage.getBitmapImage(global::LitDev.Properties.Resources.SBIcon);
+                            }
+                            else
+                            {
+                                _window.Icon = BitmapFrame.Create(new Uri(value), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -1370,6 +1377,23 @@ namespace LitDev
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     return "";
                 }
+            }
+        }
+
+        /// <summary>
+        /// The GraphicsWindow resize mode (CanMinimize 0, CanResize 1, CanResizeWithGrip 2, NoResize 3).
+        /// </summary>
+        public static Primitive Resize
+        {
+            get
+            {
+                GraphicsWindow.Show();
+                return Utilities.getWindowResize();
+            }
+            set
+            {
+                GraphicsWindow.Show();
+                Utilities.setWindowResize(value);
             }
         }
     }

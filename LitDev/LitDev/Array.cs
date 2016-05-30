@@ -707,5 +707,34 @@ namespace LitDev
                 return "FAILED";
             }
         }
+
+        /// <summary>
+        /// Get the index of the first occurance of a value in an SB array.
+        /// </summary>
+        /// <param name="sbArray">The SB array.</param>
+        /// <param name="value">The value to find.</param>
+        /// <returns>The index of value in the array, "" if not present or "FAILED".</returns>
+        public static Primitive GetIndex(Primitive sbArray, Primitive value)
+        {
+            try
+            {
+                Type PrimitiveType = typeof(Primitive);
+                Dictionary<Primitive, Primitive> _arrayMap;
+                sbArray = Utilities.CreateArrayMap(sbArray);
+                _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(sbArray);
+
+                foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
+                {
+                    if (kvp.Value == value) return kvp.Key;
+                }
+
+                return "";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
     }
 }

@@ -737,8 +737,7 @@ namespace LitDev.Engines
         private void Parse()
         {
             //Trim any start and end bits
-            part = rawPart;
-            if (eLeaf != eLeafType.COMPOUND) part = Trim(rawPart);
+            part = Trim(rawPart);
 
             //Empty part is default values
             if (part == "")
@@ -1090,15 +1089,16 @@ namespace LitDev.Engines
                 switch (c)
                 {
                     case '(':
+                    case '[':
                         iBracket++;
                         childPart += c;
                         break;
                     case ')':
+                    case ']':
                         iBracket--;
                         childPart += c;
                         break;
                     case '.':
-                    case '*':
                         if (iBracket == 0)
                         {
                             children.Add(new Leaf(childOperator, eLeaf, childPart));
@@ -1156,26 +1156,33 @@ namespace LitDev.Engines
             }
         }
 
-        private string Trim(string part)
+        private string Trim(string text)
         {
-            part = part.Trim();
-            //if (part.StartsWith("(") && part.EndsWith(")")) part = part.Substring(1, part.Length - 2);
+            text = text.Trim();
             //Remove unnecessary end brackets only
-            if (part.StartsWith("(") && part.EndsWith(")"))
+            string open = "(";
+            string close = ")";
+            if (eLeaf == eLeafType.COMPOUND)
+            {
+                open = "[";
+                close = "]";
+            }
+
+            if (text.StartsWith(open) && text.EndsWith(close))
             {
                 int iBracket = 0;
                 bool bRemove = true;
-                for (int i = 0; i < part.Length; i++)
+                for (int i = 0; i < text.Length; i++)
                 {
-                    char c = part[i];
-                    if (c == '(') iBracket++;
-                    else if (c == ')') iBracket--;
-                    if (iBracket == 0 && i < part.Length - 1) bRemove = false;
+                    char c = text[i];
+                    if (c == open[0]) iBracket++;
+                    else if (c == close[0]) iBracket--;
+                    if (iBracket == 0 && i < text.Length - 1) bRemove = false;
                 }
-                if (bRemove) part = part.Substring(1, part.Length - 2);
+                if (bRemove) text = text.Substring(1, text.Length - 2);
             }
-            part = part.Trim();
-            return part;
+            text = text.Trim();
+            return text;
         }
     }
 }
