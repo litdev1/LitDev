@@ -707,6 +707,7 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+               
             //TextWindow.Show();
             //LDTextWindow.SetColours("Pink", "Orange");
             //TextWindow.WriteLine("Hello World");
@@ -837,31 +838,49 @@ namespace TestHarness
 
         private void buttonUnits_Click(object sender, EventArgs e)
         {
-            UnitSystem unitSystem = new UnitSystem();
-            double[] values = new double[22];
-            int i = 0;
-            values[i++] = unitSystem.Convert(1, "[D.ft/cP.psi]+[ft3/day]", "ft3/day");
-            values[i++] = unitSystem.Convert(1, "mu0.e0", "1/c2");
-            values[i++] = unitSystem.Convert(1, "RC", "J/K/mol");
-            values[i++] = unitSystem.Convert(1, "eQ", "Q");
-            values[i++] = unitSystem.Convert(6, "min/mile", "min/Km");
-            values[i++] = unitSystem.Convert(9.81, "m/s2", "ft/s2");
-            values[i++] = unitSystem.Convert(1, "Avagadro.M.l", "1");
-            values[i++] = unitSystem.Convert(1, "D.ft/cP.psi", "ft3/day");
-            values[i++] = unitSystem.Convert(1, "psi+(14.69)", "psig");
-            values[i++] = unitSystem.Convert(1, "Kilo.ft3/day", "ft3/day");
-            values[i++] = unitSystem.Convert(1, "m(-1)", "1/in");
-            values[i++] = unitSystem.Convert(1, "Kg/min2", "g/hr2");
-            values[i++] = unitSystem.Convert(1, "mm", "m");
-            values[i++] = unitSystem.Convert(1, "1/cN2", "1/N2");
-            values[i++] = unitSystem.Convert(1, "pi.KJ", "N.m");
-            values[i++] = unitSystem.Convert(100, "mC", "F");
-            values[i++] = unitSystem.Convert(1, "BTU2", "J2");
-            values[i++] = unitSystem.Convert(1, "ton", "tonne");
-            values[i++] = unitSystem.Convert(1, "W", "Volt.Amp");
-            values[i++] = unitSystem.Convert(1, "psi", "lbf/in2");
-            values[i++] = unitSystem.Convert(1, "Kpsig", "Kpsi");
-            values[i++] = unitSystem.Convert(1, "USD", "GBP");
+            GraphicsWindow.Width = 200;
+            GraphicsWindow.Height = 200;
+            Primitive title = "";
+            for (int i = 1; i <= 20; i++)
+            {
+                title[i] = "TEST" + i;
+            }
+            Primitive dv = LDControls.AddDataView(200, 200, title);
+            Primitive row = "";
+            for (int i = 1; i <= 20; i++)
+            {
+                for (int j = 1; j <= 20; j++)
+                {
+                    row[j] = Microsoft.SmallBasic.Library.Math.GetRandomNumber(1000000);
+                }
+                LDControls.DataViewSetRow(dv, i, row);
+            }
+
+            //UnitSystem unitSystem = new UnitSystem();
+            //double[] values = new double[22];
+            //int i = 0;
+            //values[i++] = unitSystem.Convert(1, "[D.ft/cP.psi]+[ft3/day]", "ft3/day");
+            //values[i++] = unitSystem.Convert(1, "mu0.e0", "1/c2");
+            //values[i++] = unitSystem.Convert(1, "RC", "J/K/mol");
+            //values[i++] = unitSystem.Convert(1, "eQ", "Q");
+            //values[i++] = unitSystem.Convert(6, "min/mile", "min/Km");
+            //values[i++] = unitSystem.Convert(9.81, "m/s2", "ft/s2");
+            //values[i++] = unitSystem.Convert(1, "Avagadro.M.l", "1");
+            //values[i++] = unitSystem.Convert(1, "D.ft/cP.psi", "ft3/day");
+            //values[i++] = unitSystem.Convert(1, "psi+(14.69)", "psig");
+            //values[i++] = unitSystem.Convert(1, "Kilo.ft3/day", "ft3/day");
+            //values[i++] = unitSystem.Convert(1, "m(-1)", "1/in");
+            //values[i++] = unitSystem.Convert(1, "Kg/min2", "g/hr2");
+            //values[i++] = unitSystem.Convert(1, "mm", "m");
+            //values[i++] = unitSystem.Convert(1, "1/cN2", "1/N2");
+            //values[i++] = unitSystem.Convert(1, "pi.KJ", "N.m");
+            //values[i++] = unitSystem.Convert(100, "mC", "F");
+            //values[i++] = unitSystem.Convert(1, "BTU2", "J2");
+            //values[i++] = unitSystem.Convert(1, "ton", "tonne");
+            //values[i++] = unitSystem.Convert(1, "W", "Volt.Amp");
+            //values[i++] = unitSystem.Convert(1, "psi", "lbf/in2");
+            //values[i++] = unitSystem.Convert(1, "Kpsig", "Kpsi");
+            //values[i++] = unitSystem.Convert(1, "USD", "GBP");
         }
     }
 }

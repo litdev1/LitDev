@@ -242,7 +242,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Set the GraphicsWindow Icon, "" sets to Small Basic icon.
+        /// Set the GraphicsWindow Icon, "SB" sets to Small Basic icon.
         /// </summary>
         public static Primitive Icon
         {
@@ -256,7 +256,7 @@ namespace LitDev
                     {
                         try
                         {
-                            if (value == "")
+                            if (value == "SB")
                             {
                                 _window.Icon = LDImage.getBitmapImage(global::LitDev.Properties.Resources.SBIcon);
                             }

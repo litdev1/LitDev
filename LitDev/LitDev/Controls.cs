@@ -5741,37 +5741,51 @@ namespace LitDev
             Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
-            _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-            if (_objectsMap.TryGetValue((string)shapeName, out obj))
+            try
             {
-                try
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    WindowsFormsHost shape = (WindowsFormsHost)obj;
-                    System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
-                    DataTable dataTable = (DataTable)dataView.Tag;
-                    if (row <= 0 || row > dataView.Rows.Count - 1 || col > dataView.Columns.Count) return "FAILED";
+                        WindowsFormsHost shape = (WindowsFormsHost)obj;
+                        System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
+                        DataTable dataTable = (DataTable)dataView.Tag;
 
-                    if (null == dataTable)
-                    {
-                        dataView.CurrentCell = dataView.Rows[(int)(row - 1)].Cells[(int)(col - 1)];
-                        dataView.CurrentCell.Value = (string)value;
-                    }
-                    else
-                    {
-                        dataTable.Rows[(int)(row - 1)][(int)(col - 1)] = Convert.ChangeType((string)value, dataTable.Columns[(int)(col - 1)].DataType);
-                        dataView.Refresh();                        
-                    }
-                    return "SUCCESS";
+                        InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                        {
+                            try
+                            {
+                                if (row <= 0 || row > dataView.Rows.Count - 1 || col > dataView.Columns.Count) return "FAILED";
+
+                                if (null == dataTable)
+                                {
+                                    dataView.CurrentCell = dataView.Rows[(int)(row - 1)].Cells[(int)(col - 1)];
+                                    dataView.CurrentCell.Value = (string)value;
+                                }
+                                else
+                                {
+                                    dataTable.Rows[(int)(row - 1)][(int)(col - 1)] = Convert.ChangeType((string)value, dataTable.Columns[(int)(col - 1)].DataType);
+                                    dataView.Refresh();
+                                }
+                                return "SUCCESS";
+                            }
+                            catch (Exception ex)
+                            {
+                                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                                return "FAILED";
+                            }
+                        });
+                        MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                        return method.Invoke(null, new object[] { ret }).ToString();
                 }
-                catch (Exception ex)
+                else
                 {
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
                     return "FAILED";
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return "FAILED";
             }
         }
@@ -5877,77 +5891,82 @@ namespace LitDev
             _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
             if (_objectsMap.TryGetValue((string)shapeName, out obj))
             {
-                try
+                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
-                    WindowsFormsHost shape = (WindowsFormsHost)obj;
-                    System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
-
-                    int colCount = dataView.Columns.Count;
-                    Primitive indices = SBArray.GetAllIndices(values);
-                    if (colCount == SBArray.GetItemCount(indices))
+                    try
                     {
-                        DataTable dataTable = (DataTable)dataView.Tag;
-                        if (null == dataTable)
+                        WindowsFormsHost shape = (WindowsFormsHost)obj;
+                        System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
+
+                        int colCount = dataView.Columns.Count;
+                        Primitive indices = SBArray.GetAllIndices(values);
+                        if (colCount == SBArray.GetItemCount(indices))
                         {
-                            if (row >= dataView.Rows.Count)
+                            DataTable dataTable = (DataTable)dataView.Tag;
+                            if (null == dataTable)
                             {
-                                System.Windows.Forms.DataGridViewRow newRow = (System.Windows.Forms.DataGridViewRow)dataView.RowTemplate.Clone();
-                                newRow.CreateCells(dataView);
-                                for (int i = 1; i <= colCount; i++)
+                                if (row >= dataView.Rows.Count)
                                 {
-                                    newRow.Cells[i - 1].Value = (string)values[indices[i]];
+                                    System.Windows.Forms.DataGridViewRow newRow = (System.Windows.Forms.DataGridViewRow)dataView.RowTemplate.Clone();
+                                    newRow.CreateCells(dataView);
+                                    for (int i = 1; i <= colCount; i++)
+                                    {
+                                        newRow.Cells[i - 1].Value = (string)values[indices[i]];
+                                    }
+                                    dataView.Rows.Add(newRow);
                                 }
-                                dataView.Rows.Add(newRow);
+                                else
+                                {
+                                    for (int i = 1; i <= colCount; i++)
+                                    {
+                                        dataView.Rows[row - 1].Cells[i - 1].Value = (string)values[indices[i]];
+                                    }
+                                }
                             }
                             else
                             {
+                                int maxId = 0, Id;
+                                bool indexed = dataTable.Columns[0].ColumnName.ToLower() == "id" && (dataTable.Columns[0].DataType == typeof(Int64) || dataTable.Columns[0].DataType == typeof(Int32));
+                                if (indexed)
+                                {
+                                    foreach (DataRow dataRow in dataTable.Rows)
+                                    {
+                                        if (int.TryParse(dataRow.ItemArray[0].ToString(), out Id)) maxId = System.Math.Max(maxId, Id);
+                                    }
+                                }
+                                DataRow newDataRow = dataTable.NewRow();
+                                if (colCount != newDataRow.ItemArray.Length) return "FAILED";
+                                Object[] array = new Object[colCount];
+                                System.Array.Copy(newDataRow.ItemArray, 0, array, 0, colCount);
                                 for (int i = 1; i <= colCount; i++)
                                 {
-                                    dataView.Rows[row - 1].Cells[i - 1].Value = (string)values[indices[i]];
+                                    array[i - 1] = Convert.ChangeType((string)values[indices[i]], dataTable.Columns[i - 1].DataType);
                                 }
-                            }
-                        }
-                        else
-                        {
-                            int maxId = 0, Id;
-                            bool indexed = dataTable.Columns[0].ColumnName.ToLower() == "id" && (dataTable.Columns[0].DataType == typeof(Int64) || dataTable.Columns[0].DataType == typeof(Int32));
-                            if (indexed)
-                            {
-                                foreach (DataRow dataRow in dataTable.Rows)
+                                if (row >= dataView.Rows.Count)
                                 {
-                                    if (int.TryParse(dataRow.ItemArray[0].ToString(), out Id)) maxId = System.Math.Max(maxId, Id);
+                                    if (indexed) array[0] = ++maxId;
+                                    newDataRow.ItemArray = array;
+                                    dataTable.Rows.Add(newDataRow);
                                 }
+                                else
+                                {
+                                    if (indexed) array[0] = dataTable.Rows[row - 1][0];
+                                    dataTable.Rows[row - 1].ItemArray = array;
+                                }
+                                dataView.Refresh();
                             }
-                            DataRow newDataRow = dataTable.NewRow();
-                            if (colCount != newDataRow.ItemArray.Length) return "FAILED";
-                            Object[] array = new Object[colCount];
-                            System.Array.Copy(newDataRow.ItemArray, 0, array, 0, colCount);
-                            for (int i = 1; i <= colCount; i++)
-                            {
-                                array[i - 1] = Convert.ChangeType((string)values[indices[i]], dataTable.Columns[i - 1].DataType);
-                            }
-                            if (row >= dataView.Rows.Count)
-                            {
-                                if (indexed) array[0] = ++maxId;
-                                newDataRow.ItemArray = array;
-                                dataTable.Rows.Add(newDataRow);
-                            }
-                            else
-                            {
-                                if (indexed) array[0] = dataTable.Rows[row - 1][0];
-                                dataTable.Rows[row - 1].ItemArray = array;
-                            }
-                            dataView.Refresh();
+                            return "SUCCESS";
                         }
-                        return "SUCCESS";
+                        return "FAILED";
                     }
-                    return "FAILED";
-                }
-                catch (Exception ex)
-                {
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                    return "FAILED";
-                }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        return "FAILED";
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                return method.Invoke(null, new object[] { ret }).ToString();
             }
             else
             {
@@ -5968,43 +5987,51 @@ namespace LitDev
             Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
-            _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-            if (_objectsMap.TryGetValue((string)shapeName, out obj))
+            try
             {
-                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    try
-                    {
-                        WindowsFormsHost shape = (WindowsFormsHost)obj;
-                        System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
-                        DataTable dataTable = (DataTable)dataView.Tag;
+                    WindowsFormsHost shape = (WindowsFormsHost)obj;
+                    System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
+                    DataTable dataTable = (DataTable)dataView.Tag;
 
-                        if (row < dataView.Rows.Count)
-                        {
-                            if (null == dataTable)
-                            {
-                                dataView.Rows.RemoveAt(row - 1);
-                            }
-                            else
-                            {
-                                dataTable.Rows.RemoveAt(row - 1);
-                            }
-                            return "SUCCESS";
-                        }
-                        return "FAILED";
-                    }
-                    catch (Exception ex)
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        return "FAILED";
-                    }
-                });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                        try
+                        {
+                            if (row < dataView.Rows.Count)
+                            {
+                                if (null == dataTable)
+                                {
+                                    dataView.Rows.RemoveAt(row - 1);
+                                }
+                                else
+                                {
+                                    dataTable.Rows.RemoveAt(row - 1);
+                                }
+                                return "SUCCESS";
+                            }
+                            return "FAILED";
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "FAILED";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return "FAILED";
             }
         }
