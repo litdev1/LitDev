@@ -123,7 +123,6 @@ namespace LitDev
                         System.Windows.Point point = (System.Windows.Point)method.Invoke(null, new object[] { ret });
                         if (null != point)
                         {
-                            TextWindow.WriteLine(point.X);
                             xPosDisplay = point.X;
                             yPosDisplay = point.Y;
                         }

@@ -678,7 +678,7 @@ namespace LitDev
             if (null != dataTable) lastTable = dataTable.TableName;
             foreach (System.Windows.Forms.DataGridViewCell cell in cells)
             {
-                if (cell.RowIndex >= 0 && cell.RowIndex < dataView.Rows.Count - 1)
+                if (cell.RowIndex >= 0 && cell.RowIndex < DataGridRowCount(dataView))
                 {
                     lastDataView = dataView.Name;
                     if (null != _DataViewSelectionChangedDelegate && dataView.Columns[cell.ColumnIndex].GetType() == typeof(System.Windows.Forms.DataGridViewTextBoxColumn)) _DataViewSelectionChangedDelegate();
@@ -733,7 +733,7 @@ namespace LitDev
         private static void _DataViewCellContentClick(Object sender, System.Windows.Forms.DataGridViewCellEventArgs e)
         {
             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
-            if (e.RowIndex >= 0 && e.RowIndex < dataView.Rows.Count - 1 && e.ColumnIndex >= 0)
+            if (e.RowIndex >= 0 && e.RowIndex < DataGridRowCount(dataView) && e.ColumnIndex >= 0)
             {
                 lastDataView = dataView.Name;
                 if (dataView.Columns[e.ColumnIndex].GetType() == typeof(System.Windows.Forms.DataGridViewButtonColumn))
@@ -759,7 +759,7 @@ namespace LitDev
             {
                 System.Windows.Forms.DataGridViewComboBoxEditingControl cb = (System.Windows.Forms.DataGridViewComboBoxEditingControl)e.Control;
                 System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
-                if (dataView.CurrentCell.RowIndex >= 0 && dataView.CurrentCell.RowIndex < dataView.Rows.Count - 1 && dataView.CurrentCell.ColumnIndex >= 0)
+                if (dataView.CurrentCell.RowIndex >= 0 && dataView.CurrentCell.RowIndex < DataGridRowCount(dataView) && dataView.CurrentCell.ColumnIndex >= 0)
                 {
                     lastDataView = dataView.Name;
                     lastChanged[1] = dataView.CurrentCell.RowIndex + 1;
@@ -780,7 +780,7 @@ namespace LitDev
             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
             dataView.AutoResizeColumns(System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells);
             //dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
-            if (e.RowIndex >= 0 && e.RowIndex < dataView.Rows.Count - 1 && e.ColumnIndex >= 0)
+            if (e.RowIndex >= 0 && e.RowIndex < DataGridRowCount(dataView) && e.ColumnIndex >= 0)
             {
                 lastDataView = dataView.Name;
                 lastChanged[1] = e.RowIndex + 1;
@@ -798,7 +798,7 @@ namespace LitDev
         private static void _DataViewRowPrePaint(Object sender, System.Windows.Forms.DataGridViewRowPrePaintEventArgs e)
         {
             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
-            if (e.RowIndex >= 0 && e.RowIndex < dataView.Rows.Count - 1)
+            if (e.RowIndex >= 0 && e.RowIndex < DataGridRowCount(dataView))
             {
                 String hdrNum = String.Format("{0}", e.RowIndex + 1);
                 if (dataView.Rows[e.RowIndex].HeaderCell.Value == null || hdrNum != dataView.Rows[e.RowIndex].HeaderCell.Value.ToString())
@@ -847,7 +847,7 @@ namespace LitDev
             System.Windows.Forms.ContextMenu contextMenu = (System.Windows.Forms.ContextMenu)menuItem.Parent;
             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)contextMenu.SourceControl;
             dataView.SelectAll();
-            dataView.Rows[dataView.Rows.Count - 1].Selected = false;
+            if (dataView.AllowUserToAddRows) dataView.Rows[dataView.Rows.Count - 1].Selected = false;
         }
         private static void _DataViewCopy(Object sender, System.EventArgs e)
         {
@@ -870,7 +870,7 @@ namespace LitDev
             if (e.Control && e.KeyCode == System.Windows.Forms.Keys.A)
             {
                 dataView.SelectAll();
-                dataView.Rows[dataView.Rows.Count - 1].Selected = false;
+                if (dataView.AllowUserToAddRows) dataView.Rows[dataView.Rows.Count - 1].Selected = false;
             }
             else if (e.Control && e.KeyCode == System.Windows.Forms.Keys.C)
             {
@@ -908,7 +908,6 @@ namespace LitDev
                 bool addRow = false;
                 foreach (string line in lines)
                 {
-                    TextWindow.WriteLine(line);
                     if (line.Length == 0) continue;
                     if (addRow || iRow >= dataView.RowCount - 1)
                     {
@@ -952,6 +951,10 @@ namespace LitDev
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
+        }
+        private static int DataGridRowCount(System.Windows.Forms.DataGridView dataView)
+        {
+            return dataView.AllowUserToAddRows ? dataView.Rows.Count - 1 : dataView.Rows.Count;
         }
 
         /// <summary>
@@ -5639,7 +5642,7 @@ namespace LitDev
                 int i = 1;
                 foreach (System.Windows.Forms.DataGridViewCell cell in dataView.SelectedCells)
                 {
-                    if (cell.RowIndex >= 0 && cell.RowIndex < dataView.Rows.Count - 1)
+                    if (cell.RowIndex >= 0 && cell.RowIndex < DataGridRowCount(dataView))
                     {
                         Primitive _cell = "";
                         _cell[1] = cell.RowIndex + 1;
@@ -5754,7 +5757,7 @@ namespace LitDev
                         {
                             try
                             {
-                                if (row <= 0 || row > dataView.Rows.Count - 1 || col > dataView.Columns.Count) return "FAILED";
+                                if (row <= 0 || row > DataGridRowCount(dataView) || col > dataView.Columns.Count) return "FAILED";
 
                                 if (null == dataTable)
                                 {
@@ -5905,7 +5908,7 @@ namespace LitDev
                             DataTable dataTable = (DataTable)dataView.Tag;
                             if (null == dataTable)
                             {
-                                if (row >= dataView.Rows.Count)
+                                if (row > DataGridRowCount(dataView))
                                 {
                                     System.Windows.Forms.DataGridViewRow newRow = (System.Windows.Forms.DataGridViewRow)dataView.RowTemplate.Clone();
                                     newRow.CreateCells(dataView);
@@ -5942,7 +5945,7 @@ namespace LitDev
                                 {
                                     array[i - 1] = Convert.ChangeType((string)values[indices[i]], dataTable.Columns[i - 1].DataType);
                                 }
-                                if (row >= dataView.Rows.Count)
+                                if (row > DataGridRowCount(dataView))
                                 {
                                     if (indexed) array[0] = ++maxId;
                                     newDataRow.ItemArray = array;
@@ -6000,7 +6003,7 @@ namespace LitDev
                     {
                         try
                         {
-                            if (row < dataView.Rows.Count)
+                            if (row <= DataGridRowCount(dataView))
                             {
                                 if (null == dataTable)
                                 {
@@ -6061,7 +6064,7 @@ namespace LitDev
                             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
 
                             Primitive result = "";
-                            if (row < dataView.Rows.Count)
+                            if (row <= DataGridRowCount(dataView))
                             {
                                 for (int i = 0; i < dataView.Columns.Count; i++)
                                 {
@@ -6116,7 +6119,7 @@ namespace LitDev
                             WindowsFormsHost shape = (WindowsFormsHost)obj;
                             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
 
-                            return dataView.Rows.Count - 1;
+                            return DataGridRowCount(dataView);
                         }
                         catch (Exception ex)
                         {
@@ -6210,7 +6213,7 @@ namespace LitDev
                     {
                         string line;
                         int colCount = dataView.Columns.Count;
-                        for (int i = 0; i < dataView.Rows.Count - 1; i++)
+                        for (int i = 0; i < DataGridRowCount(dataView); i++)
                         {
                             line = "";
                             for (int j = 0; j < colCount; j++)
@@ -6613,6 +6616,50 @@ namespace LitDev
                             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
 
                             dataView.Columns[(int)(col - 1)].Visible = visible;
+                            return "SUCCESS";
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "FAILED";
+        }
+
+        /// <summary>
+        /// Allow user to add data in the last row.
+        /// </summary>
+        /// <param name="shapeName">The dataview control.</param>
+        /// <param name="allow">Allow user data entry "True" (default) or "False".</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive DataViewAllowUserEntry(Primitive shapeName, Primitive allow)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            WindowsFormsHost shape = (WindowsFormsHost)obj;
+                            System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
+
+                            dataView.AllowUserToAddRows = allow;
                             return "SUCCESS";
                         }
                         catch (Exception ex)
