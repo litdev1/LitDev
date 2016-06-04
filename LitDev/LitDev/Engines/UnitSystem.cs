@@ -899,43 +899,6 @@ namespace LitDev.Engines
             }
 
             return;
-
-            string[] vals = prefix.Split(new char[] { '(', ')', '*' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string val in vals)
-            {
-                //handle +-./
-                string[] bits = val.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < bits.Length; i++)
-                {
-                    string bit = bits[i];
-                    if (double.TryParse(bit, out number))
-                    {
-                        if (i == 0) leafResult.prefix *= number;
-                        else leafResult.prefix /= number;
-                        goto nextBit;
-                    }
-                    foreach (KeyValuePair<string, double> kvp in UnitSystem.Prefixes)
-                    {
-                        if (bit == kvp.Key)
-                        {
-                            if (i == 0) leafResult.prefix *= kvp.Value;
-                            else leafResult.prefix /= kvp.Value;
-                            goto nextBit;
-                        }
-                    }
-                    foreach (Constant constant in UnitSystem.Constants)
-                    {
-                        if (bit == constant.name)
-                        {
-                            if (i == 0) leafResult.prefix *= constant.value;
-                            else leafResult.prefix /= constant.value;
-                            goto nextBit;
-                        }
-                    }
-                    UnitSystem.Errors.Add("Prefix could not be found : " + part);
-                    nextBit:;
-                }
-            }
         }
 
         private void ParseUnit<T>(List<T> units, eLeafType eChildLeaf)
