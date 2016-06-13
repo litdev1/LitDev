@@ -36,7 +36,7 @@ namespace LitDev
         /// <param name="real">An array of real values to calculate the FFT from.</param>
         /// <returns>An array of complex data (real amplitude and imaginary phase) or "FAILED".
         /// For each complex pair the index is the real part and the value is the imaginary part.</returns>
-        public static Primitive FFTForawrd(Primitive real)
+        public static Primitive FFTForward(Primitive real)
         {
             try
             {

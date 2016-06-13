@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Themes;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
@@ -6661,6 +6662,86 @@ namespace LitDev
 
                             dataView.AllowUserToAddRows = allow;
                             return "SUCCESS";
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "FAILED";
+        }
+
+        /// <summary>
+        /// Modify the style of a button.
+        /// </summary>
+        /// <param name="shapeName">The button to modify.</param>
+        /// <param name="brushUnpressed">The colour of the unpressed button, may be a gradient brush.</param>
+        /// <param name="brushMouseOver">The colour of the button when the mouse is over it, may be a gradient brush.</param>
+        /// <param name="brushPressed">The colour of the pressed button, may be a gradient brush.</param>
+        /// <param name="penUnpressed">The text font colour of the unpressed button.</param>
+        /// <param name="penMouseOver">The text font colour of the button when the mouse is over it.</param>
+        /// <param name="penPressed">The text font colour of the pressed button.</param>
+        /// <param name="radius">The button corner radius (default 9).</param>
+        /// <param name="shine">Apply a 'shine' effect, "True" (default) or "False".</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive SetButtonStyle(Primitive shapeName, Primitive brushUnpressed, Primitive brushMouseOver, Primitive brushPressed, Primitive penUnpressed, Primitive penMouseOver, Primitive penPressed, Primitive radius, Primitive shine)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+            Canvas _mainCanvas;
+
+            try
+            {
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Button))
+                            {
+                                Button shape = (Button)obj;
+                                Brush unpressedPen = new SolidColorBrush((Color)ColorConverter.ConvertFromString(penUnpressed));
+                                Brush mouseOverPen = new SolidColorBrush((Color)ColorConverter.ConvertFromString(penMouseOver));
+                                Brush pressedPen = new SolidColorBrush((Color)ColorConverter.ConvertFromString(penPressed));
+                                Brush unpressedBrush = null;
+                                Brush mouseOverBrush = null;
+                                Brush pressedBrush = null;
+                                foreach (GradientBrush i in LDShapes.brushes)
+                                {
+                                    if (i.name == brushUnpressed)
+                                    {
+                                        unpressedBrush = i.getBrush();
+                                    }
+                                    else if (i.name == brushMouseOver)
+                                    {
+                                        mouseOverBrush = i.getBrush();
+                                    }
+                                    else if (i.name == brushPressed)
+                                    {
+                                        pressedBrush = i.getBrush();
+                                    }
+                                }
+
+                                if (null == unpressedBrush) unpressedBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(brushUnpressed));
+                                if (null == mouseOverBrush) mouseOverBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(brushMouseOver));
+                                if (null == pressedBrush) pressedBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(brushPressed));
+                                Styles.SetStyle(shape, unpressedBrush, mouseOverBrush, pressedBrush, unpressedPen, mouseOverPen, pressedPen, radius, shine);
+                                return "SUCCESS";
+                            }
+                            return "FAILED";
                         }
                         catch (Exception ex)
                         {

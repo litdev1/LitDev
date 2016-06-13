@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Drawing.Text;
 using System.Net;
 using LitDev.Engines;
+using LitDev.Themes;
 
 namespace TestHarness
 {
@@ -838,23 +839,26 @@ namespace TestHarness
 
         private void buttonUnits_Click(object sender, EventArgs e)
         {
-            GraphicsWindow.Width = 200;
-            GraphicsWindow.Height = 200;
-            Primitive title = "";
-            for (int i = 1; i <= 20; i++)
-            {
-                title[i] = "TEST" + i;
-            }
-            Primitive dv = LDControls.AddDataView(200, 200, title);
-            Primitive row = "";
-            for (int i = 1; i <= 20; i++)
-            {
-                for (int j = 1; j <= 20; j++)
-                {
-                    row[j] = Microsoft.SmallBasic.Library.Math.GetRandomNumber(1000000);
-                }
-                LDControls.DataViewSetRow(dv, i, row);
-            }
+            Primitive button = Microsoft.SmallBasic.Library.Controls.AddButton("Test", 50, 50);
+            LDControls.SetButtonStyle(button, "Red", "Blue", "Green", "Black", "Black", "Black", 9, "True");
+
+            //GraphicsWindow.Width = 200;
+            //GraphicsWindow.Height = 200;
+            //Primitive title = "";
+            //for (int i = 1; i <= 20; i++)
+            //{
+            //    title[i] = "TEST" + i;
+            //}
+            //Primitive dv = LDControls.AddDataView(200, 200, title);
+            //Primitive row = "";
+            //for (int i = 1; i <= 20; i++)
+            //{
+            //    for (int j = 1; j <= 20; j++)
+            //    {
+            //        row[j] = Microsoft.SmallBasic.Library.Math.GetRandomNumber(1000000);
+            //    }
+            //    LDControls.DataViewSetRow(dv, i, row);
+            //}
 
             //UnitSystem unitSystem = new UnitSystem();
             //double[] values = new double[22];
