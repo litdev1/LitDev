@@ -104,9 +104,13 @@ namespace LitDev.Themes
                     }
                 }
             }
-            double width = button.ActualWidth;
-            double height = button.ActualHeight;
+            button.Width = button.ActualWidth;
+            button.Height = button.ActualHeight;
+            button.Background = unpressedBrush;
+            button.Foreground = unpressedPen;
+            button.FocusVisualStyle = null;
             button.Style = style;
+
             button.UpdateLayout();
             Rectangle rectangle = (Rectangle)button.Template.FindName("buttonBackground", button);
             rectangle.RadiusX = radius;
@@ -115,10 +119,6 @@ namespace LitDev.Themes
             rectangle.Visibility = bShine ? Visibility.Visible : Visibility.Hidden;
             rectangle.RadiusX = radius * 0.67;
             rectangle.RadiusY = radius * 0.67;
-            button.Background = unpressedBrush;
-            button.Foreground = unpressedPen;
-            button.Width = width;
-            button.Height = height;
         }
     }
 }

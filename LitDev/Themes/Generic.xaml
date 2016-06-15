@@ -47,6 +47,17 @@
                             <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="Black"/>
                             <Setter Property="Fill" TargetName="buttonBackground" Value="White"/>
                         </Trigger>
+                        <Trigger Property="IsFocused" Value="true">
+                            <Setter Property="StrokeThickness" TargetName="buttonBackground" Value="1"/>
+                            <Setter Property="Rectangle.Stroke" TargetName="buttonBackground">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#ccffffff" Offset="0" />
+                                        <GradientStop Color="#cc000000" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
