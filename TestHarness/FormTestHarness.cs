@@ -839,8 +839,21 @@ namespace TestHarness
 
         private void buttonUnits_Click(object sender, EventArgs e)
         {
-            Primitive button = Microsoft.SmallBasic.Library.Controls.AddButton("Test", 50, 50);
-            LDControls.SetButtonStyle(button, "Red", "Blue", "Green", "Black", "Black", "Black", 9, "True");
+            Primitive view = LD3DView.AddView(500, 500, "True");
+            LD3DView.ResetCamera(view, 0, 0, -20, 0, 0, 1, 0, 1, 0);
+            LD3DView.AddDirectionalLight(view, "Red", 1, 0, 1);
+            LD3DView.AddDirectionalLight(view, "Green", 1, 0, -1);
+            LD3DView.AddDirectionalLight(view, "Blue", -1, 0, 1);
+            LD3DView.AddDirectionalLight(view, "Yellow", -1, 0, -1);
+            Primitive cube = LD3DView.AddCube(view, 1, "Red", "D");
+            LD3DView.SetBillBoard(view, cube);
+            for (int i = 1; i < 100; i++)
+            {
+                LD3DView.MoveCamera(view, i, 1, 1, 1);
+            }
+
+            //Primitive button = Microsoft.SmallBasic.Library.Controls.AddButton("Test", 50, 50);
+            //LDControls.SetButtonStyle(button, "Red", "Blue", "Green", "Black", "Black", "Black", 9, "True");
 
             //GraphicsWindow.Width = 200;
             //GraphicsWindow.Height = 200;

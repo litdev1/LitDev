@@ -337,7 +337,7 @@ namespace HelixToolkit.Wpf
         /// <param name="thetaDiv">
         /// The number of divisions around the arrow.
         /// </param>
-        public void AddArrow(Point3D point1, Point3D point2, double diameter, double headLength = 3, int thetaDiv = 18)
+        public void AddArrow(Point3D point1, Point3D point2, double diameter, double headLength = 3, double headDiameter = 2, int thetaDiv = 18)
         {
             var dir = point2 - point1;
             double length = dir.Length;
@@ -348,7 +348,7 @@ namespace HelixToolkit.Wpf
                     new Point(0, 0),
                     new Point(0, r),
                     new Point(length - (diameter * headLength), r),
-                    new Point(length - (diameter * headLength), r * 2),
+                    new Point(length - (diameter * headLength), r * headDiameter),
                     new Point(length, 0)
                 };
 
@@ -914,11 +914,11 @@ namespace HelixToolkit.Wpf
         /// </remarks>
         public void AddPyramid(Point3D center, double sideLength, double height)
         {
-            var p1 = new Point3D(center.X - (sideLength * 0.5), center.Y - (sideLength * 0.5), center.Z);
-            var p2 = new Point3D(center.X + (sideLength * 0.5), center.Y - (sideLength * 0.5), center.Z);
-            var p3 = new Point3D(center.X + (sideLength * 0.5), center.Y + (sideLength * 0.5), center.Z);
-            var p4 = new Point3D(center.X - (sideLength * 0.5), center.Y + (sideLength * 0.5), center.Z);
-            var p5 = new Point3D(center.X, center.Y, center.Z + height);
+            var p1 = new Point3D(center.X - (sideLength * 0.5), center.Y, center.Z - (sideLength * 0.5));
+            var p2 = new Point3D(center.X + (sideLength * 0.5), center.Y, center.Z - (sideLength * 0.5));
+            var p3 = new Point3D(center.X + (sideLength * 0.5), center.Y, center.Z + (sideLength * 0.5));
+            var p4 = new Point3D(center.X - (sideLength * 0.5), center.Y, center.Z + (sideLength * 0.5));
+            var p5 = new Point3D(center.X, center.Y + height, center.Z);
             this.AddTriangle(p1, p2, p5);
             this.AddTriangle(p2, p3, p5);
             this.AddTriangle(p3, p4, p5);

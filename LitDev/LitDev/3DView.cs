@@ -40,8 +40,7 @@ namespace LitDev
     /// Z - Far(-) to Near(+)
     /// 
     /// For more details on the underlying methods see http://msdn.microsoft.com/en-us/library/ms747437%28v=vs.90%29.aspx
-    /// The following methods use HelixToolkit (recompiled and slightly modified for SmallBasic) http://helixToolkit.codeplex.com
-    /// LoadModel, AddSphere, AddTube
+    /// Several of the AddShape methods use HelixToolkit (recompiled and slightly modified for SmallBasic) http://helixToolkit.codeplex.com
     /// </summary>
     [SmallBasicType]
     public static class LD3DView
@@ -87,6 +86,8 @@ namespace LitDev
         {
             return "Geometry" + (++iGeometry).ToString();
         }
+
+        private static Dictionary<string, List<string>> BillBoards = new Dictionary<string, List<string>>();
 
         public static Object lockObj = new Object(); //public static to keep the queue thread safe
 
@@ -217,6 +218,55 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
             return "";
+        }
+
+        private static void UpdateBillBoards(Viewport3D viewport3D, string shapeName)
+        {
+            if (BillBoards.ContainsKey(shapeName))
+            {
+                foreach (string billBoard in BillBoards[shapeName])
+                {
+                    double tol = 1e-6;
+                    Geometry geom = getGeometry(billBoard);
+                    if (null == geom) continue;
+                    GeometryModel3D geometry = geom.geometryModel3D;
+                    Transform3D transform3D = (Transform3D)geometry.Transform;
+                    Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                    PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                    Vector3D lookDirection = camera.LookDirection;
+                    Vector3D upDirection = camera.UpDirection;
+                    lookDirection.Normalize();
+                    upDirection.Normalize();
+                    Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+
+                    Vector3D Z = new Vector3D(0, 0, -1);
+                    RotateTransform3D rotateTransform3D1 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate];
+                    AxisAngleRotation3D axisAngleRotation3D1 = new AxisAngleRotation3D();
+                    axisAngleRotation3D1.Axis = Vector3D.CrossProduct(lookDirection, Z);
+                    axisAngleRotation3D1.Angle = Vector3D.AngleBetween(lookDirection, Z);
+                    rotateTransform3D1.Rotation = axisAngleRotation3D1;
+
+                    Z = rotateTransform3D1.Transform(new Vector3D(0, 0, -1)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
+                    Z.Normalize();
+                    if (Vector3D.DotProduct(lookDirection, Z) < 1 - tol) axisAngleRotation3D1.Angle *= -1;
+
+                    Vector3D Y = rotateTransform3D1.Transform(new Vector3D(0, 1, 0)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
+                    Y.Normalize();
+
+                    RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                    AxisAngleRotation3D axisAngleRotation3D2 = new AxisAngleRotation3D();
+                    axisAngleRotation3D2.Axis = lookDirection;
+                    axisAngleRotation3D2.Angle = Vector3D.AngleBetween(upDirection, Y);
+                    rotateTransform3D2.Rotation = axisAngleRotation3D2;
+
+                    Y = rotateTransform3D2.Transform(Y);
+                    Y.Normalize();
+                    if (Vector3D.DotProduct(upDirection, Y) < 1 - tol) axisAngleRotation3D2.Angle *= -1;
+
+                    geometry.Transform = transform3DGroup;
+                }
+            }
         }
 
         /// <summary>
@@ -540,6 +590,8 @@ namespace LitDev
                                 camera.LookDirection = lookDirection;
                                 camera.UpDirection = upDirection;
                                 camera.Position = position;
+
+                                UpdateBillBoards(viewport3D, shapeName);
                             }
                         }
                         catch (Exception ex)
@@ -606,6 +658,8 @@ namespace LitDev
                                 {
                                     camera.UpDirection = new Vector3D(xUp, yUp, zUp);
                                 }
+
+                                UpdateBillBoards(viewport3D, shapeName);
                             }
                         }
                         catch (Exception ex)
@@ -660,6 +714,8 @@ namespace LitDev
                                 camera.NearPlaneDistance = System.Math.Max(1.0e-3, nearDistance);
                                 camera.FarPlaneDistance = (farDistance < camera.NearPlaneDistance) ? double.PositiveInfinity : (double)farDistance;
                                 camera.FieldOfView = angle;
+
+                                UpdateBillBoards(viewport3D, shapeName);
                             }
                         }
                         catch (Exception ex)
@@ -2032,5 +2088,435 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
+
+        /// <summary>
+        /// Add a cube geometry object centered on (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="sideLength">The side length of the cube.</param>
+        /// <param name="colour">A colour for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.</param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddCube(Primitive shapeName, Primitive sideLength, Primitive colour, Primitive materialType)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddBox(new Point3D(0, 0, 0), sideLength, sideLength, sideLength);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add an arrow geometry object pointing up starting at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="length">The length of the arrow.</param>
+        /// <param name="diameter">The diameter of the arrow shaft.</param>
+        /// <param name="arrowLength">The length of the arrow head.</param>
+        /// <param name="arrowDiameter">The diameter of the arrow head.</param>
+        /// <param name="divisions">The number of divisions for the arrow (default 18).</param>
+        /// <param name="colour">A colour for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.</param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddArrow(Primitive shapeName, Primitive length, Primitive diameter, Primitive arrowLength, Primitive arrowDiameter, Primitive divisions, Primitive colour, Primitive materialType)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddArrow(new Point3D(0, 0, 0), new Point3D(0, length, 0), diameter, arrowLength / diameter, arrowDiameter / diameter, divisions);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add a cone geometry object pointing up with base centred at (0,0,0).
+        /// Note a cylinder is a cone with baseRadius = topRadius.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="baseRadius">The radius of the base.</param>
+        /// <param name="topRadius">The radius of the top  if truncated (default 0).</param>
+        /// <param name="height">The height of the cone.</param>
+        /// <param name="divisions">The number of divisions for the cone (default 18).</param>
+        /// <param name="colour">A colour for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.</param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddCone(Primitive shapeName, Primitive baseRadius, Primitive topRadius, Primitive height, Primitive divisions, Primitive colour, Primitive materialType)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddCone(new Point3D(0, 0, 0), new Vector3D(0, 1, 0), baseRadius, topRadius, height, true, true, divisions);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add a pyramid geometry object pointing up with base centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="sideLength">The radius of the base.</param>
+        /// <param name="height">The height of the cone.</param>
+        /// <param name="colour">A colour for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.</param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddPyramid(Primitive shapeName, Primitive sideLength, Primitive height, Primitive colour, Primitive materialType)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddPyramid(new Point3D(0, 0, 0), sideLength, height);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add a pipe geometry object pointing up with base centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="length">The length of the pipe.</param>
+        /// <param name="innerDiameter">The inner diameter of the pipe.</param>
+        /// <param name="outerDiameter">The outer diameter of the pipe.</param>
+        /// <param name="divisions">The number of divisions for the pipe (default 18).</param>
+        /// <param name="colour">A colour for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.</param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddPipe(Primitive shapeName, Primitive length, Primitive innerDiameter, Primitive outerDiameter, Primitive divisions, Primitive colour, Primitive materialType)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddPipe(new Point3D(0, 0, 0), new Point3D(0, length, 0), innerDiameter, outerDiameter, divisions);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add an icosahedron geometry object centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="radius">The radius of the icosahedron.</param>
+        /// <param name="colour">A colour for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.</param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddIcosahedron(Primitive shapeName, Primitive radius, Primitive colour, Primitive materialType)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddRegularIcosahedron(new Point3D(0, 0, 0), radius, false);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+
+        /// <summary>
+        /// Add a rectangle geometry object centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        /// <param name="colour">A colour for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.</param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddRectangle(Primitive shapeName, Primitive width, Primitive height, Primitive colour, Primitive materialType)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddCubeFace(new Point3D(0, 0, 0), new Vector3D(0, 0, 1), new Vector3D(0, 1, 0), 0, width, height);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Set an object to rotate to continuously face the camera.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        public static void SetBillBoard(Primitive shapeName, Primitive geometryName)
+        {
+            if (!BillBoards.ContainsKey(shapeName)) BillBoards[shapeName] = new List<string>();
+            if (!BillBoards[shapeName].Contains(geometryName))
+            {
+                BillBoards[shapeName].Add(geometryName);
+                MoveCamera(shapeName, 0, 0, 0, 0);
+            }
+        }
+
+        //AddRectangLe
     }
 }
