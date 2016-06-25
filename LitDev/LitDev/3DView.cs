@@ -586,7 +586,7 @@ namespace LitDev
                                 quaterion = new Quaternion(lookDirection, roll);
                                 rotateMatrix.Rotate(quaterion);
                                 upDirection = rotateMatrix.Transform(upDirection);
-  
+
                                 camera.LookDirection = lookDirection;
                                 camera.UpDirection = upDirection;
                                 camera.Position = position;
@@ -995,7 +995,7 @@ namespace LitDev
                                 spotLight.Position = new Point3D(xPos, yPos, zPos);
                                 spotLight.Direction = new Vector3D(xDir, yDir, zDir);
                                 spotLight.InnerConeAngle = angle;
-                                spotLight.OuterConeAngle = angle+10;
+                                spotLight.OuterConeAngle = angle + 10;
                                 spotLight.Range = range;
                                 //spotLight.ConstantAttenuation = 3;
 
@@ -1539,7 +1539,7 @@ namespace LitDev
                                     result += "2=" + Utilities.ArrayParse(rayResultMesh.DistanceToRayOrigin.ToString(CultureInfo.InvariantCulture)) + ";";
                                     return result;
                                 }
-                                return ""; 
+                                return "";
                             }
                         }
                         catch (Exception ex)
@@ -1658,7 +1658,7 @@ namespace LitDev
                                 doubleAnimaton.To = endAngle;
                                 doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
                                 axisAngleRotation3D.Axis = new Vector3D(x, y, z);
-                                axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton); 
+                                axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
                             }
                         }
                         catch (Exception ex)
@@ -2280,6 +2280,7 @@ namespace LitDev
         /// "E" Emmissive - constant brightness.
         /// "D" Diffusive - affected by lights.</param>
         /// <returns>The 3DView Geometry name.</returns>
+        [HideFromIntellisense]
         public static Primitive AddPyramid(Primitive shapeName, Primitive sideLength, Primitive height, Primitive colour, Primitive materialType)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -2340,6 +2341,7 @@ namespace LitDev
         /// "E" Emmissive - constant brightness.
         /// "D" Diffusive - affected by lights.</param>
         /// <returns>The 3DView Geometry name.</returns>
+        [HideFromIntellisense]
         public static Primitive AddPipe(Primitive shapeName, Primitive length, Primitive innerDiameter, Primitive outerDiameter, Primitive divisions, Primitive colour, Primitive materialType)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -2397,6 +2399,7 @@ namespace LitDev
         /// "E" Emmissive - constant brightness.
         /// "D" Diffusive - affected by lights.</param>
         /// <returns>The 3DView Geometry name.</returns>
+        [HideFromIntellisense]
         public static Primitive AddIcosahedron(Primitive shapeName, Primitive radius, Primitive colour, Primitive materialType)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -2442,7 +2445,6 @@ namespace LitDev
             }
             return "";
         }
-
 
         /// <summary>
         /// Add a rectangle geometry object centred at (0,0,0).
@@ -2516,7 +2518,5 @@ namespace LitDev
                 MoveCamera(shapeName, 0, 0, 0, 0);
             }
         }
-
-        //AddRectangLe
     }
 }

@@ -20,8 +20,7 @@
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("SetButtonStyle method added");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDControls", new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Additional geometries added (Cube, Cone, Pyramid, Pipe, Arrow, Rectangle and Icos" +
-        "ahedron)");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Additional geometries added (Cube, Cone, Arrow and Rectangle)");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("SetBillBoard method added");
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("LD3DView", new System.Windows.Forms.TreeNode[] {
             treeNode3,
@@ -1625,8 +1624,7 @@
             treeNode2.Name = "Node0";
             treeNode2.Text = "LDControls";
             treeNode3.Name = "Node1";
-            treeNode3.Text = "Additional geometries added (Cube, Cone, Pyramid, Pipe, Arrow, Rectangle and Icos" +
-    "ahedron)";
+            treeNode3.Text = "Additional geometries added (Cube, Cone, Arrow and Rectangle)";
             treeNode4.Name = "Node2";
             treeNode4.Text = "SetBillBoard method added";
             treeNode5.Name = "Node0";
