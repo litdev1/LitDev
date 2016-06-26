@@ -455,7 +455,7 @@ namespace LitDev
                                 case ".ico":
                                     dImg.Save(fileName, System.Drawing.Imaging.ImageFormat.Icon);
                                     break;
-                            }                            
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -583,7 +583,7 @@ namespace LitDev
                             System.Drawing.Image.GetThumbnailImageAbort dummyCallback = new System.Drawing.Image.GetThumbnailImageAbort(LDWebCam.ResizeAbort);
                             dImg = (System.Drawing.Bitmap)dImg.GetThumbnailImage(width, height, dummyCallback, IntPtr.Zero);
 
-                            _savedImages[image] = getBitmapImage(dImg); 
+                            _savedImages[image] = getBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -943,11 +943,11 @@ namespace LitDev
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                     if (!_savedImages.TryGetValue((string)image, out img)) return;
 
-                    double [,]data = new double[5,5];
+                    double[,] data = new double[5, 5];
                     Primitive rows = SBArray.GetAllIndices(matrix);
                     if (SBArray.GetItemCount(rows) != 5)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), new Exception("Incorrectly dimensioned matrix")); 
+                        Utilities.OnError(Utilities.GetCurrentMethod(), new Exception("Incorrectly dimensioned matrix"));
                         return;
                     }
                     for (int i = 1; i <= 5; i++)
@@ -958,7 +958,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), new Exception("Incorrectly dimensioned matrix"));
                             return;
                         }
-                        for (int j = 1; j <= 5;j++)
+                        for (int j = 1; j <= 5; j++)
                         {
                             data[i - 1, j - 1] = matrix[rows[i]][cols[j]];
                         }
@@ -1043,8 +1043,8 @@ namespace LitDev
                                     theta -= angle * System.Math.PI / 180.0;
                                     x = (int)(dImg.Width / 2 + rad * System.Math.Cos(theta));
                                     y = (int)(dImg.Height / 2 + rad * System.Math.Sin(theta));
-                                    x = System.Math.Min(dImg.Width-1, System.Math.Max(0, x));
-                                    y = System.Math.Min(dImg.Height-1, System.Math.Max(0, y));
+                                    x = System.Math.Min(dImg.Width - 1, System.Math.Max(0, x));
+                                    y = System.Math.Min(dImg.Height - 1, System.Math.Max(0, y));
                                     dImg.SetPixel(i, j, copy.GetPixel(x, y));
                                 }
                             }
@@ -1475,7 +1475,7 @@ namespace LitDev
             try
             {
                 SvgDocument svgDocument = SvgDocument.Open(fileName);
-                
+
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
                     try
@@ -1735,7 +1735,7 @@ namespace LitDev
                             Primitive row = pixels[i + 1];
                             for (int j = 0; j < height; j++)
                             {
-                                dImg.SetPixel(i, j, (System.Drawing.Color)colConvert.ConvertFromString(row[j+1]));
+                                dImg.SetPixel(i, j, (System.Drawing.Color)colConvert.ConvertFromString(row[j + 1]));
                             }
                         }
                         _savedImages[imageNew] = getBitmapImage(dImg);
@@ -1906,7 +1906,7 @@ namespace LitDev
                 {
                     workingImg.SetPixel(x - 1, y - 1, (System.Drawing.Color)colConvert.ConvertFromString(colour));
                 }
-                    catch (Exception ex)
+                catch (Exception ex)
                 {
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 }
@@ -1955,6 +1955,64 @@ namespace LitDev
                 {
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     return "";
+                }
+            }
+        }
+
+        /// <summary>
+        /// Annotate an image with text, using current GraphicsWindow font and brush colour.
+        /// </summary>
+        /// <param name="imageName">
+        /// An existing ImageList image.
+        /// </param>
+        /// <param name="text">The text to add</param>
+        /// <param name="x">The left position of the text.</param>
+        /// <param name="y">The Top position of the text.</param>
+        public static void AddText(Primitive imageName, Primitive text, Primitive x, Primitive y)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+                Type GraphicsWindowType = typeof(Microsoft.SmallBasic.Library.GraphicsWindow);
+                Dictionary<string, BitmapSource> _savedImages;
+                BitmapSource img;
+
+                try
+                {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue((string)imageName, out img)) return;
+
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            Bitmap dImg = getBitmap(img);
+
+                            using (Graphics graphics = Graphics.FromImage(dImg))
+                            {
+                                FontStyle style = FontStyle.Regular;
+                                if (GraphicsWindow.FontBold) style |= FontStyle.Bold;
+                                if (GraphicsWindow.FontItalic) style |= FontStyle.Italic;
+                                System.Drawing.Brush brush = new SolidBrush((System.Drawing.Color)colConvert.ConvertFromString(GraphicsWindow.BrushColor));
+                                using (Font font = new Font(GraphicsWindow.FontName, GraphicsWindow.FontSize, style))
+                                {
+                                    graphics.DrawString(text, font, brush, new PointF(x, y));
+                                }
+                            }
+
+                            _savedImages[imageName] = getBitmapImage(dImg);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 }
             }
         }

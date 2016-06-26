@@ -28,6 +28,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
+using System.Windows.Input;
 
 namespace LitDev
 {
@@ -88,8 +89,10 @@ namespace LitDev
         }
 
         private static Dictionary<string, List<string>> BillBoards = new Dictionary<string, List<string>>();
+        private static List<Viewport3D> views = new List<Viewport3D>();
 
         public static Object lockObj = new Object(); //public static to keep the queue thread safe
+        private static double specular = 5;
 
         private static string lastRotation = "";
         private static Queue<string> queueRotation = new Queue<string>();
@@ -192,7 +195,15 @@ namespace LitDev
                 AddTransforms(geometry);
 
                 MaterialGroup material = new MaterialGroup();
-                Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
+                Brush brush = null;
+                foreach (GradientBrush i in LDShapes.brushes)
+                {
+                    if (i.name == colour)
+                    {
+                        brush = i.getBrush();
+                    }
+                }
+                if (null == brush) brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
                 switch (materialType.ToString().ToLower())
                 {
                     case "e":
@@ -203,7 +214,7 @@ namespace LitDev
                         material.Children.Add(new DiffuseMaterial(brush));
                         break;
                     case "s":
-                        material.Children.Add(new SpecularMaterial(brush, 2));
+                        material.Children.Add(new SpecularMaterial(brush, specular));
                         break;
                 }
                 geometry.Material = material;
@@ -222,61 +233,271 @@ namespace LitDev
 
         private static void UpdateBillBoards(Viewport3D viewport3D, string shapeName)
         {
-            if (BillBoards.ContainsKey(shapeName))
+            lock (lockObj)
             {
-                foreach (string billBoard in BillBoards[shapeName])
+                if (BillBoards.ContainsKey(shapeName))
                 {
-                    double tol = 1e-6;
-                    Geometry geom = getGeometry(billBoard);
-                    if (null == geom) continue;
-                    GeometryModel3D geometry = geom.geometryModel3D;
-                    Transform3D transform3D = (Transform3D)geometry.Transform;
-                    Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+                    foreach (string billBoard in BillBoards[shapeName])
+                    {
+                        double tol = 1e-6;
+                        Geometry geom = getGeometry(billBoard);
+                        if (null == geom) continue;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                        Vector3D lookDirection = camera.LookDirection;
+                        Vector3D upDirection = camera.UpDirection;
+                        lookDirection.Normalize();
+                        upDirection.Normalize();
+                        Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+
+                        Vector3D Z = new Vector3D(0, 0, -1);
+                        RotateTransform3D rotateTransform3D1 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate];
+                        AxisAngleRotation3D axisAngleRotation3D1 = new AxisAngleRotation3D();
+                        axisAngleRotation3D1.Axis = Vector3D.CrossProduct(lookDirection, Z);
+                        axisAngleRotation3D1.Angle = Vector3D.AngleBetween(lookDirection, Z);
+                        rotateTransform3D1.Rotation = axisAngleRotation3D1;
+
+                        Z = rotateTransform3D1.Transform(new Vector3D(0, 0, -1)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
+                        Z.Normalize();
+                        if (Vector3D.DotProduct(lookDirection, Z) < 1 - tol) axisAngleRotation3D1.Angle *= -1;
+
+                        Vector3D Y = rotateTransform3D1.Transform(new Vector3D(0, 1, 0)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
+                        Y.Normalize();
+
+                        RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                        AxisAngleRotation3D axisAngleRotation3D2 = new AxisAngleRotation3D();
+                        axisAngleRotation3D2.Axis = lookDirection;
+                        axisAngleRotation3D2.Angle = Vector3D.AngleBetween(upDirection, Y);
+                        rotateTransform3D2.Rotation = axisAngleRotation3D2;
+
+                        Y = rotateTransform3D2.Transform(Y);
+                        Y.Normalize();
+                        if (Vector3D.DotProduct(upDirection, Y) < 1 - tol) axisAngleRotation3D2.Angle *= -1;
+
+                        geometry.Transform = transform3DGroup;
+                    }
+                }
+            }
+        }
+
+        private static Point lastPos = new Point(-1, -1);
+        private static string centerGeom = "";
+        private static bool bPitchRoll = false;
+        private static bool bShift = false;
+        private static double keyDist = 0;
+        private static double speedMult = 1;
+
+        private static void _MouseMove(object sender, MouseEventArgs e)
+        {
+            lock (lockObj)
+            {
+                Window window = (Window)sender;
+                Point pos = e.GetPosition(window);
+
+                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
+                {
+                    Type GraphicsWindowType = typeof(GraphicsWindow);
+                    Canvas _mainCanvas;
+                    Dictionary<string, UIElement> _objectsMap;
+                    _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                    foreach (Viewport3D viewport3D in views)
+                    {
+                        if (!_objectsMap.ContainsKey(viewport3D.Name))
+                        {
+                            views.Remove(viewport3D);
+                            continue;
+                        }
+                        if (e.LeftButton == MouseButtonState.Pressed)
+                        {
+                            double yaw = -(pos.X - lastPos.X) * 180 / viewport3D.ActualWidth;
+                            double pitch = bPitchRoll ? (pos.Y - lastPos.Y) * 180 / viewport3D.ActualHeight : 0;
+                            if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
+                            {
+                                if (centerGeom == "") return;
+                                Geometry geom = getGeometry(centerGeom);
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                Transform3D transform3D = (Transform3D)geometry.Transform;
+                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+                                TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
+                                Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
+
+                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                Vector3D lookDirection = camera.LookDirection;
+                                Vector3D upDirection = camera.UpDirection;
+                                Point3D position = camera.Position;
+                                Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+
+                                RotateTransform3D yawTransform = new RotateTransform3D(new AxisAngleRotation3D(upDirection, yaw), center);
+                                position = yawTransform.Transform(position);
+
+                                RotateTransform3D pitchTransform = new RotateTransform3D(new AxisAngleRotation3D(screenDirection, -pitch), center);
+                                position = pitchTransform.Transform(position);
+
+                                lookDirection = center - position;
+                                lookDirection.Normalize();
+                                screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                screenDirection.Normalize();
+                                upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
+
+                                ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            }
+                            else
+                            {
+                                MoveCamera(viewport3D.Name, yaw, pitch, 0, 0);
+                                centerGeom = "";
+                            }
+                        }
+                        if (bPitchRoll && e.RightButton == MouseButtonState.Pressed)
+                        {
+                            double roll = -(pos.X - lastPos.X) * 180 / viewport3D.ActualWidth;
+                            MoveCamera(viewport3D.Name, 0, 0, roll, 0);
+                        }
+                    }
+                }
+                lastPos = pos;
+            }
+        }
+
+        private static void _MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            lock (lockObj)
+            {
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Canvas _mainCanvas;
+                Dictionary<string, UIElement> _objectsMap;
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                foreach (Viewport3D viewport3D in views)
+                {
+                    if (!_objectsMap.ContainsKey(viewport3D.Name))
+                    {
+                        views.Remove(viewport3D);
+                        continue;
+                    }
+                    double move = -e.Delta / 100.0 * speedMult;
+                    if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) move *= 5;
+                    if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) move /= 5;
+                    MoveCamera(viewport3D.Name, 0, 0, 0, move);
+                }
+            }
+        }
+
+        private static void _KeyDown(object sender, KeyEventArgs e)
+        {
+            lock (lockObj)
+            {
+                if (keyDist <= 0) return;
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Canvas _mainCanvas;
+                Dictionary<string, UIElement> _objectsMap;
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                foreach (Viewport3D viewport3D in views)
+                {
+                    if (!_objectsMap.ContainsKey(viewport3D.Name))
+                    {
+                        views.Remove(viewport3D);
+                        continue;
+                    }
+                    PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                    Vector3D lookDirection = camera.LookDirection;
+                    Vector3D upDirection = camera.UpDirection;
+                    Point3D position = camera.Position;
+                    double mult = (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) ? 1 : -1;
+                    switch (e.Key)
+                    {
+                        case Key.X:
+                            lookDirection = new Vector3D(mult, 0, 0);
+                            position = new Point3D(-keyDist * mult, 0, 0);
+                            upDirection = new Vector3D(0, 1, 0);
+                            ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            break;
+                        case Key.Y:
+                            lookDirection = new Vector3D(0, mult, 0);
+                            position = new Point3D(0, -keyDist * mult, 0);
+                            upDirection = new Vector3D(0, 0, 1);
+                            ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            break;
+                        case Key.Z:
+                            lookDirection = new Vector3D(0, 0, mult);
+                            position = new Point3D(0, 0, -keyDist * mult);
+                            upDirection = new Vector3D(0, 1, 0);
+                            ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            break;
+                    }
+                }
+            }
+        }
+
+        private static void _MouseClick(object sender, MouseButtonEventArgs e)
+        {
+            lock (lockObj)
+            {
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Canvas _mainCanvas;
+                Dictionary<string, UIElement> _objectsMap;
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                foreach (Viewport3D viewport3D in views)
+                {
+                    if (!_objectsMap.ContainsKey(viewport3D.Name))
+                    {
+                        views.Remove(viewport3D);
+                        continue;
+                    }
 
                     PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
                     Vector3D lookDirection = camera.LookDirection;
                     Vector3D upDirection = camera.UpDirection;
-                    lookDirection.Normalize();
-                    upDirection.Normalize();
+                    Point3D position = camera.Position;
+
+                    if (e.LeftButton == MouseButtonState.Pressed)
+                    {
+                        Primitive hit = HitTest(viewport3D.Name, GraphicsWindow.MouseX, GraphicsWindow.MouseY);
+                        if (hit == "") return;
+                        centerGeom = hit[1];
+
+                        Geometry geom = getGeometry(centerGeom);
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+                        TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
+                        Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
+
+                        lookDirection = center - position;
+                        lookDirection.Normalize();
+                    }
+                    if (e.RightButton == MouseButtonState.Pressed)
+                    {
+                        upDirection = new Vector3D(0, 1, 0);
+                    }
+
                     Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                    screenDirection.Normalize();
+                    upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
 
-                    Vector3D Z = new Vector3D(0, 0, -1);
-                    RotateTransform3D rotateTransform3D1 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate];
-                    AxisAngleRotation3D axisAngleRotation3D1 = new AxisAngleRotation3D();
-                    axisAngleRotation3D1.Axis = Vector3D.CrossProduct(lookDirection, Z);
-                    axisAngleRotation3D1.Angle = Vector3D.AngleBetween(lookDirection, Z);
-                    rotateTransform3D1.Rotation = axisAngleRotation3D1;
-
-                    Z = rotateTransform3D1.Transform(new Vector3D(0, 0, -1)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
-                    Z.Normalize();
-                    if (Vector3D.DotProduct(lookDirection, Z) < 1 - tol) axisAngleRotation3D1.Angle *= -1;
-
-                    Vector3D Y = rotateTransform3D1.Transform(new Vector3D(0, 1, 0)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
-                    Y.Normalize();
-
-                    RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
-                    AxisAngleRotation3D axisAngleRotation3D2 = new AxisAngleRotation3D();
-                    axisAngleRotation3D2.Axis = lookDirection;
-                    axisAngleRotation3D2.Angle = Vector3D.AngleBetween(upDirection, Y);
-                    rotateTransform3D2.Rotation = axisAngleRotation3D2;
-
-                    Y = rotateTransform3D2.Transform(Y);
-                    Y.Normalize();
-                    if (Vector3D.DotProduct(upDirection, Y) < 1 - tol) axisAngleRotation3D2.Angle *= -1;
-
-                    geometry.Transform = transform3DGroup;
+                    ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                 }
             }
         }
 
         /// <summary>
-        /// Add a 3DView (GraphicsWindow shape).
+        /// Get or set the specular exponent used for specular materials (default 5).
         /// </summary>
-        /// <param name="width">The width of the 3DView.</param>
-        /// <param name="height">The height of the 3DView.</param>
-        /// <param name="performance">A flag to favour speed over quality "True" or "False".
-        /// "True" removes visual clipping (clip 3DView to input width and height), hit-testing (unused) and anti-aliasing (not needed).</param>
-        /// <returns>The 3DView viewport3D name.</returns>
+        public static Primitive SpecularExponent
+        {
+            get { return specular; }
+            set { specular = value; }
+        }
+
         public static Primitive AddView(Primitive width, Primitive height, Primitive performance)
         {
             GraphicsWindow.Show();
@@ -327,6 +548,7 @@ namespace LitDev
 
                         _objectsMap[shapeName] = viewport3D;
                         _mainCanvas.Children.Add(viewport3D);
+                        views.Add(viewport3D);
                         return shapeName;
                     }
                     catch (Exception ex)
@@ -346,13 +568,66 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Set auto mouse Control of the camera.
+        /// Move forwards and backwards with mouse wheel (faster with Shift down, slower with Control down).
+        /// Yaw and Pitch camera moving with left mouse button.
+        /// Roll camera moving with right mouse button.
+        /// Double left click an object to center it.
+        /// Double right click to reset the up direction to Y.
+        /// Yaw and Pitch scene moving with Shift and left mouse button after selecting an object to rotate scene about.
+        /// X, Y, Z keys change the view direction and up direction to face in these directions towards (0,0,0), with Shift then the negative direction.
+        /// </summary>
+        /// <param name="pitchRoll">Allow pitch and roll movement, "True" or "False".</param>
+        /// <param name="shift">Allow the Shift/Control key modifiers for mouse control, "True" or "False".</param>
+        /// <param name="keyDistance">The distance to view the scene from using keys, (0 prevents the key shortcuts).</param>
+        /// <param name="speed">Forwards and backwards speed multiplier (default 1).</param>
+        public static void AutoMouse(Primitive pitchRoll, Primitive shift, Primitive keyDistance, Primitive speed)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Window _window;
+
+            try
+            {
+                _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        bPitchRoll = pitchRoll;
+                        bShift = shift;
+                        keyDist = keyDistance;
+                        speedMult = speed;
+                        if (lastPos == new Point(-1,-1))
+                        {
+                            _window.MouseMove += new MouseEventHandler(_MouseMove);
+                            _window.MouseWheel += new MouseWheelEventHandler(_MouseWheel);
+                            _window.MouseDoubleClick += new MouseButtonEventHandler(_MouseClick);
+                            _window.KeyDown += new KeyEventHandler(_KeyDown);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
         /// Add a geometry object.
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="points">A space or colon deliminated list of point coordinates.</param>
         /// <param name="indices">A space or colon deliminated list of indices for each triangle (counter-clockwise for outward face).</param>
         /// <param name="normals">An optional space or colon deliminated list of the outward normals for each node or "".</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -437,7 +712,7 @@ namespace LitDev
 
         /// <summary>
         /// Add an image to a geometry object.
-        /// A geometry 'skin' may contain several segment images in one inage.
+        /// A geometry 'skin' may contain several segment images in one image.
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
@@ -447,6 +722,7 @@ namespace LitDev
         /// <param name="imageName">
         /// The image to load to the geometry.
         /// Value returned from ImageList.LoadImage or local or network image file.
+        /// A colour or gradient brush can also be used here.
         /// </param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
@@ -464,16 +740,6 @@ namespace LitDev
 
             try
             {
-                _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                if (!_savedImages.TryGetValue((string)imageName, out img))
-                {
-                    imageName = ImageList.LoadImage(imageName);
-                    if (!_savedImages.TryGetValue((string)imageName, out img))
-                    {
-                        return;
-                    }
-                }
-
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
@@ -501,7 +767,35 @@ namespace LitDev
                                 }
                                 if (textureCollection.Count == mesh.Positions.Count) mesh.TextureCoordinates = textureCollection;
 
-                                Brush brush = new ImageBrush(img);
+                                Brush brush = null;
+                                foreach (GradientBrush iBrush in LDShapes.brushes)
+                                {
+                                    if (iBrush.name == imageName)
+                                    {
+                                        brush = iBrush.getBrush();
+                                    }
+                                }
+                                if (null == brush)
+                                {
+                                    try
+                                    {
+                                        brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(imageName));
+                                    }
+                                    catch
+                                    {
+                                        _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                                        if (!_savedImages.TryGetValue((string)imageName, out img))
+                                        {
+                                            imageName = ImageList.LoadImage(imageName);
+                                            if (!_savedImages.TryGetValue((string)imageName, out img))
+                                            {
+                                                return;
+                                            }
+                                        }
+                                        brush = new ImageBrush(img);
+                                    }
+                                }
+
                                 switch (materialType.ToString().ToLower())
                                 {
                                     case "e":
@@ -511,7 +805,7 @@ namespace LitDev
                                         material.Children.Add(new DiffuseMaterial(brush));
                                         break;
                                     case "s":
-                                        material.Children.Add(new SpecularMaterial(brush, 2));
+                                        material.Children.Add(new SpecularMaterial(brush, specular));
                                         break;
                                 }
                             }
@@ -813,6 +1107,56 @@ namespace LitDev
                                 PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
 
                                 string direction = "1=" + Utilities.ArrayParse(camera.LookDirection.X.ToString(CultureInfo.InvariantCulture)) + ";" + "2=" + Utilities.ArrayParse(camera.LookDirection.Y.ToString(CultureInfo.InvariantCulture)) + ";" + "3=" + Utilities.ArrayParse(camera.LookDirection.Z.ToString(CultureInfo.InvariantCulture)) + ";";
+                                return direction;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return Utilities.CreateArrayMap(method.Invoke(null, new object[] { ret }).ToString());
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Get the camera up direction.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <returns>An array of the camera up direction vector.</returns>
+        public static Primitive GetCameraUpDirection(Primitive shapeName)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+
+                                string direction = "1=" + Utilities.ArrayParse(camera.UpDirection.X.ToString(CultureInfo.InvariantCulture)) + ";" + "2=" + Utilities.ArrayParse(camera.UpDirection.Y.ToString(CultureInfo.InvariantCulture)) + ";" + "3=" + Utilities.ArrayParse(camera.UpDirection.Z.ToString(CultureInfo.InvariantCulture)) + ";";
                                 return direction;
                             }
                         }
@@ -1906,7 +2250,7 @@ namespace LitDev
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="radius">The sphere radius.</param>
         /// <param name="divisions">The sphere divisions, default 10 (affects number of triangles and smoothness).</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -1965,10 +2309,10 @@ namespace LitDev
         /// Add a tube geometry object.
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
-        /// <param name="path">A space or colon deliminated list of point coordinates.</param>
+        /// <param name="path">A space or colon deliminated list of 3D point coordinates.</param>
         /// <param name="diameter">The tube diameter.</param>
         /// <param name="divisions">The tube radial divisions, default 10 (affects number of triangles and smoothness).</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -2001,6 +2345,72 @@ namespace LitDev
                                 }
                                 int thetaDiv = divisions < 2 ? 10 : (int)divisions;
                                 builder.AddTube(pointCollection, diameter, thetaDiv, closed);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add a revolute geometry object.  This is a surface starting at (0,0,0) and pointing up.
+        /// Its shape is defined by a set points (Y,Z) where Y is the vertical distance along the surface from 0 and Z is the radius of revolution.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="path">A space or colon deliminated list of 2D point coordinates describing the revolute shape.</param>
+        /// <param name="divisions">The radial divisions, default 10 (affects number of triangles and smoothness).</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.</param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddRevolute(Primitive shapeName, Primitive path, Primitive divisions, Primitive colour, Primitive materialType)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                List<Point> points = new List<Point>();
+                                string[] s = Utilities.getString(path).Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
+                                for (int i = 0; i < s.Length; i += 2)
+                                {
+                                    points.Add(new Point(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1])));
+                                }
+                                int thetaDiv = divisions < 2 ? 10 : (int)divisions;
+                                builder.AddRevolvedGeometry(points, new Point3D(0,0,0), new Vector3D(0,1,0), thetaDiv);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;
@@ -2094,7 +2504,7 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="sideLength">The side length of the cube.</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -2155,7 +2565,7 @@ namespace LitDev
         /// <param name="arrowLength">The length of the arrow head.</param>
         /// <param name="arrowDiameter">The diameter of the arrow head.</param>
         /// <param name="divisions">The number of divisions for the arrow (default 18).</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -2216,7 +2626,7 @@ namespace LitDev
         /// <param name="topRadius">The radius of the top  if truncated (default 0).</param>
         /// <param name="height">The height of the cone.</param>
         /// <param name="divisions">The number of divisions for the cone (default 18).</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -2274,7 +2684,7 @@ namespace LitDev
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="sideLength">The radius of the base.</param>
         /// <param name="height">The height of the cone.</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -2335,7 +2745,7 @@ namespace LitDev
         /// <param name="innerDiameter">The inner diameter of the pipe.</param>
         /// <param name="outerDiameter">The outer diameter of the pipe.</param>
         /// <param name="divisions">The number of divisions for the pipe (default 18).</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -2393,7 +2803,7 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="radius">The radius of the icosahedron.</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -2452,7 +2862,7 @@ namespace LitDev
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="width">The width of the rectangle.</param>
         /// <param name="height">The height of the rectangle.</param>
-        /// <param name="colour">A colour for the object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
@@ -2475,11 +2885,13 @@ namespace LitDev
                         {
                             if (obj.GetType() == typeof(Viewport3D))
                             {
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+
                                 MeshBuilder builder = new MeshBuilder(true, true);
                                 builder.AddCubeFace(new Point3D(0, 0, 0), new Vector3D(0, 0, 1), new Vector3D(0, 1, 0), 0, width, height);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
-                                Viewport3D viewport3D = (Viewport3D)obj;
                                 return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
                             }
                         }

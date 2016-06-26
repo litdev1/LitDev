@@ -22,8 +22,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -62,6 +64,7 @@ namespace LitDev
         public Primitive colours;
         public string orientation;
         public BitmapSource img = null;
+        public Dictionary<string, Primitive> textData = null;
 
         public GradientBrush(string _name, Primitive _colours, string _orientation)
         {
@@ -74,10 +77,28 @@ namespace LitDev
             name = _name;
             img = _img;
         }
+        public GradientBrush(string _name, Dictionary<string, Primitive> _textData)
+        {
+            name = _name;
+            textData = _textData;
+        }
         public Brush getBrush()
         {
             try
             {
+                if (null != textData)
+                {
+                    TextBlock textBlock = new TextBlock();
+                    textBlock.Text = textData["text"];
+                    textBlock.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(textData["BrushColor"]));
+                    textBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(textData["PenColor"]));
+                    textBlock.FontFamily = new FontFamily(textData["FontName"]);
+                    textBlock.FontSize = textData["FontSize"];
+                    textBlock.FontWeight = textData["FontBold"] ? FontWeights.Bold : FontWeights.Normal;
+                    textBlock.FontStyle = textData["FontItalic"] ? FontStyles.Italic : FontStyles.Normal;
+                    VisualBrush visualBrush = new VisualBrush(textBlock);
+                    return visualBrush;
+                }
                 if (null != img)
                 {
                     ImageBrush imageBrush = new ImageBrush(img);
@@ -148,6 +169,7 @@ namespace LitDev
         private static List<Animated> animated = new List<Animated>();
         private static System.Windows.Forms.Timer animationTimer = null;
         private static int animationInterval = 100;
+        private static string temp;
 
         public static List<GradientBrush> brushes = new List<GradientBrush>();
         private static int brushCount = 0;
@@ -1905,6 +1927,41 @@ namespace LitDev
                 }
                 GradientBrush brush = new GradientBrush(getNewBrushName(), img);
                 GradientBrush result = brushes.Find(item => item.img == img);
+                if (null != result) return result.name; // Re-use if we can
+                brushes.Add(brush);
+                return brush.name;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Create a text brush.
+        /// These brushes should work anywhere that BrushGradient can be used.
+        /// </summary>
+        /// <param name="text">
+        /// The text to add to the brush.
+        /// The current GraphicsWindow font is used, BrushColor for the background and PenColor for the text colour.
+        /// </param>
+        /// <returns>The image brush name.</returns>
+        public static Primitive BrushText(Primitive text)
+        {
+            try
+            {
+                Dictionary<string, Primitive> textData = new Dictionary<string, Primitive>();
+                textData["text"] = text;
+                textData["BrushColor"] = GraphicsWindow.BrushColor;
+                textData["PenColor"] = GraphicsWindow.PenColor;
+                textData["FontName"] = GraphicsWindow.FontName;
+                textData["FontSize"] = GraphicsWindow.FontSize;
+                textData["FontBold"] = GraphicsWindow.FontBold;
+                textData["FontItalic"] = GraphicsWindow.FontItalic;
+
+                GradientBrush brush = new GradientBrush(getNewBrushName(), textData);
+                GradientBrush result = brushes.Find(item => item.textData == textData);
                 if (null != result) return result.name; // Re-use if we can
                 brushes.Add(brush);
                 return brush.name;
