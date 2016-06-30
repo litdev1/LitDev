@@ -20,6 +20,7 @@ using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -89,15 +90,40 @@ namespace LitDev
                 if (null != textData)
                 {
                     TextBlock textBlock = new TextBlock();
-                    textBlock.Text = textData["text"];
+                    textBlock.Text = textData["Text"];
                     textBlock.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(textData["BrushColor"]));
                     textBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(textData["PenColor"]));
                     textBlock.FontFamily = new FontFamily(textData["FontName"]);
                     textBlock.FontSize = textData["FontSize"];
                     textBlock.FontWeight = textData["FontBold"] ? FontWeights.Bold : FontWeights.Normal;
                     textBlock.FontStyle = textData["FontItalic"] ? FontStyles.Italic : FontStyles.Normal;
+                    //textBlock.Width = 100;
+                    //textBlock.Height = 100;
                     VisualBrush visualBrush = new VisualBrush(textBlock);
                     return visualBrush;
+
+                    //DrawingGroup group = new DrawingGroup();
+                    //DrawingContext dc = group.Open();
+                    //dc.DrawRectangle(
+                    //    new SolidColorBrush((Color)ColorConverter.ConvertFromString(textData["BrushColor"])),
+                    //    new Pen(new SolidColorBrush(Colors.Red), 2),
+                    //    new Rect(0, 0, 100, 100));
+                    //Typeface typeface = new Typeface(
+                    //    new FontFamily(textData["FontName"]),
+                    //    textData["FontItalic"] ? FontStyles.Italic : FontStyles.Normal,
+                    //    textData["FontBold"] ? FontWeights.Bold : FontWeights.Normal,
+                    //    new FontStretch());
+                    //FormattedText formattedText = new FormattedText(
+                    //    textData["Text"],
+                    //    CultureInfo.InvariantCulture,
+                    //    FlowDirection.LeftToRight,
+                    //    typeface,
+                    //    textData["FontSize"],
+                    //    new SolidColorBrush((Color)ColorConverter.ConvertFromString(textData["PenColor"])));
+                    //dc.DrawText(formattedText, new Point(0, 0));
+                    //dc.Close();
+                    //DrawingBrush drawingBrush = new DrawingBrush(group);
+                    //return drawingBrush;
                 }
                 if (null != img)
                 {
@@ -169,7 +195,6 @@ namespace LitDev
         private static List<Animated> animated = new List<Animated>();
         private static System.Windows.Forms.Timer animationTimer = null;
         private static int animationInterval = 100;
-        private static string temp;
 
         public static List<GradientBrush> brushes = new List<GradientBrush>();
         private static int brushCount = 0;
@@ -178,6 +203,7 @@ namespace LitDev
             return "Brush" + (++brushCount).ToString();
         }
         private static Dictionary<string, DoubleAnimation> animations = new Dictionary<string, DoubleAnimation>();
+        private static Dictionary<string, SkewTransform> _skewTransformMap = new Dictionary<string, SkewTransform>();
 
         private static void DoubleAnimateProperty(string name, IAnimatable animatable, DependencyProperty property, double end, double timespan)
         {
@@ -1944,17 +1970,23 @@ namespace LitDev
         /// </summary>
         /// <param name="text">
         /// The text to add to the brush.
-        /// The current GraphicsWindow font is used, BrushColor for the background and PenColor for the text colour.
+        /// The current GraphicsWindow font is used.
         /// </param>
-        /// <returns>The image brush name.</returns>
-        public static Primitive BrushText(Primitive text)
+        /// <param name="background">
+        /// The background colour.
+        /// </param>
+        /// <param name="foreground">
+        /// The foreground (pen) colour.
+        /// </param>
+        /// <returns>The text brush name.</returns>
+        public static Primitive BrushText(Primitive text, Primitive background, Primitive foreground)
         {
             try
             {
                 Dictionary<string, Primitive> textData = new Dictionary<string, Primitive>();
-                textData["text"] = text;
-                textData["BrushColor"] = GraphicsWindow.BrushColor;
-                textData["PenColor"] = GraphicsWindow.PenColor;
+                textData["Text"] = text;
+                textData["BrushColor"] = background;
+                textData["PenColor"] = foreground;
                 textData["FontName"] = GraphicsWindow.FontName;
                 textData["FontSize"] = GraphicsWindow.FontSize;
                 textData["FontBold"] = GraphicsWindow.FontBold;
@@ -2149,7 +2181,6 @@ namespace LitDev
         /// </returns>
         public static void BrushRectangle(Primitive brush, Primitive x, Primitive y, Primitive width, Primitive height)
         {
-
             Type GraphicsWindowType = typeof(GraphicsWindow);
             DrawingGroup _mainDrawing;
 
@@ -2209,7 +2240,6 @@ namespace LitDev
         /// </returns>
         public static void BrushEllipse(Primitive brush, Primitive x, Primitive y, Primitive width, Primitive height)
         {
-
             Type GraphicsWindowType = typeof(GraphicsWindow);
             DrawingGroup _mainDrawing;
 
@@ -2272,7 +2302,6 @@ namespace LitDev
         /// </returns>
         public static void BrushRoundedRectangle(Primitive brush, Primitive x, Primitive y, Primitive width, Primitive height, Primitive radius)
         {
-
             Type GraphicsWindowType = typeof(GraphicsWindow);
             DrawingGroup _mainDrawing;
 
@@ -2325,7 +2354,6 @@ namespace LitDev
         /// </returns>
         public static void BrushPolygon(Primitive brush, Primitive points)
         {
-
             Type GraphicsWindowType = typeof(GraphicsWindow);
             DrawingGroup _mainDrawing;
 
@@ -2390,7 +2418,6 @@ namespace LitDev
         /// </returns>
         public static void PenColour(Primitive shapeName, Primitive colour)
         {
-
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
@@ -4142,6 +4169,74 @@ namespace LitDev
                                 Shapes.Zoom(shapeName, scaleX, scaleY);
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Skews the shape with the specified name by the specified angles.
+        /// </summary>
+        /// <param name="shapeName">
+        /// The name of the shape to skew.
+        /// </param>
+        /// <param name="angleX">
+        /// The angle to skew the shape in the X direction.
+        /// </param>
+        /// <param name="angleY">
+        /// The angle to skew the shape in the Y direction.
+        /// </param>
+        /// <returns>
+        /// None.
+        /// </returns>
+        public static void Skew(Primitive shapeName, Primitive angleX, Primitive angleY)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return;
+                }
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        if (!(obj.RenderTransform is TransformGroup))
+                        {
+                            obj.RenderTransform = new TransformGroup();
+                        }
+                        SkewTransform skewTransform;
+                        if (!_skewTransformMap.TryGetValue(shapeName, out skewTransform))
+                        {
+                            skewTransform = new SkewTransform();
+                            _skewTransformMap[shapeName] = skewTransform;
+                            FrameworkElement frameworkElement = obj as FrameworkElement;
+                            if (frameworkElement != null)
+                            {
+                                skewTransform.CenterX = frameworkElement.ActualWidth / 2.0;
+                                skewTransform.CenterY = frameworkElement.ActualHeight / 2.0;
+                            }
+                            ((TransformGroup)obj.RenderTransform).Children.Add(skewTransform);
+                        }
+                        skewTransform.AngleX = angleX;
+                        skewTransform.AngleY = angleY;
                     }
                     catch (Exception ex)
                     {

@@ -1960,15 +1960,18 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Annotate an image with text, using current GraphicsWindow font and brush colour.
+        /// Annotate an image with text, using current GraphicsWindow font.
         /// </summary>
         /// <param name="imageName">
         /// An existing ImageList image.
         /// </param>
         /// <param name="text">The text to add</param>
         /// <param name="x">The left position of the text.</param>
+        /// <param name="colour">
+        /// The text colour.
+        /// </param>
         /// <param name="y">The Top position of the text.</param>
-        public static void AddText(Primitive imageName, Primitive text, Primitive x, Primitive y)
+        public static void AddText(Primitive imageName, Primitive text, Primitive x, Primitive y, Primitive colour)
         {
             lock (LockingVar)
             {
@@ -1993,7 +1996,7 @@ namespace LitDev
                                 FontStyle style = FontStyle.Regular;
                                 if (GraphicsWindow.FontBold) style |= FontStyle.Bold;
                                 if (GraphicsWindow.FontItalic) style |= FontStyle.Italic;
-                                System.Drawing.Brush brush = new SolidBrush((System.Drawing.Color)colConvert.ConvertFromString(GraphicsWindow.BrushColor));
+                                System.Drawing.Brush brush = new SolidBrush((System.Drawing.Color)colConvert.ConvertFromString(colour));
                                 using (Font font = new Font(GraphicsWindow.FontName, GraphicsWindow.FontSize, style))
                                 {
                                     graphics.DrawString(text, font, brush, new PointF(x, y));

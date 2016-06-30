@@ -209,15 +209,17 @@ namespace LitDev
                     case "e":
                         material.Children.Add(new DiffuseMaterial(brush));
                         material.Children.Add(new EmissiveMaterial(brush));
+                        geometry.Material = material;
                         break;
                     case "d":
                         material.Children.Add(new DiffuseMaterial(brush));
+                        geometry.Material = material;
                         break;
                     case "s":
                         material.Children.Add(new SpecularMaterial(brush, specular));
+                        geometry.Material = material;
                         break;
                 }
-                geometry.Material = material;
 
                 string name = getGeometryName();
                 Geometries.Add(new Geometry(name, geometry));
@@ -246,7 +248,7 @@ namespace LitDev
                         Transform3D transform3D = (Transform3D)geometry.Transform;
                         Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
 
-                        PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                        ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
                         Vector3D lookDirection = camera.LookDirection;
                         Vector3D upDirection = camera.UpDirection;
                         lookDirection.Normalize();
@@ -326,7 +328,7 @@ namespace LitDev
                                 TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
                                 Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
 
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
                                 Vector3D lookDirection = camera.LookDirection;
                                 Vector3D upDirection = camera.UpDirection;
                                 Point3D position = camera.Position;
@@ -406,7 +408,7 @@ namespace LitDev
                         views.Remove(viewport3D);
                         continue;
                     }
-                    PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                    ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
                     Vector3D lookDirection = camera.LookDirection;
                     Vector3D upDirection = camera.UpDirection;
                     Point3D position = camera.Position;
@@ -436,7 +438,7 @@ namespace LitDev
             }
         }
 
-        private static void _MouseClick(object sender, MouseButtonEventArgs e)
+        private static void _MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             lock (lockObj)
             {
@@ -454,7 +456,7 @@ namespace LitDev
                         continue;
                     }
 
-                    PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                    ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
                     Vector3D lookDirection = camera.LookDirection;
                     Vector3D upDirection = camera.UpDirection;
                     Point3D position = camera.Position;
@@ -489,6 +491,41 @@ namespace LitDev
             }
         }
 
+        private static void timer_Tick(object sender, EventArgs e)
+        {
+            lock (lockObj)
+            {
+                if (keyDist < 0) return;
+
+                double move = 0;
+                if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down)) move -= 0.1;
+                if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up)) move += 0.1;
+                double yaw = 0;
+                if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left)) yaw -= 3;
+                if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right)) yaw += 3;
+
+                if (move == 0 && yaw == 0) return;
+
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Canvas _mainCanvas;
+                Dictionary<string, UIElement> _objectsMap;
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                foreach (Viewport3D viewport3D in views)
+                {
+                    if (!_objectsMap.ContainsKey(viewport3D.Name))
+                    {
+                        views.Remove(viewport3D);
+                        continue;
+                    }
+                    if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) move *= 5;
+                    if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) move /= 5;
+                    MoveCamera(viewport3D.Name, yaw, 0, 0, move);
+                }
+            }
+        }
+
         /// <summary>
         /// Get or set the specular exponent used for specular materials (default 5).
         /// </summary>
@@ -498,6 +535,16 @@ namespace LitDev
             set { specular = value; }
         }
 
+        /// <summary>
+        /// Add a 3DView (GraphicsWindow shape).
+        /// </summary>
+        /// <param name="width">The width of the 3DView.</param>
+        /// <param name="height">The height of the 3DView.</param>
+        /// <param name="performance">
+        /// A flag to favour speed over quality "True" or "False".
+        /// "True" removes visual clipping (clip 3DView to input width and height), hit-testing (unused) and anti-aliasing (not needed).
+        /// </param>
+        /// <returns>The 3DView viewport3D name.</returns>
         public static Primitive AddView(Primitive width, Primitive height, Primitive performance)
         {
             GraphicsWindow.Show();
@@ -535,7 +582,7 @@ namespace LitDev
                         }
 
                         PerspectiveCamera camera = new PerspectiveCamera();
-                        camera.Position = new Point3D(0, 0, 0);
+                        camera.Position = new Point3D(0, 0, 10);
                         camera.LookDirection = new Vector3D(0, 0, -1);
                         camera.FieldOfView = 60;
                         viewport3D.Camera = camera;
@@ -568,9 +615,10 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Set auto mouse Control of the camera.
+        /// Set auto Control of the camera.
         /// Move forwards and backwards with mouse wheel (faster with Shift down, slower with Control down).
         /// Yaw and Pitch camera moving with left mouse button.
+        /// Yaw with A,D or Left,Right keys, move forwards and backwards with W,S or Up,Down keys.
         /// Roll camera moving with right mouse button.
         /// Double left click an object to center it.
         /// Double right click to reset the up direction to Y.
@@ -579,9 +627,9 @@ namespace LitDev
         /// </summary>
         /// <param name="pitchRoll">Allow pitch and roll movement, "True" or "False".</param>
         /// <param name="shift">Allow the Shift/Control key modifiers for mouse control, "True" or "False".</param>
-        /// <param name="keyDistance">The distance to view the scene from using keys, (0 prevents the key shortcuts).</param>
+        /// <param name="keyDistance">The distance to view the scene from using keys, (0 prevents the X,Y,Z key shortcuts, -1 also prevents the A,D,W,S and arrow keys).</param>
         /// <param name="speed">Forwards and backwards speed multiplier (default 1).</param>
-        public static void AutoMouse(Primitive pitchRoll, Primitive shift, Primitive keyDistance, Primitive speed)
+        public static void AutoControl(Primitive pitchRoll, Primitive shift, Primitive keyDistance, Primitive speed)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Window _window;
@@ -602,8 +650,13 @@ namespace LitDev
                         {
                             _window.MouseMove += new MouseEventHandler(_MouseMove);
                             _window.MouseWheel += new MouseWheelEventHandler(_MouseWheel);
-                            _window.MouseDoubleClick += new MouseButtonEventHandler(_MouseClick);
+                            _window.MouseDoubleClick += new MouseButtonEventHandler(_MouseDoubleClick);
                             _window.KeyDown += new KeyEventHandler(_KeyDown);
+
+                            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+                            timer.Enabled = true;
+                            timer.Interval = 20;
+                            timer.Tick += new EventHandler(timer_Tick);
                         }
                     }
                     catch (Exception ex)
@@ -631,7 +684,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddGeometry(Primitive shapeName, Primitive points, Primitive indices, Primitive normals, Primitive colour, Primitive materialType)
         {
@@ -856,7 +911,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
                                 Vector3D lookDirection = camera.LookDirection;
                                 Vector3D upDirection = camera.UpDirection;
                                 Point3D position = camera.Position;
@@ -938,7 +993,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
                                 camera.LookDirection = new Vector3D(xDir, yDir, zDir);
                                 camera.Position = new Point3D(xPos, yPos, zPos);
@@ -984,7 +1039,8 @@ namespace LitDev
         /// A negative value is 0.001 (default is 0.125).</param>
         /// <param name="farDistance">The far clipping distance (can improve performance).
         /// A negative value is infinity (default).</param>
-        /// <param name="angle">The view angle cone of the camera in degrees (affects perspective vanishing point).</param>
+        /// <param name="angle">The view angle cone of the camera in degrees (affects perspective vanishing point).
+        /// If this is negative, then an Orthographic (no perspective) camera is used with view width set to -angle). </param>
         public static void CameraProperties(Primitive shapeName, Primitive nearDistance, Primitive farDistance, Primitive angle)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -1003,11 +1059,22 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera cameraOld = (ProjectionCamera)viewport3D.Camera;
 
-                                camera.NearPlaneDistance = System.Math.Max(1.0e-3, nearDistance);
-                                camera.FarPlaneDistance = (farDistance < camera.NearPlaneDistance) ? double.PositiveInfinity : (double)farDistance;
-                                camera.FieldOfView = angle;
+                                if (angle > 0)
+                                {
+                                    PerspectiveCamera camera = new PerspectiveCamera(cameraOld.Position, cameraOld.LookDirection, cameraOld.UpDirection, angle);
+                                    camera.NearPlaneDistance = System.Math.Max(1.0e-3, nearDistance);
+                                    camera.FarPlaneDistance = (farDistance < camera.NearPlaneDistance) ? double.PositiveInfinity : (double)farDistance;
+                                    viewport3D.Camera = camera;
+                                }
+                                else
+                                {
+                                    OrthographicCamera camera = new OrthographicCamera(cameraOld.Position, cameraOld.LookDirection, cameraOld.UpDirection, -angle);
+                                    camera.NearPlaneDistance = System.Math.Max(1.0e-3, nearDistance);
+                                    camera.FarPlaneDistance = (farDistance < camera.NearPlaneDistance) ? double.PositiveInfinity : (double)farDistance;
+                                    viewport3D.Camera = camera;
+                                }
 
                                 UpdateBillBoards(viewport3D, shapeName);
                             }
@@ -1054,7 +1121,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
                                 string position = "1=" + Utilities.ArrayParse(camera.Position.X.ToString(CultureInfo.InvariantCulture)) + ";" + "2=" + Utilities.ArrayParse(camera.Position.Y.ToString(CultureInfo.InvariantCulture)) + ";" + "3=" + Utilities.ArrayParse(camera.Position.Z.ToString(CultureInfo.InvariantCulture)) + ";";
                                 return position;
@@ -1104,7 +1171,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
                                 string direction = "1=" + Utilities.ArrayParse(camera.LookDirection.X.ToString(CultureInfo.InvariantCulture)) + ";" + "2=" + Utilities.ArrayParse(camera.LookDirection.Y.ToString(CultureInfo.InvariantCulture)) + ";" + "3=" + Utilities.ArrayParse(camera.LookDirection.Z.ToString(CultureInfo.InvariantCulture)) + ";";
                                 return direction;
@@ -1154,7 +1221,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
                                 string direction = "1=" + Utilities.ArrayParse(camera.UpDirection.X.ToString(CultureInfo.InvariantCulture)) + ";" + "2=" + Utilities.ArrayParse(camera.UpDirection.Y.ToString(CultureInfo.InvariantCulture)) + ";" + "3=" + Utilities.ArrayParse(camera.UpDirection.Z.ToString(CultureInfo.InvariantCulture)) + ";";
                                 return direction;
@@ -1856,7 +1923,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
                                 ModelVisual3D modelVisual3D = (ModelVisual3D)viewport3D.Children[0];
                                 Model3DGroup model3DGroup = (Model3DGroup)modelVisual3D.Content;
@@ -2254,7 +2321,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddSphere(Primitive shapeName, Primitive radius, Primitive divisions, Primitive colour, Primitive materialType)
         {
@@ -2316,7 +2385,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddTube(Primitive shapeName, Primitive path, Primitive diameter, Primitive divisions, Primitive colour, Primitive materialType)
         {
@@ -2383,7 +2454,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddRevolute(Primitive shapeName, Primitive path, Primitive divisions, Primitive colour, Primitive materialType)
         {
@@ -2508,7 +2581,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddCube(Primitive shapeName, Primitive sideLength, Primitive colour, Primitive materialType)
         {
@@ -2569,7 +2644,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddArrow(Primitive shapeName, Primitive length, Primitive diameter, Primitive arrowLength, Primitive arrowDiameter, Primitive divisions, Primitive colour, Primitive materialType)
         {
@@ -2630,7 +2707,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddCone(Primitive shapeName, Primitive baseRadius, Primitive topRadius, Primitive height, Primitive divisions, Primitive colour, Primitive materialType)
         {
@@ -2688,7 +2767,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         [HideFromIntellisense]
         public static Primitive AddPyramid(Primitive shapeName, Primitive sideLength, Primitive height, Primitive colour, Primitive materialType)
@@ -2749,7 +2830,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         [HideFromIntellisense]
         public static Primitive AddPipe(Primitive shapeName, Primitive length, Primitive innerDiameter, Primitive outerDiameter, Primitive divisions, Primitive colour, Primitive materialType)
@@ -2807,7 +2890,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         [HideFromIntellisense]
         public static Primitive AddIcosahedron(Primitive shapeName, Primitive radius, Primitive colour, Primitive materialType)
@@ -2866,7 +2951,9 @@ namespace LitDev
         /// <param name="materialType">A material for the object.
         /// The available options are:
         /// "E" Emmissive - constant brightness.
-        /// "D" Diffusive - affected by lights.</param>
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddRectangle(Primitive shapeName, Primitive width, Primitive height, Primitive colour, Primitive materialType)
         {
@@ -2886,7 +2973,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
-                                PerspectiveCamera camera = (PerspectiveCamera)viewport3D.Camera;
+                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
                                 MeshBuilder builder = new MeshBuilder(true, true);
                                 builder.AddCubeFace(new Point3D(0, 0, 0), new Vector3D(0, 0, 1), new Vector3D(0, 1, 0), 0, width, height);
@@ -2917,7 +3004,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Set an object to rotate to continuously face the camera.
+        /// Set an object to rotate to always face the camera.
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
