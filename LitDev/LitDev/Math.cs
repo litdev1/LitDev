@@ -183,6 +183,7 @@ namespace LitDev
             if (dx == 0.0)
             {
                 dAngle = 90;
+                if (dy < 0) dAngle += 180;
             }
             else
             {

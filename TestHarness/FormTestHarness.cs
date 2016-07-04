@@ -839,6 +839,8 @@ namespace TestHarness
 
         private void buttonUnits_Click(object sender, EventArgs e)
         {
+            Primitive aa = LDMath.Rotate(0, 0, 0, -100, 180);
+
             Primitive view = LD3DView.AddView(500, 500, "True");
             LD3DView.ResetCamera(view, 0, 0, -20, 0, 0, 1, 0, 1, 0);
             LD3DView.AddDirectionalLight(view, "Red", 1, 0, 1);

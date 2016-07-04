@@ -1967,10 +1967,10 @@ namespace LitDev
         /// </param>
         /// <param name="text">The text to add</param>
         /// <param name="x">The left position of the text.</param>
+        /// <param name="y">The Top position of the text.</param>
         /// <param name="colour">
         /// The text colour.
         /// </param>
-        /// <param name="y">The Top position of the text.</param>
         public static void AddText(Primitive imageName, Primitive text, Primitive x, Primitive y, Primitive colour)
         {
             lock (LockingVar)
