@@ -670,6 +670,7 @@ namespace LitDev
         private static Primitive lastChanged = "";
         private static Primitive lastButton = "";
         private static string lastTable = "";
+        private static Dictionary<string, bool> bAutoSizeDataView = new Dictionary<string, bool>();
         private static void _DataViewSelectionChanged(Object sender, System.EventArgs e)
         {
             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
@@ -779,7 +780,7 @@ namespace LitDev
         private static void _DataViewCellValueChanged(Object sender, System.Windows.Forms.DataGridViewCellEventArgs e)
         {
             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
-            dataView.AutoResizeColumns(System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells);
+            if (bAutoSizeDataView[dataView.Name]) dataView.AutoResizeColumns(System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells);
             //dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
             if (e.RowIndex >= 0 && e.RowIndex < DataGridRowCount(dataView) && e.ColumnIndex >= 0)
             {
@@ -5562,6 +5563,7 @@ namespace LitDev
                         WindowsFormsHost shape = new WindowsFormsHost();
                         System.Windows.Forms.DataGridView dataView = new System.Windows.Forms.DataGridView();
                         dataView.AutoResizeColumns(System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells);
+                        bAutoSizeDataView[shapeName] = true;
                         //dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
                         dataView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
                         dataView.GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dataView, true, null);
@@ -6678,6 +6680,130 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
             return "FAILED";
+        }
+
+        /// <summary>
+        /// Set the widths of columns.
+        /// </summary>
+        /// <param name="shapeName">The dataview control.</param>
+        /// <param name="widths">An array of widths for the columns, "" to reset to auto sizing.</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive DataViewColumnWidths(Primitive shapeName, Primitive widths)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            WindowsFormsHost shape = (WindowsFormsHost)obj;
+                            System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
+
+                            int count = SBArray.GetItemCount(widths);
+                            Primitive indices = SBArray.GetAllIndices(widths);
+                            if (count != dataView.ColumnCount)
+                            {
+                                dataView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+                                bAutoSizeDataView[shapeName] = true;
+                            }
+                            else
+                            {
+                                dataView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.None;
+                                bAutoSizeDataView[shapeName] = false;
+                                for (int i = 0; i < count; i++)
+                                {
+                                    Primitive index = indices[i + 1];
+                                    dataView.Columns[i].Width = widths[index];
+                                }
+                            }
+                            return "SUCCESS";
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "FAILED";
+        }
+
+        /// <summary>
+        /// Set a row of data background and foreground (pen) colours.
+        /// </summary>
+        /// <param name="shapeName">The dataview control.</param>
+        /// <param name="row">The row number.  If this is set to 0 then all alternating rows are set.</param>
+        /// <param name="background">The background colour.</param>
+        /// <param name="foreground">The foreground colour.</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive DataViewRowColours(Primitive shapeName, Primitive row, Primitive background, Primitive foreground)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            WindowsFormsHost shape = (WindowsFormsHost)obj;
+                            System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
+
+                            if (row == 0)
+                            {
+                                dataView.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.ColorTranslator.FromHtml(background);
+                                dataView.AlternatingRowsDefaultCellStyle.ForeColor = System.Drawing.ColorTranslator.FromHtml(foreground);
+                                return "SUCCESS";
+                            }
+                            else if (row >= 1 && row <= DataGridRowCount(dataView))
+                            {
+                                System.Windows.Forms.DataGridViewRow dgRow = dataView.Rows[(int)(row - 1)];
+                                dgRow.DefaultCellStyle.BackColor = System.Drawing.ColorTranslator.FromHtml(background);
+                                dgRow.DefaultCellStyle.ForeColor = System.Drawing.ColorTranslator.FromHtml(foreground);
+                                return "SUCCESS";
+                            }
+
+                            return "FAILED";
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "FAILED";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
         }
 
         /// <summary>
