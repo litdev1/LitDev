@@ -2771,7 +2771,6 @@ namespace LitDev
         /// "S" Specular  - specular highlights.
         /// </param>
         /// <returns>The 3DView Geometry name.</returns>
-        [HideFromIntellisense]
         public static Primitive AddPyramid(Primitive shapeName, Primitive sideLength, Primitive height, Primitive colour, Primitive materialType)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -2834,7 +2833,6 @@ namespace LitDev
         /// "S" Specular  - specular highlights.
         /// </param>
         /// <returns>The 3DView Geometry name.</returns>
-        [HideFromIntellisense]
         public static Primitive AddPipe(Primitive shapeName, Primitive length, Primitive innerDiameter, Primitive outerDiameter, Primitive divisions, Primitive colour, Primitive materialType)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -2894,7 +2892,6 @@ namespace LitDev
         /// "S" Specular  - specular highlights.
         /// </param>
         /// <returns>The 3DView Geometry name.</returns>
-        [HideFromIntellisense]
         public static Primitive AddIcosahedron(Primitive shapeName, Primitive radius, Primitive colour, Primitive materialType)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);

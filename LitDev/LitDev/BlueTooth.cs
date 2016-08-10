@@ -176,7 +176,6 @@ namespace LitDev
         /// Event when a bluetooth device comes in range.
         /// Seems to keep firing unexpectedly.
         /// </summary>
-        [HideFromIntellisense]
         public static event SmallBasicCallback InRange
         {
             add
@@ -193,7 +192,6 @@ namespace LitDev
         /// Event when a bluetooth device goes out of range.
         /// Doesn't seem to work as expected.
         /// </summary>
-        [HideFromIntellisense]
         public static event SmallBasicCallback OutOfRange
         {
             add
@@ -209,7 +207,6 @@ namespace LitDev
         /// <summary>
         /// The last device in or out of range.
         /// </summary>
-        [HideFromIntellisense]
         public static Primitive LastDevice
         {
             get { return lastDevice; }
@@ -238,7 +235,6 @@ namespace LitDev
         /// The number of bytes of data received and waiting to be read.
         /// This could be used in a Timer to check for data received.
         /// </summary>
-        [HideFromIntellisense]
         public static Primitive DataAvailable
         {
             get { return (null == bluetoothClient) ? 0 : bluetoothClient.Available; }
@@ -264,7 +260,6 @@ namespace LitDev
         /// Get a list of available service protocols.
         /// </summary>
         /// <returns>An array of services or "" on failure.</returns>
-        [HideFromIntellisense]
         public static Primitive GetServices()
         {
             string result = "";
@@ -281,7 +276,6 @@ namespace LitDev
         /// Get a list of available encodings.
         /// </summary>
         /// <returns>An array of encodings or "" on failure.</returns>
-        [HideFromIntellisense]
         public static Primitive GetEncodings()
         {
             string result = "";
@@ -309,7 +303,6 @@ namespace LitDev
         /// Advanced feature.
         /// The current bluetooth service.
         /// </summary>
-        [HideFromIntellisense]
         public static Primitive Service
         {
             get { return service; }
@@ -320,7 +313,6 @@ namespace LitDev
         /// Advanced feature.
         /// The current bluetooth data encoding.
         /// </summary>
-        [HideFromIntellisense]
         public static Primitive Encode
         {
             get
@@ -354,7 +346,6 @@ namespace LitDev
         /// You must first Initialise, then set the device, service and encoding.
         /// </summary>
         /// <returns>"True" or "False" on success or failure.</returns>
-        [HideFromIntellisense]
         public static Primitive Connect()
         {
             BluetoothDeviceInfo info = GetBluetoothDeviceInfo(device);
@@ -387,7 +378,6 @@ namespace LitDev
         /// </summary>
         /// <param name="data">A string of characters to send.</param>
         /// <returns>A result status message "True" or "False".</returns>
-        [HideFromIntellisense]
         public static Primitive SendData(Primitive data)
         {
             BluetoothDeviceInfo info = GetBluetoothDeviceInfo(device);
@@ -423,7 +413,6 @@ namespace LitDev
         /// The encoding should also be set.
         /// </summary>
         /// <returns>String of received characters or "" on failure.</returns>
-        [HideFromIntellisense]
         public static Primitive ReceiveData()
         {
             string result = "";

@@ -455,7 +455,6 @@ namespace LitDev
         /// <param name="shapeName">The shape or control name.</param>
         /// <param name="property">The property name to get.</param>
         /// <returns>The value of the property.</returns>
-        [HideFromIntellisense]
         public static Primitive GetProperty(Primitive shapeName, Primitive property)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -500,7 +499,6 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The shape or control name.</param>
         /// <returns>An array of properties and their values.</returns>
-        [HideFromIntellisense]
         public static Primitive GetProperties(Primitive shapeName)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -559,7 +557,6 @@ namespace LitDev
         /// <param name="shapeName">The shape or control name.</param>
         /// <param name="property">The property name to set.</param>
         /// <param name="value">The value to set the property to.</param>
-        [HideFromIntellisense]
         public static void SetProperty(Primitive shapeName, Primitive property, Primitive value)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);

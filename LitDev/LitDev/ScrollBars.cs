@@ -464,7 +464,6 @@ namespace LitDev
 
         // Get or Set the ScrollBars' panning ratio (default 1).
         // This is the ratio of scolling to view movement.
-        [HideFromIntellisense]
         public static Primitive PanningRatio
         {
             get { return propertyScrollBars("GetPanningRatio", 1); }
