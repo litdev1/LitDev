@@ -114,8 +114,9 @@ namespace LitDev
 
         private enum transform
         {
-            Rotate,
+            Rotate1,
             Rotate2,
+            Rotate3,
             Scale,
             Translate
         }
@@ -153,6 +154,15 @@ namespace LitDev
             rotateTransform3D2.CenterY = Y;
             rotateTransform3D2.CenterZ = Z;
 
+            RotateTransform3D rotateTransform3D3 = new RotateTransform3D();
+            AxisAngleRotation3D axisAngleRotation3D3 = new AxisAngleRotation3D();
+            axisAngleRotation3D3.Axis = new Vector3D(0, 1, 0);
+            axisAngleRotation3D3.Angle = 0;
+            rotateTransform3D3.Rotation = axisAngleRotation3D3;
+            rotateTransform3D3.CenterX = X;
+            rotateTransform3D3.CenterY = Y;
+            rotateTransform3D3.CenterZ = Z;
+
             ScaleTransform3D scaleTransform3D = new ScaleTransform3D();
             scaleTransform3D.CenterX = X;
             scaleTransform3D.CenterY = Y;
@@ -169,6 +179,7 @@ namespace LitDev
             Transform3DGroup transform3DGroup = new Transform3DGroup();
             transform3DGroup.Children.Add(rotateTransform3D);
             transform3DGroup.Children.Add(rotateTransform3D2);
+            transform3DGroup.Children.Add(rotateTransform3D3);
             transform3DGroup.Children.Add(scaleTransform3D);
             transform3DGroup.Children.Add(translateTransform3D);
             geometry.Transform = transform3DGroup;
@@ -256,7 +267,7 @@ namespace LitDev
                         Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
 
                         Vector3D Z = new Vector3D(0, 0, -1);
-                        RotateTransform3D rotateTransform3D1 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate];
+                        RotateTransform3D rotateTransform3D1 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
                         AxisAngleRotation3D axisAngleRotation3D1 = new AxisAngleRotation3D();
                         axisAngleRotation3D1.Axis = Vector3D.CrossProduct(lookDirection, Z);
                         axisAngleRotation3D1.Angle = Vector3D.AngleBetween(lookDirection, Z);
@@ -269,7 +280,7 @@ namespace LitDev
                         Vector3D Y = rotateTransform3D1.Transform(new Vector3D(0, 1, 0)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
                         Y.Normalize();
 
-                        RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                        RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
                         AxisAngleRotation3D axisAngleRotation3D2 = new AxisAngleRotation3D();
                         axisAngleRotation3D2.Axis = lookDirection;
                         axisAngleRotation3D2.Angle = Vector3D.AngleBetween(upDirection, Y);
@@ -1533,7 +1544,7 @@ namespace LitDev
                                 Transform3D transform3D = (Transform3D)geometry.Transform;
                                 Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
 
-                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate];
+                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
                                 AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
                                 axisAngleRotation3D.Axis = new Vector3D(x, y, z);
                                 axisAngleRotation3D.Angle = angle;
@@ -1595,6 +1606,67 @@ namespace LitDev
                                 Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
 
                                 RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                                AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
+                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                                axisAngleRotation3D.Angle = angle;
+                                rotateTransform3D.Rotation = axisAngleRotation3D;
+
+                                geometry.Transform = transform3DGroup;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return;
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Rotate a geometry object about its centre (a third rotation).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <param name="x">X direction of vector to rotate about.</param>
+        /// <param name="y">Y direction of vector to rotate about.</param>
+        /// <param name="z">Z direction of vector to rotate about.</param>
+        /// <param name="angle">An angle in degrees to rotate.</param>
+        public static void RotateGeometry3(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive angle)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return;
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                Transform3D transform3D = (Transform3D)geometry.Transform;
+                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
                                 AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
                                 axisAngleRotation3D.Axis = new Vector3D(x, y, z);
                                 axisAngleRotation3D.Angle = angle;
@@ -2025,7 +2097,7 @@ namespace LitDev
 
         /// <summary>
         /// Animate a geometry rotation about an axis vector.
-        /// This is the second rotation, the first is still available for another axis rotation.
+        /// This uses the second rotation, the first is still available for another axis rotation.
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object to animate.</param>
@@ -2060,6 +2132,74 @@ namespace LitDev
                                 Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
 
                                 RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                                AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
+
+                                DoubleAnimation doubleAnimaton = new DoubleAnimation();
+                                doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
+                                doubleAnimaton.RepeatBehavior = repeats < 0 ? RepeatBehavior.Forever : new RepeatBehavior(repeats);
+                                doubleAnimaton.From = startAngle;
+                                doubleAnimaton.To = endAngle;
+                                doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
+                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                                axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Animate a geometry rotation about an axis vector.
+        /// This uses the third rotation, the first is still available for another axis rotation.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object to animate.</param>
+        /// <param name="x">X direction of vector to rotate about.</param>
+        /// <param name="y">Y direction of vector to rotate about.</param>
+        /// <param name="z">Z direction of vector to rotate about.</param>
+        /// <param name="startAngle">The starting angle in dgrees (e.g. 0).</param>
+        /// <param name="endAngle">The final angle in degrees (e.g. 360).</param>
+        /// <param name="duration">The animation duration (time in sec).</param>
+        /// <param name="repeats">The number of times to repeat the animation (-1 is for ever).</param>
+        public static void AnimateRotation2(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive startAngle, Primitive endAngle, Primitive duration, Primitive repeats)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return;
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                Transform3D transform3D = (Transform3D)geometry.Transform;
+                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
                                 AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
 
                                 DoubleAnimation doubleAnimaton = new DoubleAnimation();
@@ -3002,6 +3142,7 @@ namespace LitDev
 
         /// <summary>
         /// Set an object to rotate to always face the camera.
+        /// This uses the 2nd and 3rd rotations.
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
@@ -3012,6 +3153,105 @@ namespace LitDev
             {
                 BillBoards[shapeName].Add(geometryName);
                 MoveCamera(shapeName, 0, 0, 0, 0);
+            }
+        }
+
+        /// <summary>
+        /// Set the centre for rotation and scale transformations of a geometry.
+        /// By default this is the centre of a bounding box for the geometry, often 0,0,0.
+        /// The centre is defined in the coordinates used to create the geometry.
+        /// It does not have to be within the geometry.
+        /// If a coordinate value is set to "", then the default value is used.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <param name="x">The x coordinate of the centre.</param>
+        /// <param name="y">The y coordinate of the centre.</param>
+        /// <param name="z">The z coordinate of the centre.</param>
+        /// <param name="options">Options to control centre setting.  Multiples can be set, e.g. "R1R2R3" to set all rotations.
+        /// "R1" First rotation transformation
+        /// "R2" Second rotation transformation
+        /// "R3" Third rotation transformation
+        /// "S" Scale transformation
+        /// </param>
+        public static void SetCentre(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive options)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return;
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                Transform3D transform3D = (Transform3D)geometry.Transform;
+                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
+                                RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                                RotateTransform3D rotateTransform3D3 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
+                                ScaleTransform3D scaleTransform3D = (ScaleTransform3D)transform3DGroup.Children[(int)transform.Scale];
+
+                                string opt = ((string)options).ToLower();
+                                double X = x == "" ? geometry.Bounds.X + geometry.Bounds.SizeX / 2.0 : (double)x;
+                                double Y = y == "" ? geometry.Bounds.Y + geometry.Bounds.SizeY / 2.0 : (double)y;
+                                double Z = z == "" ? geometry.Bounds.Z + geometry.Bounds.SizeZ / 2.0 : (double)z;
+
+                                if (opt.Contains("r1"))
+                                {
+                                    rotateTransform3D.CenterX = X;
+                                    rotateTransform3D.CenterY = Y;
+                                    rotateTransform3D.CenterZ = Z;
+                                }
+                                if (opt.Contains("r2"))
+                                {
+                                    rotateTransform3D2.CenterX = X;
+                                    rotateTransform3D2.CenterY = Y;
+                                    rotateTransform3D2.CenterZ = Z;
+                                }
+                                if (opt.Contains("r3"))
+                                {
+                                    rotateTransform3D3.CenterX = X;
+                                    rotateTransform3D3.CenterY = Y;
+                                    rotateTransform3D3.CenterZ = Z;
+                                }
+                                if (opt.Contains("s"))
+                                {
+                                    scaleTransform3D.CenterX = X;
+                                    scaleTransform3D.CenterY = Y;
+                                    scaleTransform3D.CenterZ = Z;
+                                }
+
+                                geometry.Transform = transform3DGroup;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return;
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
     }
