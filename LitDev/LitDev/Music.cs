@@ -31,14 +31,17 @@ namespace LitDev
     public static class LDMusic
     {
         private static IntPtr _midiOut = IntPtr.Zero;
-        private static int _octave = 4;
-        private static int _defaultLength = 4;
-        private static int _velocity = 100;
-        private static int _instrument = 0;
+        private const int NUMCHANNEL = 16;
         private static int _channel = 0;
+        private static int[] _octave = new int[NUMCHANNEL];
+        private static int[] _defaultLength = new int[NUMCHANNEL];
+        private static int[] _velocity = new int[NUMCHANNEL];
+        private static int[] _instrument = new int[NUMCHANNEL];
 
         [DllImport("winmm.dll")]
         private static extern int midiOutShortMsg(IntPtr midiOut, uint dwMsg);
+        [DllImport("winmm.dll")]
+        private static extern int midiOutSetVolume(IntPtr midiOut, uint dwVolume);
         [DllImport("winmm.dll")]
         private static extern int midiOutOpen(ref IntPtr midiOut, uint uDeviceID, IntPtr dwCallback, IntPtr dwCallbackInstance, uint dwFlags);
         [DllImport("winmm.dll")]
@@ -159,7 +162,7 @@ namespace LitDev
 			}
 		};
 
-        private static void PlayNote(int octave, string note, int length)
+        private static void PlayNote(int octave, string note, int length, int channel)
         {
             double num = 1600.0 / (double)length;
             if (note == "P" || note == "R")
@@ -169,7 +172,7 @@ namespace LitDev
             }
             if (note == "L")
             {
-                _defaultLength = length;
+                _defaultLength[channel] = length;
                 return;
             }
             int num2;
@@ -179,43 +182,19 @@ namespace LitDev
             }
             octave = System.Math.Min(System.Math.Max(0, octave), 8);
             int number = octave * 12 + num2;
-            PlayNote(number);
+            PlayNote(number, channel);
             Thread.Sleep((int)num);
-            StopNote(number);
+            StopNote(number, channel);
         }
 
-        private static void PlayNote(int number)
-        {
-            uint dwMsg = BitConverter.ToUInt32(new byte[]
-			{
-				(byte)(144 + _channel),
-				(byte)number,
-				(byte)_velocity,
-				0
-			}, 0);
-            midiOutShortMsg(_midiOut, dwMsg);
-        }
-
-        private static void StopNote(int number)
-        {
-            uint dwMsg = BitConverter.ToUInt32(new byte[]
-			{
-				(byte)(128 + _channel),
-				(byte)number,
-				(byte)_velocity,
-				0
-			}, 0);
-            midiOutShortMsg(_midiOut, dwMsg);
-        }
-
-        private static void PlayNotes(string song)
+        private static void PlayNotes(string song, int channel)
         {
             int i = 0;
             song = song.ToUpperInvariant();
             int length = song.Length;
             while (i < song.Length)
             {
-                int num = _defaultLength;
+                int num = _defaultLength[channel];
                 char c = song[i++];
                 if (char.IsLetter(c))
                 {
@@ -249,39 +228,87 @@ namespace LitDev
                     }
                     if (text[0] == 'O')
                     {
-                        _octave = num;
+                        _octave[channel] = num;
                     }
                     else
                     {
-                        PlayNote(_octave, text, num);
+                        PlayNote(_octave[channel], text, num, channel);
                     }
                 }
                 else
                 {
                     if (c == '>')
                     {
-                        _octave = System.Math.Min(8, _octave + 1);
+                        _octave[channel] = System.Math.Min(8, _octave[channel] + 1);
                     }
                     else
                     {
                         if (c == '<')
                         {
-                            _octave = System.Math.Max(0, _octave - 1);
+                            _octave[channel] = System.Math.Max(0, _octave[channel] - 1);
                         }
                     }
                 }
             }
         }
 
-        private static void ChangeInstrument(int number)
+        private static void PlayNote(int number, int channel)
+        {
+            uint dwMsg = BitConverter.ToUInt32(new byte[]
+            {
+                (byte)(128+16 + channel),
+                (byte)number,
+                (byte)_velocity[channel],
+                0
+            }, 0);
+            midiOutShortMsg(_midiOut, dwMsg);
+        }
+
+        private static void StopNote(int number, int channel)
+        {
+            uint dwMsg = BitConverter.ToUInt32(new byte[]
+            {
+                (byte)(128 + channel),
+                (byte)number,
+                (byte)_velocity[channel],
+                0
+            }, 0);
+            midiOutShortMsg(_midiOut, dwMsg);
+        }
+
+        private static void ChangeInstrument(int number, int channel)
         {
             uint dwMsg = BitConverter.ToUInt32(new byte[]
 	        {
-		        (byte)(192 + _channel),
+		        (byte)(128+64 + channel),
 		        (byte)number,
 		        0,
 		        0
 	        }, 0);
+            midiOutShortMsg(_midiOut, dwMsg);
+        }
+
+        private static void ChangePan(int number, int channel)
+        {
+            uint dwMsg = BitConverter.ToUInt32(new byte[]
+            {
+                (byte)(128+32+16 + channel),
+                (byte)(10),
+                (byte)(number),
+                0
+            }, 0);
+            midiOutShortMsg(_midiOut, dwMsg);
+        }
+
+        private static void ChangeVolume(int number, int channel)
+        {
+            uint dwMsg = BitConverter.ToUInt32(new byte[]
+            {
+                (byte)(128+32+16 + channel),
+                (byte)(7),
+                (byte)(number),
+                0
+            }, 0);
             midiOutShortMsg(_midiOut, dwMsg);
         }
 
@@ -290,6 +317,7 @@ namespace LitDev
             if (_midiOut == IntPtr.Zero)
             {
                 midiOutOpen(ref _midiOut, 0, IntPtr.Zero, IntPtr.Zero, 0u);
+                ResetDefaults();
             }
         }
 
@@ -298,6 +326,18 @@ namespace LitDev
             if (_midiOut != IntPtr.Zero)
             {
                 midiOutReset(_midiOut);
+                ResetDefaults();
+            }
+        }
+
+        private static void ResetDefaults()
+        {
+            for (int i = 0; i < NUMCHANNEL; i++)
+            {
+                _octave[i] = 4;
+                _defaultLength[i] = 4;
+                _velocity[i] = 100;
+                _instrument[i] = 0;
             }
         }
 
@@ -316,9 +356,35 @@ namespace LitDev
         public static void PlayMusic(Primitive notes)
         {
             EnsureDeviceInit();
-            _channel = 0;
-            ChangeInstrument(_instrument);
-            PlayNotes(notes);
+            int channel = _channel;
+            ChangeInstrument(_instrument[channel], channel);
+            PlayNotes(notes, channel);
+        }
+
+        /// <summary>
+        /// Plays musical notes with specified instrument and MDI channel.
+        /// Also set volume, pan (balance) and velocity (key hit speed).
+        /// </summary>
+        /// <param name="notes">
+        /// A set of musical notes to play.  The format is a subset of the Music Markup Language supported by QBasic.
+        /// </param>
+        /// <param name="instrument"> The instrument number.</param>
+        /// <param name="velocity"> The key velocity (1 to 128, default 100).</param>
+        /// <param name="volume"> Volume (0 to 100, default 50).</param>
+        /// <param name="pan"> Pan left (-100) or right (100) (default 0).</param>
+        /// <param name="channel">The MIDI channel (1 to 16).</param>
+        public static void PlayMusic2(Primitive notes, Primitive instrument, Primitive velocity, Primitive volume, Primitive pan, Primitive channel)
+        {
+            EnsureDeviceInit();
+            channel = System.Math.Min(NUMCHANNEL - 1, System.Math.Max(0, channel - 1));
+            volume = System.Math.Min(127, System.Math.Max(0, volume / 100.0 * 127.0));
+            pan = System.Math.Min(127, System.Math.Max(0, (100+pan) / 200.0 * 127.0));
+            _instrument[channel] = instrument - 1;
+            _velocity[channel] = velocity - 1;
+            ChangeInstrument(_instrument[channel], channel);
+            ChangeVolume(volume, channel);
+            ChangePan(pan, channel);
+            PlayNotes(notes, channel);
         }
 
         /// <summary>
@@ -454,8 +520,8 @@ namespace LitDev
         /// </summary>
         public static Primitive Instrument
         {
-            get { return _instrument + 1; }
-            set { _instrument = value - 1; }
+            get { return _instrument[_channel] + 1; }
+            set { _instrument[_channel] = value - 1; }
         }
 
         /// <summary>
@@ -464,8 +530,18 @@ namespace LitDev
         /// </summary>
         public static Primitive Velocity
         {
-            get { return _velocity + 1; }
-            set { _velocity = value - 1; }
+            get { return _velocity[_channel] + 1; }
+            set { _velocity[_channel] = value - 1; }
+        }
+
+        /// <summary>
+        /// Set the MIDI channel (1 to 16, default 1).
+        /// Used by PlayMusic, Instrument and Velocity.
+        /// </summary>
+        public static Primitive Channel
+        {
+            get { return _channel + 1; }
+            set { _channel = System.Math.Min(NUMCHANNEL - 1, System.Math.Max(0, value - 1)); }
         }
 
         /// <summary>
@@ -478,14 +554,14 @@ namespace LitDev
         public static Primitive PlayNote(Primitive octave, Primitive note, Primitive channel)
         {
             EnsureDeviceInit();
-            ChangeInstrument(_instrument);
-            _channel = System.Math.Min(15, System.Math.Max(0, channel - 1));
-            _octave = System.Math.Min(8, System.Math.Max(0, octave));
+            channel = System.Math.Min(NUMCHANNEL - 1, System.Math.Max(0, channel - 1));
+            ChangeInstrument(_instrument[channel], channel);
+            _octave[channel] = System.Math.Min(8, System.Math.Max(0, octave));
             int value;
             if (!_notes.TryGetValue(note, out value)) value = 0;
             value += octave * 12;
-            PlayNote(value);
-            return value + 1000 * _channel;
+            PlayNote(value, channel);
+            return value + 1000 * channel;
         }
 
         /// <summary>
@@ -495,9 +571,9 @@ namespace LitDev
         public static void EndNote(Primitive value)
         {
             EnsureDeviceInit();
-            _channel = value / 1000;
-            value -= 1000 * _channel;
-            StopNote(value);
+            int channel = value / 1000;
+            value -= 1000 * channel;
+            StopNote(value, channel);
         }
 
         /// <summary>
