@@ -1264,11 +1264,11 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="colour">The light colour.</param>
-        /// <param name="x">The x direction of the light.</param>
-        /// <param name="y">The y direction of the light.</param>
-        /// <param name="z">The z direction of the light.</param>
+        /// <param name="xDir">The x direction of the light.</param>
+        /// <param name="yDir">The y direction of the light.</param>
+        /// <param name="zDir">The z direction of the light.</param>
         /// <returns>The 3DView Light name.</returns>
-        public static Primitive AddDirectionalLight(Primitive shapeName, Primitive colour, Primitive x, Primitive y, Primitive z)
+        public static Primitive AddDirectionalLight(Primitive shapeName, Primitive colour, Primitive xDir, Primitive yDir, Primitive zDir)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Dictionary<string, UIElement> _objectsMap;
@@ -1291,7 +1291,7 @@ namespace LitDev
 
                                 DirectionalLight directionalLight = new DirectionalLight();
                                 directionalLight.Color = (Color)ColorConverter.ConvertFromString(colour);
-                                directionalLight.Direction = new Vector3D(x, y, z);
+                                directionalLight.Direction = new Vector3D(xDir, yDir, zDir);
 
                                 string name = getLightingName();
                                 Lightings.Add(new Lighting(name, directionalLight));
@@ -1700,10 +1700,10 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
-        /// <param name="x">X scale factor.</param>
-        /// <param name="y">Y scale factor.</param>
-        /// <param name="z">Z scale factor.</param>
-        public static void ScaleGeometry(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z)
+        /// <param name="scaleX">X scale factor.</param>
+        /// <param name="scaleY">Y scale factor.</param>
+        /// <param name="scaleZ">Z scale factor.</param>
+        public static void ScaleGeometry(Primitive shapeName, Primitive geometryName, Primitive scaleX, Primitive scaleY, Primitive scaleZ)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Dictionary<string, UIElement> _objectsMap;
@@ -1727,9 +1727,9 @@ namespace LitDev
                                 Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
 
                                 ScaleTransform3D scaleTransform3D = (ScaleTransform3D)transform3DGroup.Children[(int)transform.Scale];
-                                scaleTransform3D.ScaleX = x;
-                                scaleTransform3D.ScaleY = y;
-                                scaleTransform3D.ScaleZ = z;
+                                scaleTransform3D.ScaleX = scaleX;
+                                scaleTransform3D.ScaleY = scaleY;
+                                scaleTransform3D.ScaleZ = scaleZ;
 
                                 geometry.Transform = transform3DGroup;
                             }
@@ -1759,10 +1759,10 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
-        /// <param name="x">X direction translation.</param>
-        /// <param name="y">Y direction translation.</param>
-        /// <param name="z">Z direction translation.</param>
-        public static void TranslateGeometry(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z)
+        /// <param name="dx">X direction translation.</param>
+        /// <param name="dy">Y direction translation.</param>
+        /// <param name="dz">Z direction translation.</param>
+        public static void TranslateGeometry(Primitive shapeName, Primitive geometryName, Primitive dx, Primitive dy, Primitive dz)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Dictionary<string, UIElement> _objectsMap;
@@ -1786,9 +1786,9 @@ namespace LitDev
                                 Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
 
                                 TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
-                                translateTransform3D.OffsetX = x;
-                                translateTransform3D.OffsetY = y;
-                                translateTransform3D.OffsetZ = z;
+                                translateTransform3D.OffsetX = dx;
+                                translateTransform3D.OffsetY = dy;
+                                translateTransform3D.OffsetZ = dz;
 
                                 geometry.Transform = transform3DGroup;
                             }
@@ -2101,14 +2101,14 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object to animate.</param>
-        /// <param name="x">X direction of vector to rotate about.</param>
-        /// <param name="y">Y direction of vector to rotate about.</param>
-        /// <param name="z">Z direction of vector to rotate about.</param>
-        /// <param name="startAngle">The starting angle in dgrees (e.g. 0).</param>
+        /// <param name="xDir">X direction of vector to rotate about.</param>
+        /// <param name="yDir">Y direction of vector to rotate about.</param>
+        /// <param name="zDir">Z direction of vector to rotate about.</param>
+        /// <param name="startAngle">The starting angle in degrees (e.g. 0).</param>
         /// <param name="endAngle">The final angle in degrees (e.g. 360).</param>
         /// <param name="duration">The animation duration (time in sec).</param>
         /// <param name="repeats">The number of times to repeat the animation (-1 is for ever).</param>
-        public static void AnimateRotation(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive startAngle, Primitive endAngle, Primitive duration, Primitive repeats)
+        public static void AnimateRotation(Primitive shapeName, Primitive geometryName, Primitive xDir, Primitive yDir, Primitive zDir, Primitive startAngle, Primitive endAngle, Primitive duration, Primitive repeats)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Dictionary<string, UIElement> _objectsMap;
@@ -2140,7 +2140,7 @@ namespace LitDev
                                 doubleAnimaton.From = startAngle;
                                 doubleAnimaton.To = endAngle;
                                 doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
-                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                                axisAngleRotation3D.Axis = new Vector3D(xDir, yDir, zDir);
                                 axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
                             }
                         }
@@ -2172,7 +2172,7 @@ namespace LitDev
         /// <param name="x">X direction of vector to rotate about.</param>
         /// <param name="y">Y direction of vector to rotate about.</param>
         /// <param name="z">Z direction of vector to rotate about.</param>
-        /// <param name="startAngle">The starting angle in dgrees (e.g. 0).</param>
+        /// <param name="startAngle">The starting angle in degrees (e.g. 0).</param>
         /// <param name="endAngle">The final angle in degrees (e.g. 360).</param>
         /// <param name="duration">The animation duration (time in sec).</param>
         /// <param name="repeats">The number of times to repeat the animation (-1 is for ever).</param>
@@ -3252,6 +3252,74 @@ namespace LitDev
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Get the bounding box extent of a geometry.
+        /// This the coordinates on creation (before any transformation).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <returns>An array of dimensions or "FAILED".
+        /// array[1] = sizeX (width)
+        /// array[2] = sizeY (height)
+        /// array[3] = sizeZ (depth)
+        /// array[4] = X (Xmin)
+        /// array[5] = Y (Ymin)
+        /// array[6] = Z (Zmin)
+        /// </returns>
+        public static Primitive BoundingBox(Primitive shapeName, Primitive geometryName)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        Primitive result = "";
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return "FAILED";
+                                GeometryModel3D geometry = geom.geometryModel3D;
+
+                                result[1] = geometry.Bounds.SizeX;
+                                result[2] = geometry.Bounds.SizeY;
+                                result[3] = geometry.Bounds.SizeZ;
+                                result[4] = geometry.Bounds.X;
+                                result[5] = geometry.Bounds.Y;
+                                result[6] = geometry.Bounds.Z;
+                                return result;
+                            }
+                            return "FAILED";
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "FAILED";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
             }
         }
     }
