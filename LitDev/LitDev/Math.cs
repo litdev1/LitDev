@@ -20,7 +20,9 @@ using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -31,7 +33,7 @@ namespace LitDev
     {
         private static MethodInfo _evaluator = null;
         private static readonly string _jscriptSource = "class Evaluator { public static function Eval(expr : String) : String { return eval(expr); } }";
-       
+
         public static string EvalToString(string statement)
         {
             return _evaluator.Invoke(null, new object[] { statement }).ToString();
@@ -71,7 +73,8 @@ namespace LitDev
     public static class LDMath
     {
         private static double deg2rad = System.Math.PI / 180.0;
-        
+        private const string CharList = "0123456789abcdefghijklmnopqrstuvwxyz";
+
         /// <summary>
         /// Sin of an angle in degrees.
         /// </summary>
@@ -275,18 +278,36 @@ namespace LitDev
         /// Convert a decimal integer to another base.
         /// </summary>
         /// <param name="number">The decimal integer to convert (non negative).</param>
-        /// <param name="Base">The base to convert to (2 binary) (8 octal) (16 hex).</param>
-        /// <returns>The number in the requested base.</returns>
+        /// <param name="Base">The base to convert to (2 binary) (8 octal) (16 hex) or other bases to 36.</param>
+        /// <returns>The number in the requested base or "FAILED".</returns>
         public static Primitive Decimal2Base(Primitive number, Primitive Base)
         {
             try
             {
-                return System.Convert.ToString(number, Base);
+                int iNumber = (int)number;
+                int iBase = (int)Base;
+                if (iNumber < 0) return "FAILED";
+                if (iBase < 2 || iBase > 36) return "FAILED";
+
+                if (iBase == 2 || iBase == 8 || iBase == 16)
+                {
+                    return System.Convert.ToString(number, iBase);
+                }
+                else
+                {
+                    string result = "";
+                    while (iNumber != 0)
+                    {
+                        result = CharList[iNumber % iBase] + result;
+                        iNumber /= iBase;
+                    }
+                    return result;
+                }
             }
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "";
+                return "FAILED";
             }
         }
 
@@ -294,18 +315,37 @@ namespace LitDev
         /// Convert a base number to a decimal integer.
         /// </summary>
         /// <param name="number">The base number to convert (non negative).</param>
-        /// <param name="Base">The base to convert from (2 binary) (8 octal) (16 hex).</param>
-        /// <returns>The number as a decimal integer.</returns>
+        /// <param name="Base">The base to convert from (2 binary) (8 octal) (16 hex) or other bases up to 36.</param>
+        /// <returns>The number as a decimal integer or "FAILED".</returns>
         public static Primitive Base2Decimal(Primitive number, Primitive Base)
         {
             try
             {
-                return System.Convert.ToInt32(number, Base);
+                string sNumber = ((string)number).ToLower();
+                int iBase = (int)Base;
+                if (iBase < 2 || iBase > 36) return "FAILED";
+
+                if (iBase == 2 || iBase == 8 || iBase == 16)
+                {
+                    return System.Convert.ToInt32(sNumber, iBase);
+                }
+                else
+                {
+                    var reversed = sNumber.Reverse();
+                    decimal result = 0;
+                    int pos = 0;
+                    foreach (char c in reversed)
+                    {
+                        result += CharList.IndexOf(c) * (decimal)System.Math.Pow(iBase, pos);
+                        pos++;
+                    }
+                    return result;
+                }
             }
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "";
+                return "FAILED";
             }
         }
 

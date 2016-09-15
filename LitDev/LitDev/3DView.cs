@@ -3257,7 +3257,7 @@ namespace LitDev
 
         /// <summary>
         /// Get the bounding box extent of a geometry.
-        /// This the coordinates on creation (before any transformation).
+        /// This is the coordinates on creation (before any transformation).
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>

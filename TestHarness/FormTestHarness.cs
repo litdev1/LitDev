@@ -708,7 +708,8 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-               
+            LDSearch.GetWeb("bill gates");
+            return;
             //TextWindow.Show();
             //LDTextWindow.SetColours("Pink", "Orange");
             //TextWindow.WriteLine("Hello World");
