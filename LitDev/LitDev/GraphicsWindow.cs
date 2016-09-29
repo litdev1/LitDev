@@ -1396,5 +1396,56 @@ namespace LitDev
                 Utilities.setWindowResize(value);
             }
         }
+
+        /// <summary>
+        /// Show or hide GraphicsWindow in taskbar ("True" or "False")
+        /// </summary>
+        public static Primitive ShowInTaskbar
+        {
+            set
+            {
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                try
+                {
+                    Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                    InvokeHelper ret = delegate
+                    {
+                        try
+                        {
+                            _window.ShowInTaskbar = value;
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    };
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
+                    method.Invoke(null, new object[] { ret });
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+            get
+            {
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                try
+                {
+                    Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                    InvokeHelperWithReturn ret = delegate
+                    {
+                        return _window.ShowInTaskbar ? "True" : "False";
+                    };
+                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
+                    return method.Invoke(null, new object[] { ret }).ToString();
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    return "True";
+                }
+            }
+        }
     }
 }

@@ -19,100 +19,10 @@ using Bing;
 using Microsoft.SmallBasic.Library;
 using System;
 using System.Net;
-using System.Net.Http;
-using System.Web;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.IO;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Collections.Specialized;
+using LitDev.Engines;
 
 namespace LitDev
 {
-    [DataContract]
-    public class JsonWeb
-    {
-        [DataMember]
-        public JsonWebPages webPages;
-
-        [DataMember]
-        public JsonImages images;
-
-        [DataMember]
-        public JsonNews news;
-
-        [DataMember]
-        public JsonVideos videos;
-
-        [DataMember]
-        public JsonRelatedSearches relatedSearches;
-
-        [DataMember]
-        public JsonSpellSuggestions spellSuggestions;
-    }
-
-    [DataContract]
-    public class JsonWebPages
-    {
-        [DataMember]
-        public List<JsonValue> value;
-    }
-
-    [DataContract]
-    public class JsonImages
-    {
-        [DataMember]
-        public List<JsonValue> value;
-    }
-
-    [DataContract]
-    public class JsonNews
-    {
-        [DataMember]
-        public List<JsonValue> value;
-    }
-
-    [DataContract]
-    public class JsonVideos
-    {
-        [DataMember]
-        public List<JsonValue> value;
-    }
-
-    [DataContract]
-    public class JsonRelatedSearches
-    {
-        [DataMember]
-        public List<JsonValue> value;
-    }
-
-    [DataContract]
-    public class JsonSpellSuggestions
-    {
-        [DataMember]
-        public List<JsonValue> value;
-    }
-
-    [DataContract]
-    public class JsonValue
-    {
-        [DataMember]
-        public string name;
-
-        [DataMember]
-        public string text;
-
-        [DataMember]
-        public string description;
-
-        [DataMember]
-        public string url;
-
-        [DataMember]
-        public string contentUrl;
-    }
-
     /// <summary>
     /// Bing online search methods.
     /// Includes web, image, video, news and spelling suggestions.
@@ -122,41 +32,17 @@ namespace LitDev
     {
         private static string bingKey = "USofJjSorAeOFEQ19oS+coNxSholq0Cq4TMc3rY6Y/M";
         private static BingSearchContainer bing = new BingSearchContainer(new Uri("https://api.datamarket.azure.com/Bing/Search/")) { Credentials = new NetworkCredential(bingKey, bingKey) };
-
-        private static HttpClient client = new HttpClient();
-        private static NameValueCollection queryString = HttpUtility.ParseQueryString(string.Empty); private static DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(JsonWeb));
-        private static int count = 50;
-        private static string mkt = CultureInfo.CurrentCulture.Name;
+        private static Cognitive cognitive = new Cognitive();
         private static bool bNewAPI = true;
 
-        private static JsonWeb MakeRequest(string search)
-        {
-            // Request headers
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "7689c5090e5d425e979e7edb9d8feb64");
-
-            // Web Request parameters
-            queryString["q"] = search;
-            queryString["count"] = count.ToString();
-            queryString["offset"] = "0";
-            queryString["mkt"] = mkt;
-            queryString["safesearch"] = "Moderate";
-            string uri = "https://api.cognitive.microsoft.com/bing/v5.0/search?" + queryString;
-
-            HttpResponseMessage response = client.GetAsync(uri).Result;
-            Stream stream = response.Content.ReadAsStreamAsync().Result;
-            return (JsonWeb)jsonSerializer.ReadObject(stream);
-        }
-
         /// <summary>
-        /// The maximum number of results, default 50.
+        /// The maximum number of web search results, default 50.
         /// </summary>
         public static Primitive Count
         {
-            get { return count; }
-            set { count = value; }
+            get { return cognitive.count; }
+            set { cognitive.count = value; }
         }
-
 
         /// <summary>
         /// The language culture to use, default is current culture.
@@ -164,8 +50,8 @@ namespace LitDev
         /// </summary>
         public static Primitive Language
         {
-            get { return mkt; }
-            set { mkt = value; }
+            get { return cognitive.mkt; }
+            set { cognitive.mkt = value; }
         }
 
         /// <summary>
@@ -179,7 +65,7 @@ namespace LitDev
             {
                 if (bNewAPI)
                 {
-                    JsonWeb jsonWeb = MakeRequest(search);
+                    JsonWeb jsonWeb = cognitive.SearchRequest(search);
                     if (null == jsonWeb.webPages) return "";
 
                     string result = "";
@@ -191,7 +77,7 @@ namespace LitDev
                 }
                 else
                 {
-                    var query = bing.Web(search, null, null, mkt, null, null, null, null);
+                    var query = bing.Web(search, null, null, cognitive.mkt, null, null, null, null);
                     var sites = query.Execute();
 
                     string result = "";
@@ -213,14 +99,14 @@ namespace LitDev
         /// Do a Bing search for Web images.
         /// </summary>
         /// <param name="search">The search text.</param>
-        /// <returns>An array (up to 50) of results, index url and value description.</returns>
+        /// <returns>An array of results, index url and value description.</returns>
         public static Primitive GetImage(Primitive search)
         {
             try
             {
                 if (bNewAPI)
                 {
-                    JsonWeb jsonWeb = MakeRequest(search);
+                    JsonWeb jsonWeb = cognitive.SearchRequest(search);
                     if (null == jsonWeb.images) return "";
 
                     string result = "";
@@ -232,7 +118,7 @@ namespace LitDev
                 }
                 else
                 {
-                    var query = bing.Image(search, null, mkt, null, null, null, null);
+                    var query = bing.Image(search, null, cognitive.mkt, null, null, null, null);
                     var sites = query.Execute();
 
                     string result = "";
@@ -254,14 +140,14 @@ namespace LitDev
         /// Do a Bing search for Web videos.
         /// </summary>
         /// <param name="search">The search text.</param>
-        /// <returns>An array (up to 50) of results, index url and value description.</returns>
+        /// <returns>An array of results, index url and value description.</returns>
         public static Primitive GetVideo(Primitive search)
         {
             try
             {
                 if (bNewAPI)
                 {
-                    JsonWeb jsonWeb = MakeRequest(search);
+                    JsonWeb jsonWeb = cognitive.SearchRequest(search);
                     if (null == jsonWeb.videos) return "";
 
                     string result = "";
@@ -273,7 +159,7 @@ namespace LitDev
                 }
                 else
                 {
-                    var query = bing.Video(search, null, mkt, null, null, null, null, null);
+                    var query = bing.Video(search, null, cognitive.mkt, null, null, null, null, null);
                     var sites = query.Execute();
 
                     string result = "";
@@ -295,14 +181,14 @@ namespace LitDev
         /// Do a Bing search for Web news.
         /// </summary>
         /// <param name="search">The search text.</param>
-        /// <returns>An array (up to 15) of results, index url and value description.</returns>
+        /// <returns>An array of results, index url and value description.</returns>
         public static Primitive GetNews(Primitive search)
         {
             try
             {
                 if (bNewAPI)
                 {
-                    JsonWeb jsonWeb = MakeRequest(search);
+                    JsonWeb jsonWeb = cognitive.SearchRequest(search);
                     if (null == jsonWeb.news) return "";
 
                     string result = "";
@@ -314,7 +200,7 @@ namespace LitDev
                 }
                 else
                 {
-                    var query = bing.News(search, null, mkt, null, null, null, null, null, null);
+                    var query = bing.News(search, null, cognitive.mkt, null, null, null, null, null, null);
                     var sites = query.Execute();
 
                     string result = "";
@@ -333,17 +219,17 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Do a Bing search for Web spelling or alternative suggestions.
+        /// Do a Bing search for Web spelling or alternative search suggestions.
         /// </summary>
         /// <param name="search">The search text.</param>
-        /// <returns>An array of spelling or alternative suggestions or none if no suggestions found.</returns>
+        /// <returns>An array of spelling or alternative suggestions or "" if no suggestions found.</returns>
         public static Primitive GetSpelling(Primitive search)
         {
             try
             {
                 if (bNewAPI)
                 {
-                    JsonWeb jsonWeb = MakeRequest(search);
+                    JsonWeb jsonWeb = cognitive.SearchRequest(search);
                     string result = "";
                     int i = 1;
 
@@ -365,7 +251,7 @@ namespace LitDev
                 }
                 else
                 {
-                    var query = bing.SpellingSuggestions(search, null, mkt, null, null, null);
+                    var query = bing.SpellingSuggestions(search, null, cognitive.mkt, null, null, null);
                     var sites = query.Execute();
 
                     string result = "";
@@ -376,6 +262,51 @@ namespace LitDev
                     }
                     return Utilities.CreateArrayMap(result);
                 }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Do a text spell check (proof).  This is for longer text with more detailed information like in Word.
+        /// </summary>
+        /// <param name="text">The text to proof.</param>
+        /// <param name="mode">A mode "Proof" (default for longer text) or "Spell" (for short or single word checks).</param>
+        /// <returns>An array of spelling and other suggestions or "" if no suggestions found.</returns>
+        public static Primitive GetProof(Primitive text, Primitive mode)
+        {
+            try
+            {
+                eSpellMode spellMode = ((string)mode).ToLower() == "spell" ? eSpellMode.spell : eSpellMode.proof;
+                JsonWeb jsonWeb = cognitive.SpellRequest(text, spellMode);
+                Primitive result = "";
+                int i = 1;
+
+                if (null != jsonWeb.flaggedTokens)
+                {
+                    foreach (var token in jsonWeb.flaggedTokens)
+                    {
+                        Primitive check = "";
+                        check["token"] = token.token;
+                        check["type"] = token.type;
+                        check["offset"] = token.offset + 1;
+                        if (null != token.suggestions)
+                        {
+                            Primitive suggestions = "";
+                            int j = 1;
+                            foreach (var suggestion in token.suggestions)
+                            {
+                                suggestions[j++] = suggestion.suggestion;
+                            }
+                            check["suggestions"] = suggestions;
+                        }
+                        result[i++] = check;
+                    }
+                }
+                return Utilities.CreateArrayMap(result);
             }
             catch (Exception ex)
             {
