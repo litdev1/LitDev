@@ -549,13 +549,14 @@ namespace LitDev
                             row = rowOrdered[iRow];
                             if (iCol < row.Length)
                             {
-                                if (row[iCol] == "")
+                                string value = Utilities.CSVParse(row[iCol], false);
+                                if (value == "")
                                 {
                                     if (CSVplaceHolder != "") rowOutput += (iRow + 1).ToString() + "\\=" + CSVplaceHolder + "\\;";
                                 }
                                 else
                                 {
-                                    rowOutput += (iRow + 1).ToString() + "\\=" + Utilities.ArrayParse(row[iCol]) + "\\;";
+                                    rowOutput += (iRow + 1).ToString() + "\\=" + Utilities.ArrayParse(value) + "\\;";
                                 }
                             }
                         }
@@ -571,13 +572,14 @@ namespace LitDev
                         string rowOutput = "";
                         for (int iCol = 0; iCol < row.Length; iCol++)
                         {
-                            if (row[iCol] == "")
+                            string value = Utilities.CSVParse(row[iCol], false);
+                            if (value == "")
                             {
                                 if (CSVplaceHolder != "") rowOutput += (iCol + 1).ToString() + "\\=" + CSVplaceHolder + "\\;";
                             }
                             else
                             {
-                                rowOutput += (iCol + 1).ToString() + "\\=" + Utilities.ArrayParse(row[iCol]) + "\\;";
+                                rowOutput += (iCol + 1).ToString() + "\\=" + Utilities.ArrayParse(value) + "\\;";
                             }
                         }
                         output += rowOutput + ";";
@@ -609,7 +611,8 @@ namespace LitDev
                     string[] values = rowCut.Split(';');
                     foreach (string value in values)
                     {
-                        output[iRow] += value.Substring(value.IndexOf('=') + 1) + Utilities.CSV;
+
+                        output[iRow] += Utilities.CSVParse(value.Substring(value.IndexOf('=') + 1), true) + Utilities.CSV;
                     }
                     if (output[iRow].Length > 0) output[iRow] = output[iRow].Substring(0, output[iRow].Length - 1);
                     iRow++;
@@ -621,6 +624,28 @@ namespace LitDev
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
+        }
+
+        private static string CSVParse(string item, bool bToCSV)
+        {
+            if (bToCSV)
+            {
+                double result;
+                item = item.Replace("\"", "\"\"");
+                if (!double.TryParse(item, out result))
+                {
+                    item = "\"" + item + "\"";
+                }
+            }
+            else
+            {
+                if (item.Length >= 2 && item.StartsWith("\"") && item.EndsWith("\""))
+                {
+                    item = item.Substring(1, item.Length - 2);
+                }
+                item = item.Replace("\"\"", "\"");
+            }
+            return item;
         }
 
         public static string ArrayParse(string item)
