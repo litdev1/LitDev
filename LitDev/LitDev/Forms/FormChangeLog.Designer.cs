@@ -26,7 +26,7 @@
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("ShowInTaskbar property added");
             System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("LDGraphicsWindow", new System.Windows.Forms.TreeNode[] {
             treeNode5});
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("ReadCSV and WriteCSV modified to handle double quotes");
+            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("ReadCSV and WriteCSV modified to handle \"");
             System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("LDFile", new System.Windows.Forms.TreeNode[] {
             treeNode7});
             System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("ToArray method added");
@@ -1701,7 +1701,7 @@
             treeNode6.Name = "Node0";
             treeNode6.Text = "LDGraphicsWindow";
             treeNode7.Name = "Node1";
-            treeNode7.Text = "ReadCSV and WriteCSV modified to handle double quotes";
+            treeNode7.Text = "ReadCSV and WriteCSV modified to handle \"";
             treeNode8.Name = "Node0";
             treeNode8.Text = "LDFile";
             treeNode9.Name = "Node1";
