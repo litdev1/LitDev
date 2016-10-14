@@ -708,6 +708,8 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive xml = LDxml.Open("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\sample.xml");
+            Primitive data = LDxml.ToArray();
             Primitive txt = Microsoft.SmallBasic.Library.File.ReadContents("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\txt.txt");
             LDSearch.GetProof(txt, "");
             LDSearch.GetWeb("bill gates");

@@ -446,5 +446,67 @@ namespace LitDev
             }
             return "FAILED";
         }
+
+        private static Primitive ToArray(XmlNode node)
+        {
+            Primitive result = "";
+            Primitive combined = "";
+
+            if (null != node.Attributes)
+            {
+                Primitive temp = "";
+                foreach (XmlAttribute attrib in node.Attributes)
+                {
+                    temp[attrib.Name] = attrib.InnerText;
+                }
+                combined["Attributes"] = temp;
+            }
+
+            if (node.HasChildNodes)
+            {
+                if (node.ChildNodes.Count == 1 && node.ChildNodes[0].NodeType == XmlNodeType.Text)
+                {
+                    combined["Data"] = node.ChildNodes[0].InnerText;
+                }
+                else
+                {
+                    int i = 1;
+                    Primitive temp = "";
+                    foreach (XmlNode child in node.ChildNodes)
+                    {
+                        temp[i++] = ToArray(child);
+                    }
+                    combined["Children"] = temp;
+                }
+            }
+            else
+            {
+                combined["Data"] = node.InnerText;
+            }
+
+            result[node.Name] = combined;
+            return result;
+        }
+
+        /// <summary>
+        /// Convert the current xml document to a Small Basic array.
+        /// The structure and depth of the array may be quite complex.
+        /// Each node has optional arrays "Attributes", and "Children" or "Data".
+        /// If there are are child ndes then they are indexed first by number to deliminate multiple children with the same name.
+        /// </summary>
+        /// <returns>A Small Basic array or "FAILED".</returns>
+        public static Primitive ToArray()
+        {
+            try
+            {
+                if (null == xmlDoc) return "FAILED";
+                return ToArray(xmlDoc.doc.DocumentElement);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "FAILED";
+        }
     }
 }
