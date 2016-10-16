@@ -46,6 +46,91 @@ namespace LitDev
         private static Dictionary<string, XmlDoc> documents = new Dictionary<string, XmlDoc>();
         private static XmlDoc xmlDoc = null;
 
+        private static Primitive toArray(XmlNode node)
+        {
+            Primitive result = "";
+            Primitive combined = "";
+
+            if (null != node.Attributes)
+            {
+                Primitive temp = "";
+                foreach (XmlAttribute attrib in node.Attributes)
+                {
+                    temp[attrib.Name] = attrib.InnerText;
+                }
+                combined["Attributes"] = temp;
+            }
+
+            if (node.HasChildNodes)
+            {
+                if (node.ChildNodes.Count == 1 && node.ChildNodes[0].NodeType == XmlNodeType.Text)
+                {
+                    combined["Data"] = node.ChildNodes[0].InnerText;
+                }
+                else
+                {
+                    int i = 1;
+                    Primitive temp = "";
+                    foreach (XmlNode child in node.ChildNodes)
+                    {
+                        temp[i++] = toArray(child);
+                    }
+                    combined["Children"] = temp;
+                }
+            }
+            else
+            {
+                combined["Data"] = node.InnerText;
+            }
+
+            result[node.Name] = combined;
+            return result;
+        }
+
+        private static void fromArray(Primitive array)
+        {
+            if (SBArray.GetItemCount(array) != 1)
+            {
+                throw new Exception("Array node should have 1 array element");
+            }
+
+            Primitive indices = SBArray.GetAllIndices(array);
+            Primitive content = array[indices[1]];
+
+            XmlElement newNode = xmlDoc.doc.CreateElement(indices[1]);
+            if (null == xmlDoc.node)
+            {
+                xmlDoc.node = xmlDoc.doc.AppendChild(newNode);
+
+                XmlDeclaration xmldecl = xmlDoc.doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                xmlDoc.doc.InsertBefore(xmldecl, xmlDoc.doc.DocumentElement);
+            }
+            else
+            {
+                xmlDoc.node = xmlDoc.node.AppendChild(newNode);
+            }
+
+            Primitive attributes = content["Attributes"];
+            indices = SBArray.GetAllIndices(attributes);
+            for (int i = 1; i <= SBArray.GetItemCount(indices); i++)
+            {
+                string index = indices[i];
+                XmlAttribute attrib = xmlDoc.doc.CreateAttribute(index);
+                attrib.Value = attributes[index];
+                xmlDoc.node.Attributes.Append(attrib);
+            }
+
+            Primitive data = content["Data"];
+            xmlDoc.node.InnerText = data;
+
+            Primitive children = content["Children"];
+            for (int i = 1; i <= SBArray.GetItemCount(children); i++)
+            {
+                fromArray(children[i]);
+                xmlDoc.node = xmlDoc.node.ParentNode;
+            }
+        }
+
         /// <summary>
         /// Open an existing xml file.  This must be called before any other methods can be used.
         /// </summary>
@@ -74,6 +159,8 @@ namespace LitDev
                     doc.AppendChild(doc.CreateElement("root"));
                     xmlDoc = new XmlDoc(doc);
                     documents[docName] = xmlDoc;
+                    XmlDeclaration xmldecl = xmlDoc.doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                    xmlDoc.doc.InsertBefore(xmldecl, xmlDoc.doc.DocumentElement);
                     return docName;
                 }
             }
@@ -447,52 +534,11 @@ namespace LitDev
             return "FAILED";
         }
 
-        private static Primitive ToArray(XmlNode node)
-        {
-            Primitive result = "";
-            Primitive combined = "";
-
-            if (null != node.Attributes)
-            {
-                Primitive temp = "";
-                foreach (XmlAttribute attrib in node.Attributes)
-                {
-                    temp[attrib.Name] = attrib.InnerText;
-                }
-                combined["Attributes"] = temp;
-            }
-
-            if (node.HasChildNodes)
-            {
-                if (node.ChildNodes.Count == 1 && node.ChildNodes[0].NodeType == XmlNodeType.Text)
-                {
-                    combined["Data"] = node.ChildNodes[0].InnerText;
-                }
-                else
-                {
-                    int i = 1;
-                    Primitive temp = "";
-                    foreach (XmlNode child in node.ChildNodes)
-                    {
-                        temp[i++] = ToArray(child);
-                    }
-                    combined["Children"] = temp;
-                }
-            }
-            else
-            {
-                combined["Data"] = node.InnerText;
-            }
-
-            result[node.Name] = combined;
-            return result;
-        }
-
         /// <summary>
         /// Convert the current xml document to a Small Basic array.
         /// The structure and depth of the array may be quite complex.
         /// Each node has optional arrays "Attributes", and "Children" or "Data".
-        /// If there are are child ndes then they are indexed first by number to deliminate multiple children with the same name.
+        /// If there are are child nodes then they are indexed first by number to deliminate multiple children with the same name.
         /// </summary>
         /// <returns>A Small Basic array or "FAILED".</returns>
         public static Primitive ToArray()
@@ -500,7 +546,34 @@ namespace LitDev
             try
             {
                 if (null == xmlDoc) return "FAILED";
-                return ToArray(xmlDoc.doc.DocumentElement);
+                return toArray(xmlDoc.doc.DocumentElement);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "FAILED";
+        }
+
+        /// <summary>
+        /// Performs the inverse function of ToArray method, create an xml document from an array definition.
+        /// </summary>
+        /// <param name="array">A Small Basic array with the correct format.</param>
+        /// <returns>A name for the document or "FAILED".</returns>
+        public static Primitive FromArray(Primitive array)
+        {
+            Type ShapesType = typeof(Shapes);
+            MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+            string docName = method.Invoke(null, new object[] { "XMLDoc" }).ToString();
+
+            try
+            {
+                XmlDocument doc = new XmlDocument();
+                xmlDoc = new XmlDoc(doc);
+                xmlDoc.node = xmlDoc.doc.DocumentElement;
+                fromArray(array);
+                documents[docName] = xmlDoc;
+                return docName;
             }
             catch (Exception ex)
             {

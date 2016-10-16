@@ -317,7 +317,13 @@ namespace LitDev
             if (_midiOut == IntPtr.Zero)
             {
                 midiOutOpen(ref _midiOut, 0, IntPtr.Zero, IntPtr.Zero, 0u);
-                ResetDefaults();
+                for (int i = 0; i < NUMCHANNEL; i++)
+                {
+                    if (_octave[i] == 0) _octave[i] = 4;
+                    if (_defaultLength[i] == 0) _defaultLength[i] = 4;
+                    if (_velocity[i] == 0) _velocity[i] = 100;
+                    if (_instrument[i] == 0) _instrument[i] = 0;
+                }
             }
         }
 

@@ -104,6 +104,7 @@ namespace LitDev
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseDown", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
+            e.Handled = true;
         }
 
         private static void _MouseUpEvent(object sender, MouseButtonEventArgs e)
@@ -111,6 +112,7 @@ namespace LitDev
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseUp", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
+            e.Handled = true;
         }
 
         private static void _MouseMoveEvent(object sender, MouseEventArgs e)
@@ -118,6 +120,7 @@ namespace LitDev
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseMove", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
+            e.Handled = true;
         }
 
         private static void _KeyDownEvent(object sender, KeyEventArgs e)
@@ -137,6 +140,7 @@ namespace LitDev
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_keyUp", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
+            e.Handled = true;
         }
 
         private static void _TextInputEvent(object sender, TextCompositionEventArgs e)
@@ -144,6 +148,7 @@ namespace LitDev
             Type GraphicsWindowType = typeof(GraphicsWindow);
             SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_textInput", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
+            e.Handled = true;
         }
 
         private static void _MouseWheelEvent(object sender, MouseWheelEventArgs e)

@@ -473,12 +473,13 @@ namespace LitDev
         /// Get the file extension for a file.
         /// </summary>
         /// <param name="fileName">The file name with extension (may include folder path or not).</param>
-        /// <returns>The extension of the file (without the '.').</returns>
+        /// <returns>The extension of the file (without the '.') or "" if no extension.</returns>
         public static Primitive GetExtension(Primitive fileName)
         {
             try
             {
-                return Path.GetExtension(fileName).Substring(1);
+                string ext = Path.GetExtension(fileName);
+                return ext.Length > 1 ? Path.GetExtension(fileName).Substring(1) : "";
             }
             catch (Exception ex)
             {

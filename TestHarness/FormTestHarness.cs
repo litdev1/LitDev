@@ -710,6 +710,8 @@ namespace TestHarness
         {
             Primitive xml = LDxml.Open("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\sample.xml");
             Primitive data = LDxml.ToArray();
+            LDxml.FromArray(data);
+            LDxml.Save("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\sample1.xml");
             Primitive txt = Microsoft.SmallBasic.Library.File.ReadContents("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\txt.txt");
             LDSearch.GetProof(txt, "");
             LDSearch.GetWeb("bill gates");

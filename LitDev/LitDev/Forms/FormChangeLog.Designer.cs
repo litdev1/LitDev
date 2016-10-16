@@ -29,7 +29,7 @@
             System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("ReadCSV and WriteCSV modified to handle \"");
             System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("LDFile", new System.Windows.Forms.TreeNode[] {
             treeNode7});
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("ToArray method added");
+            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("ToArray and FromArray methods added");
             System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("LDxml", new System.Windows.Forms.TreeNode[] {
             treeNode9});
             System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Version 1.2.12.0", new System.Windows.Forms.TreeNode[] {
@@ -1705,7 +1705,7 @@
             treeNode8.Name = "Node0";
             treeNode8.Text = "LDFile";
             treeNode9.Name = "Node1";
-            treeNode9.Text = "ToArray method added";
+            treeNode9.Text = "ToArray and FromArray methods added";
             treeNode10.Name = "Node0";
             treeNode10.Text = "LDxml";
             treeNode11.Name = "Node0";
