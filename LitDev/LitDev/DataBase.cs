@@ -79,7 +79,9 @@ namespace LitDev
             dbConnection = "Data Source=" + database;
             if (LDDataBase.Connection != "") dbConnection = LDDataBase.Connection;
             cnnSQLite = new SQLiteConnection(dbConnection);
-            commandSQLite = new SQLiteCommand(cnnSQLite);
+            cnnSQLite.Open();
+            commandSQLite = new SQLiteCommand();
+            commandSQLite.Connection = cnnSQLite;
         }
 
         public void ConnectMySql(string server, string user, string password)
@@ -238,11 +240,9 @@ namespace LitDev
             {
                 case DataBase.DBType.SQLite:
                     {
-                        dataBase.cnnSQLite.Open();
                         dataBase.commandSQLite.CommandText = query;
                         dataBase.adapterSQLite = new SQLiteDataAdapter(dataBase.commandSQLite);
                         dataBase.adapterSQLite.Fill(dataTable);
-                        dataBase.cnnSQLite.Close();
                     }
                     break;
                 case DataBase.DBType.MySql:
@@ -332,18 +332,8 @@ namespace LitDev
                 {
                     case DataBase.DBType.SQLite:
                         {
-                            dataBase.cnnSQLite.Open();
-                            try
-                            {
-                                dataBase.commandSQLite = new SQLiteCommandBuilder(dataBase.adapterSQLite).GetUpdateCommand();
-                                dataBase.adapterSQLite.Update(dataTable);
-                                dataBase.cnnSQLite.Close();
-                            }
-                            catch
-                            {
-                                dataBase.cnnSQLite.Close();
-                                UpdateDataTableBySQL(dataBase, dataView);
-                            }
+                            dataBase.commandSQLite = new SQLiteCommandBuilder(dataBase.adapterSQLite).GetUpdateCommand();
+                            dataBase.adapterSQLite.Update(dataTable);
                         }
                         break;
                     case DataBase.DBType.MySql:
@@ -698,17 +688,8 @@ namespace LitDev
                 {
                     case DataBase.DBType.SQLite:
                         {
-                            dataBase.cnnSQLite.Open();
-                            try
-                            {
-                                dataBase.commandSQLite.CommandText = command;
-                                rowsUpdated = dataBase.commandSQLite.ExecuteNonQuery();
-                                dataBase.cnnSQLite.Close();
-                            }
-                            catch
-                            {
-                                dataBase.cnnSQLite.Close();
-                            }
+                            dataBase.commandSQLite.CommandText = command;
+                            rowsUpdated = dataBase.commandSQLite.ExecuteNonQuery();
                         }
                         break;
                     case DataBase.DBType.MySql:
