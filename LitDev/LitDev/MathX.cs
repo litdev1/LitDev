@@ -21,6 +21,7 @@ using MathNet.Numerics.IntegralTransforms;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Globalization;
 
 namespace LitDev
 {
@@ -55,7 +56,7 @@ namespace LitDev
                 string result = "";
                 for (i = 0; i < length; i++)
                 {
-                    result += (i + 1).ToString() + "=" + (complex[i].Real + "\\=" + complex[i].Imaginary + "\\;") + ";";
+                    result += (i + 1).ToString() + "=" + (complex[i].Real.ToString(CultureInfo.InvariantCulture) + "\\=" + complex[i].Imaginary.ToString(CultureInfo.InvariantCulture) + "\\;") + ";";
                 }
                 return Utilities.CreateArrayMap(result);
             }
@@ -93,7 +94,7 @@ namespace LitDev
                 string result = "";
                 for (i = 0; i < length; i++)
                 {
-                    result += (i + 1).ToString() + "=" + complexData[i].Real + ";";
+                    result += (i + 1).ToString() + "=" + complexData[i].Real.ToString(CultureInfo.InvariantCulture) + ";";
                 }
                 return Utilities.CreateArrayMap(result);
             }
@@ -123,7 +124,7 @@ namespace LitDev
                 {
                     string[] values = ((string)kvp.Value).Split(new char[] { '=', ';' });
                     double real = double.Parse(values[0]);
-                    result += (i++).ToString() + "=" + real + ";";
+                    result += (i++).ToString() + "=" + real.ToString(CultureInfo.InvariantCulture) + ";";
                 }
                 return Utilities.CreateArrayMap(result);
             }
@@ -153,7 +154,7 @@ namespace LitDev
                 {
                     string[] values = ((string)kvp.Value).Split(new char[] { '=', ';' });
                     double imaginary = double.Parse(values[1]);
-                    result += (i++).ToString() + "=" + imaginary + ";";
+                    result += (i++).ToString() + "=" + imaginary.ToString(CultureInfo.InvariantCulture) + ";";
                 }
                 return Utilities.CreateArrayMap(result);
             }
@@ -194,7 +195,7 @@ namespace LitDev
                 string result = "";
                 for (int i = 0; i < length; i++)
                 {
-                    result += (i + 1).ToString() + "=" + (realData[i] + "\\=" + imaginaryData[i] + "\\;") + ";";
+                    result += (i + 1).ToString() + "=" + (realData[i].ToString(CultureInfo.InvariantCulture) + "\\=" + imaginaryData[i].ToString(CultureInfo.InvariantCulture) + "\\;") + ";";
                 }
                 return Utilities.CreateArrayMap(result);
             }

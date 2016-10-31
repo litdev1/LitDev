@@ -219,7 +219,9 @@ namespace LitDev
         /// </returns>
         public static Primitive Convert2Cartesian(Primitive x1, Primitive y1, Primitive dist, Primitive angle)
         {
-            return Utilities.CreateArrayMap("1=" + (x1 + dist * Cos(angle)) + ";2=" + (y1 + dist * Sin(angle)) + ";");
+            double x2 = x1 + dist * Cos(angle);
+            double y2 = y1 + dist * Sin(angle);
+            return Utilities.CreateArrayMap("1=" + x2.ToString(CultureInfo.InvariantCulture) + ";2=" + y2.ToString(CultureInfo.InvariantCulture) + ";");
         }
 
         /// <summary>

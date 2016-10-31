@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using Microsoft.SmallBasic.Library;
 using SlimDX.DirectInput;
 using LitDev.Engines;
+using System.Globalization;
 
 namespace LitDev
 {
@@ -82,7 +83,7 @@ namespace LitDev
             string result = "";
             for (int i = 0; i < sliders.Length; i++)
             {
-                result += (i + 1).ToString() + "=" + ((scale + sliders[i])/2.0).ToString() + ";";
+                result += (i + 1).ToString() + "=" + ((scale + sliders[i])/2.0).ToString(CultureInfo.InvariantCulture) + ";";
             }
             return Utilities.CreateArrayMap(result);
         }
@@ -94,7 +95,7 @@ namespace LitDev
             string result = "";
             for (int i = 0; i < joysticks[controller - 1].Capabilities.PovCount; i++)
             {
-                result += (i + 1).ToString() + "=" + (pov[i]/(double)scale).ToString() + ";";
+                result += (i + 1).ToString() + "=" + (pov[i]/(double)scale).ToString(CultureInfo.InvariantCulture) + ";";
             }
             return Utilities.CreateArrayMap(result);
         }

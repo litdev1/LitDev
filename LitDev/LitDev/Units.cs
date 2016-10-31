@@ -19,6 +19,7 @@ using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using varType = System.Int32;
@@ -93,7 +94,7 @@ namespace LitDev
             {
                 if (kvp.Value != 0)
                 {
-                    result += Utilities.ArrayParse(kvp.Key) + "=" + Utilities.ArrayParse(kvp.Value.ToString()) + ";";
+                    result += Utilities.ArrayParse(kvp.Key) + "=" + Utilities.ArrayParse(kvp.Value.ToString(CultureInfo.InvariantCulture)) + ";";
                 }
             }
             return Utilities.CreateArrayMap(result);
@@ -113,7 +114,7 @@ namespace LitDev
             string result = "";
             foreach (KeyValuePair<string, string> kvp in units)
             {
-                result += Utilities.ArrayParse(kvp.Key) + "=" + Utilities.ArrayParse(kvp.Value) + ";";
+                result += Utilities.ArrayParse(kvp.Key) + "=" + Utilities.ArrayParse(kvp.Value.ToString(CultureInfo.InvariantCulture)) + ";";
             }
 
             return Utilities.CreateArrayMap(result);
@@ -133,7 +134,7 @@ namespace LitDev
             string result = "";
             foreach (KeyValuePair<string, string> kvp in units)
             {
-                result += Utilities.ArrayParse(kvp.Key) + "=" + Utilities.ArrayParse(kvp.Value) + ";";
+                result += Utilities.ArrayParse(kvp.Key) + "=" + Utilities.ArrayParse(kvp.Value.ToString(CultureInfo.InvariantCulture)) + ";";
             }
 
             return Utilities.CreateArrayMap(result);
@@ -152,7 +153,7 @@ namespace LitDev
             string result = "";
             foreach (KeyValuePair<string, string> kvp in constants)
             {
-                result += Utilities.ArrayParse(kvp.Key) + "=" + Utilities.ArrayParse(kvp.Value) + ";";
+                result += Utilities.ArrayParse(kvp.Key) + "=" + Utilities.ArrayParse(kvp.Value.ToString(CultureInfo.InvariantCulture)) + ";";
             }
 
             return Utilities.CreateArrayMap(result);
@@ -176,7 +177,7 @@ namespace LitDev
                 else
                 {
                     unit += kvp.Key + ")";
-                    result += Utilities.ArrayParse(unit) + "=" + (Primitive)kvp.Value + ";";
+                    result += Utilities.ArrayParse(unit) + "=" + (Primitive)kvp.Value.ToString(CultureInfo.InvariantCulture) + ";";
                 }
             }
 

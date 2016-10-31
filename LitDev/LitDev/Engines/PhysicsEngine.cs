@@ -2333,7 +2333,7 @@ namespace LitDev.Engines
                         bool bOneRay = angles.Length == 1;
                         foreach (Ray ray in rays)
                         {
-                            result += Utilities.ArrayParse(ray.name) + "=" + (bOneRay ? distance * ray.lambda : ray.angle).ToString() + ";";
+                            result += Utilities.ArrayParse(ray.name) + "=" + (bOneRay ? distance * ray.lambda : ray.angle).ToString(CultureInfo.InvariantCulture) + ";";
                         }
                         return Utilities.CreateArrayMap(result);
                     }

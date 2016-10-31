@@ -1286,7 +1286,7 @@ namespace LitDev
                 {
                     foreach(KeyValuePair<string, float> property in propeties)
                     {
-                        result += Utilities.ArrayParse(property.Key) + "=" + property.Value + ";";
+                        result += Utilities.ArrayParse(property.Key) + "=" + property.Value.ToString(CultureInfo.InvariantCulture) + ";";
                     }
                 }
                 return Utilities.CreateArrayMap(result);
@@ -1346,7 +1346,7 @@ namespace LitDev
                 {
                     foreach (KeyValuePair<string, float> property in information)
                     {
-                        result += Utilities.ArrayParse(property.Key) + "=" + property.Value + ";";
+                        result += Utilities.ArrayParse(property.Key) + "=" + property.Value.ToString(CultureInfo.InvariantCulture) + ";";
                     }
                 }
                 return Utilities.CreateArrayMap(result);
