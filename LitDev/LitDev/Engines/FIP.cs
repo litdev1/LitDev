@@ -1535,18 +1535,22 @@ namespace LitDev.Engines
         /// <returns>Inversed image</returns>
         public Bitmap InverseImage(Bitmap OriginalImage, int threshold)
         {
-            Bitmap OutputImage = new System.Drawing.Bitmap(OriginalImage.Width, OriginalImage.Height);
+            FastPixel fpOriginal = new FastPixel(OriginalImage);
+            fpOriginal.Lock();
+            Bitmap OutputImage = new System.Drawing.Bitmap(fpOriginal.Width, fpOriginal.Height);
+            FastPixel fpOutput = new FastPixel(OutputImage);
+            fpOutput.Lock();
 
             if (threshold < 1 || threshold > 254)
             {
                 throw new Exception("Threshold value must be in range from 1 to 254");
             }
 
-            for (int x = 0; x < OriginalImage.Width; x++)
+            for (int x = 0; x < fpOriginal.Width; x++)
             {
-                for (int y = 0; y < OriginalImage.Height; y++)
+                for (int y = 0; y < fpOriginal.Height; y++)
                 {
-                    Color pixel = OriginalImage.GetPixel(x, y);
+                    Color pixel = fpOriginal.GetPixel(x, y);
                     int gs1 = (int)((pixel.R * 0.3) + (pixel.G * 0.59) + (pixel.B * 0.11));
 
                     int distance = Math.Abs(threshold - gs1);
@@ -1560,10 +1564,12 @@ namespace LitDev.Engines
                     if (gs < 0) gs = 0;
 
                     Color newColor = Color.FromArgb(255, gs, gs, gs);
-                    OutputImage.SetPixel(x, y, newColor);
+                    fpOutput.SetPixel(x, y, newColor);
                 }
             }
 
+            fpOriginal.Unlock(false);
+            fpOutput.Unlock(true);
             return OutputImage;
         }
 
@@ -1767,25 +1773,31 @@ namespace LitDev.Engines
         /// <returns>Balck and white image</returns>
         public Bitmap ToBlackwhiteInverse(Bitmap OriginalImage, int threshold)
         {
-            Bitmap OutputImage = new System.Drawing.Bitmap(OriginalImage.Width, OriginalImage.Height);
+            FastPixel fpOriginal = new FastPixel(OriginalImage);
+            fpOriginal.Lock();
+            Bitmap OutputImage = new System.Drawing.Bitmap(fpOriginal.Width, fpOriginal.Height);
+            FastPixel fpOutput = new FastPixel(OutputImage);
+            fpOutput.Lock();
 
             if (threshold < 1 || threshold > 254)
             {
                 throw new Exception("Threshold value must be in range from 1 to 254");
             }
 
-            for (int x = 0; x < OriginalImage.Width; x++)
+            for (int x = 0; x < fpOriginal.Width; x++)
             {
-                for (int y = 0; y < OriginalImage.Height; y++)
+                for (int y = 0; y < fpOriginal.Height; y++)
                 {
-                    Color pixel = OriginalImage.GetPixel(x, y);
+                    Color pixel = fpOriginal.GetPixel(x, y);
                     int gs = (int)((pixel.R * 0.3) + (pixel.G * 0.59) + (pixel.B * 0.11));
                     if (gs > threshold) gs = 0; else gs = 255;
                     Color newColor = Color.FromArgb(255, gs, gs, gs);
-                    OutputImage.SetPixel(x, y, newColor);
+                    fpOutput.SetPixel(x, y, newColor);
                 }
             }
 
+            fpOriginal.Unlock(false);
+            fpOutput.Unlock(true);
             return OutputImage;
         }
 
@@ -2066,7 +2078,11 @@ namespace LitDev.Engines
         public Bitmap ImageFilterGS(Bitmap OriginalImage, int[,] Filter)
         {
             Bitmap image = OriginalImage;
-            Bitmap image2 = new Bitmap(image.Width, image.Height);
+            FastPixel fpImage = new FastPixel(image);
+            fpImage.Lock();
+            Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
+            FastPixel fpImage2 = new FastPixel(image2);
+            fpImage2.Lock();
 
             if (Filter.GetLength(0) != Filter.GetLength(1))
             {
@@ -2085,9 +2101,9 @@ namespace LitDev.Engines
 
             int range = (int)Math.Floor(Convert.ToDouble(Filter.GetLength(0) / 2));
 
-            for (int m = range; m < image.Width - range; m++)
+            for (int m = range; m < fpImage.Width - range; m++)
             {
-                for (int n = range; n < image.Height - range; n++)
+                for (int n = range; n < fpImage.Height - range; n++)
                 {
 
                     int[,] roi = new int[Filter.GetLength(0), Filter.GetLength(0)];
@@ -2101,7 +2117,7 @@ namespace LitDev.Engines
                     {
                         for (int j = n - range; j < n + range + 1; j++)
                         {
-                            Color pixel = image.GetPixel(i, j);
+                            Color pixel = fpImage.GetPixel(i, j);
                             Double p = Convert.ToDouble((pixel.R * 0.3) + (pixel.G * 0.59) + (pixel.B * 0.11));
 
                             roi[tmpi, tmpj] = (int)p;
@@ -2127,12 +2143,13 @@ namespace LitDev.Engines
                     if (newValue > 255) newValue = 255;
                     if (newValue < 0) newValue = 0;
 
-                    image2.SetPixel(m, n, Color.FromArgb(255, newValue, newValue, newValue));
+                    fpImage2.SetPixel(m, n, Color.FromArgb(255, newValue, newValue, newValue));
 
                 }
             }
 
-
+            fpImage.Unlock(false);
+            fpImage2.Unlock(true);
             return image2;
         }
 
@@ -2586,22 +2603,26 @@ namespace LitDev.Engines
         public Bitmap ImageSobelFilterGS(Bitmap OriginalImage)
         {
             Bitmap image = OriginalImage;
-            Bitmap image2 = new Bitmap(image.Width, image.Height);
+            FastPixel fpImage = new FastPixel(image);
+            fpImage.Lock();
+            Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
+            FastPixel fpImage2 = new FastPixel(image2);
+            fpImage2.Lock();
 
-            for (int m = 1; m < image.Width - 1; m++)
+            for (int m = 1; m < fpImage.Width - 1; m++)
             {
-                for (int n = 1; n < image.Height - 1; n++)
+                for (int n = 1; n < fpImage.Height - 1; n++)
                 {
 
-                    Color pixel1 = image.GetPixel(m - 1, n - 1);
-                    Color pixel2 = image.GetPixel(m, n - 1);
-                    Color pixel3 = image.GetPixel(m + 1, n - 1);
-                    Color pixel4 = image.GetPixel(m - 1, n);
-                    Color pixel5 = image.GetPixel(m, n);
-                    Color pixel6 = image.GetPixel(m + 1, n);
-                    Color pixel7 = image.GetPixel(m - 1, n + 1);
-                    Color pixel8 = image.GetPixel(m, n + 1);
-                    Color pixel9 = image.GetPixel(m + 1, n + 1);
+                    Color pixel1 = fpImage.GetPixel(m - 1, n - 1);
+                    Color pixel2 = fpImage.GetPixel(m, n - 1);
+                    Color pixel3 = fpImage.GetPixel(m + 1, n - 1);
+                    Color pixel4 = fpImage.GetPixel(m - 1, n);
+                    Color pixel5 = fpImage.GetPixel(m, n);
+                    Color pixel6 = fpImage.GetPixel(m + 1, n);
+                    Color pixel7 = fpImage.GetPixel(m - 1, n + 1);
+                    Color pixel8 = fpImage.GetPixel(m, n + 1);
+                    Color pixel9 = fpImage.GetPixel(m + 1, n + 1);
 
                     Double p1 = Convert.ToDouble((pixel1.R * 0.3) + (pixel1.G * 0.59) + (pixel1.B * 0.11));
                     Double p2 = Convert.ToDouble((pixel2.R * 0.3) + (pixel2.G * 0.59) + (pixel2.B * 0.11));
@@ -2623,11 +2644,12 @@ namespace LitDev.Engines
                     if (newgs > 255) newgs = 255;
                     if (newgs < 0) newgs = 0;
 
-                    image2.SetPixel(m, n, Color.FromArgb(255, newgs, newgs, newgs));
+                    fpImage2.SetPixel(m, n, Color.FromArgb(255, newgs, newgs, newgs));
                 }
             }
 
-
+            fpImage.Unlock(false);
+            fpImage2.Unlock(true);
             return image2;
         }
 
@@ -2774,22 +2796,26 @@ namespace LitDev.Engines
         public Bitmap ImagePrewittFilterColor(Bitmap OriginalImage)
         {
             Bitmap image = OriginalImage;
-            Bitmap image2 = new Bitmap(image.Width, image.Height);
+            FastPixel fpImage = new FastPixel(image);
+            fpImage.Lock();
+            Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
+            FastPixel fpImage2 = new FastPixel(image2);
+            fpImage2.Lock();
 
-            for (int m = 1; m < image.Width - 1; m++)
+            for (int m = 1; m < fpImage.Width - 1; m++)
             {
-                for (int n = 1; n < image.Height - 1; n++)
+                for (int n = 1; n < fpImage.Height - 1; n++)
                 {
 
-                    Color pixel1 = image.GetPixel(m - 1, n - 1);
-                    Color pixel2 = image.GetPixel(m, n - 1);
-                    Color pixel3 = image.GetPixel(m + 1, n - 1);
-                    Color pixel4 = image.GetPixel(m - 1, n);
-                    Color pixel5 = image.GetPixel(m, n);
-                    Color pixel6 = image.GetPixel(m + 1, n);
-                    Color pixel7 = image.GetPixel(m - 1, n + 1);
-                    Color pixel8 = image.GetPixel(m, n + 1);
-                    Color pixel9 = image.GetPixel(m + 1, n + 1);
+                    Color pixel1 = fpImage.GetPixel(m - 1, n - 1);
+                    Color pixel2 = fpImage.GetPixel(m, n - 1);
+                    Color pixel3 = fpImage.GetPixel(m + 1, n - 1);
+                    Color pixel4 = fpImage.GetPixel(m - 1, n);
+                    Color pixel5 = fpImage.GetPixel(m, n);
+                    Color pixel6 = fpImage.GetPixel(m + 1, n);
+                    Color pixel7 = fpImage.GetPixel(m - 1, n + 1);
+                    Color pixel8 = fpImage.GetPixel(m, n + 1);
+                    Color pixel9 = fpImage.GetPixel(m + 1, n + 1);
 
                     Double p1r = Convert.ToDouble(pixel1.R);
                     Double p2r = Convert.ToDouble(pixel2.R);
@@ -2840,11 +2866,12 @@ namespace LitDev.Engines
                     if (newgsb > 255) newgsb = 255;
                     if (newgsb < 0) newgsb = 0;
 
-                    image2.SetPixel(m, n, Color.FromArgb(255, newgsr, newgsg, newgsb));
+                    fpImage2.SetPixel(m, n, Color.FromArgb(255, newgsr, newgsg, newgsb));
                 }
             }
 
-
+            fpImage.Unlock(false);
+            fpImage2.Unlock(true);
             return image2;
         }
 
@@ -2857,7 +2884,11 @@ namespace LitDev.Engines
         public Bitmap ImageMedianFilterGS(Bitmap OriginalImage, int size)
         {
             Bitmap image = OriginalImage;
-            Bitmap image2 = new Bitmap(image.Width, image.Height);
+            FastPixel fpImage = new FastPixel(OriginalImage);
+            fpImage.Lock();
+            Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
+            FastPixel fpImage2 = new FastPixel(image2);
+            fpImage2.Lock();
 
             if (size % 2 == 0)
             {
@@ -2871,9 +2902,9 @@ namespace LitDev.Engines
 
             int range = (int)Math.Floor(Convert.ToDouble(size / 2));
 
-            for (int m = range; m < image.Width - range; m++)
+            for (int m = range; m < fpImage.Width - range; m++)
             {
-                for (int n = range; n < image.Height - range; n++)
+                for (int n = range; n < fpImage.Height - range; n++)
                 {
 
                     int[] roi = new int[size * size];
@@ -2885,7 +2916,7 @@ namespace LitDev.Engines
                     {
                         for (int j = n - range; j < n + range + 1; j++)
                         {
-                            Color pixel = image.GetPixel(i, j);
+                            Color pixel = fpImage.GetPixel(i, j);
                             Double p = Convert.ToDouble((pixel.R * 0.3) + (pixel.G * 0.59) + (pixel.B * 0.11));
 
                             roi[tmp] = (int)p;
@@ -2907,10 +2938,12 @@ namespace LitDev.Engines
                     if (newValue > 255) newValue = 255;
                     if (newValue < 0) newValue = 0;
 
-                    image2.SetPixel(m, n, Color.FromArgb(255, newValue, newValue, newValue));
+                    fpImage2.SetPixel(m, n, Color.FromArgb(255, newValue, newValue, newValue));
                 }
             }
 
+            fpImage.Unlock(false);
+            fpImage2.Unlock(true);
             return image2;
         }
 
@@ -3332,16 +3365,20 @@ namespace LitDev.Engines
         public Bitmap ImageSDROMFilterGS(Bitmap OriginalImage)
         {
             Bitmap image = OriginalImage;
-            Bitmap image2 = new Bitmap(image.Width, image.Height);
+            FastPixel fpImage = new FastPixel(image);
+            fpImage.Lock();
+            Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
+            FastPixel fpImage2 = new FastPixel(image2);
+            fpImage2.Lock();
 
             int[] thresholds = new int[4] { 20, 40, 60, 80 };
             int size = 3;
 
             int range = (int)Math.Floor(Convert.ToDouble(size / 2));
 
-            for (int m = range; m < image.Width - range; m++)
+            for (int m = range; m < fpImage.Width - range; m++)
             {
-                for (int n = range; n < image.Height - range; n++)
+                for (int n = range; n < fpImage.Height - range; n++)
                 {
 
                     int[,] roi = new int[size, size];
@@ -3351,14 +3388,14 @@ namespace LitDev.Engines
 
                     int newValue = 0;
 
-                    Color CPixel = image.GetPixel(m, n);
+                    Color CPixel = fpImage.GetPixel(m, n);
                     int CP = (int)Convert.ToDouble((CPixel.R * 0.3) + (CPixel.G * 0.59) + (CPixel.B * 0.11));
 
                     for (int i = m - range; i < m + range + 1; i++)
                     {
                         for (int j = n - range; j < n + range + 1; j++)
                         {
-                            Color pixel = image.GetPixel(i, j);
+                            Color pixel = fpImage.GetPixel(i, j);
                             Double p = Convert.ToDouble((pixel.R * 0.3) + (pixel.G * 0.59) + (pixel.B * 0.11));
 
                             roi[tmpi, tmpj] = (int)p;
@@ -3432,10 +3469,12 @@ namespace LitDev.Engines
                     if (newValue > 255) newValue = 255;
                     if (newValue < 0) newValue = 0;
 
-                    image2.SetPixel(m, n, Color.FromArgb(255, newValue, newValue, newValue));
+                    fpImage2.SetPixel(m, n, Color.FromArgb(255, newValue, newValue, newValue));
                 }
             }
 
+            fpImage.Unlock(false);
+            fpImage2.Unlock(true);
             return image2;
         }
 
@@ -3584,16 +3623,20 @@ namespace LitDev.Engines
         public Bitmap ImageSDROMFilterColor(Bitmap OriginalImage)
         {
             Bitmap image = OriginalImage;
-            Bitmap image2 = new Bitmap(image.Width, image.Height);
+            FastPixel fpImage = new FastPixel(image);
+            fpImage.Lock();
+            Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
+            FastPixel fpImage2 = new FastPixel(image2);
+            fpImage2.Lock();
 
             int[] thresholds = new int[4] { 20, 40, 60, 80 };
             int size = 3;
 
             int range = (int)Math.Floor(Convert.ToDouble(size / 2));
 
-            for (int m = range; m < image.Width - range; m++)
+            for (int m = range; m < fpImage.Width - range; m++)
             {
-                for (int n = range; n < image.Height - range; n++)
+                for (int n = range; n < fpImage.Height - range; n++)
                 {
 
                     int[,] roiR = new int[size, size];
@@ -3607,7 +3650,7 @@ namespace LitDev.Engines
                     int newValueG = 0;
                     int newValueB = 0;
 
-                    Color CPixel = image.GetPixel(m, n);
+                    Color CPixel = fpImage.GetPixel(m, n);
                     int CPR = (int)(CPixel.R);
                     int CPG = (int)(CPixel.G);
                     int CPB = (int)(CPixel.B);
@@ -3616,7 +3659,7 @@ namespace LitDev.Engines
                     {
                         for (int j = n - range; j < n + range + 1; j++)
                         {
-                            Color pixel = image.GetPixel(i, j);
+                            Color pixel = fpImage.GetPixel(i, j);
                             Double pR = Convert.ToDouble(pixel.R);
                             Double pG = Convert.ToDouble(pixel.G);
                             Double pB = Convert.ToDouble(pixel.B);
@@ -3758,10 +3801,12 @@ namespace LitDev.Engines
                     if (newValueB > 255) newValueB = 255;
                     if (newValueB < 0) newValueB = 0;
 
-                    image2.SetPixel(m, n, Color.FromArgb(255, newValueR, newValueG, newValueB));
+                    fpImage2.SetPixel(m, n, Color.FromArgb(255, newValueR, newValueG, newValueB));
                 }
             }
 
+            fpImage.Unlock(false);
+            fpImage2.Unlock(true);
             return image2;
         }
 
@@ -4173,13 +4218,17 @@ namespace LitDev.Engines
         /// <returns>Sepia image</returns>
         public Bitmap Sepia(Bitmap OriginalImage, Double Coef)
         {
-            Bitmap OutputImage = new System.Drawing.Bitmap(OriginalImage.Width, OriginalImage.Height);
+            FastPixel fpOriginal = new FastPixel(OriginalImage);
+            fpOriginal.Lock();
+            Bitmap OutputImage = new System.Drawing.Bitmap(fpOriginal.Width, fpOriginal.Height);
+            FastPixel fpOutput = new FastPixel(OutputImage);
+            fpOutput.Lock();
 
-            for (int x = 0; x < OriginalImage.Width; x++)
+            for (int x = 0; x < fpOriginal.Width; x++)
             {
-                for (int y = 0; y < OriginalImage.Height; y++)
+                for (int y = 0; y < fpOriginal.Height; y++)
                 {
-                    Color pixel = OriginalImage.GetPixel(x, y);
+                    Color pixel = fpOriginal.GetPixel(x, y);
 
                     int gs = (int)((pixel.R * 0.3) + (pixel.G * 0.59) + (pixel.B * 0.11));
 
@@ -4199,10 +4248,12 @@ namespace LitDev.Engines
                     Color newColor = Color.FromArgb(255, red, green, blue); ;
 
 
-                    OutputImage.SetPixel(x, y, newColor);
+                    fpOutput.SetPixel(x, y, newColor);
                 }
             }
 
+            fpOriginal.Unlock(false);
+            fpOutput.Unlock(true);
             return OutputImage;
         }
 
@@ -4216,17 +4267,21 @@ namespace LitDev.Engines
         /// <returns>Color accent filtration</returns>
         public Bitmap ColorAccent(Bitmap OriginalImage, Double h, Double range)
         {
-            Bitmap OutputImage = new System.Drawing.Bitmap(OriginalImage.Width, OriginalImage.Height);
+            FastPixel fpOriginal = new FastPixel(OriginalImage);
+            fpOriginal.Lock();
+            Bitmap OutputImage = new System.Drawing.Bitmap(fpOriginal.Width, fpOriginal.Height);
+            FastPixel fpOutput = new FastPixel(OutputImage);
+            fpOutput.Lock();
 
             Double h1 = (h - range / 2 + 360) % 360;
             Double h2 = (h + range / 2 + 360) % 360;
 
 
-            for (int x = 0; x < OriginalImage.Width; x++)
+            for (int x = 0; x < fpOriginal.Width; x++)
             {
-                for (int y = 0; y < OriginalImage.Height; y++)
+                for (int y = 0; y < fpOriginal.Height; y++)
                 {
-                    Color pixel = OriginalImage.GetPixel(x, y);
+                    Color pixel = fpOriginal.GetPixel(x, y);
                     Double[] hsv = this.rgb2hsv(pixel);
                     int red = 0, green = 0, blue = 0;
 
@@ -4276,10 +4331,12 @@ namespace LitDev.Engines
 
                     Color newColor = Color.FromArgb(255, red, green, blue); ;
 
-                    OutputImage.SetPixel(x, y, newColor);
+                    fpOutput.SetPixel(x, y, newColor);
                 }
             }
 
+            fpOriginal.Unlock(false);
+            fpOutput.Unlock(true);
             return OutputImage;
         }
 
@@ -4936,7 +4993,11 @@ namespace LitDev.Engines
         public Bitmap OilPaint(Bitmap OriginalImage, int R, int Level)
         {
             Bitmap image = OriginalImage;
-            Bitmap image2 = new Bitmap(image.Width, image.Height);
+            FastPixel fpImage = new FastPixel(image);
+            fpImage.Lock();
+            Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
+            FastPixel fpImage2 = new FastPixel(image2);
+            fpImage2.Lock();
 
             if (Level < 1 || Level > 255)
             {
@@ -4955,9 +5016,9 @@ namespace LitDev.Engines
 
             int range = (int)Math.Floor(Convert.ToDouble(R / 2));
 
-            for (int m = range; m < image.Width - range; m++)
+            for (int m = range; m < fpImage.Width - range; m++)
             {
-                for (int n = range; n < image.Height - range; n++)
+                for (int n = range; n < fpImage.Height - range; n++)
                 {
 
                     Double[,,] roi = new Double[3, R, R];
@@ -4973,7 +5034,7 @@ namespace LitDev.Engines
                     {
                         for (int j = n - range; j < n + range + 1; j++)
                         {
-                            Color pixel = image.GetPixel(i, j);
+                            Color pixel = fpImage.GetPixel(i, j);
                             Double pR = Convert.ToDouble(pixel.R);
                             Double pG = Convert.ToDouble(pixel.G);
                             Double pB = Convert.ToDouble(pixel.B);
@@ -5034,11 +5095,13 @@ namespace LitDev.Engines
                     if (newValueB > 255) newValueB = 255;
                     if (newValueB < 0) newValueB = 0;
 
-                    image2.SetPixel(m, n, Color.FromArgb(255, newValueR, newValueG, newValueB));
+                    fpImage2.SetPixel(m, n, Color.FromArgb(255, newValueR, newValueG, newValueB));
 
                 }
             }
 
+            fpImage.Unlock(false);
+            fpImage2.Unlock(true);
             return image2;
 
         }
@@ -5059,23 +5122,33 @@ namespace LitDev.Engines
             Bitmap oilpaint = this.OilPaint(image, R, Level);
             Bitmap edge = this.ToBlackwhiteInverse(this.ImageSobelFilterGS(image), InverseThreshold);
 
-            for (int i = 0; i < image.Width; i++)
+            FastPixel fpOilpaint = new FastPixel(oilpaint);
+            FastPixel fpEdge = new FastPixel(edge);
+            FastPixel fpImage2 = new FastPixel(image2);
+            fpOilpaint.Lock();
+            fpEdge.Lock();
+            fpImage2.Lock();
+
+            for (int i = 0; i < fpImage2.Width; i++)
             {
-                for (int j = 0; j < image.Height; j++)
+                for (int j = 0; j < fpImage2.Height; j++)
                 {
 
-                    if (edge.GetPixel(i, j).R == 255)
+                    if (fpEdge.GetPixel(i, j).R == 255)
                     {
-                        image2.SetPixel(i, j, oilpaint.GetPixel(i, j));
+                        fpImage2.SetPixel(i, j, fpOilpaint.GetPixel(i, j));
                     }
                     else
                     {
-                        image2.SetPixel(i, j, edge.GetPixel(i, j));
+                        fpImage2.SetPixel(i, j, fpEdge.GetPixel(i, j));
                     }
 
                 }
             }
 
+            fpOilpaint.Unlock(false);
+            fpEdge.Unlock(false);
+            fpImage2.Unlock(true);
             return image2;
         }
 

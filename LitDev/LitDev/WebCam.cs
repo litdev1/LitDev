@@ -168,109 +168,133 @@ namespace LitDev
                 case eEffect.RED: //Red
                     {
                         System.Drawing.Color c;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, c.R, 0, 0));
+                                c = fp.GetPixel(i, j);
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, c.R, 0, 0));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.GREEN: //Green
                     {
                         System.Drawing.Color c;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 0, c.G, 0));
+                                c = fp.GetPixel(i, j);
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 0, c.G, 0));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.BLUE: //Blue
                     {
                         System.Drawing.Color c;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 0, 0, c.B));
+                                c = fp.GetPixel(i, j);
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 0, 0, c.B));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.GRAY: //Gray
                     {
                         System.Drawing.Color c;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
                                 byte gray = (byte)(.299 * c.R + .587 * c.G + .114 * c.B);
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, gray, gray, gray));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, gray, gray, gray));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.INVERSE: //Inverse
                     {
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
                         System.Drawing.Color c;
-                        for (int i = 0; i < bmap.Width; i++)
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 255 - c.R, 255 - c.G, 255 - c.B));
+                                c = fp.GetPixel(i, j);
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 255 - c.R, 255 - c.G, 255 - c.B));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.YELLOW: //Yellow
                     {
                         System.Drawing.Color c;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
                                 byte gray = (byte)(.299 * c.R + .587 * c.G + .114 * c.B);
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, gray, gray, 0));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, gray, gray, 0));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.CYAN: //Cyan
                     {
                         System.Drawing.Color c;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
                                 byte gray = (byte)(.299 * c.R + .587 * c.G + .114 * c.B);
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 0, gray, gray));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 0, gray, gray));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.MAGENTA: //Magenta
                     {
                         System.Drawing.Color c;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
                                 byte gray = (byte)(.299 * c.R + .587 * c.G + .114 * c.B);
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, gray, 0, gray));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, gray, 0, gray));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.SNOW: //Snow
@@ -280,13 +304,16 @@ namespace LitDev
                         Random rand = new Random();
                         System.Drawing.Color c;
                         int i, j;
-                        for (int ii = 0; ii < bmap.Width * bmap.Height / density; ii++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int ii = 0; ii < fp.Width * fp.Height / density; ii++)
                         {
-                            i = rand.Next(bmap.Width);
-                            j = rand.Next(bmap.Height);
-                            c = bmap.GetPixel(i, j);
-                            bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 255, 255, 255));
+                            i = rand.Next(fp.Width);
+                            j = rand.Next(fp.Height);
+                            c = fp.GetPixel(i, j);
+                            fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, 255, 255, 255));
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.FUZZY: //Fuzzy
@@ -298,16 +325,19 @@ namespace LitDev
                         int x = parameter;
                         if (x <= 0) x = pEffect[(int)_effect];
                         int y = 2 * x + 1;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                ii = System.Math.Max(0, System.Math.Min(bmap.Width - 1, i + rand.Next(y) - x));
-                                jj = System.Math.Max(0, System.Math.Min(bmap.Height - 1, j + rand.Next(y) - x));
+                                ii = System.Math.Max(0, System.Math.Min(fp.Width - 1, i + rand.Next(y) - x));
+                                jj = System.Math.Max(0, System.Math.Min(fp.Height - 1, j + rand.Next(y) - x));
                                 c = copy.GetPixel(ii, jj);
-                                bmap.SetPixel(i, j, c);
+                                fp.SetPixel(i, j, c);
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.CONTRAST: //Contrast
@@ -317,11 +347,13 @@ namespace LitDev
                         System.Drawing.Color c;
                         double R, G, B;
 
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
 
                                 R = c.R / 255.0 - 0.5;
                                 R = R >= 0 ? System.Math.Pow(R, 1.0 / contrast) : -System.Math.Pow(-R, 1.0 / contrast);
@@ -338,9 +370,10 @@ namespace LitDev
                                 B = 255 * (B + 0.5);
                                 B = System.Math.Max(0, System.Math.Min(255, B));
 
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.BLOCKS: //Blocks
@@ -368,18 +401,21 @@ namespace LitDev
                         if (amount <= 0) amount = pEffect[(int)_effect];
                         bool up = true, left = false;
                         int ii, jj;
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
                             if (i % amount == 0) up = !up;
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
                                 if (j % amount == 0) left = !left;
-                                ii = left ? System.Math.Max(0, i - amount) : System.Math.Min(bmap.Width - 1, i + amount);
-                                jj = up ? System.Math.Max(0, j - amount) : System.Math.Min(bmap.Height - 1, j + amount);
+                                ii = left ? System.Math.Max(0, i - amount) : System.Math.Min(fp.Width - 1, i + amount);
+                                jj = up ? System.Math.Max(0, j - amount) : System.Math.Min(fp.Height - 1, j + amount);
                                 c = copy.GetPixel(ii, jj);
-                                bmap.SetPixel(i, j, c);
+                                fp.SetPixel(i, j, c);
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.ROTATE: //Rotate
@@ -395,8 +431,12 @@ namespace LitDev
                         System.Drawing.Bitmap copy = (System.Drawing.Bitmap)bmap.Clone();
                         int amount = parameter;
                         if (amount <= 0) amount = pEffect[(int)_effect];
-                        int nx = bmap.Width / amount + 1;
-                        int ny = bmap.Height / amount + 1;
+                        FastPixel fpCopy = new FastPixel(copy);
+                        fpCopy.Lock();
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        int nx = fp.Width / amount + 1;
+                        int ny = fp.Height / amount + 1;
                         int ii, jj;
                         int[,] A = new int[nx, ny];
                         int[,] R = new int[nx, ny];
@@ -415,19 +455,19 @@ namespace LitDev
                                 N[i, j] = 0;
                             }
                         }
-                        for (int i = 0; i < bmap.Width; i++)
+                        for (int i = 0; i < fp.Width; i++)
                         {
                             ii = i / amount;
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
                                 jj = j / amount;
-                                c = copy.GetPixel(i, j);
+                                c = fpCopy.GetPixel(i, j);
                                 A[ii, jj] += c.A;
                                 R[ii, jj] += c.R;
                                 G[ii, jj] += c.G;
                                 B[ii, jj] += c.B;
                                 N[ii, jj] += 1;
-                                bmap.SetPixel(i, j, c);
+                                fp.SetPixel(i, j, c);
                             }
                         }
                         for (int i = 0; i < nx; i++)
@@ -437,15 +477,17 @@ namespace LitDev
                                 if (N[i,j] > 0) C[i, j] = System.Drawing.Color.FromArgb(A[i, j] / N[i, j], R[i, j] / N[i, j], G[i, j] / N[i, j], B[i, j] / N[i, j]);
                             }
                         }
-                        for (int i = 0; i < bmap.Width; i++)
+                        for (int i = 0; i < fp.Width; i++)
                         {
                             ii = i / amount;
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
                                 jj = j / amount;
-                                bmap.SetPixel(i, j, C[ii, jj]);
+                                fp.SetPixel(i, j, C[ii, jj]);
                             }
                         }
+                        fp.Unlock(true);
+                        fpCopy.Unlock(false);
                     }
                     break;
                 case eEffect.GAMMA: //Gamma
@@ -455,11 +497,13 @@ namespace LitDev
                         System.Drawing.Color c;
                         double R, G, B;
 
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
 
                                 R = 255.0 * System.Math.Pow(c.R / 255.0, gamma);
                                 R = System.Math.Max(0, System.Math.Min(255, R));
@@ -470,9 +514,10 @@ namespace LitDev
                                 B = 255.0 * System.Math.Pow(c.B / 255.0, gamma);
                                 B = System.Math.Max(0, System.Math.Min(255, B));
 
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.FISHEYE: //FishEye
@@ -482,11 +527,15 @@ namespace LitDev
                         if (factor < 1) factor = pEffect[(int)_effect];
                         factor -= 1;
 
-                        double centerX = bmap.Width / 2; //center of distortion
-                        double centerY = bmap.Height / 2;
+                        FastPixel fpCopy = new FastPixel(copy);
+                        fpCopy.Lock();
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        double centerX = fp.Width / 2; //center of distortion
+                        double centerY = fp.Height / 2;
 
-                        int width = bmap.Width; //image bounds
-                        int height = bmap.Height;
+                        int width = fp.Width; //image bounds
+                        int height = fp.Height;
 
                         xshift = calc_shift(0, centerX - 1, centerX, factor);
                         double newcenterX = width - centerX;
@@ -507,9 +556,11 @@ namespace LitDev
                                 double y = getRadialY((double)i, (double)j, centerX, centerY, factor);
                                 int ii = System.Math.Min(width - 1, System.Math.Max(0, (int)x));
                                 int jj = System.Math.Min(height - 1, System.Math.Max(0, (int)y));
-                                bmap.SetPixel(i, j, copy.GetPixel(ii, jj));
+                                fp.SetPixel(i, j, fpCopy.GetPixel(ii, jj));
                             }
                         }
+                        fp.Unlock(true);
+                        fpCopy.Unlock(false);
                     }
                     break;
                 case eEffect.BULGE: //Bulge
@@ -518,24 +569,31 @@ namespace LitDev
                         double factor = parameter;
                         if (factor <= 0) factor = pEffect[(int)_effect];
 
-                        double rad = System.Math.Min(bmap.Width, bmap.Height) / 2.0;
+                        FastPixel fpCopy = new FastPixel(copy);
+                        fpCopy.Lock();
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+
+                        double rad = System.Math.Min(fp.Width, fp.Height) / 2.0;
                         double dx, dy, dist, scale;
                         int ii, jj;
-                        for (int i = 0; i < bmap.Width; i++)
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                dx = i - bmap.Width / 2.0;
-                                dy = j - bmap.Height / 2.0;
+                                dx = i - fp.Width / 2.0;
+                                dy = j - fp.Height / 2.0;
                                 dist = System.Math.Sqrt(dx * dx + dy * dy);
                                 scale = System.Math.Pow(dist / rad, factor) / (dist / rad);
-                                ii = (int)(bmap.Width / 2.0 + scale * dx);
-                                ii = System.Math.Min(bmap.Width - 1, System.Math.Max(0, ii));
-                                jj = (int)(bmap.Height / 2.0 + scale * dy);
-                                jj = System.Math.Min(bmap.Height - 1, System.Math.Max(0, jj));
-                                bmap.SetPixel(i, j, copy.GetPixel(ii, jj));
+                                ii = (int)(fp.Width / 2.0 + scale * dx);
+                                ii = System.Math.Min(fp.Width - 1, System.Math.Max(0, ii));
+                                jj = (int)(fp.Height / 2.0 + scale * dy);
+                                jj = System.Math.Min(fp.Height - 1, System.Math.Max(0, jj));
+                                fp.SetPixel(i, j, fpCopy.GetPixel(ii, jj));
                             }
                         }
+                        fp.Unlock(true);
+                        fpCopy.Unlock(false);
                     }
                     break;
                 case eEffect.SWIRL: //Swirl
@@ -544,26 +602,33 @@ namespace LitDev
                         double factor = parameter;
                         if (factor == 0) factor = pEffect[(int)_effect];
 
+                        FastPixel fpCopy = new FastPixel(copy);
+                        fpCopy.Lock();
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+
                         double dx, dy, dist, theta;
                         int ii, jj;
-                        for (int i = 0; i < bmap.Width; i++)
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                dx = i - bmap.Width / 2.0;
-                                dy = j - bmap.Height / 2.0;
+                                dx = i - fp.Width / 2.0;
+                                dy = j - fp.Height / 2.0;
                                 dist = System.Math.Sqrt(dx * dx + dy * dy);
                                 if (dx == 0) theta = dy > 0 ? System.Math.PI / 2.0 : 3.0 * System.Math.PI / 2.0;
                                 else theta = System.Math.Atan(dy/dx);
                                 if (dx < 0) theta += System.Math.PI;
-                                theta += dist / bmap.Width * factor * 2 * System.Math.PI;
-                                ii = (int)(bmap.Width / 2.0 + dist * System.Math.Cos(theta));
-                                ii = System.Math.Min(bmap.Width - 1, System.Math.Max(0, ii));
-                                jj = (int)(bmap.Height / 2.0 + dist * System.Math.Sin(theta));
-                                jj = System.Math.Min(bmap.Height - 1, System.Math.Max(0, jj));
-                                bmap.SetPixel(i, j, copy.GetPixel(ii, jj));
+                                theta += dist / fp.Width * factor * 2 * System.Math.PI;
+                                ii = (int)(fp.Width / 2.0 + dist * System.Math.Cos(theta));
+                                ii = System.Math.Min(fp.Width - 1, System.Math.Max(0, ii));
+                                jj = (int)(fp.Height / 2.0 + dist * System.Math.Sin(theta));
+                                jj = System.Math.Min(fp.Height - 1, System.Math.Max(0, jj));
+                                fp.SetPixel(i, j, fpCopy.GetPixel(ii, jj));
                             }
                         }
+                        fp.Unlock(true);
+                        fpCopy.Unlock(false);
                     }
                     break;
                 case eEffect.POSTERISE: //Posterise
@@ -573,19 +638,22 @@ namespace LitDev
                         System.Drawing.Color c;
                         double R, G, B;
 
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
 
                                 R = ((int)(c.R / level)) * level;
                                 G = ((int)(c.G / level)) * level;
                                 B = ((int)(c.B / level)) * level;
 
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.HUE: //Hue
@@ -596,18 +664,21 @@ namespace LitDev
                         double[] HSL;
                         double[] RGB;
 
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
 
                                 HSL = LDColours.RGB2HSL(c.R, c.G, c.B);
                                 RGB = LDColours.HSL2RGB(HSL[0] + hue, HSL[1], HSL[2]);
 
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255*RGB[0]+0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255*RGB[0]+0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.SATURATION: //Saturation
@@ -618,18 +689,21 @@ namespace LitDev
                         double[] HSL;
                         double[] RGB;
 
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
 
                                 HSL = LDColours.RGB2HSL(c.R, c.G, c.B);
                                 RGB = LDColours.HSL2RGB(HSL[0], HSL[1] * saturation, HSL[2]);
 
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255 * RGB[0] + 0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255 * RGB[0] + 0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.LIGHTNESS: //Lightness
@@ -640,18 +714,21 @@ namespace LitDev
                         double[] HSL;
                         double[] RGB;
 
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
 
                                 HSL = LDColours.RGB2HSL(c.R, c.G, c.B);
                                 RGB = LDColours.HSL2RGB(HSL[0], HSL[1], HSL[2] * lightness);
 
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255 * RGB[0] + 0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)(255 * RGB[0] + 0.5), (int)(255 * RGB[1] + 0.5), (int)(255 * RGB[2] + 0.5)));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 case eEffect.OILPAINT: //Oil Paint
@@ -721,11 +798,13 @@ namespace LitDev
                         System.Drawing.Color c;
                         double R, G, B;
 
-                        for (int i = 0; i < bmap.Width; i++)
+                        FastPixel fp = new FastPixel(bmap);
+                        fp.Lock();
+                        for (int i = 0; i < fp.Width; i++)
                         {
-                            for (int j = 0; j < bmap.Height; j++)
+                            for (int j = 0; j < fp.Height; j++)
                             {
-                                c = bmap.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
 
                                 R = c.R / 255.0;
                                 G = c.G / 255.0;
@@ -735,9 +814,10 @@ namespace LitDev
                                 G = System.Math.Pow(G < 0.5 ? 1 - 2 * G : 2 * G - 1, power) * 255.0;
                                 B = System.Math.Pow(B < 0.5 ? 1 - 2 * B : 2 * B - 1, power) * 255.0;
 
-                                bmap.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
+                                fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, (int)R, (int)G, (int)B));
                             }
                         }
+                        fp.Unlock(true);
                     }
                     break;
                 default:

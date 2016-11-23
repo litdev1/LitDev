@@ -93,9 +93,10 @@ namespace LitDev.Engines
             if (setPixels)
             {
                 Marshal.Copy(rgbValues, 0, bmpPtr, rgbValues.Length);
-                _bitmap.UnlockBits(bmpData);
-                locked = false;
             }
+
+            _bitmap.UnlockBits(bmpData);
+            locked = false;
         }
 
         public void Clear(Color colour)

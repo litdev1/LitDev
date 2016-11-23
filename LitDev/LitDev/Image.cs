@@ -161,8 +161,14 @@ namespace LitDev
                 Vec3D source = new Vec3D(x, -y, z);
                 source.Normalize();
 
-                FastPixel fp = new FastPixel(bNormal);
-                fp.Lock();
+                FastPixel fpTexture = null;
+                if (null != bTexture)
+                {
+                    fpTexture = new FastPixel(bTexture);
+                    fpTexture.Lock();
+                }
+                FastPixel fpNormal = new FastPixel(bNormal);
+                fpNormal.Lock();
                 for (int i = 0; i < width; i++)
                 {
                     for (int j = 0; j < height; j++)
@@ -172,18 +178,19 @@ namespace LitDev
                         if (null != bTexture)
                         {
                             scale = ambient + (intensity - ambient) * System.Math.Max(0, scale);
-                            c = bTexture.GetPixel(i, j);
-                            fp.SetPixel(i, j, Color.FromArgb(c.A, LDImage.range(c.R * scale), LDImage.range(c.G * scale), LDImage.range(c.B * scale)));
+                            c = fpTexture.GetPixel(i, j);
+                            fpNormal.SetPixel(i, j, Color.FromArgb(c.A, LDImage.range(c.R * scale), LDImage.range(c.G * scale), LDImage.range(c.B * scale)));
                         }
                         else
                         {
                             scale = 0.5 * (1.0 + scale);
                             rgb = LDImage.range(255 * scale);
-                            fp.SetPixel(i, j, Color.FromArgb(255, rgb, rgb, rgb));
+                            fpNormal.SetPixel(i, j, Color.FromArgb(255, rgb, rgb, rgb));
                         }
                     }
                 }
-                fp.Unlock(true);
+                fpNormal.Unlock(true);
+                if (null != bTexture) fpTexture.Unlock(false);
 
                 InvokeHelper ret = new InvokeHelper(delegate
                 {
@@ -805,14 +812,17 @@ namespace LitDev
                             System.Drawing.Bitmap dImg = getBitmap(img);
 
                             System.Drawing.Color c;
-                            for (int i = 0; i < dImg.Width; i++)
+                            FastPixel fp = new FastPixel(dImg);
+                            fp.Lock();
+                            for (int i = 0; i < fp.Width; i++)
                             {
-                                for (int j = 0; j < dImg.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
-                                    c = dImg.GetPixel(i, j);
-                                    dImg.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, range(c.R + red), range(c.G + green), range(c.B + blue)));
+                                    c = fp.GetPixel(i, j);
+                                    fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, range(c.R + red), range(c.G + green), range(c.B + blue)));
                                 }
                             }
+                            fp.Unlock(true);
 
                             _savedImages[image] = getBitmapImage(dImg);
                         }
@@ -860,14 +870,17 @@ namespace LitDev
                             System.Drawing.Bitmap dImg = getBitmap(img);
 
                             System.Drawing.Color c;
-                            for (int i = 0; i < dImg.Width; i++)
+                            FastPixel fp = new FastPixel(dImg);
+                            fp.Lock();
+                            for (int i = 0; i < fp.Width; i++)
                             {
-                                for (int j = 0; j < dImg.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
-                                    c = dImg.GetPixel(i, j);
-                                    dImg.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, range(c.R * red), range(c.G * green), range(c.B * blue)));
+                                    c = fp.GetPixel(i, j);
+                                    fp.SetPixel(i, j, System.Drawing.Color.FromArgb(c.A, range(c.R * red), range(c.G * green), range(c.B * blue)));
                                 }
                             }
+                            fp.Unlock(true);
 
                             _savedImages[image] = getBitmapImage(dImg);
                         }
@@ -943,15 +956,21 @@ namespace LitDev
                             if (dImg1.Width == dImg2.Width && dImg1.Height == dImg2.Height)
                             {
                                 System.Drawing.Color c1, c2;
-                                for (int i = 0; i < dImg1.Width; i++)
+                                FastPixel fpImg1 = new FastPixel(dImg1);
+                                FastPixel fpImg2 = new FastPixel(dImg2);
+                                fpImg1.Lock();
+                                fpImg2.Lock();
+                                for (int i = 0; i < fpImg1.Width; i++)
                                 {
-                                    for (int j = 0; j < dImg1.Height; j++)
+                                    for (int j = 0; j < fpImg1.Height; j++)
                                     {
-                                        c1 = dImg1.GetPixel(i, j);
-                                        c2 = dImg2.GetPixel(i, j);
-                                        dImg1.SetPixel(i, j, System.Drawing.Color.FromArgb(range(c1.R + c2.R), range(c1.G + c2.G), range(c1.B + c2.B)));
+                                        c1 = fpImg1.GetPixel(i, j);
+                                        c2 = fpImg2.GetPixel(i, j);
+                                        fpImg1.SetPixel(i, j, System.Drawing.Color.FromArgb(range(c1.R + c2.R), range(c1.G + c2.G), range(c1.B + c2.B)));
                                     }
                                 }
+                                fpImg1.Unlock(true);
+                                fpImg2.Unlock(false);
 
                                 _savedImages[imageNew] = getBitmapImage(dImg1);
                             }
@@ -1009,15 +1028,21 @@ namespace LitDev
                             if (dImg1.Width == dImg2.Width && dImg1.Height == dImg2.Height)
                             {
                                 System.Drawing.Color c1, c2;
-                                for (int i = 0; i < dImg1.Width; i++)
+                                FastPixel fpImg1 = new FastPixel(dImg1);
+                                FastPixel fpImg2 = new FastPixel(dImg2);
+                                fpImg1.Lock();
+                                fpImg2.Lock();
+                                for (int i = 0; i < fpImg1.Width; i++)
                                 {
-                                    for (int j = 0; j < dImg1.Height; j++)
+                                    for (int j = 0; j < fpImg1.Height; j++)
                                     {
-                                        c1 = dImg1.GetPixel(i, j);
-                                        c2 = dImg2.GetPixel(i, j);
-                                        dImg1.SetPixel(i, j, System.Drawing.Color.FromArgb(range(System.Math.Abs(c1.R - c2.R)), range(System.Math.Abs(c1.G - c2.G)), range(System.Math.Abs(c1.B - c2.B))));
+                                        c1 = fpImg1.GetPixel(i, j);
+                                        c2 = fpImg2.GetPixel(i, j);
+                                        fpImg1.SetPixel(i, j, System.Drawing.Color.FromArgb(range(System.Math.Abs(c1.R - c2.R)), range(System.Math.Abs(c1.G - c2.G)), range(System.Math.Abs(c1.B - c2.B))));
                                     }
                                 }
+                                fpImg1.Unlock(true);
+                                fpImg2.Unlock(false);
 
                                 _savedImages[imageNew] = getBitmapImage(dImg1);
                             }
@@ -1148,18 +1173,21 @@ namespace LitDev
 
                             System.Drawing.Color c;
                             byte A, R, G, B;
-                            for (int i = 0; i < dImg.Width; i++)
+                            FastPixel fp = new FastPixel(dImg);
+                            fp.Lock();
+                            for (int i = 0; i < fp.Width; i++)
                             {
-                                for (int j = 0; j < dImg.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
-                                    c = dImg.GetPixel(i, j);
+                                    c = fp.GetPixel(i, j);
                                     R = range(c.R * data[0, 0] + c.G * data[1, 0] + c.B * data[2, 0] + c.A * data[3, 0] + 255 * data[4, 0] * data[4, 4]);
                                     G = range(c.R * data[0, 1] + c.G * data[1, 1] + c.B * data[2, 1] + c.A * data[3, 1] + 255 * data[4, 1] * data[4, 4]);
                                     B = range(c.R * data[0, 2] + c.G * data[1, 2] + c.B * data[2, 2] + c.A * data[3, 2] + 255 * data[4, 2] * data[4, 4]);
                                     A = range(c.R * data[0, 3] + c.G * data[1, 3] + c.B * data[2, 3] + c.A * data[3, 3] + 255 * data[4, 3] * data[4, 4]);
-                                    dImg.SetPixel(i, j, System.Drawing.Color.FromArgb(A, R, G, B));
+                                    fp.SetPixel(i, j, System.Drawing.Color.FromArgb(A, R, G, B));
                                 }
                             }
+                            fp.Unlock(true);
 
                             _savedImages[image] = getBitmapImage(dImg);
                         }
@@ -1206,24 +1234,27 @@ namespace LitDev
 
                             double dx, dy, rad, theta;
                             int x, y;
-                            for (int i = 0; i < dImg.Width; i++)
+                            FastPixel fp = new FastPixel(dImg);
+                            fp.Lock();
+                            for (int i = 0; i < fp.Width; i++)
                             {
-                                for (int j = 0; j < dImg.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
-                                    dx = (i - dImg.Width / 2);
-                                    dy = (j - dImg.Height / 2);
+                                    dx = (i - fp.Width / 2);
+                                    dy = (j - fp.Height / 2);
                                     rad = System.Math.Sqrt(dx * dx + dy * dy);
                                     if (dx == 0) theta = dy > 0 ? System.Math.PI / 2.0 : 3.0 * System.Math.PI / 2.0;
                                     else theta = System.Math.Atan(dy / dx);
                                     if (dx < 0) theta += System.Math.PI;
                                     theta -= angle * System.Math.PI / 180.0;
-                                    x = (int)(dImg.Width / 2 + rad * System.Math.Cos(theta));
-                                    y = (int)(dImg.Height / 2 + rad * System.Math.Sin(theta));
-                                    x = System.Math.Min(dImg.Width - 1, System.Math.Max(0, x));
-                                    y = System.Math.Min(dImg.Height - 1, System.Math.Max(0, y));
-                                    dImg.SetPixel(i, j, copy.GetPixel(x, y));
+                                    x = (int)(fp.Width / 2 + rad * System.Math.Cos(theta));
+                                    y = (int)(fp.Height / 2 + rad * System.Math.Sin(theta));
+                                    x = System.Math.Min(fp.Width - 1, System.Math.Max(0, x));
+                                    y = System.Math.Min(fp.Height - 1, System.Math.Max(0, y));
+                                    fp.SetPixel(i, j, copy.GetPixel(x, y));
                                 }
                             }
+                            fp.Unlock(true);
 
                             _savedImages[image] = getBitmapImage(dImg);
                         }
@@ -1906,14 +1937,17 @@ namespace LitDev
                         int width = SBArray.GetItemCount(pixels);
                         int height = SBArray.GetItemCount(pixels[1]);
                         Bitmap dImg = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        FastPixel fp = new FastPixel(dImg);
+                        fp.Lock();
                         for (int i = 0; i < width; i++)
                         {
                             Primitive row = pixels[i + 1];
                             for (int j = 0; j < height; j++)
                             {
-                                dImg.SetPixel(i, j, (System.Drawing.Color)colConvert.ConvertFromString(row[j + 1]));
+                                fp.SetPixel(i, j, (System.Drawing.Color)colConvert.ConvertFromString(row[j + 1]));
                             }
                         }
+                        fp.Unlock(true);
                         _savedImages[imageNew] = getBitmapImage(dImg);
                     }
                     catch (Exception ex)
@@ -2261,32 +2295,34 @@ namespace LitDev
                         {
                             if (scale == "") scale = 1;
                             Bitmap bm = getBitmap(img);
+                            FastPixel fp = new FastPixel(bm);
+                            fp.Lock();
                             Vec3D n = new Vec3D();
-                            double[,] height = new double[bm.Width, bm.Height];
+                            double[,] height = new double[fp.Width, fp.Height];
                             double maxheight = 0;
                             double minheight = 1;
-                            for (int i = 0; i < bm.Width; i++)
+                            for (int i = 0; i < fp.Width; i++)
                             {
-                                for (int j = 0; j < bm.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
-                                    height[i, j] = bm.GetPixel(i, j).GetBrightness();
+                                    height[i, j] = fp.GetPixel(i, j).GetBrightness();
                                     maxheight = System.Math.Max(maxheight, height[i, j]);
                                     minheight = System.Math.Min(minheight, height[i, j]);
                                 }
                             }
                             if (maxheight > minheight)
                             {
-                                for (int i = 0; i < bm.Width; i++)
+                                for (int i = 0; i < fp.Width; i++)
                                 {
-                                    for (int j = 0; j < bm.Height; j++)
+                                    for (int j = 0; j < fp.Height; j++)
                                     {
                                         height[i, j] = (height[i, j] - minheight) / (maxheight - minheight);
                                     }
                                 }
                             }
-                            for (int i = 0; i < bm.Width; i++)
+                            for (int i = 0; i < fp.Width; i++)
                             {
-                                for (int j = 0; j < bm.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
                                     int im = i - 1;
                                     int ip = i + 1;
@@ -2298,9 +2334,9 @@ namespace LitDev
                                         im = 0;
                                         n.Z = 0.5f;
                                     }
-                                    else if (ip >= bm.Width)
+                                    else if (ip >= fp.Width)
                                     {
-                                        ip = bm.Width - 1;
+                                        ip = fp.Width - 1;
                                         n.Z = 0.5f;
                                     }
                                     if (jm < 0)
@@ -2308,17 +2344,18 @@ namespace LitDev
                                         jm = 0;
                                         n.Z = 0.5f;
                                     }
-                                    else if (jp >= bm.Height)
+                                    else if (jp >= fp.Height)
                                     {
-                                        jp = bm.Height - 1;
+                                        jp = fp.Height - 1;
                                         n.Z = 0.5f;
                                     }
                                     n.X = scale * -(height[ip, jm] - height[im, jm] + 2 * (height[ip, j] - height[im, j]) + height[ip, jp] - height[im, jp]);
                                     n.Y = scale * (height[im, jp] - height[im, jm] + 2 * (height[i, jp] - height[i, jm]) + height[ip, jp] - height[ip, jm]);
                                     n.Normalize();
-                                    bm.SetPixel(i, j, Color.FromArgb(255, range((1 + n.X) * 128), range((1 + n.Y) * 128), range((1 + n.Z) * 128)));
+                                    fp.SetPixel(i, j, Color.FromArgb(255, range((1 + n.X) * 128), range((1 + n.Y) * 128), range((1 + n.Z) * 128)));
                                 }
                             }
+                            fp.Unlock(true);
                             _savedImages[normalMap] = getBitmapImage(bm);
                         }
                         catch (Exception ex)
