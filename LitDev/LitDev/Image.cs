@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using Svg;
@@ -26,12 +27,185 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {
+    public class Vec3D
+    {
+        public double X, Y, Z;
+
+        public Vec3D()
+        {
+            X = 0;
+            Y = 0;
+            Z = 0;
+        }
+
+        public Vec3D(double X, double Y, double Z)
+        {
+            this.X = X;
+            this.Y = Y;
+            this.Z = Z;
+        }
+
+        public void Normalize()
+        {
+            double len = System.Math.Sqrt(X * X + Y * Y + Z * Z);
+            if (len > 0)
+            {
+                X /= len;
+                Y /= len;
+                Z /= len;
+            }
+
+        }
+
+        public static double Dot(Vec3D v1, Vec3D v2)
+        {
+            return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
+        }
+    }
+
+    public class Shadow
+    {
+        private System.Windows.Controls.Image image;
+        private string texture = "";
+        private Bitmap bNormal;
+        private Bitmap bTexture = null;
+        private int width;
+        private int height;
+        private Vec3D[,] vectors;
+        private Type GraphicsWindowType = typeof(GraphicsWindow);
+        public bool bValid = false;
+
+        public Shadow(string shapeName)
+        {
+            try
+            {
+                Dictionary<string, System.Windows.UIElement> _objectsMap;
+                System.Windows.UIElement obj;
+
+                _objectsMap = (Dictionary<string, System.Windows.UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue(shapeName, out obj)) return;
+                if (obj.GetType() != typeof(System.Windows.Controls.Image)) return;
+                image = (System.Windows.Controls.Image)obj;
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        Bitmap bm = LDImage.getBitmap((BitmapSource)image.Source);
+
+                        width = bm.Width;
+                        height = bm.Height;
+                        vectors = new Vec3D[width, height];
+
+                        Color c;
+                        for (int i = 0; i < width; i++)
+                        {
+                            for (int j = 0; j < height; j++)
+                            {
+                                c = bm.GetPixel(i, j);
+                                vectors[i, j] = new Vec3D(c.R - 128f, c.G - 128f, c.B - 128f);
+                                vectors[i, j].Normalize();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+
+                bNormal = new Bitmap(width, height, PixelFormat.Format32bppArgb); //to handle alpha channel
+                bValid = true;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        public void Update(double x, double y, double z, string texture, double ambient, double intensity)
+        {
+            if (!bValid) return;
+
+            try
+            {
+                if (this.texture != texture)
+                {
+                    this.texture = texture;
+                    Type ImageListType = typeof(ImageList);
+                    Dictionary<string, BitmapSource> _savedImages;
+                    BitmapSource img;
+
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (_savedImages.TryGetValue(texture, out img))
+                    {
+                        bTexture = LDImage.getBitmap(img);
+                        if (width != bTexture.Width || height != bTexture.Height) bTexture = null;
+                    }
+                    else
+                    {
+                        bTexture = null;
+                    }
+                }
+
+                double scale;
+                byte rgb;
+                Color c;
+                Vec3D source = new Vec3D(x, -y, z);
+                source.Normalize();
+
+                FastPixel fp = new FastPixel(bNormal);
+                fp.Lock();
+                for (int i = 0; i < width; i++)
+                {
+                    for (int j = 0; j < height; j++)
+                    {
+                        scale = Vec3D.Dot(source, vectors[i, j]);
+
+                        if (null != bTexture)
+                        {
+                            scale = ambient + (intensity - ambient) * System.Math.Max(0, scale);
+                            c = bTexture.GetPixel(i, j);
+                            fp.SetPixel(i, j, Color.FromArgb(c.A, LDImage.range(c.R * scale), LDImage.range(c.G * scale), LDImage.range(c.B * scale)));
+                        }
+                        else
+                        {
+                            scale = 0.5 * (1.0 + scale);
+                            rgb = LDImage.range(255 * scale);
+                            fp.SetPixel(i, j, Color.FromArgb(255, rgb, rgb, rgb));
+                        }
+                    }
+                }
+                fp.Unlock(true);
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        image.Source = LDImage.getBitmapImage(bNormal);
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                method.Invoke(null, new object[] { ret });
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+    }
+
     /// <summary>
     /// Provides methods to modify and image process images stored in ImageList.
     /// Any effect parameter can be defaulted to "".
@@ -39,6 +213,8 @@ namespace LitDev
     [SmallBasicType]
     public static class LDImage
     {
+        private static Dictionary<string, Shadow> Shadows = new Dictionary<string, Shadow>();
+
         public static System.Drawing.Bitmap getBitmap(BitmapSource img)
         {
             MemoryStream ms = new MemoryStream();
@@ -61,7 +237,7 @@ namespace LitDev
 
         private static object LockingVar = new object();
 
-        private static byte range(double value)
+        public static byte range(double value)
         {
             return (byte)(System.Math.Min(255, System.Math.Max(0, value)));
         }
@@ -2017,6 +2193,147 @@ namespace LitDev
                 {
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 }
+            }
+        }
+
+        [HideFromIntellisense]
+        public static void Shadow(Primitive shapeName, Primitive sourceX, Primitive sourceY, Primitive sourceZ, Primitive texture, Primitive ambient, Primitive intensity)
+        {
+            NormalMap(shapeName, sourceX, sourceY, sourceZ, texture, ambient, intensity);
+        }
+
+        /// <summary>
+        /// Modify an image to show a gray scale (or modified image if texture is set) shadow effect based on a normal map image.
+        /// </summary>
+        /// <param name="shapeName">An image shape normal map (R,G,B colours represent normal vecors of a 3D image).
+        /// This is an image shape created using Shapes.AddImage containing the normal map image.</param>
+        /// <param name="sourceX">The x position of a light source relative to the image.</param>
+        /// <param name="sourceY">The y position of a light source relative to the image.</param>
+        /// <param name="sourceZ">The z position of a light source relative to the image, this is the height abouve the image.
+        /// This can be used to alter the effective contrast of the shadow effect.</param>
+        /// <param name="texture">An optional ImageList image or "" with texture (colour) to modify, it should be the same dimensions as the normal map image.
+        /// The texture image may be changed on subsequent calls.</param>
+        /// <param name="ambient">Optional ambient light intensity if texture is set (default 0.3).</param>
+        /// <param name="intensity">Optional light intensity if texture is set (default 2).</param>
+        public static void NormalMap(Primitive shapeName, Primitive sourceX, Primitive sourceY, Primitive sourceZ, Primitive texture, Primitive ambient, Primitive intensity)
+        {
+            lock (LockingVar)
+            {
+                Shadow shadow;
+                if (!Shadows.TryGetValue(shapeName, out shadow))
+                {
+                    shadow = new Shadow(shapeName);
+                    if (shadow.bValid) Shadows[shapeName] = shadow;
+                }
+                if (ambient == "") ambient = 0.3;
+                if (intensity == "") intensity = 2.0;
+                shadow.Update(sourceX, sourceY, sourceZ, texture, ambient, intensity);
+            }
+        }
+
+        /// <summary>
+        /// Create a normal map image from a height map.  The height is given by the brightness of each pixel.
+        /// </summary>
+        /// <param name="image">The height map ImageList image.</param>
+        /// <param name="scale">A scale factor for the elevation (default 1).</param>
+        /// <returns>A new ImageList image with the resulting normal map.</returns>
+        public static Primitive HeightMap2NormalMap(Primitive image, Primitive scale)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Type ShapesType = typeof(Shapes);
+                Dictionary<string, BitmapSource> _savedImages;
+                string normalMap = "";
+                BitmapSource img;
+
+                try
+                {
+                    MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    normalMap = method.Invoke(null, new object[] { "ImageList" }).ToString();
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue(image, out img)) return normalMap;
+
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            if (scale == "") scale = 1;
+                            Bitmap bm = getBitmap(img);
+                            Vec3D n = new Vec3D();
+                            double[,] height = new double[bm.Width, bm.Height];
+                            double maxheight = 0;
+                            double minheight = 1;
+                            for (int i = 0; i < bm.Width; i++)
+                            {
+                                for (int j = 0; j < bm.Height; j++)
+                                {
+                                    height[i, j] = bm.GetPixel(i, j).GetBrightness();
+                                    maxheight = System.Math.Max(maxheight, height[i, j]);
+                                    minheight = System.Math.Min(minheight, height[i, j]);
+                                }
+                            }
+                            if (maxheight > minheight)
+                            {
+                                for (int i = 0; i < bm.Width; i++)
+                                {
+                                    for (int j = 0; j < bm.Height; j++)
+                                    {
+                                        height[i, j] = (height[i, j] - minheight) / (maxheight - minheight);
+                                    }
+                                }
+                            }
+                            for (int i = 0; i < bm.Width; i++)
+                            {
+                                for (int j = 0; j < bm.Height; j++)
+                                {
+                                    int im = i - 1;
+                                    int ip = i + 1;
+                                    int jm = j - 1;
+                                    int jp = j + 1;
+                                    n.Z = 1;
+                                    if (im < 0)
+                                    {
+                                        im = 0;
+                                        n.Z = 0.5f;
+                                    }
+                                    else if (ip >= bm.Width)
+                                    {
+                                        ip = bm.Width - 1;
+                                        n.Z = 0.5f;
+                                    }
+                                    if (jm < 0)
+                                    {
+                                        jm = 0;
+                                        n.Z = 0.5f;
+                                    }
+                                    else if (jp >= bm.Height)
+                                    {
+                                        jp = bm.Height - 1;
+                                        n.Z = 0.5f;
+                                    }
+                                    n.X = scale * -(height[ip, jm] - height[im, jm] + 2 * (height[ip, j] - height[im, j]) + height[ip, jp] - height[im, jp]);
+                                    n.Y = scale * (height[im, jp] - height[im, jm] + 2 * (height[i, jp] - height[i, jm]) + height[ip, jp] - height[ip, jm]);
+                                    n.Normalize();
+                                    bm.SetPixel(i, j, Color.FromArgb(255, range((1 + n.X) * 128), range((1 + n.Y) * 128), range((1 + n.Z) * 128)));
+                                }
+                            }
+                            _savedImages[normalMap] = getBitmapImage(bm);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+                return normalMap;
             }
         }
     }

@@ -238,6 +238,7 @@
     <Compile Include="Box2D\Box2D.Dynamics\WorldCallback.cs" />
     <Compile Include="Box2D\Box2D\Box2DXDebug.cs" />
     <Compile Include="LitDev\Engines\Cognitive.cs" />
+    <Compile Include="LitDev\Engines\FastPixel.cs" />
     <Compile Include="LitDev\Engines\UnitSystem.cs" />
     <Compile Include="LitDev\Units.cs" />
     <Compile Include="LitDev\Engines\FIP.cs" />

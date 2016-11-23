@@ -138,7 +138,7 @@ namespace LitDev
 
             RotateTransform3D rotateTransform3D = new RotateTransform3D();
             AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
-            axisAngleRotation3D.Axis = new Vector3D(0, 1, 0);
+            axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
             axisAngleRotation3D.Angle = 0;
             rotateTransform3D.Rotation = axisAngleRotation3D;
             rotateTransform3D.CenterX = X;
@@ -147,7 +147,7 @@ namespace LitDev
 
             RotateTransform3D rotateTransform3D2 = new RotateTransform3D();
             AxisAngleRotation3D axisAngleRotation3D2 = new AxisAngleRotation3D();
-            axisAngleRotation3D2.Axis = new Vector3D(0, 1, 0);
+            axisAngleRotation3D2.Axis = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
             axisAngleRotation3D2.Angle = 0;
             rotateTransform3D2.Rotation = axisAngleRotation3D2;
             rotateTransform3D2.CenterX = X;
@@ -156,7 +156,7 @@ namespace LitDev
 
             RotateTransform3D rotateTransform3D3 = new RotateTransform3D();
             AxisAngleRotation3D axisAngleRotation3D3 = new AxisAngleRotation3D();
-            axisAngleRotation3D3.Axis = new Vector3D(0, 1, 0);
+            axisAngleRotation3D3.Axis = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
             axisAngleRotation3D3.Angle = 0;
             rotateTransform3D3.Rotation = axisAngleRotation3D3;
             rotateTransform3D3.CenterX = X;
@@ -260,35 +260,35 @@ namespace LitDev
                         Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
 
                         ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                        Vector3D lookDirection = camera.LookDirection;
-                        Vector3D upDirection = camera.UpDirection;
+                        System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
+                        System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
                         lookDirection.Normalize();
                         upDirection.Normalize();
-                        Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                        System.Windows.Media.Media3D.Vector3D screenDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, upDirection);
 
-                        Vector3D Z = new Vector3D(0, 0, -1);
+                        System.Windows.Media.Media3D.Vector3D Z = new System.Windows.Media.Media3D.Vector3D(0, 0, -1);
                         RotateTransform3D rotateTransform3D1 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
                         AxisAngleRotation3D axisAngleRotation3D1 = new AxisAngleRotation3D();
-                        axisAngleRotation3D1.Axis = Vector3D.CrossProduct(lookDirection, Z);
-                        axisAngleRotation3D1.Angle = Vector3D.AngleBetween(lookDirection, Z);
+                        axisAngleRotation3D1.Axis = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, Z);
+                        axisAngleRotation3D1.Angle = System.Windows.Media.Media3D.Vector3D.AngleBetween(lookDirection, Z);
                         rotateTransform3D1.Rotation = axisAngleRotation3D1;
 
-                        Z = rotateTransform3D1.Transform(new Vector3D(0, 0, -1)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
+                        Z = rotateTransform3D1.Transform(new System.Windows.Media.Media3D.Vector3D(0, 0, -1)) - rotateTransform3D1.Transform(new System.Windows.Media.Media3D.Vector3D(0, 0, 0));
                         Z.Normalize();
-                        if (Vector3D.DotProduct(lookDirection, Z) < 1 - tol) axisAngleRotation3D1.Angle *= -1;
+                        if (System.Windows.Media.Media3D.Vector3D.DotProduct(lookDirection, Z) < 1 - tol) axisAngleRotation3D1.Angle *= -1;
 
-                        Vector3D Y = rotateTransform3D1.Transform(new Vector3D(0, 1, 0)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
+                        System.Windows.Media.Media3D.Vector3D Y = rotateTransform3D1.Transform(new System.Windows.Media.Media3D.Vector3D(0, 1, 0)) - rotateTransform3D1.Transform(new System.Windows.Media.Media3D.Vector3D(0, 0, 0));
                         Y.Normalize();
 
                         RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
                         AxisAngleRotation3D axisAngleRotation3D2 = new AxisAngleRotation3D();
                         axisAngleRotation3D2.Axis = lookDirection;
-                        axisAngleRotation3D2.Angle = Vector3D.AngleBetween(upDirection, Y);
+                        axisAngleRotation3D2.Angle = System.Windows.Media.Media3D.Vector3D.AngleBetween(upDirection, Y);
                         rotateTransform3D2.Rotation = axisAngleRotation3D2;
 
                         Y = rotateTransform3D2.Transform(Y);
                         Y.Normalize();
-                        if (Vector3D.DotProduct(upDirection, Y) < 1 - tol) axisAngleRotation3D2.Angle *= -1;
+                        if (System.Windows.Media.Media3D.Vector3D.DotProduct(upDirection, Y) < 1 - tol) axisAngleRotation3D2.Angle *= -1;
 
                         geometry.Transform = transform3DGroup;
                     }
@@ -340,10 +340,10 @@ namespace LitDev
                                 Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
 
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                                Vector3D lookDirection = camera.LookDirection;
-                                Vector3D upDirection = camera.UpDirection;
+                                System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
+                                System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
                                 Point3D position = camera.Position;
-                                Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                System.Windows.Media.Media3D.Vector3D screenDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, upDirection);
 
                                 RotateTransform3D yawTransform = new RotateTransform3D(new AxisAngleRotation3D(upDirection, yaw), center);
                                 position = yawTransform.Transform(position);
@@ -353,9 +353,9 @@ namespace LitDev
 
                                 lookDirection = center - position;
                                 lookDirection.Normalize();
-                                screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                screenDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, upDirection);
                                 screenDirection.Normalize();
-                                upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
+                                upDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(screenDirection, lookDirection);
 
                                 ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             }
@@ -420,28 +420,28 @@ namespace LitDev
                         continue;
                     }
                     ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                    Vector3D lookDirection = camera.LookDirection;
-                    Vector3D upDirection = camera.UpDirection;
+                    System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
+                    System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
                     Point3D position = camera.Position;
                     double mult = (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) ? 1 : -1;
                     switch (e.Key)
                     {
                         case Key.X:
-                            lookDirection = new Vector3D(mult, 0, 0);
+                            lookDirection = new System.Windows.Media.Media3D.Vector3D(mult, 0, 0);
                             position = new Point3D(-keyDist * mult, 0, 0);
-                            upDirection = new Vector3D(0, 1, 0);
+                            upDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
                         case Key.Y:
-                            lookDirection = new Vector3D(0, mult, 0);
+                            lookDirection = new System.Windows.Media.Media3D.Vector3D(0, mult, 0);
                             position = new Point3D(0, -keyDist * mult, 0);
-                            upDirection = new Vector3D(0, 0, 1);
+                            upDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, 1);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
                         case Key.Z:
-                            lookDirection = new Vector3D(0, 0, mult);
+                            lookDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, mult);
                             position = new Point3D(0, 0, -keyDist * mult);
-                            upDirection = new Vector3D(0, 1, 0);
+                            upDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
                     }
@@ -468,8 +468,8 @@ namespace LitDev
                     }
 
                     ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                    Vector3D lookDirection = camera.LookDirection;
-                    Vector3D upDirection = camera.UpDirection;
+                    System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
+                    System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
                     Point3D position = camera.Position;
 
                     if (e.LeftButton == MouseButtonState.Pressed)
@@ -490,12 +490,12 @@ namespace LitDev
                     }
                     if (e.RightButton == MouseButtonState.Pressed)
                     {
-                        upDirection = new Vector3D(0, 1, 0);
+                        upDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
                     }
 
-                    Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                    System.Windows.Media.Media3D.Vector3D screenDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, upDirection);
                     screenDirection.Normalize();
-                    upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
+                    upDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(screenDirection, lookDirection);
 
                     ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                 }
@@ -594,7 +594,7 @@ namespace LitDev
 
                         PerspectiveCamera camera = new PerspectiveCamera();
                         camera.Position = new Point3D(0, 0, 10);
-                        camera.LookDirection = new Vector3D(0, 0, -1);
+                        camera.LookDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, -1);
                         camera.FieldOfView = 60;
                         viewport3D.Camera = camera;
 
@@ -740,7 +740,7 @@ namespace LitDev
                                 s = Utilities.getString(normals).Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
                                 for (i = 0; i < s.Length; i += 3)
                                 {
-                                    normalCollection.Add(new Vector3D(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1]), Utilities.getDouble(s[i + 2])));
+                                    normalCollection.Add(new System.Windows.Media.Media3D.Vector3D(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1]), Utilities.getDouble(s[i + 2])));
                                 }
 
                                 // Create a collection of texture coordinates for the MeshGeometry3D.
@@ -923,12 +923,12 @@ namespace LitDev
                             {
                                 Viewport3D viewport3D = (Viewport3D)obj;
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                                Vector3D lookDirection = camera.LookDirection;
-                                Vector3D upDirection = camera.UpDirection;
+                                System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
+                                System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
                                 Point3D position = camera.Position;
 
-                                Vector3D rotateAbout1 = upDirection;
-                                Vector3D rotateAbout2 = Vector3D.CrossProduct(rotateAbout1, lookDirection);
+                                System.Windows.Media.Media3D.Vector3D rotateAbout1 = upDirection;
+                                System.Windows.Media.Media3D.Vector3D rotateAbout2 = System.Windows.Media.Media3D.Vector3D.CrossProduct(rotateAbout1, lookDirection);
 
                                 Matrix3D rotateMatrix = Matrix3D.Identity;
                                 Quaternion quaterion = new Quaternion(upDirection, -yaw);
@@ -1006,17 +1006,17 @@ namespace LitDev
                                 Viewport3D viewport3D = (Viewport3D)obj;
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
-                                camera.LookDirection = new Vector3D(xDir, yDir, zDir);
+                                camera.LookDirection = new System.Windows.Media.Media3D.Vector3D(xDir, yDir, zDir);
                                 camera.Position = new Point3D(xPos, yPos, zPos);
                                 if (xUp == "" || yUp == "" || zUp == "")
                                 {
-                                    camera.UpDirection = (xDir == 0 && zDir == 0) ? new Vector3D(0, 0, -1) : new Vector3D(0, 1, 0);
-                                    Vector3D rotateAbout = Vector3D.CrossProduct(camera.LookDirection, camera.UpDirection);
-                                    camera.UpDirection = Vector3D.CrossProduct(rotateAbout, camera.LookDirection);
+                                    camera.UpDirection = (xDir == 0 && zDir == 0) ? new System.Windows.Media.Media3D.Vector3D(0, 0, -1) : new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
+                                    System.Windows.Media.Media3D.Vector3D rotateAbout = System.Windows.Media.Media3D.Vector3D.CrossProduct(camera.LookDirection, camera.UpDirection);
+                                    camera.UpDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(rotateAbout, camera.LookDirection);
                                 }
                                 else
                                 {
-                                    camera.UpDirection = new Vector3D(xUp, yUp, zUp);
+                                    camera.UpDirection = new System.Windows.Media.Media3D.Vector3D(xUp, yUp, zUp);
                                 }
 
                                 UpdateBillBoards(viewport3D, shapeName);
@@ -1291,7 +1291,7 @@ namespace LitDev
 
                                 DirectionalLight directionalLight = new DirectionalLight();
                                 directionalLight.Color = (Color)ColorConverter.ConvertFromString(colour);
-                                directionalLight.Direction = new Vector3D(xDir, yDir, zDir);
+                                directionalLight.Direction = new System.Windows.Media.Media3D.Vector3D(xDir, yDir, zDir);
 
                                 string name = getLightingName();
                                 Lightings.Add(new Lighting(name, directionalLight));
@@ -1415,7 +1415,7 @@ namespace LitDev
                                 SpotLight spotLight = new SpotLight();
                                 spotLight.Color = (Color)ColorConverter.ConvertFromString(colour);
                                 spotLight.Position = new Point3D(xPos, yPos, zPos);
-                                spotLight.Direction = new Vector3D(xDir, yDir, zDir);
+                                spotLight.Direction = new System.Windows.Media.Media3D.Vector3D(xDir, yDir, zDir);
                                 spotLight.InnerConeAngle = angle;
                                 spotLight.OuterConeAngle = angle + 10;
                                 spotLight.Range = range;
@@ -1546,7 +1546,7 @@ namespace LitDev
 
                                 RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
                                 AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
-                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(x, y, z);
                                 axisAngleRotation3D.Angle = angle;
                                 rotateTransform3D.Rotation = axisAngleRotation3D;
 
@@ -1607,7 +1607,7 @@ namespace LitDev
 
                                 RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
                                 AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
-                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(x, y, z);
                                 axisAngleRotation3D.Angle = angle;
                                 rotateTransform3D.Rotation = axisAngleRotation3D;
 
@@ -1668,7 +1668,7 @@ namespace LitDev
 
                                 RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
                                 AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
-                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(x, y, z);
                                 axisAngleRotation3D.Angle = angle;
                                 rotateTransform3D.Rotation = axisAngleRotation3D;
 
@@ -2140,7 +2140,7 @@ namespace LitDev
                                 doubleAnimaton.From = startAngle;
                                 doubleAnimaton.To = endAngle;
                                 doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
-                                axisAngleRotation3D.Axis = new Vector3D(xDir, yDir, zDir);
+                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(xDir, yDir, zDir);
                                 axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
                             }
                         }
@@ -2208,7 +2208,7 @@ namespace LitDev
                                 doubleAnimaton.From = startAngle;
                                 doubleAnimaton.To = endAngle;
                                 doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
-                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(x, y, z);
                                 axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
                             }
                         }
@@ -2623,7 +2623,7 @@ namespace LitDev
                                     points.Add(new Point(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1])));
                                 }
                                 int thetaDiv = divisions < 2 ? 10 : (int)divisions;
-                                builder.AddRevolvedGeometry(points, new Point3D(0,0,0), new Vector3D(0,1,0), thetaDiv);
+                                builder.AddRevolvedGeometry(points, new Point3D(0,0,0), new System.Windows.Media.Media3D.Vector3D(0,1,0), thetaDiv);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;
@@ -2869,7 +2869,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 MeshBuilder builder = new MeshBuilder(true, true);
-                                builder.AddCone(new Point3D(0, 0, 0), new Vector3D(0, 1, 0), baseRadius, topRadius, height, true, true, divisions);
+                                builder.AddCone(new Point3D(0, 0, 0), new System.Windows.Media.Media3D.Vector3D(0, 1, 0), baseRadius, topRadius, height, true, true, divisions);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;
@@ -3113,7 +3113,7 @@ namespace LitDev
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
                                 MeshBuilder builder = new MeshBuilder(true, true);
-                                builder.AddCubeFace(new Point3D(0, 0, 0), new Vector3D(0, 0, 1), new Vector3D(0, 1, 0), 0, width, height);
+                                builder.AddCubeFace(new Point3D(0, 0, 0), new System.Windows.Media.Media3D.Vector3D(0, 0, 1), new System.Windows.Media.Media3D.Vector3D(0, 1, 0), 0, width, height);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);

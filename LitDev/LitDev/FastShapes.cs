@@ -38,7 +38,7 @@ namespace LitDev
         public Point point;
         public double opacity = 1;
         public double angle = 0;
-        public Vector scale = new Vector(1,1);
+        public System.Windows.Vector scale = new System.Windows.Vector(1,1);
         public Visibility visibility = Visibility.Visible;
 
         public bool modified = false;
