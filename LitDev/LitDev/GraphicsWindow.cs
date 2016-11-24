@@ -33,6 +33,7 @@ using System.Windows.Media;
 using Media = System.Windows.Media;
 using System.Drawing.Text;
 using System.Runtime.InteropServices;
+using LitDev.Engines;
 
 namespace LitDev
 {
@@ -831,22 +832,6 @@ namespace LitDev
             return "#000000";
         }
 
-        private static bool IsPixel(int x, int y, System.Drawing.Color color, byte[] data, int bytesPerPixel, int stride)
-        {
-            if (data[stride * y + bytesPerPixel * x] != color.B) return false;
-            if (data[stride * y + bytesPerPixel * x + 1] != color.G) return false;
-            if (data[stride * y + bytesPerPixel * x + 2] != color.R) return false;
-            if (data[stride * y + bytesPerPixel * x + 3] != color.A) return false;
-            return true;
-        }
-        private static void SetPixel(int x, int y, System.Drawing.Color color, byte[] data, int bytesPerPixel, int stride)
-        {
-            data[stride * y + bytesPerPixel * x] = color.B;
-            data[stride * y + bytesPerPixel * x + 1] = color.G;
-            data[stride * y + bytesPerPixel * x + 2] = color.R;
-            data[stride * y + bytesPerPixel * x + 3] = color.A;
-        }
-
         /// <summary>
         /// Fill a region surrounding a specified pixel.
         /// All neighbour pixels of the same colour are changed.
@@ -876,17 +861,14 @@ namespace LitDev
                         //Prepare bitmap
                         GraphicsWindowType.GetMethod("Rasterize", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { });
                         RenderTargetBitmap _renderBitmap = (RenderTargetBitmap)GraphicsWindowType.GetField("_renderBitmap", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-                        System.Drawing.Bitmap bitmap = LDImage.getBitmap(_renderBitmap);
-                        int bytesPerPixel = _renderBitmap.Format.BitsPerPixel / 8;
-                        int stride = _renderBitmap.PixelWidth * bytesPerPixel;
-                        System.Drawing.Color colNew = System.Drawing.ColorTranslator.FromHtml(colour);
-                        System.Drawing.Color colOld = bitmap.GetPixel(x, y);
+                        Bitmap bitmap = LDImage.getBitmap(_renderBitmap);
+                        FastPixel fp = new FastPixel(bitmap);
+                        fp.Lock();
+                        System.Drawing.Color colNew = ColorTranslator.FromHtml(colour);
+                        System.Drawing.Color colOld = fp.GetPixel(x, y);
                         if (colNew == colOld) return;
-                        int nx = bitmap.Width;
-                        int ny = bitmap.Height;
-
-                        byte[] data = new byte[stride * _renderBitmap.PixelHeight];
-                        _renderBitmap.CopyPixels(data, stride, 0);
+                        int nx = fp.Width;
+                        int ny = fp.Height;
 
                         Stack<int> points = new Stack<int>();
                         int point, _x, _y;
@@ -896,19 +878,13 @@ namespace LitDev
                             point = points.Pop();
                             _x = point % nx;
                             _y = point / nx;
-                            bitmap.SetPixel(_x, _y, colNew);
-                            SetPixel(_x, _y, colNew, data, bytesPerPixel, stride);
-                            if (_x > 0 && IsPixel(_x - 1, _y, colOld, data, bytesPerPixel, stride)) points.Push(_y * nx + _x - 1);
-                            if (_x < nx - 1 && IsPixel(_x + 1, _y, colOld, data, bytesPerPixel, stride)) points.Push(_y * nx + _x + 1);
-                            if (_y > 0 && IsPixel(_x, _y - 1, colOld, data, bytesPerPixel, stride)) points.Push((_y - 1) * nx + _x);
-                            if (_y < ny - 1 && IsPixel(_x, _y + 1, colOld, data, bytesPerPixel, stride)) points.Push((_y + 1) * nx + _x);
+                            fp.SetPixel(_x, _y, colNew);
+                            if (_x > 0 && colOld == fp.GetPixel(_x - 1, _y)) points.Push(_y * nx + _x - 1);
+                            if (_x < nx - 1 && colOld == fp.GetPixel(_x + 1, _y)) points.Push(_y * nx + _x + 1);
+                            if (_y > 0 && colOld == fp.GetPixel(_x, _y - 1)) points.Push((_y - 1) * nx + _x);
+                            if (_y < ny - 1 && colOld == fp.GetPixel(_x, _y + 1)) points.Push((_y + 1) * nx + _x);
                         }
-
-                        //bitmap = new Bitmap(nx, ny, bitmap.PixelFormat);
-                        //BitmapData bmData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, nx, ny), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-                        //IntPtr pNative = bmData.Scan0;
-                        //Marshal.Copy(data, 0, pNative, nx * ny * bytesPerPixel);
-                        //bitmap.UnlockBits(bmData); 
+                        fp.Unlock(true);
 
                         //Display bitmap
                         BitmapImage bitmapImage = LDImage.getBitmapImage(bitmap);

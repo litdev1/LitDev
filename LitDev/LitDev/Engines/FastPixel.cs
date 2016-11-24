@@ -15,6 +15,9 @@
 //You should have received a copy of the GNU General public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
+//Based on http://www.codeproject.com/Articles/15192/FastPixel-A-much-faster-alternative-to-Bitmap-SetP
+//With corrections for stride
+
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -27,6 +30,7 @@ namespace LitDev.Engines
         private byte[] rgbValues;
         private BitmapData bmpData;
         private IntPtr bmpPtr;
+        private int stride;
         private bool locked = false;
 
         private bool _isAlpha = false;
@@ -41,13 +45,13 @@ namespace LitDev.Engines
 
         public FastPixel(Bitmap bitmap)
         {
-            if (bitmap.PixelFormat == (bitmap.PixelFormat | PixelFormat.Indexed))
+            if ((bitmap.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed)
             {
                 throw new Exception("Cannot lock an Indexed image.");
             }
 
             _bitmap = bitmap;
-            _isAlpha = bitmap.PixelFormat == (bitmap.PixelFormat | PixelFormat.Alpha);
+            _isAlpha = (bitmap.PixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
             _width = bitmap.Width;
             _height = bitmap.Height;
         }
@@ -61,20 +65,11 @@ namespace LitDev.Engines
 
             Rectangle rect = new Rectangle(0, 0, _width, _height);
             bmpData = _bitmap.LockBits(rect, ImageLockMode.ReadWrite, _bitmap.PixelFormat);
+            stride = bmpData.Stride;
             bmpPtr = bmpData.Scan0;
 
-            if (_isAlpha)
-            {
-                int[] bytes = new int[_width * _height * 4];
-                System.Array.Resize(ref rgbValues, _width * _height * 4);
-                Marshal.Copy(bmpPtr, rgbValues, 0, rgbValues.Length);
-            }
-            else
-            {
-                int[] bytes = new int[_width * _height * 3];
-                System.Array.Resize(ref rgbValues, _width * _height * 3);
-                Marshal.Copy(bmpPtr, rgbValues, 0, rgbValues.Length);
-            }
+            System.Array.Resize(ref rgbValues, stride * _height);
+            Marshal.Copy(bmpPtr, rgbValues, 0, rgbValues.Length);
 
             locked = true;
         }
@@ -104,21 +99,29 @@ namespace LitDev.Engines
 
             if (_isAlpha)
             {
-                for (int index = 0; index < rgbValues.Length; index += 4)
+                for (int y = 0; y < _height; y++)
                 {
-                    rgbValues[index] = colour.B;
-                    rgbValues[index + 1] = colour.G;
-                    rgbValues[index + 2] = colour.R;
-                    rgbValues[index + 3] = colour.A;
+                    int index = y * stride;
+                    for (int x = 0; x < _width; x++)
+                    {
+                        rgbValues[index++] = colour.B;
+                        rgbValues[index++] = colour.G;
+                        rgbValues[index++] = colour.R;
+                        rgbValues[index++] = colour.A;
+                    }
                 }
             }
             else
             {
-                for (int index = 0; index < rgbValues.Length; index += 3)
+                for (int y = 0; y < _height; y++)
                 {
-                    rgbValues[index] = colour.B;
-                    rgbValues[index + 1] = colour.G;
-                    rgbValues[index + 2] = colour.R;
+                    int index = y * stride;
+                    for (int x = 0; x < _width; x++)
+                    {
+                        rgbValues[index++] = colour.B;
+                        rgbValues[index++] = colour.G;
+                        rgbValues[index++] = colour.R;
+                    }
                 }
             }
         }
@@ -137,7 +140,7 @@ namespace LitDev.Engines
 
             if (_isAlpha)
             {
-                int index = (y * _width + x) * 4;
+                int index = y * stride + x * 4;
                 rgbValues[index] = colour.B;
                 rgbValues[index + 1] = colour.G;
                 rgbValues[index + 2] = colour.R;
@@ -145,7 +148,7 @@ namespace LitDev.Engines
             }
             else
             {
-                int index = (y * _width + x) * 3;
+                int index = y * stride + x * 3;
                 rgbValues[index] = colour.B;
                 rgbValues[index + 1] = colour.G;
                 rgbValues[index + 2] = colour.R;
@@ -166,7 +169,7 @@ namespace LitDev.Engines
 
             if (_isAlpha)
             {
-                int index = (y * _width + x) * 4;
+                int index = y * stride + x * 4;
                 int b = rgbValues[index];
                 int g = rgbValues[index + 1];
                 int r = rgbValues[index + 2];
@@ -175,7 +178,7 @@ namespace LitDev.Engines
             }
             else
             {
-                int index = (y * _width + x) * 3;
+                int index = y * stride + x * 3;
                 int b = rgbValues[index];
                 int g = rgbValues[index + 1];
                 int r = rgbValues[index + 2];

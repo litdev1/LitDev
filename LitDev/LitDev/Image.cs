@@ -97,9 +97,11 @@ namespace LitDev
                     try
                     {
                         Bitmap bm = LDImage.getBitmap((BitmapSource)image.Source);
+                        FastPixel fp = new FastPixel(bm);
+                        fp.Lock();
 
-                        width = bm.Width;
-                        height = bm.Height;
+                        width = fp.Width;
+                        height = fp.Height;
                         vectors = new Vec3D[width, height];
 
                         Color c;
@@ -107,11 +109,12 @@ namespace LitDev
                         {
                             for (int j = 0; j < height; j++)
                             {
-                                c = bm.GetPixel(i, j);
+                                c = fp.GetPixel(i, j);
                                 vectors[i, j] = new Vec3D(c.R - 128f, c.G - 128f, c.B - 128f);
                                 vectors[i, j].Normalize();
                             }
                         }
+                        fp.Unlock(false);
                     }
                     catch (Exception ex)
                     {
@@ -329,13 +332,15 @@ namespace LitDev
                         try
                         {
                             System.Drawing.Bitmap dImg = getBitmap(img);
+                            FastPixel fp = new FastPixel(dImg);
+                            fp.Lock();
 
                             System.Drawing.Color c;
-                            for (int i = 0; i < dImg.Width; i++)
+                            for (int i = 0; i < fp.Width; i++)
                             {
-                                for (int j = 0; j < dImg.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
-                                    c = dImg.GetPixel(i, j);
+                                    c = fp.GetPixel(i, j);
                                     min[0] = System.Math.Min(min[0], (double)c.R);
                                     min[1] = System.Math.Min(min[1], (double)c.G);
                                     min[2] = System.Math.Min(min[2], (double)c.B);
@@ -350,7 +355,8 @@ namespace LitDev
                                     std[2] += (double)(c.B * c.B);
                                 }
                             }
-                            double size = dImg.Width * dImg.Height;
+                            double size = fp.Width * fp.Height;
+                            fp.Unlock(false);
                             for (int i = 0; i < 3; i++)
                             {
                                 mean[i] /= size;
@@ -414,18 +420,21 @@ namespace LitDev
                         try
                         {
                             System.Drawing.Bitmap dImg = getBitmap(img);
+                            FastPixel fp = new FastPixel(dImg);
+                            fp.Lock();
 
                             System.Drawing.Color c;
-                            for (int i = 0; i < dImg.Width; i++)
+                            for (int i = 0; i < fp.Width; i++)
                             {
-                                for (int j = 0; j < dImg.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
-                                    c = dImg.GetPixel(i, j);
+                                    c = fp.GetPixel(i, j);
                                     red[c.R]++;
                                     green[c.G]++;
                                     blue[c.B]++;
                                 }
                             }
+                            fp.Unlock(false);
                             for (int i = 0; i < 256; i++)
                             {
                                 stats[1] += i.ToString() + "=" + red[i].ToString() + ";";
@@ -1897,16 +1906,19 @@ namespace LitDev
                         try
                         {
                             System.Drawing.Bitmap dImg = getBitmap(img);
-                            for (int i = 0; i < dImg.Width; i++)
+                            FastPixel fp = new FastPixel(dImg);
+                            fp.Lock();
+                            for (int i = 0; i < fp.Width; i++)
                             {
                                 string row = "";
-                                for (int j = 0; j < dImg.Height; j++)
+                                for (int j = 0; j < fp.Height; j++)
                                 {
-                                    System.Drawing.Color c = dImg.GetPixel(i, j);
+                                    System.Drawing.Color c = fp.GetPixel(i, j);
                                     row += (j + 1).ToString() + "=" + Utilities.ArrayParse(Color2ARGB(c)) + ";";
                                 }
                                 result[i + 1] = Utilities.CreateArrayMap(row);
                             }
+                            fp.Unlock(false);
                         }
                         catch (Exception ex)
                         {
@@ -2000,6 +2012,12 @@ namespace LitDev
                     {
                         try
                         {
+                            WorkingImage workingImg;
+                            if (_workingImages.TryGetValue((string)image, out workingImg))
+                            {
+                                workingImg.fp.Unlock(false);
+                                _workingImages.Remove(image);
+                            }
                             _workingImages[image] = new WorkingImage(img);
                         }
                         catch (Exception ex)

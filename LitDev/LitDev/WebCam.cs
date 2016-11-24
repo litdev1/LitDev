@@ -321,6 +321,8 @@ namespace LitDev
                         Random rand = new Random();
                         System.Drawing.Color c;
                         System.Drawing.Bitmap copy = (System.Drawing.Bitmap)bmap.Clone();
+                        FastPixel fpCopy = new FastPixel(copy);
+                        fpCopy.Lock();
                         int ii, jj;
                         int x = parameter;
                         if (x <= 0) x = pEffect[(int)_effect];
@@ -333,10 +335,11 @@ namespace LitDev
                             {
                                 ii = System.Math.Max(0, System.Math.Min(fp.Width - 1, i + rand.Next(y) - x));
                                 jj = System.Math.Max(0, System.Math.Min(fp.Height - 1, j + rand.Next(y) - x));
-                                c = copy.GetPixel(ii, jj);
+                                c = fpCopy.GetPixel(ii, jj);
                                 fp.SetPixel(i, j, c);
                             }
                         }
+                        fpCopy.Unlock(false);
                         fp.Unlock(true);
                     }
                     break;
@@ -397,6 +400,8 @@ namespace LitDev
                     {
                         System.Drawing.Color c;
                         System.Drawing.Bitmap copy = (System.Drawing.Bitmap)bmap.Clone();
+                        FastPixel fpCopy = new FastPixel(copy);
+                        fpCopy.Lock();
                         int amount = parameter;
                         if (amount <= 0) amount = pEffect[(int)_effect];
                         bool up = true, left = false;
@@ -411,10 +416,11 @@ namespace LitDev
                                 if (j % amount == 0) left = !left;
                                 ii = left ? System.Math.Max(0, i - amount) : System.Math.Min(fp.Width - 1, i + amount);
                                 jj = up ? System.Math.Max(0, j - amount) : System.Math.Min(fp.Height - 1, j + amount);
-                                c = copy.GetPixel(ii, jj);
+                                c = fpCopy.GetPixel(ii, jj);
                                 fp.SetPixel(i, j, c);
                             }
                         }
+                        fpCopy.Unlock(false);
                         fp.Unlock(true);
                     }
                     break;
