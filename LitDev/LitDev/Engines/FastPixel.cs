@@ -16,17 +16,13 @@
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LitDev.Engines
 {
-    class FastPixel
+    public class FastPixel
     {
         private byte[] rgbValues;
         private BitmapData bmpData;
@@ -76,7 +72,7 @@ namespace LitDev.Engines
             else
             {
                 int[] bytes = new int[_width * _height * 3];
-                System.Array.Resize(ref rgbValues, _width * _height * 4);
+                System.Array.Resize(ref rgbValues, _width * _height * 3);
                 Marshal.Copy(bmpPtr, rgbValues, 0, rgbValues.Length);
             }
 

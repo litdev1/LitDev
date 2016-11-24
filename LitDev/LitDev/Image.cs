@@ -213,6 +213,19 @@ namespace LitDev
         }
     }
 
+    public class WorkingImage
+    {
+        public Bitmap bm;
+        public FastPixel fp;
+
+        public WorkingImage(BitmapSource img)
+        {
+            bm = LDImage.getBitmap(img);
+            fp = new FastPixel(bm);
+            fp.Lock();
+        }
+    }
+
     /// <summary>
     /// Provides methods to modify and image process images stored in ImageList.
     /// Any effect parameter can be defaulted to "".
@@ -288,7 +301,7 @@ namespace LitDev
             }
         }
 
-        private static Dictionary<string, Bitmap> _workingImages = new Dictionary<string, Bitmap>();
+        private static Dictionary<string, WorkingImage> _workingImages = new Dictionary<string, WorkingImage>();
 
         private static Primitive statistics(string image)
         {
@@ -1987,7 +2000,7 @@ namespace LitDev
                     {
                         try
                         {
-                            _workingImages[image] = getBitmap(img);
+                            _workingImages[image] = new WorkingImage(img);
                         }
                         catch (Exception ex)
                         {
@@ -2017,19 +2030,18 @@ namespace LitDev
                 Type ShapesType = typeof(Microsoft.SmallBasic.Library.Shapes);
                 Type GraphicsWindowType = typeof(Microsoft.SmallBasic.Library.GraphicsWindow);
                 Dictionary<string, BitmapSource> _savedImages;
-                BitmapSource img;
-                Bitmap workingImg;
+                WorkingImage workingImg;
 
                 try
                 {
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                    if (!_savedImages.TryGetValue((string)image, out img)) return;
                     if (!_workingImages.TryGetValue((string)image, out workingImg)) return;
                     InvokeHelper ret = new InvokeHelper(delegate
                     {
                         try
                         {
-                            _savedImages[image] = getBitmapImage(workingImg);
+                            workingImg.fp.Unlock(true);
+                            _savedImages[image] = getBitmapImage(workingImg.bm);
                             _workingImages.Remove(image);
                         }
                         catch (Exception ex)
@@ -2059,11 +2071,11 @@ namespace LitDev
         {
             lock (LockingVar)
             {
-                Bitmap workingImg;
+                WorkingImage workingImg;
                 if (!_workingImages.TryGetValue((string)image, out workingImg)) return "";
                 try
                 {
-                    return Color2ARGB(workingImg.GetPixel(x - 1, y - 1));
+                    return Color2ARGB(workingImg.fp.GetPixel(x - 1, y - 1));
                 }
                 catch (Exception ex)
                 {
@@ -2084,11 +2096,11 @@ namespace LitDev
         {
             lock (LockingVar)
             {
-                Bitmap workingImg;
+                WorkingImage workingImg;
                 if (!_workingImages.TryGetValue((string)image, out workingImg)) return "";
                 try
                 {
-                    System.Drawing.Color col = workingImg.GetPixel(x - 1, y - 1);
+                    System.Drawing.Color col = workingImg.fp.GetPixel(x - 1, y - 1);
                     return Utilities.CreateArrayMap("A=" + col.A + ";R=" + col.R + ";G=" + col.G + ";B=" + col.B + ";");
                 }
                 catch (Exception ex)
@@ -2110,11 +2122,11 @@ namespace LitDev
         {
             lock (LockingVar)
             {
-                Bitmap workingImg;
+                WorkingImage workingImg;
                 if (!_workingImages.TryGetValue((string)image, out workingImg)) return;
                 try
                 {
-                    workingImg.SetPixel(x - 1, y - 1, (System.Drawing.Color)colConvert.ConvertFromString(colour));
+                    workingImg.fp.SetPixel(x - 1, y - 1, (System.Drawing.Color)colConvert.ConvertFromString(colour));
                 }
                 catch (Exception ex)
                 {
