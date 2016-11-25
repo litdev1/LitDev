@@ -50,28 +50,49 @@ namespace LitDev
             this.Z = Z;
         }
 
+        public double Length()
+        {
+            return System.Math.Sqrt(X * X + Y * Y + Z * Z);
+        }
+
         public void Normalize()
         {
-            double len = System.Math.Sqrt(X * X + Y * Y + Z * Z);
+            double len = Length();
             if (len > 0)
             {
                 X /= len;
                 Y /= len;
                 Z /= len;
             }
+        }
 
+        public double Dot(Vec3D v1)
+        {
+            return v1.X * X + v1.Y * Y + v1.Z * Z;
+        }
+
+        public Vec3D Cross(Vec3D v1)
+        {
+            return new Vec3D(Y * v1.Z - Z * v1.Y, Z * v1.X - X * v1.Z, X * v1.Y - Y * v1.Z);
         }
 
         public static double Dot(Vec3D v1, Vec3D v2)
         {
             return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
         }
+
+        public static Vec3D Cross(Vec3D v1, Vec3D v2)
+        {
+            return new Vec3D(v1.Y * v2.Z - v1.Z * v2.Y, v1.Z * v2.X - v1.X * v2.Z, v1.X * v2.Y - v1.Y * v2.Z);
+        }
+
     }
 
     public class Shadow
     {
         private System.Windows.Controls.Image image;
         private string texture = "";
+        private FastPixel fpTexture = null;
         private Bitmap bNormal;
         private Bitmap bTexture = null;
         private int width;
@@ -79,6 +100,7 @@ namespace LitDev
         private Vec3D[,] vectors;
         private Type GraphicsWindowType = typeof(GraphicsWindow);
         public bool bValid = false;
+        public bool bSaveTexture = true;
 
         public Shadow(string shapeName)
         {
@@ -151,6 +173,12 @@ namespace LitDev
                     {
                         bTexture = LDImage.getBitmap(img);
                         if (width != bTexture.Width || height != bTexture.Height) bTexture = null;
+                        if (bSaveTexture && null != bTexture)
+                        {
+                            if (null != fpTexture) fpTexture.Unlock(false);
+                            fpTexture = new FastPixel(bTexture);
+                            fpTexture.Lock();
+                        }
                     }
                     else
                     {
@@ -164,8 +192,7 @@ namespace LitDev
                 Vec3D source = new Vec3D(x, -y, z);
                 source.Normalize();
 
-                FastPixel fpTexture = null;
-                if (null != bTexture)
+                if (!bSaveTexture && null != bTexture)
                 {
                     fpTexture = new FastPixel(bTexture);
                     fpTexture.Lock();
@@ -193,7 +220,7 @@ namespace LitDev
                     }
                 }
                 fpNormal.Unlock(true);
-                if (null != bTexture) fpTexture.Unlock(false);
+                if (!bSaveTexture && null != bTexture) fpTexture.Unlock(false);
 
                 InvokeHelper ret = new InvokeHelper(delegate
                 {
@@ -2314,10 +2341,10 @@ namespace LitDev
 
                 try
                 {
-                    MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    normalMap = method.Invoke(null, new object[] { "ImageList" }).ToString();
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                     if (!_savedImages.TryGetValue(image, out img)) return normalMap;
+                    MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    normalMap = method.Invoke(null, new object[] { "ImageList" }).ToString();
 
                     InvokeHelper ret = new InvokeHelper(delegate
                     {
