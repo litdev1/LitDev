@@ -93,12 +93,14 @@ namespace LitDev
         private System.Windows.Controls.Image image;
         private string texture = "";
         private FastPixel fpTexture = null;
+        private FastPixel fpNormal = null;
         private Bitmap bNormal;
         private Bitmap bTexture = null;
         private int width;
         private int height;
         private Vec3D[,] vectors;
         private Type GraphicsWindowType = typeof(GraphicsWindow);
+
         public bool bValid = false;
         public bool bSaveTexture = true;
 
@@ -120,7 +122,6 @@ namespace LitDev
                     {
                         Bitmap bm = LDImage.getBitmap((BitmapSource)image.Source);
                         FastPixel fp = new FastPixel(bm);
-                        fp.Lock();
 
                         width = fp.Width;
                         height = fp.Height;
@@ -147,6 +148,7 @@ namespace LitDev
                 method.Invoke(null, new object[] { ret });
 
                 bNormal = new Bitmap(width, height, PixelFormat.Format32bppArgb); //to handle alpha channel
+                fpNormal = new FastPixel(bNormal);
                 bValid = true;
             }
             catch (Exception ex)
@@ -177,7 +179,6 @@ namespace LitDev
                         {
                             if (null != fpTexture) fpTexture.Unlock(false);
                             fpTexture = new FastPixel(bTexture);
-                            fpTexture.Lock();
                         }
                     }
                     else
@@ -195,10 +196,7 @@ namespace LitDev
                 if (!bSaveTexture && null != bTexture)
                 {
                     fpTexture = new FastPixel(bTexture);
-                    fpTexture.Lock();
                 }
-                FastPixel fpNormal = new FastPixel(bNormal);
-                fpNormal.Lock();
                 for (int i = 0; i < width; i++)
                 {
                     for (int j = 0; j < height; j++)
@@ -219,7 +217,7 @@ namespace LitDev
                         }
                     }
                 }
-                fpNormal.Unlock(true);
+                fpNormal.Update();
                 if (!bSaveTexture && null != bTexture) fpTexture.Unlock(false);
 
                 InvokeHelper ret = new InvokeHelper(delegate
@@ -252,7 +250,6 @@ namespace LitDev
         {
             bm = LDImage.getBitmap(img);
             fp = new FastPixel(bm);
-            fp.Lock();
         }
     }
 
@@ -360,7 +357,6 @@ namespace LitDev
                         {
                             System.Drawing.Bitmap dImg = getBitmap(img);
                             FastPixel fp = new FastPixel(dImg);
-                            fp.Lock();
 
                             System.Drawing.Color c;
                             for (int i = 0; i < fp.Width; i++)
@@ -448,7 +444,6 @@ namespace LitDev
                         {
                             System.Drawing.Bitmap dImg = getBitmap(img);
                             FastPixel fp = new FastPixel(dImg);
-                            fp.Lock();
 
                             System.Drawing.Color c;
                             for (int i = 0; i < fp.Width; i++)
@@ -862,7 +857,6 @@ namespace LitDev
 
                             System.Drawing.Color c;
                             FastPixel fp = new FastPixel(dImg);
-                            fp.Lock();
                             for (int i = 0; i < fp.Width; i++)
                             {
                                 for (int j = 0; j < fp.Height; j++)
@@ -920,7 +914,6 @@ namespace LitDev
 
                             System.Drawing.Color c;
                             FastPixel fp = new FastPixel(dImg);
-                            fp.Lock();
                             for (int i = 0; i < fp.Width; i++)
                             {
                                 for (int j = 0; j < fp.Height; j++)
@@ -1007,8 +1000,6 @@ namespace LitDev
                                 System.Drawing.Color c1, c2;
                                 FastPixel fpImg1 = new FastPixel(dImg1);
                                 FastPixel fpImg2 = new FastPixel(dImg2);
-                                fpImg1.Lock();
-                                fpImg2.Lock();
                                 for (int i = 0; i < fpImg1.Width; i++)
                                 {
                                     for (int j = 0; j < fpImg1.Height; j++)
@@ -1079,8 +1070,6 @@ namespace LitDev
                                 System.Drawing.Color c1, c2;
                                 FastPixel fpImg1 = new FastPixel(dImg1);
                                 FastPixel fpImg2 = new FastPixel(dImg2);
-                                fpImg1.Lock();
-                                fpImg2.Lock();
                                 for (int i = 0; i < fpImg1.Width; i++)
                                 {
                                     for (int j = 0; j < fpImg1.Height; j++)
@@ -1223,7 +1212,6 @@ namespace LitDev
                             System.Drawing.Color c;
                             byte A, R, G, B;
                             FastPixel fp = new FastPixel(dImg);
-                            fp.Lock();
                             for (int i = 0; i < fp.Width; i++)
                             {
                                 for (int j = 0; j < fp.Height; j++)
@@ -1284,7 +1272,6 @@ namespace LitDev
                             double dx, dy, rad, theta;
                             int x, y;
                             FastPixel fp = new FastPixel(dImg);
-                            fp.Lock();
                             for (int i = 0; i < fp.Width; i++)
                             {
                                 for (int j = 0; j < fp.Height; j++)
@@ -1934,7 +1921,6 @@ namespace LitDev
                         {
                             System.Drawing.Bitmap dImg = getBitmap(img);
                             FastPixel fp = new FastPixel(dImg);
-                            fp.Lock();
                             for (int i = 0; i < fp.Width; i++)
                             {
                                 string row = "";
@@ -1990,7 +1976,6 @@ namespace LitDev
                         int height = SBArray.GetItemCount(pixels[1]);
                         Bitmap dImg = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                         FastPixel fp = new FastPixel(dImg);
-                        fp.Lock();
                         for (int i = 0; i < width; i++)
                         {
                             Primitive row = pixels[i + 1];
@@ -2353,7 +2338,6 @@ namespace LitDev
                             if (scale == "") scale = 1;
                             Bitmap bm = getBitmap(img);
                             FastPixel fp = new FastPixel(bm);
-                            fp.Lock();
                             Vec3D n = new Vec3D();
                             double[,] height = new double[fp.Width, fp.Height];
                             double maxheight = 0;
@@ -2428,6 +2412,118 @@ namespace LitDev
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 }
                 return normalMap;
+            }
+        }
+
+        /// <summary>
+        /// Use a fast pixel manipulation method (default "True").
+        /// This method can be turned off using this property.
+        /// </summary>
+        public static Primitive UseFastPixelMethods
+        {
+            get { return FastPixel.UseFastPixel; }
+            set { FastPixel.UseFastPixel = value; }
+        }
+
+        /// <summary>
+        /// Modify an ImageList image to make a selected colour transparent.
+        /// </summary>
+        /// <param name="image">The ImageList image.</param>
+        /// <param name="colour">The colour to make transparent.</param>
+        public static void MakeTransparent(Primitive image, Primitive colour)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(ImageList);
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Dictionary<string, BitmapSource> _savedImages;
+                BitmapSource img;
+
+                try
+                {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue((string)image, out img)) return;
+
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            Bitmap dImg = getBitmap(img);
+                            dImg.MakeTransparent((Color)colConvert.ConvertFromString(colour));
+                            _savedImages[image] = getBitmapImage(dImg);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Replace one colour in an image with another.
+        /// </summary>
+        /// <param name="image">The ImageList image.</param>
+        /// <param name="colourFrom">The colour to replace.</param>
+        /// <param name="colourTo">The replacement colour to apply.</param>
+        /// <param name="tolerance">A tolerance for the colour to match (default 0 - exact match).
+        /// ARGB pixel values all within the toterance will be replaced.</param>
+        public static void ReplaceColour(Primitive image, Primitive colourFrom, Primitive colourTo, Primitive tolerance)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(ImageList);
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Dictionary<string, BitmapSource> _savedImages;
+                BitmapSource img;
+
+                try
+                {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue((string)image, out img)) return;
+
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            Bitmap dImg = getBitmap(img);
+                            FastPixel fp = new FastPixel(dImg);
+                            Color cFrom = (Color)colConvert.ConvertFromString(colourFrom);
+                            Color cTo = (Color)colConvert.ConvertFromString(colourTo);
+                            for (int x = 0; x < fp.Width; x++)
+                            {
+                                for (int y = 0; y < fp.Height; y++)
+                                {
+                                    Color c = fp.GetPixel(x, y);
+                                    if (System.Math.Abs(c.A - cFrom.A) > tolerance) continue;
+                                    if (System.Math.Abs(c.R - cFrom.R) > tolerance) continue;
+                                    if (System.Math.Abs(c.G - cFrom.G) > tolerance) continue;
+                                    if (System.Math.Abs(c.B - cFrom.B) > tolerance) continue;
+                                    fp.SetPixel(x, y, cTo);
+                                }
+                            }
+                            fp.Unlock(true);
+                            _savedImages[image] = getBitmapImage(dImg);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
             }
         }
     }

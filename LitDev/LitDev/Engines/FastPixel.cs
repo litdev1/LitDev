@@ -37,23 +37,26 @@ namespace LitDev.Engines
         private Bitmap _bitmap;
         private int _width;
         private int _height;
+        private bool _indexed;
 
         public int Width { get { return _width; } }
         public int Height { get { return _height; } }
-        public bool IsAlphaBitmap { get { return _isAlpha; } }
+        public bool IsAlpha { get { return _isAlpha; } }
         public Bitmap Bitmap { get { return _bitmap; } }
+        public bool Indexed { get { return _indexed; } }
+
+        public static bool UseFastPixel = true;
 
         public FastPixel(Bitmap bitmap)
         {
-            if ((bitmap.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed)
-            {
-                throw new Exception("Cannot lock an Indexed image.");
-            }
+            _indexed = !UseFastPixel || (bitmap.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
             _bitmap = bitmap;
             _isAlpha = (bitmap.PixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
             _width = bitmap.Width;
             _height = bitmap.Height;
+
+            if (!_indexed) Lock();
         }
 
         public void Lock()
@@ -76,22 +79,45 @@ namespace LitDev.Engines
 
         public void Unlock(bool setPixels)
         {
+            if (_indexed) return;
+
             if (!locked)
             {
                 throw new Exception("Bitmap not locked.");
             }
 
-            if (setPixels)
-            {
-                Marshal.Copy(rgbValues, 0, bmpPtr, rgbValues.Length);
-            }
+            if (setPixels) Update();
 
             _bitmap.UnlockBits(bmpData);
             locked = false;
         }
 
+        public void Update()
+        {
+            if (_indexed) return;
+
+            if (!locked)
+            {
+                throw new Exception("Bitmap not locked.");
+            }
+
+            Marshal.Copy(rgbValues, 0, bmpPtr, rgbValues.Length);
+        }
+
         public void Clear(Color colour)
         {
+            if (_indexed)
+            {
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        _bitmap.SetPixel(x, y,  colour);
+                    }
+                }
+                return;
+            }
+
             if (!locked)
             {
                 throw new Exception("Bitmap not locked.");
@@ -126,13 +152,14 @@ namespace LitDev.Engines
             }
         }
 
-        public void SetPixel(Point location, Color colour)
-        {
-            SetPixel(location.X, location.Y, colour);
-        }
-
         public void SetPixel(int x, int y, Color colour)
         {
+            if (_indexed)
+            {
+                _bitmap.SetPixel(x, y, colour);
+                return;
+            }
+
             if (!locked)
             {
                 throw new Exception("Bitmap not locked.");
@@ -155,13 +182,13 @@ namespace LitDev.Engines
             }
         }
 
-        public Color GetPixel(Point location)
-        {
-            return GetPixel(location.X, location.Y);
-        }
-
         public Color GetPixel(int x, int y)
         {
+            if (_indexed)
+            {
+                return _bitmap.GetPixel(x, y);
+            }
+
             if (!locked)
             {
                 throw new Exception("Bitmap not locked.");

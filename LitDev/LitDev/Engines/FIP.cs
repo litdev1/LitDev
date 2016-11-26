@@ -1536,10 +1536,8 @@ namespace LitDev.Engines
         public Bitmap InverseImage(Bitmap OriginalImage, int threshold)
         {
             FastPixel fpOriginal = new FastPixel(OriginalImage);
-            fpOriginal.Lock();
             Bitmap OutputImage = new System.Drawing.Bitmap(fpOriginal.Width, fpOriginal.Height);
             FastPixel fpOutput = new FastPixel(OutputImage);
-            fpOutput.Lock();
 
             if (threshold < 1 || threshold > 254)
             {
@@ -1774,10 +1772,8 @@ namespace LitDev.Engines
         public Bitmap ToBlackwhiteInverse(Bitmap OriginalImage, int threshold)
         {
             FastPixel fpOriginal = new FastPixel(OriginalImage);
-            fpOriginal.Lock();
             Bitmap OutputImage = new System.Drawing.Bitmap(fpOriginal.Width, fpOriginal.Height);
             FastPixel fpOutput = new FastPixel(OutputImage);
-            fpOutput.Lock();
 
             if (threshold < 1 || threshold > 254)
             {
@@ -2079,10 +2075,8 @@ namespace LitDev.Engines
         {
             Bitmap image = OriginalImage;
             FastPixel fpImage = new FastPixel(image);
-            fpImage.Lock();
             Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
             FastPixel fpImage2 = new FastPixel(image2);
-            fpImage2.Lock();
 
             if (Filter.GetLength(0) != Filter.GetLength(1))
             {
@@ -2604,10 +2598,8 @@ namespace LitDev.Engines
         {
             Bitmap image = OriginalImage;
             FastPixel fpImage = new FastPixel(image);
-            fpImage.Lock();
             Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
             FastPixel fpImage2 = new FastPixel(image2);
-            fpImage2.Lock();
 
             for (int m = 1; m < fpImage.Width - 1; m++)
             {
@@ -2797,10 +2789,8 @@ namespace LitDev.Engines
         {
             Bitmap image = OriginalImage;
             FastPixel fpImage = new FastPixel(image);
-            fpImage.Lock();
             Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
             FastPixel fpImage2 = new FastPixel(image2);
-            fpImage2.Lock();
 
             for (int m = 1; m < fpImage.Width - 1; m++)
             {
@@ -2885,10 +2875,8 @@ namespace LitDev.Engines
         {
             Bitmap image = OriginalImage;
             FastPixel fpImage = new FastPixel(OriginalImage);
-            fpImage.Lock();
             Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
             FastPixel fpImage2 = new FastPixel(image2);
-            fpImage2.Lock();
 
             if (size % 2 == 0)
             {
@@ -3366,10 +3354,8 @@ namespace LitDev.Engines
         {
             Bitmap image = OriginalImage;
             FastPixel fpImage = new FastPixel(image);
-            fpImage.Lock();
             Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
             FastPixel fpImage2 = new FastPixel(image2);
-            fpImage2.Lock();
 
             int[] thresholds = new int[4] { 20, 40, 60, 80 };
             int size = 3;
@@ -3624,10 +3610,8 @@ namespace LitDev.Engines
         {
             Bitmap image = OriginalImage;
             FastPixel fpImage = new FastPixel(image);
-            fpImage.Lock();
             Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
             FastPixel fpImage2 = new FastPixel(image2);
-            fpImage2.Lock();
 
             int[] thresholds = new int[4] { 20, 40, 60, 80 };
             int size = 3;
@@ -4219,10 +4203,8 @@ namespace LitDev.Engines
         public Bitmap Sepia(Bitmap OriginalImage, Double Coef)
         {
             FastPixel fpOriginal = new FastPixel(OriginalImage);
-            fpOriginal.Lock();
             Bitmap OutputImage = new System.Drawing.Bitmap(fpOriginal.Width, fpOriginal.Height);
             FastPixel fpOutput = new FastPixel(OutputImage);
-            fpOutput.Lock();
 
             for (int x = 0; x < fpOriginal.Width; x++)
             {
@@ -4268,10 +4250,8 @@ namespace LitDev.Engines
         public Bitmap ColorAccent(Bitmap OriginalImage, Double h, Double range)
         {
             FastPixel fpOriginal = new FastPixel(OriginalImage);
-            fpOriginal.Lock();
             Bitmap OutputImage = new System.Drawing.Bitmap(fpOriginal.Width, fpOriginal.Height);
             FastPixel fpOutput = new FastPixel(OutputImage);
-            fpOutput.Lock();
 
             Double h1 = (h - range / 2 + 360) % 360;
             Double h2 = (h + range / 2 + 360) % 360;
@@ -4994,10 +4974,8 @@ namespace LitDev.Engines
         {
             Bitmap image = OriginalImage;
             FastPixel fpImage = new FastPixel(image);
-            fpImage.Lock();
             Bitmap image2 = new Bitmap(fpImage.Width, fpImage.Height);
             FastPixel fpImage2 = new FastPixel(image2);
-            fpImage2.Lock();
 
             if (Level < 1 || Level > 255)
             {
@@ -5125,9 +5103,6 @@ namespace LitDev.Engines
             FastPixel fpOilpaint = new FastPixel(oilpaint);
             FastPixel fpEdge = new FastPixel(edge);
             FastPixel fpImage2 = new FastPixel(image2);
-            fpOilpaint.Lock();
-            fpEdge.Lock();
-            fpImage2.Lock();
 
             for (int i = 0; i < fpImage2.Width; i++)
             {

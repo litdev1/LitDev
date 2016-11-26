@@ -863,7 +863,6 @@ namespace LitDev
                         RenderTargetBitmap _renderBitmap = (RenderTargetBitmap)GraphicsWindowType.GetField("_renderBitmap", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
                         Bitmap bitmap = LDImage.getBitmap(_renderBitmap);
                         FastPixel fp = new FastPixel(bitmap);
-                        fp.Lock();
                         System.Drawing.Color colNew = ColorTranslator.FromHtml(colour);
                         System.Drawing.Color colOld = fp.GetPixel(x, y);
                         if (colNew == colOld) return;

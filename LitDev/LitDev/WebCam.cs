@@ -169,7 +169,6 @@ namespace LitDev
                     {
                         System.Drawing.Color c;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -185,7 +184,6 @@ namespace LitDev
                     {
                         System.Drawing.Color c;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -201,7 +199,6 @@ namespace LitDev
                     {
                         System.Drawing.Color c;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -217,7 +214,6 @@ namespace LitDev
                     {
                         System.Drawing.Color c;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -233,7 +229,6 @@ namespace LitDev
                 case eEffect.INVERSE: //Inverse
                     {
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         System.Drawing.Color c;
                         for (int i = 0; i < fp.Width; i++)
                         {
@@ -250,7 +245,6 @@ namespace LitDev
                     {
                         System.Drawing.Color c;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -267,7 +261,6 @@ namespace LitDev
                     {
                         System.Drawing.Color c;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -284,7 +277,6 @@ namespace LitDev
                     {
                         System.Drawing.Color c;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -305,7 +297,6 @@ namespace LitDev
                         System.Drawing.Color c;
                         int i, j;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int ii = 0; ii < fp.Width * fp.Height / density; ii++)
                         {
                             i = rand.Next(fp.Width);
@@ -322,13 +313,11 @@ namespace LitDev
                         System.Drawing.Color c;
                         System.Drawing.Bitmap copy = (System.Drawing.Bitmap)bmap.Clone();
                         FastPixel fpCopy = new FastPixel(copy);
-                        fpCopy.Lock();
                         int ii, jj;
                         int x = parameter;
                         if (x <= 0) x = pEffect[(int)_effect];
                         int y = 2 * x + 1;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -351,7 +340,6 @@ namespace LitDev
                         double R, G, B;
 
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -401,13 +389,11 @@ namespace LitDev
                         System.Drawing.Color c;
                         System.Drawing.Bitmap copy = (System.Drawing.Bitmap)bmap.Clone();
                         FastPixel fpCopy = new FastPixel(copy);
-                        fpCopy.Lock();
                         int amount = parameter;
                         if (amount <= 0) amount = pEffect[(int)_effect];
                         bool up = true, left = false;
                         int ii, jj;
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             if (i % amount == 0) up = !up;
@@ -438,9 +424,7 @@ namespace LitDev
                         int amount = parameter;
                         if (amount <= 0) amount = pEffect[(int)_effect];
                         FastPixel fpCopy = new FastPixel(copy);
-                        fpCopy.Lock();
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         int nx = fp.Width / amount + 1;
                         int ny = fp.Height / amount + 1;
                         int ii, jj;
@@ -504,7 +488,6 @@ namespace LitDev
                         double R, G, B;
 
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -534,9 +517,7 @@ namespace LitDev
                         factor -= 1;
 
                         FastPixel fpCopy = new FastPixel(copy);
-                        fpCopy.Lock();
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         double centerX = fp.Width / 2; //center of distortion
                         double centerY = fp.Height / 2;
 
@@ -576,9 +557,7 @@ namespace LitDev
                         if (factor <= 0) factor = pEffect[(int)_effect];
 
                         FastPixel fpCopy = new FastPixel(copy);
-                        fpCopy.Lock();
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
 
                         double rad = System.Math.Min(fp.Width, fp.Height) / 2.0;
                         double dx, dy, dist, scale;
@@ -609,9 +588,7 @@ namespace LitDev
                         if (factor == 0) factor = pEffect[(int)_effect];
 
                         FastPixel fpCopy = new FastPixel(copy);
-                        fpCopy.Lock();
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
 
                         double dx, dy, dist, theta;
                         int ii, jj;
@@ -645,7 +622,6 @@ namespace LitDev
                         double R, G, B;
 
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -671,7 +647,6 @@ namespace LitDev
                         double[] RGB;
 
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -696,7 +671,6 @@ namespace LitDev
                         double[] RGB;
 
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -721,7 +695,6 @@ namespace LitDev
                         double[] RGB;
 
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
@@ -805,7 +778,6 @@ namespace LitDev
                         double R, G, B;
 
                         FastPixel fp = new FastPixel(bmap);
-                        fp.Lock();
                         for (int i = 0; i < fp.Width; i++)
                         {
                             for (int j = 0; j < fp.Height; j++)
