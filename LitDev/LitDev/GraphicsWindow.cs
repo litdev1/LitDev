@@ -1005,7 +1005,7 @@ namespace LitDev
                     {
                         try
                         {
-                            return _mainCanvas.PointToScreen(new System.Windows.Point(0, 0)).X;
+                            return _mainCanvas.PointToScreen(new System.Windows.Point(0, 0)).X.ToString(CultureInfo.InvariantCulture);
                         }
                         catch (Exception ex)
                         {
@@ -1042,7 +1042,7 @@ namespace LitDev
                     {
                         try
                         {
-                            return _mainCanvas.PointToScreen(new System.Windows.Point(0, 0)).Y;
+                            return _mainCanvas.PointToScreen(new System.Windows.Point(0, 0)).Y.ToString(CultureInfo.InvariantCulture);
                         }
                         catch (Exception ex)
                         {
@@ -1079,7 +1079,7 @@ namespace LitDev
                     {
                         try
                         {
-                            return (_mainCanvas.PointToScreen(new System.Windows.Point(100, 0)).X - _mainCanvas.PointToScreen(new System.Windows.Point(0, 0)).X) / 100.0;
+                            return ((_mainCanvas.PointToScreen(new System.Windows.Point(100, 0)).X - _mainCanvas.PointToScreen(new System.Windows.Point(0, 0)).X) / 100.0).ToString(CultureInfo.InvariantCulture);
                         }
                         catch (Exception ex)
                         {
@@ -1116,7 +1116,7 @@ namespace LitDev
                     {
                         try
                         {
-                            return (_mainCanvas.PointToScreen(new System.Windows.Point(0, 100)).Y - _mainCanvas.PointToScreen(new System.Windows.Point(0, 0)).Y) / 100.0;
+                            return ((_mainCanvas.PointToScreen(new System.Windows.Point(0, 100)).Y - _mainCanvas.PointToScreen(new System.Windows.Point(0, 0)).Y) / 100.0).ToString(CultureInfo.InvariantCulture);
                         }
                         catch (Exception ex)
                         {
@@ -1308,7 +1308,7 @@ namespace LitDev
                         System.Drawing.Point position = System.Windows.Forms.Cursor.Position;
                         Grid grid = (Grid)_mainCanvas.Parent;
                         GeneralTransform transform = _mainCanvas.TransformToVisual(grid);
-                        return transform.Transform(_mainCanvas.PointFromScreen(new System.Windows.Point(position.X, position.Y))).X;
+                        return transform.Transform(_mainCanvas.PointFromScreen(new System.Windows.Point(position.X, position.Y))).X.ToString(CultureInfo.InvariantCulture);
                         //return grid.PointFromScreen(new System.Windows.Point(position.X, position.Y)).X;
                     });
                     MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
@@ -1340,7 +1340,7 @@ namespace LitDev
                         System.Drawing.Point position = System.Windows.Forms.Cursor.Position;
                         Grid grid = (Grid)_mainCanvas.Parent;
                         GeneralTransform transform = _mainCanvas.TransformToVisual(grid);
-                        return transform.Transform(_mainCanvas.PointFromScreen(new System.Windows.Point(position.X, position.Y))).Y;
+                        return transform.Transform(_mainCanvas.PointFromScreen(new System.Windows.Point(position.X, position.Y))).Y.ToString(CultureInfo.InvariantCulture);
                         //return grid.PointFromScreen(new System.Windows.Point(position.X, position.Y)).Y;
                     });
                     MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);

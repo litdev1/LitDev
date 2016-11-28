@@ -18,6 +18,7 @@
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -340,12 +341,12 @@ namespace LitDev
                         switch (action.ToLower())
                         {
                             case "gethorizontaloffset":
-                                return scrollViewer.HorizontalOffset;
+                                return scrollViewer.HorizontalOffset.ToString(CultureInfo.InvariantCulture);
                             case "sethorizontaloffset":
                                 scrollViewer.ScrollToHorizontalOffset(value);
                                 break;
                             case "getverticaloffset":
-                                return scrollViewer.VerticalOffset;
+                                return scrollViewer.VerticalOffset.ToString(CultureInfo.InvariantCulture);
                             case "setverticaloffset":
                                 scrollViewer.ScrollToVerticalOffset(value);
                                 break;
@@ -356,7 +357,7 @@ namespace LitDev
                                 scrollViewer.HorizontalScrollBarVisibility = scrollViewer.VerticalScrollBarVisibility;
                                 break;
                             case "getpanningratio":
-                                return scrollViewer.PanningRatio;
+                                return scrollViewer.PanningRatio.ToString(CultureInfo.InvariantCulture);
                             case "setpanningratio":
                                 scrollViewer.PanningRatio = value;
                                 break;

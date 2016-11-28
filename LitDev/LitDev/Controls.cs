@@ -22,6 +22,7 @@ using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -3864,7 +3865,7 @@ namespace LitDev
                         if (obj.GetType() == typeof(MediaElement))
                         {
                             MediaElement mediaElement = (MediaElement)obj;
-                            return mediaElement.NaturalDuration.HasTimeSpan ? mediaElement.NaturalDuration.TimeSpan.TotalMilliseconds : 0;
+                            return mediaElement.NaturalDuration.HasTimeSpan ? mediaElement.NaturalDuration.TimeSpan.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) : "0";
                         }
                     }
                     catch (Exception ex)
@@ -3909,7 +3910,7 @@ namespace LitDev
                         if (obj.GetType() == typeof(MediaElement))
                         {
                             MediaElement mediaElement = (MediaElement)obj;
-                            return mediaElement.NaturalDuration.HasTimeSpan ? mediaElement.Position.TotalMilliseconds : 0;
+                            return mediaElement.NaturalDuration.HasTimeSpan ? mediaElement.Position.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) : "0";
                         }
                     }
                     catch (Exception ex)
@@ -4390,7 +4391,7 @@ namespace LitDev
                         if (obj.GetType() == typeof(Slider))
                         {
                             Slider slider = (Slider)obj;
-                            return slider.Value;
+                            return slider.Value.ToString(CultureInfo.InvariantCulture);
                         }
                     }
                     catch (Exception ex)

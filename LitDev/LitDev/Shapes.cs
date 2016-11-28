@@ -1878,7 +1878,7 @@ namespace LitDev
                         if (null != brush && null != pen)
                         {
                             result += "1=" + brush.ToString() + ";";
-                            result += "2=" + (obj.Opacity * 100).ToString() + ";";
+                            result += "2=" + (obj.Opacity * 100).ToString(CultureInfo.InvariantCulture) + ";";
                             result += "3=" + pen.ToString() + ";";
                         }
                         return Utilities.CreateArrayMap(result);
@@ -3155,7 +3155,7 @@ namespace LitDev
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                     {
-                        return Canvas.GetLeft(obj);
+                        return Canvas.GetLeft(obj).ToString(CultureInfo.InvariantCulture);
                     });
                     MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                     return method.Invoke(null, new object[] { ret }).ToString();
@@ -3195,7 +3195,7 @@ namespace LitDev
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                     {
-                        return Canvas.GetTop(obj);
+                        return Canvas.GetTop(obj).ToString(CultureInfo.InvariantCulture);
                     });
                     MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                     return method.Invoke(null, new object[] { ret }).ToString();
@@ -3241,7 +3241,7 @@ namespace LitDev
                     try
                     {
                         FrameworkElement frameworkElement = obj as FrameworkElement;
-                        return frameworkElement.ActualWidth;
+                        return frameworkElement.ActualWidth.ToString(CultureInfo.InvariantCulture);
                     }
                     catch (Exception ex)
                     {
@@ -3289,7 +3289,7 @@ namespace LitDev
                     try
                     {
                         FrameworkElement frameworkElement = obj as FrameworkElement;
-                        return frameworkElement.ActualHeight;
+                        return frameworkElement.ActualHeight.ToString(CultureInfo.InvariantCulture);
                     }
                     catch (Exception ex)
                     {
@@ -4114,7 +4114,7 @@ namespace LitDev
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                     {
-                        return obj.Opacity * 100;
+                        return (obj.Opacity * 100).ToString(CultureInfo.InvariantCulture);
                     });
                     MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                     return method.Invoke(null, new object[] { ret }).ToString();
