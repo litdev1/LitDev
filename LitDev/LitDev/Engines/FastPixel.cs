@@ -19,9 +19,12 @@
 //With corrections for stride
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Windows.Media.Imaging;
 
 namespace LitDev.Engines
 {
@@ -32,40 +35,45 @@ namespace LitDev.Engines
         private IntPtr bmpPtr;
         private int stride;
         private bool locked = false;
+        private bool indexed = false;
 
-        private bool _isAlpha = false;
+        private bool _isAlpha;
         private Bitmap _bitmap;
         private int _width;
         private int _height;
-        private bool _indexed;
 
         public int Width { get { return _width; } }
         public int Height { get { return _height; } }
         public bool IsAlpha { get { return _isAlpha; } }
         public Bitmap Bitmap { get { return _bitmap; } }
-        public bool Indexed { get { return _indexed; } }
+        public BitmapImage BitmapImage { get { return GetBitmapImage(_bitmap); } }
 
         public static bool UseFastPixel = true;
 
         public FastPixel(Bitmap bitmap)
         {
-            _indexed = !UseFastPixel || (bitmap.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
-
             _bitmap = bitmap;
-            _isAlpha = (bitmap.PixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
-            _width = bitmap.Width;
-            _height = bitmap.Height;
-
-            if (!_indexed) Lock();
+            Setup();
         }
 
-        public void Lock()
+        public FastPixel(BitmapSource bitmap)
         {
-            if (locked)
-            {
-                throw new Exception("Bitmap already locked.");
-            }
+            _bitmap = GetBitmap(bitmap);
+            Setup();
+        }
 
+        private void Setup()
+        {
+            indexed = !UseFastPixel || (_bitmap.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
+            _isAlpha = (_bitmap.PixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
+            _width = _bitmap.Width;
+            _height = _bitmap.Height;
+
+            if (!indexed) Lock();
+        }
+
+        private void Lock()
+        {
             Rectangle rect = new Rectangle(0, 0, _width, _height);
             bmpData = _bitmap.LockBits(rect, ImageLockMode.ReadWrite, _bitmap.PixelFormat);
             stride = bmpData.Stride;
@@ -79,12 +87,7 @@ namespace LitDev.Engines
 
         public void Unlock(bool setPixels)
         {
-            if (_indexed) return;
-
-            if (!locked)
-            {
-                throw new Exception("Bitmap not locked.");
-            }
+            if (indexed || !locked) return;
 
             if (setPixels) Update();
 
@@ -94,19 +97,14 @@ namespace LitDev.Engines
 
         public void Update()
         {
-            if (_indexed) return;
-
-            if (!locked)
-            {
-                throw new Exception("Bitmap not locked.");
-            }
+            if (indexed || !locked) return;
 
             Marshal.Copy(rgbValues, 0, bmpPtr, rgbValues.Length);
         }
 
         public void Clear(Color colour)
         {
-            if (_indexed)
+            if (indexed)
             {
                 for (int x = 0; x < _width; x++)
                 {
@@ -118,10 +116,7 @@ namespace LitDev.Engines
                 return;
             }
 
-            if (!locked)
-            {
-                throw new Exception("Bitmap not locked.");
-            }
+            if (!locked) return;
 
             if (_isAlpha)
             {
@@ -154,16 +149,13 @@ namespace LitDev.Engines
 
         public void SetPixel(int x, int y, Color colour)
         {
-            if (_indexed)
+            if (indexed)
             {
                 _bitmap.SetPixel(x, y, colour);
                 return;
             }
 
-            if (!locked)
-            {
-                throw new Exception("Bitmap not locked.");
-            }
+            if (!locked) return;
 
             if (_isAlpha)
             {
@@ -184,15 +176,12 @@ namespace LitDev.Engines
 
         public Color GetPixel(int x, int y)
         {
-            if (_indexed)
+            if (indexed)
             {
                 return _bitmap.GetPixel(x, y);
             }
 
-            if (!locked)
-            {
-                throw new Exception("Bitmap not locked.");
-            }
+            if (!locked) return Color.Black;
 
             if (_isAlpha)
             {
@@ -211,6 +200,34 @@ namespace LitDev.Engines
                 int r = rgbValues[index + 2];
                 return Color.FromArgb(r, g, b);
             }
+        }
+
+        public static Stopwatch swGetBitmap = new Stopwatch();
+        public static Stopwatch swGetBitmapImage = new Stopwatch();
+
+        public static Bitmap GetBitmap(BitmapSource bmSource)
+        {
+            swGetBitmap.Start();
+            MemoryStream ms = new MemoryStream();
+            BitmapEncoder enc = new PngBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(bmSource));
+            enc.Save(ms);
+            Bitmap bm = new Bitmap(ms);
+            swGetBitmap.Stop();
+            return bm;
+        }
+
+        public static BitmapImage GetBitmapImage(Bitmap bm)
+        {
+            swGetBitmapImage.Start();
+            MemoryStream ms = new MemoryStream();
+            bm.Save(ms, ImageFormat.Png);
+            BitmapImage bmImage = new BitmapImage();
+            bmImage.BeginInit();
+            bmImage.StreamSource = ms;
+            bmImage.EndInit();
+            swGetBitmapImage.Stop();
+            return bmImage;
         }
     }
 }

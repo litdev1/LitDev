@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using LitDev.Themes;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
@@ -600,10 +601,10 @@ namespace LitDev
                             image.Source = img;
                             if (iconSize > 0)
                             {
-                                System.Drawing.Bitmap dImg = LDImage.getBitmap(img);
+                                System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                                 System.Drawing.Image.GetThumbnailImageAbort dummyCallback = new System.Drawing.Image.GetThumbnailImageAbort(LDWebCam.ResizeAbort);
                                 dImg = (System.Drawing.Bitmap)dImg.GetThumbnailImage(iconSize, iconSize, dummyCallback, IntPtr.Zero);
-                                image.Source = LDImage.getBitmapImage(dImg);
+                                image.Source = FastPixel.GetBitmapImage(dImg);
                             }
                             menuItem.Icon = image;
                         }

@@ -28,6 +28,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 using Microsoft.SmallBasic.Library.Internal;
+using LitDev.Engines;
 
 namespace LitDev
 {
@@ -277,7 +278,7 @@ namespace LitDev
                         {
                             _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                             string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
-                            _savedImages[shapeName] = LDImage.getBitmapImage((Bitmap)img);
+                            _savedImages[shapeName] = FastPixel.GetBitmapImage((Bitmap)img);
                             return shapeName;
                         }
                         catch (Exception ex)

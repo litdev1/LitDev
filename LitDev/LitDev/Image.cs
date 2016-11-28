@@ -120,7 +120,7 @@ namespace LitDev
                 {
                     try
                     {
-                        Bitmap bm = LDImage.getBitmap((BitmapSource)image.Source);
+                        Bitmap bm = FastPixel.GetBitmap((BitmapSource)image.Source);
                         FastPixel fp = new FastPixel(bm);
 
                         width = fp.Width;
@@ -173,7 +173,7 @@ namespace LitDev
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                     if (_savedImages.TryGetValue(texture, out img))
                     {
-                        bTexture = LDImage.getBitmap(img);
+                        bTexture = FastPixel.GetBitmap(img);
                         if (width != bTexture.Width || height != bTexture.Height) bTexture = null;
                         if (bSaveTexture && null != bTexture)
                         {
@@ -224,7 +224,7 @@ namespace LitDev
                 {
                     try
                     {
-                        image.Source = LDImage.getBitmapImage(bNormal);
+                        image.Source = FastPixel.GetBitmapImage(bNormal);
                     }
                     catch (Exception ex)
                     {
@@ -248,7 +248,7 @@ namespace LitDev
 
         public WorkingImage(BitmapSource img)
         {
-            bm = LDImage.getBitmap(img);
+            bm = FastPixel.GetBitmap(img);
             fp = new FastPixel(bm);
         }
     }
@@ -261,26 +261,6 @@ namespace LitDev
     public static class LDImage
     {
         private static Dictionary<string, Shadow> Shadows = new Dictionary<string, Shadow>();
-
-        public static System.Drawing.Bitmap getBitmap(BitmapSource img)
-        {
-            MemoryStream ms = new MemoryStream();
-            BitmapEncoder enc = new PngBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(img));
-            enc.Save(ms);
-            return new System.Drawing.Bitmap(ms);
-        }
-
-        public static BitmapImage getBitmapImage(System.Drawing.Bitmap dImg)
-        {
-            MemoryStream ms = new MemoryStream();
-            dImg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            BitmapImage bImg = new BitmapImage();
-            bImg.BeginInit();
-            bImg.StreamSource = ms;
-            bImg.EndInit();
-            return bImg;
-        }
 
         private static object LockingVar = new object();
 
@@ -307,11 +287,11 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
 
                             dImg = (System.Drawing.Bitmap)LDWebCam.DoEffect(dImg, effect, parameter);
 
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -355,7 +335,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                             FastPixel fp = new FastPixel(dImg);
 
                             System.Drawing.Color c;
@@ -442,7 +422,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                             FastPixel fp = new FastPixel(dImg);
 
                             System.Drawing.Color c;
@@ -517,13 +497,13 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                             if (x >= 0 && x < dImg.Width && y >= 0 && y < dImg.Height)
                             {
                                 System.Drawing.Color c = (System.Drawing.Color)colConvert.ConvertFromString(colour);
 
                                 dImg.SetPixel(x, y, c);
-                                _savedImages[image] = getBitmapImage(dImg);
+                                _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                             }
                         }
                         catch (Exception ex)
@@ -569,7 +549,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                             if (x >= 0 && x < dImg.Width && y >= 0 && y < dImg.Height)
                             {
                                 System.Drawing.Color c = dImg.GetPixel(x, y);
@@ -615,7 +595,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                             dImg.Save(fileName, System.Drawing.Imaging.ImageFormat.Jpeg);
                         }
                         catch (Exception ex)
@@ -657,7 +637,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                             string ext = Path.GetExtension(fileName).ToLower();
                             switch (ext)
                             {
@@ -805,12 +785,12 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
 
                             System.Drawing.Image.GetThumbnailImageAbort dummyCallback = new System.Drawing.Image.GetThumbnailImageAbort(LDWebCam.ResizeAbort);
                             dImg = (System.Drawing.Bitmap)dImg.GetThumbnailImage(width, height, dummyCallback, IntPtr.Zero);
 
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -853,7 +833,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
 
                             System.Drawing.Color c;
                             FastPixel fp = new FastPixel(dImg);
@@ -867,7 +847,7 @@ namespace LitDev
                             }
                             fp.Unlock(true);
 
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -910,7 +890,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
 
                             System.Drawing.Color c;
                             FastPixel fp = new FastPixel(dImg);
@@ -924,7 +904,7 @@ namespace LitDev
                             }
                             fp.Unlock(true);
 
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -992,8 +972,8 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg1 = getBitmap(img1);
-                            System.Drawing.Bitmap dImg2 = getBitmap(img2);
+                            System.Drawing.Bitmap dImg1 = FastPixel.GetBitmap(img1);
+                            System.Drawing.Bitmap dImg2 = FastPixel.GetBitmap(img2);
 
                             if (dImg1.Width == dImg2.Width && dImg1.Height == dImg2.Height)
                             {
@@ -1012,7 +992,7 @@ namespace LitDev
                                 fpImg1.Unlock(true);
                                 fpImg2.Unlock(false);
 
-                                _savedImages[imageNew] = getBitmapImage(dImg1);
+                                _savedImages[imageNew] = FastPixel.GetBitmapImage(dImg1);
                             }
                         }
                         catch (Exception ex)
@@ -1062,8 +1042,8 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg1 = getBitmap(img1);
-                            System.Drawing.Bitmap dImg2 = getBitmap(img2);
+                            System.Drawing.Bitmap dImg1 = FastPixel.GetBitmap(img1);
+                            System.Drawing.Bitmap dImg2 = FastPixel.GetBitmap(img2);
 
                             if (dImg1.Width == dImg2.Width && dImg1.Height == dImg2.Height)
                             {
@@ -1082,7 +1062,7 @@ namespace LitDev
                                 fpImg1.Unlock(true);
                                 fpImg2.Unlock(false);
 
-                                _savedImages[imageNew] = getBitmapImage(dImg1);
+                                _savedImages[imageNew] = FastPixel.GetBitmapImage(dImg1);
                             }
                         }
                         catch (Exception ex)
@@ -1132,12 +1112,12 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
 
                             System.Drawing.Rectangle cropArea = new System.Drawing.Rectangle(x, y, width, height);
                             dImg = dImg.Clone(cropArea, dImg.PixelFormat);
 
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -1207,7 +1187,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
 
                             System.Drawing.Color c;
                             byte A, R, G, B;
@@ -1226,7 +1206,7 @@ namespace LitDev
                             }
                             fp.Unlock(true);
 
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -1266,7 +1246,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                             System.Drawing.Bitmap copy = (System.Drawing.Bitmap)dImg.Clone();
 
                             double dx, dy, rad, theta;
@@ -1292,7 +1272,7 @@ namespace LitDev
                             }
                             fp.Unlock(true);
 
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -1725,7 +1705,7 @@ namespace LitDev
                     {
                         _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                         string imageName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
-                        _savedImages[imageName] = LDImage.getBitmapImage(svgDocument.Draw());
+                        _savedImages[imageName] = FastPixel.GetBitmapImage(svgDocument.Draw());
                         return imageName;
                     }
                     catch (Exception ex)
@@ -1875,7 +1855,7 @@ namespace LitDev
 
                             Graphics.FromImage(img).FillRectangle(new SolidBrush((System.Drawing.Color)colConvert.ConvertFromString(colour)), 0, 0, width, height);
 
-                            _savedImages[imageName] = getBitmapImage(img);
+                            _savedImages[imageName] = FastPixel.GetBitmapImage(img);
                             return imageName;
                         }
                         catch (Exception ex)
@@ -1919,7 +1899,7 @@ namespace LitDev
                     {
                         try
                         {
-                            System.Drawing.Bitmap dImg = getBitmap(img);
+                            System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                             FastPixel fp = new FastPixel(dImg);
                             for (int i = 0; i < fp.Width; i++)
                             {
@@ -1985,7 +1965,7 @@ namespace LitDev
                             }
                         }
                         fp.Unlock(true);
-                        _savedImages[imageNew] = getBitmapImage(dImg);
+                        _savedImages[imageNew] = FastPixel.GetBitmapImage(dImg);
                     }
                     catch (Exception ex)
                     {
@@ -2071,7 +2051,7 @@ namespace LitDev
                         try
                         {
                             workingImg.fp.Unlock(true);
-                            _savedImages[image] = getBitmapImage(workingImg.bm);
+                            _savedImages[image] = FastPixel.GetBitmapImage(workingImg.bm);
                             _workingImages.Remove(image);
                         }
                         catch (Exception ex)
@@ -2241,7 +2221,7 @@ namespace LitDev
                     {
                         try
                         {
-                            Bitmap dImg = getBitmap(img);
+                            Bitmap dImg = FastPixel.GetBitmap(img);
 
                             using (Graphics graphics = Graphics.FromImage(dImg))
                             {
@@ -2255,7 +2235,7 @@ namespace LitDev
                                 }
                             }
 
-                            _savedImages[imageName] = getBitmapImage(dImg);
+                            _savedImages[imageName] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -2336,7 +2316,7 @@ namespace LitDev
                         try
                         {
                             if (scale == "") scale = 1;
-                            Bitmap bm = getBitmap(img);
+                            Bitmap bm = FastPixel.GetBitmap(img);
                             FastPixel fp = new FastPixel(bm);
                             Vec3D n = new Vec3D();
                             double[,] height = new double[fp.Width, fp.Height];
@@ -2397,7 +2377,7 @@ namespace LitDev
                                 }
                             }
                             fp.Unlock(true);
-                            _savedImages[normalMap] = getBitmapImage(bm);
+                            _savedImages[normalMap] = FastPixel.GetBitmapImage(bm);
                         }
                         catch (Exception ex)
                         {
@@ -2448,9 +2428,9 @@ namespace LitDev
                     {
                         try
                         {
-                            Bitmap dImg = getBitmap(img);
+                            Bitmap dImg = FastPixel.GetBitmap(img);
                             dImg.MakeTransparent((Color)colConvert.ConvertFromString(colour));
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -2468,7 +2448,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Replace one colour in an image with another.
+        /// Replace one colour in an ImageList image with another.
         /// </summary>
         /// <param name="image">The ImageList image.</param>
         /// <param name="colourFrom">The colour to replace.</param>
@@ -2493,10 +2473,11 @@ namespace LitDev
                     {
                         try
                         {
-                            Bitmap dImg = getBitmap(img);
+                            Bitmap dImg = FastPixel.GetBitmap(img);
                             FastPixel fp = new FastPixel(dImg);
                             Color cFrom = (Color)colConvert.ConvertFromString(colourFrom);
                             Color cTo = (Color)colConvert.ConvertFromString(colourTo);
+                            if (tolerance == "") tolerance = 0;
                             for (int x = 0; x < fp.Width; x++)
                             {
                                 for (int y = 0; y < fp.Height; y++)
@@ -2510,7 +2491,7 @@ namespace LitDev
                                 }
                             }
                             fp.Unlock(true);
-                            _savedImages[image] = getBitmapImage(dImg);
+                            _savedImages[image] = FastPixel.GetBitmapImage(dImg);
                         }
                         catch (Exception ex)
                         {
@@ -2526,5 +2507,8 @@ namespace LitDev
                 }
             }
         }
+
+        [HideFromIntellisense]
+        public static Primitive BitmapTiming {  get { return FastPixel.swGetBitmap.ElapsedMilliseconds+" : "+ FastPixel.swGetBitmapImage.ElapsedMilliseconds; } }
     }
 }

@@ -192,7 +192,7 @@ namespace LitDev
                         };
                         Size size = new Size(double.MaxValue, double.MaxValue);
                         textblock.Measure(size);
-                        return textblock.DesiredSize.Width;
+                        return textblock.DesiredSize.Width.ToString(CultureInfo.InvariantCulture);
                     }
                     catch (Exception ex)
                     {
@@ -240,7 +240,7 @@ namespace LitDev
                         };
                         Size size = new Size(double.MaxValue, double.MaxValue);
                         textblock.Measure(size);
-                        return textblock.DesiredSize.Height;
+                        return textblock.DesiredSize.Height.ToString(CultureInfo.InvariantCulture);
                     }
                     catch (Exception ex)
                     {

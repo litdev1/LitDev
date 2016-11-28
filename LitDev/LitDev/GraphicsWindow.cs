@@ -99,7 +99,7 @@ namespace LitDev
                         {
                             _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                             string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
-                            _savedImages[shapeName] = LDImage.getBitmapImage((Bitmap)img);
+                            _savedImages[shapeName] = FastPixel.GetBitmapImage((Bitmap)img);
                             return shapeName;
                         }
                         catch (Exception ex)
@@ -259,7 +259,7 @@ namespace LitDev
                         {
                             if (value == "SB")
                             {
-                                _window.Icon = LDImage.getBitmapImage(global::LitDev.Properties.Resources.SBIcon);
+                                _window.Icon = FastPixel.GetBitmapImage(global::LitDev.Properties.Resources.SBIcon);
                             }
                             else
                             {
@@ -861,8 +861,7 @@ namespace LitDev
                         //Prepare bitmap
                         GraphicsWindowType.GetMethod("Rasterize", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { });
                         RenderTargetBitmap _renderBitmap = (RenderTargetBitmap)GraphicsWindowType.GetField("_renderBitmap", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-                        Bitmap bitmap = LDImage.getBitmap(_renderBitmap);
-                        FastPixel fp = new FastPixel(bitmap);
+                        FastPixel fp = new FastPixel(_renderBitmap);
                         System.Drawing.Color colNew = ColorTranslator.FromHtml(colour);
                         System.Drawing.Color colOld = fp.GetPixel(x, y);
                         if (colNew == colOld) return;
@@ -886,7 +885,7 @@ namespace LitDev
                         fp.Unlock(true);
 
                         //Display bitmap
-                        BitmapImage bitmapImage = LDImage.getBitmapImage(bitmap);
+                        BitmapImage bitmapImage = fp.BitmapImage;
                         DrawingGroup _mainDrawing = (DrawingGroup)GraphicsWindowType.GetField("_mainDrawing", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                         DrawingContext drawingContext = _mainDrawing.Append();
                         drawingContext.DrawImage(bitmapImage, new Rect(0, 0, nx, ny));

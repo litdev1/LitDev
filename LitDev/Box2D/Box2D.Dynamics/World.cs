@@ -1054,7 +1054,7 @@ namespace Box2DX.Dynamics
                     {
                         Image imageObj = (Image)obj;
                         BitmapSource img = (BitmapSource)imageObj.Source;
-                        System.Drawing.Bitmap dImg = LitDev.LDImage.getBitmap(img);
+                        System.Drawing.Bitmap dImg = FastPixel.GetBitmap(img);
                         string fileName = Program.Directory + "\\" + sprite.name + ".png";
                         dImg.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
                         image.file = fileName;
