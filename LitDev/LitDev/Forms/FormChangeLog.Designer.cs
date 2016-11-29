@@ -20,8 +20,7 @@
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("TEMP tables allowed for SQLite databases");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDDataBase", new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Convert2Cartesian fixed to be Culture Invariant.  Some other potential culture co" +
-        "nversions corrected in other objects.");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Convert2Cartesian fixed to be Culture Invariant.");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("LDMath", new System.Windows.Forms.TreeNode[] {
             treeNode3});
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("NormalMap method added for normal map 3D effects");
@@ -33,8 +32,8 @@
             treeNode6,
             treeNode7,
             treeNode8});
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("All image manipulations significantly speeded up");
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("More culture invariace fixes");
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("All image pixel manipulations speeded up");
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("More Culture Invariace fixes");
             System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("General", new System.Windows.Forms.TreeNode[] {
             treeNode10,
             treeNode11});
@@ -1719,8 +1718,7 @@
             treeNode2.Name = "Node1";
             treeNode2.Text = "LDDataBase";
             treeNode3.Name = "Node1";
-            treeNode3.Text = "Convert2Cartesian fixed to be Culture Invariant.  Some other potential culture co" +
-    "nversions corrected in other objects.";
+            treeNode3.Text = "Convert2Cartesian fixed to be Culture Invariant.";
             treeNode4.Name = "Node0";
             treeNode4.Text = "LDMath";
             treeNode5.Name = "Node1";
@@ -1734,9 +1732,9 @@
             treeNode9.Name = "Node0";
             treeNode9.Text = "LDImage";
             treeNode10.Name = "Node4";
-            treeNode10.Text = "All image manipulations significantly speeded up";
+            treeNode10.Text = "All image pixel manipulations speeded up";
             treeNode11.Name = "Node7";
-            treeNode11.Text = "More culture invariace fixes";
+            treeNode11.Text = "More Culture Invariace fixes";
             treeNode12.Name = "Node3";
             treeNode12.Text = "General";
             treeNode13.Name = "Node0";

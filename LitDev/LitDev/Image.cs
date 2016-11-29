@@ -2509,6 +2509,15 @@ namespace LitDev
         }
 
         [HideFromIntellisense]
-        public static Primitive BitmapTiming {  get { return FastPixel.swGetBitmap.ElapsedMilliseconds+" : "+ FastPixel.swGetBitmapImage.ElapsedMilliseconds; } }
+        public static Primitive BitmapTiming
+        {
+            get
+            {
+                Primitive result = "";
+                result["GetBitmap"] = (decimal)FastPixel.swGetBitmap.ElapsedMilliseconds;
+                result["GetBitmapImage"] = (decimal)FastPixel.swGetBitmapImage.ElapsedMilliseconds;
+                return result;
+            }
+        }
     }
 }
