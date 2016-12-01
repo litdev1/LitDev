@@ -4348,7 +4348,7 @@ namespace LitDev
                         if (obj.GetType() == typeof(Slider))
                         {
                             Slider slider = (Slider)obj;
-                            slider.Value = System.Math.Min(100, System.Math.Max(0, value));
+                            slider.Value = System.Math.Min(100, System.Math.Max(0.0, value));
                         }
                     }
                     catch (Exception ex)

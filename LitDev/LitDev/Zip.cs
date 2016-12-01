@@ -21,6 +21,7 @@ using System.IO;
 using System.IO.Packaging;
 using SBArray = Microsoft.SmallBasic.Library.Array;
 using Ionic.Zip;
+using System.Collections.Generic;
 
 namespace LitDev
 {
@@ -72,7 +73,22 @@ namespace LitDev
         {
             try
             {
-                if (zip.RemoveSelectedEntries(fileToRemove + "/*") == 0) zip.RemoveEntry(fileToRemove);
+                if (zip.ContainsEntry(fileToRemove))
+                {
+                    zip.RemoveEntry(fileToRemove);
+                }
+                else
+                {
+                    List<string> toRemove = new List<string>();
+                    foreach (ZipEntry e in zip)
+                    {
+                        if (e.FileName.StartsWith(fileToRemove + "/")) toRemove.Add(e.FileName);
+                    }
+                    foreach (string element in toRemove)
+                    {
+                        zip.RemoveEntry(element);
+                    }
+                }
             }
             catch (Exception ex)
             {

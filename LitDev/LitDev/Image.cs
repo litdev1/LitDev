@@ -2454,7 +2454,7 @@ namespace LitDev
         /// <param name="colourFrom">The colour to replace.</param>
         /// <param name="colourTo">The replacement colour to apply.</param>
         /// <param name="tolerance">A tolerance for the colour to match (default 0 - exact match).
-        /// ARGB pixel values all within the toterance will be replaced.</param>
+        /// ARGB pixel values all within the tolerance will be replaced.</param>
         public static void ReplaceColour(Primitive image, Primitive colourFrom, Primitive colourTo, Primitive tolerance)
         {
             lock (LockingVar)
