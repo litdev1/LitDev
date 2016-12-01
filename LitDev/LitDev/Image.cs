@@ -2520,8 +2520,8 @@ namespace LitDev
             }
         }
 
-        /// <summary>Converts an ImageList image to Format ARGB (Alphachannel with 32bit/Pxl) if needed (check).</summary>
-        /// <param name="image">The name of the ImageList image as ImageList# or variable name.</param>
+        /// <summary>Converts an ImageList image to Format ARGB (Alphachannel with 32bit/Pxl) if needed.</summary>
+        /// <param name="image">The ImageList image.</param>
         /// <returns>"SUCCESS" or "FAILED".</returns>
         public static Primitive To32bitARGB(Primitive image)
         {
