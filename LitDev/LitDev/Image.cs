@@ -2519,5 +2519,47 @@ namespace LitDev
                 return result;
             }
         }
+
+        /// <summary>Converts an ImageList image to Format ARGB (Alphachannel with 32bit/Pxl) if needed (check).</summary>
+        /// <param name="image">The name of the ImageList image as ImageList# or variable name.</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive To32bitARGB(Primitive image)
+        {
+            lock (LockingVar)
+            {
+                Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+                Type GraphicsWindowType = typeof(GraphicsWindow);
+                Dictionary<string, BitmapSource> _savedImages;
+                BitmapSource img;
+                string result = "FAILED";
+
+                try
+                {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue((string)image, out img)) return result;
+
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            Bitmap currImg = FastPixel.GetBitmap(img);
+                            if (currImg.PixelFormat != PixelFormat.Format32bppArgb)
+                            {
+                                Bitmap dImg = currImg.Clone(new Rectangle(0, 0, currImg.Width, currImg.Height), PixelFormat.Format32bppArgb);
+                                _savedImages[image] = FastPixel.GetBitmapImage(dImg);
+                            }
+                            result = "SUCCESS";
+                        }
+                        catch
+                        { }
+                    });
+                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    method.Invoke(null, new object[] { ret });
+                }
+                catch
+                { }
+                return result;
+            }
+        }
     }
 }
