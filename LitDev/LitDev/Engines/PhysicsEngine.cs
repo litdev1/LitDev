@@ -417,8 +417,7 @@ namespace LitDev.Engines
                     }
                     return null;
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return (RotateTransform)method.Invoke(null, new object[] { ret });
+                return (RotateTransform)FastThread.InvokeWithReturn(ret);
             }
             catch (Exception ex)
             {
@@ -492,8 +491,7 @@ namespace LitDev.Engines
                     }
                     return null;
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return (PointCollection) method.Invoke(null, new object[] { ret });
+                return (PointCollection)FastThread.InvokeWithReturn(ret);
             }
             catch (Exception ex)
             {
@@ -856,8 +854,7 @@ namespace LitDev.Engines
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
             }
             catch (Exception ex)
@@ -1857,8 +1854,7 @@ namespace LitDev.Engines
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 }
             });
-            MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-            method.Invoke(null, new object[] { ret });
+            FastThread.Invoke(ret);
         }
 
         public string getCollisions(string shapeName)

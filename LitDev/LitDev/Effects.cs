@@ -25,6 +25,7 @@ using System.Windows.Media.Effects;
 using Microsoft.Expression.Media.Effects;
 using System.Windows.Media;
 using SBArray = Microsoft.SmallBasic.Library.Array;
+using LitDev.Engines;
 
 namespace LitDev
 {
@@ -189,8 +190,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {

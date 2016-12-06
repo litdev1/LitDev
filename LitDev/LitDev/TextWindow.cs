@@ -287,8 +287,7 @@ namespace LitDev
                         }
                         return "";
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {

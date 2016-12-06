@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
@@ -65,8 +66,8 @@ namespace LitDev
     {
         private static Type GraphicsWindowType = typeof(GraphicsWindow);
         private static List<ShapeProperty> shapeProperties = new List<ShapeProperty>();
-        private static MethodInfo invoke = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-        private static MethodInfo invokeWithReturn = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+        //private static MethodInfo invoke = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+        //private static MethodInfo invokeWithReturn = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static Canvas _mainCanvas = null;
         private static Dictionary<string, UIElement> _objectsMap = null;
         private static Dictionary<string, RotateTransform> _rotateTransformMap = null;
@@ -165,7 +166,7 @@ namespace LitDev
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 }
             });
-            invoke.Invoke(null, new object[] { ret });
+            FastThread.Invoke(ret);
         }
 
         /// <summary>

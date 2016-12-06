@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
@@ -100,8 +101,7 @@ namespace LitDev
                 return "FAILED";
             });
 
-            MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-            CB_imageName = method.Invoke(null, new object[] { ret }).ToString();
+            CB_imageName = FastThread.InvokeWithReturn(ret).ToString();
         }
 
         private static void CB_SetImage()

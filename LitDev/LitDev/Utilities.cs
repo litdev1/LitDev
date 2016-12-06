@@ -37,6 +37,7 @@ using DrawingImage = System.Drawing.Image;
 using System.Security.Permissions;
 using Microsoft.Win32.SafeHandles;
 using System.Threading;
+using LitDev.Engines;
 
 namespace LitDev
 {
@@ -79,10 +80,9 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
 
-                method = SmallBasicApplicationType.GetMethod("ClearDispatcherQueue", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                MethodInfo method = SmallBasicApplicationType.GetMethod("ClearDispatcherQueue", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                 method.Invoke(null, new object[] { });
             }
             catch (Exception ex)
@@ -270,8 +270,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -298,8 +297,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -355,8 +353,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -383,8 +380,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -443,8 +439,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -471,8 +466,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -533,7 +527,7 @@ namespace LitDev
 
                 foreach (string line in input)
                 {
-                    row = line.Split(new string[] {Utilities.CSV}, StringSplitOptions.None);
+                    row = line.Split(new string[] { Utilities.CSV }, StringSplitOptions.None);
                     numCol = System.Math.Max(numCol, row.Length);
                     rowOrdered.Add(row);
                 }
@@ -730,8 +724,7 @@ namespace LitDev
                     }
                     return null;
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                return (DrawingImage)(method.Invoke(null, new object[] { ret }));
+                return (DrawingImage)FastThread.InvokeWithReturn(ret);
             }
             catch (Exception ex)
             {
@@ -962,7 +955,7 @@ namespace LitDev
             /// </summary>
             ForceMinimize = 11
         }
-        
+
         public const int WM_SETREDRAW = 0x000B;
         public const int SM_CYCAPTION = 4;
         public const int SM_CXVSCROLL = 2;
@@ -981,7 +974,7 @@ namespace LitDev
         public const UInt32 SC_MINIMIZE = 0xF020;
         public const UInt32 MF_DISABLED = 0x00000002;
         public const UInt32 MF_ENABLED = 0x00000000;
-        public const UInt32 MF_GRAYED = 0x00000001;         
+        public const UInt32 MF_GRAYED = 0x00000001;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -1427,13 +1420,13 @@ namespace LitDev
         /// </summary>
         public static Primitive CSVDeliminator
         {
-            get 
+            get
             {
                 return Utilities.CSV;
             }
-            set 
-            { 
-                Utilities.CSV = value; 
+            set
+            {
+                Utilities.CSV = value;
             }
         }
 
@@ -1463,7 +1456,7 @@ namespace LitDev
             decimal value = 0m;
             bool conversion = decimal.TryParse((string)input, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
             if (!conversion) conversion = decimal.TryParse((string)input, NumberStyles.Float, CultureInfo.CurrentCulture, out value);
-            if  (conversion)
+            if (conversion)
             {
                 return value.ToString(CultureInfo.CurrentCulture);
             }
@@ -1646,6 +1639,28 @@ namespace LitDev
                 CultureInfo.DefaultThreadCurrentCulture = Thread.CurrentThread.CurrentCulture;
                 CultureInfo.DefaultThreadCurrentUICulture = Thread.CurrentThread.CurrentCulture;
             }
+        }
+
+        /// <summary>
+        /// Experimental option to speed some interactions with SmallBasicLibrary objects.
+        /// "True" or "False" (default)
+        /// </summary>
+        [HideFromIntellisense]
+        public static Primitive UseExpression
+        {
+            get { return FastThread.UseExpression; }
+            set { FastThread.UseExpression = value; }
+        }
+
+        /// <summary>
+        /// Experimental option to speed some interactions with SmallBasicLibrary objects.
+        /// "True" or "False" (default)
+        /// </summary>
+        [HideFromIntellisense]
+        public static Primitive UseAsync
+        {
+            get { return FastThread.UseAsync; }
+            set { FastThread.UseAsync = value; }
         }
     }
 }

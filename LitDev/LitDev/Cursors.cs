@@ -78,8 +78,7 @@ namespace LitDev
                     {
                         ((FrameworkElement)obj).Cursor = cursor;
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {

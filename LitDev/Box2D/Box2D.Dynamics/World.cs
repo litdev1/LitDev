@@ -1059,8 +1059,7 @@ namespace Box2DX.Dynamics
                         dImg.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
                         image.file = fileName;
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 iBody++;
                 //jsBody.fixture.Reverse();

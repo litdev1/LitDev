@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
@@ -41,7 +42,7 @@ namespace LitDev
         private static int currentWin = 0;
         private static int focusWin = 0;
         private static Type GraphicsWindowType = typeof(GraphicsWindow);
-        private static MethodInfo mInvoke = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
+        //private static MethodInfo mInvoke = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
         private static MethodInfo mCreateWindow = GraphicsWindowType.GetMethod("CreateWindow", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
         private static SmallBasicCallback ActivatedDelegate = null;
         private static void ActivatedHandler(Object sender, EventArgs e)
@@ -83,7 +84,7 @@ namespace LitDev
                         GraphicsWindow.Hide();
                     }
                 }
-                InvokeHelper invokeHelper = delegate
+                InvokeHelper ret = delegate
                 {
                     try
                     {
@@ -100,7 +101,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                mInvoke.Invoke(null, new object[] { invokeHelper });
+                FastThread.Invoke(ret);
             }
 
             public void Save()
@@ -108,7 +109,7 @@ namespace LitDev
                 lock (_lock)
                 {
                     obj.Clear();
-                    InvokeHelper invokeHelper = delegate
+                    InvokeHelper ret = delegate
                     {
                         try
                         {
@@ -123,7 +124,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     };
-                    mInvoke.Invoke(null, new object[] { invokeHelper });
+                    FastThread.Invoke(ret);
                 }
             }
 
@@ -131,7 +132,7 @@ namespace LitDev
             {
                 lock (_lock)
                 {
-                    InvokeHelper invokeHelper = delegate
+                    InvokeHelper ret = delegate
                     {
                         FieldInfo[] fields = GraphicsWindowType.GetFields(BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
                         int ii = 0;
@@ -149,13 +150,13 @@ namespace LitDev
                             }
                         }
                     };
-                    mInvoke.Invoke(null, new object[] { invokeHelper });
+                    FastThread.Invoke(ret);
                 }
             }
 
             public void setActive()
             {
-                InvokeHelper invokeHelper = delegate
+                InvokeHelper ret = delegate
                 {
                     try
                     {
@@ -167,7 +168,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                mInvoke.Invoke(null, new object[] { invokeHelper });
+                FastThread.Invoke(ret);
             }
         }
 

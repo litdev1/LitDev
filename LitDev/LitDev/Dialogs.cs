@@ -114,14 +114,14 @@ namespace LitDev
                             return null;
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    //MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                     if (null == _mainCanvas)
                     {
                         bValid = false;
                     }
                     else
                     {
-                        System.Windows.Point point = (System.Windows.Point)method.Invoke(null, new object[] { ret });
+                        System.Windows.Point point = (System.Windows.Point)FastThread.InvokeWithReturn(ret);
                         if (null != point)
                         {
                             xPosDisplay = point.X;
@@ -307,8 +307,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -557,8 +556,7 @@ namespace LitDev
                     ContextMenu menu = getMenu(_savedImages, items, images, LDControls.IconSize);
                     _window.ContextMenu = menu;
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -604,8 +602,7 @@ namespace LitDev
                 if (null != _window) return MessageBox.Show(_window, text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question).ToString();
                 else return MessageBox.Show(text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question).ToString();
             });
-            MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-            return method.Invoke(null, new object[] { ret }).ToString();
+            return FastThread.InvokeWithReturn(ret).ToString();
         }
     }
 }

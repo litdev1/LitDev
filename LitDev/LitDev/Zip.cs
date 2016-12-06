@@ -137,21 +137,23 @@ namespace LitDev
         {
             try
             {
-                Package zip = ZipPackage.Open(zipFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                if (SBArray.IsArray(files))
+                using (Package zip = ZipPackage.Open(zipFile, FileMode.OpenOrCreate, FileAccess.ReadWrite))
                 {
-                    Primitive indices = SBArray.GetAllIndices(files);
-                    int count = SBArray.GetItemCount(indices);
-                    for (int i = 1; i <= count; i++)
+                    if (SBArray.IsArray(files))
                     {
-                        AddToArchive(zip, files[indices[i]], "");
+                        Primitive indices = SBArray.GetAllIndices(files);
+                        int count = SBArray.GetItemCount(indices);
+                        for (int i = 1; i <= count; i++)
+                        {
+                            AddToArchive(zip, files[indices[i]], "");
+                        }
                     }
+                    else
+                    {
+                        AddToArchive(zip, files, "");
+                    }
+                    zip.Close();
                 }
-                else
-                {
-                    AddToArchive(zip, files, "");
-                }
-                zip.Close();
                 return "";
             }
             catch (Exception ex)
@@ -175,21 +177,23 @@ namespace LitDev
         {
             try
             {
-                ZipFile zip = ZipFile.Read(zipFile);
-                if (SBArray.IsArray(files))
+                using (ZipFile zip = ZipFile.Read(zipFile))
                 {
-                    Primitive indices = SBArray.GetAllIndices(files);
-                    int count = SBArray.GetItemCount(indices);
-                    for (int i = 1; i <= count; i++)
+                    if (SBArray.IsArray(files))
                     {
-                        RemoveFromArchive(zip, files[indices[i]]);
+                        Primitive indices = SBArray.GetAllIndices(files);
+                        int count = SBArray.GetItemCount(indices);
+                        for (int i = 1; i <= count; i++)
+                        {
+                            RemoveFromArchive(zip, files[indices[i]]);
+                        }
                     }
+                    else
+                    {
+                        RemoveFromArchive(zip, files);
+                    }
+                    zip.Save();
                 }
-                else
-                {
-                    RemoveFromArchive(zip, files);
-                }
-                zip.Save();
                 return "";
             }
             catch (Exception ex)
@@ -209,8 +213,10 @@ namespace LitDev
         {
             try
             {
-                ZipFile zip = ZipFile.Read(zipFile);
-                zip.ExtractAll(directory, ExtractExistingFileAction.OverwriteSilently);
+                using (ZipFile zip = ZipFile.Read(zipFile))
+                {
+                    zip.ExtractAll(directory, ExtractExistingFileAction.OverwriteSilently);
+                }
                 return "";
             }
             catch (Exception ex)
@@ -229,13 +235,15 @@ namespace LitDev
         {
             try
             {
-                ZipFile zip = ZipFile.Read(zipFile);
                 string result = "";
-                int i = 1;
-
-                foreach (ZipEntry entry in zip)
+                using (ZipFile zip = ZipFile.Read(zipFile))
                 {
-                    result += (i++).ToString() + "=" + Utilities.ArrayParse(entry.FileName) + ";";
+                    int i = 1;
+
+                    foreach (ZipEntry entry in zip)
+                    {
+                        result += (i++).ToString() + "=" + Utilities.ArrayParse(entry.FileName) + ";";
+                    }
                 }
                 return Utilities.CreateArrayMap(result);
             }

@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
@@ -101,7 +102,7 @@ namespace LitDev
                 try
                 {
                     Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-                    InvokeHelper invokeHelper = delegate
+                    InvokeHelper ret = delegate
                     {
                         try
                         {
@@ -112,8 +113,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     };
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                    method.Invoke(null, new object[]{invokeHelper});
+                    FastThread.Invoke(ret);
                 }
                 catch (Exception ex)
                 {
@@ -134,7 +134,7 @@ namespace LitDev
                 try
                 {
                     Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-                    InvokeHelper invokeHelper = delegate
+                    InvokeHelper ret = delegate
                     {
                         try
                         {
@@ -145,8 +145,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     };
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                    method.Invoke(null, new object[]{invokeHelper});
+                    FastThread.Invoke(ret);
                 }
                 catch (Exception ex)
                 {
@@ -167,7 +166,7 @@ namespace LitDev
                 try
                 {
                     Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-                    InvokeHelper invokeHelper = delegate
+                    InvokeHelper ret = delegate
                     {
                         try
                         {
@@ -178,8 +177,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     };
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                    method.Invoke(null, new object[] { invokeHelper });
+                    FastThread.Invoke(ret);
                 }
                 catch (Exception ex)
                 {

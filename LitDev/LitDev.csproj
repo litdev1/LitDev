@@ -239,7 +239,9 @@
     <Compile Include="Box2D\Box2D\Box2DXDebug.cs" />
     <Compile Include="LitDev\Engines\Cognitive.cs" />
     <Compile Include="LitDev\Engines\FastPixel.cs" />
+    <Compile Include="LitDev\Engines\FastThread.cs" />
     <Compile Include="LitDev\Engines\UnitSystem.cs" />
+    <Compile Include="LitDev\Timer.cs" />
     <Compile Include="LitDev\Units.cs" />
     <Compile Include="LitDev\Engines\FIP.cs" />
     <Compile Include="LitDev\Engines\Json.cs" />
@@ -294,6 +296,7 @@
     <Compile Include="LitDev\GraphicsWindow.cs" />
     <Compile Include="LitDev\Search.cs" />
     <Compile Include="LitDev\Translate.cs" />
+    <Compile Include="LitDev\Stopwatch.cs" />
     <Compile Include="LitDev\Zip.cs" />
     <Compile Include="LitDev\Regex.cs" />
     <Compile Include="LitDev\Windows.cs" />

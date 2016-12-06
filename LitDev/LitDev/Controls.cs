@@ -1035,8 +1035,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -1124,8 +1123,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1173,8 +1171,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1218,8 +1215,7 @@ namespace LitDev
                     }
                     return "";
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -1299,8 +1295,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1355,8 +1350,7 @@ namespace LitDev
                     }
                     return "";
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -1417,8 +1411,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1495,8 +1488,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -1568,8 +1560,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1646,8 +1637,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1699,8 +1689,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1765,8 +1754,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1811,8 +1799,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -1856,8 +1843,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1933,8 +1919,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -1986,8 +1971,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -2029,8 +2013,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -2202,8 +2185,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -2246,8 +2228,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -2297,8 +2278,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -2455,8 +2435,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -2556,8 +2535,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -2610,8 +2588,7 @@ namespace LitDev
                     }
                     return "";
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -2684,8 +2661,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -2766,8 +2742,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -2811,8 +2786,7 @@ namespace LitDev
                     }
                     return "";
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -2870,8 +2844,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -2918,8 +2891,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -2993,8 +2965,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3037,8 +3008,7 @@ namespace LitDev
                     }
                     return "";
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -3080,8 +3050,7 @@ namespace LitDev
                         textbox.ScrollToEnd();
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3118,8 +3087,7 @@ namespace LitDev
                         textbox.Select(pos, 0);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3160,8 +3128,7 @@ namespace LitDev
                         textbox.SpellCheck.IsEnabled = state;
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3209,8 +3176,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -3283,8 +3249,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3327,8 +3292,7 @@ namespace LitDev
                     }
                     return "";
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -3375,8 +3339,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else if (((string)shapeName).ToLower() == "background")
                 {
@@ -3395,8 +3358,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {
@@ -3493,8 +3455,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -3575,8 +3536,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3618,8 +3578,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3661,8 +3620,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3703,8 +3661,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3745,8 +3702,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3787,8 +3743,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3830,8 +3785,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -3874,8 +3828,7 @@ namespace LitDev
                     }
                     return 0;
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -3919,8 +3872,7 @@ namespace LitDev
                     }
                     return 0;
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -3982,8 +3934,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -4090,8 +4041,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -4160,8 +4110,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -4208,8 +4157,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -4252,8 +4200,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -4302,8 +4249,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -4356,8 +4302,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -4400,8 +4345,7 @@ namespace LitDev
                     }
                     return 0;
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -4482,8 +4426,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -4567,8 +4510,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -4617,8 +4559,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -4673,8 +4614,7 @@ namespace LitDev
                         }
                         return "False";
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {
@@ -4763,8 +4703,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -4808,8 +4747,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {
@@ -4849,8 +4787,7 @@ namespace LitDev
                             ((RichTextBox)obj).AcceptsTab = acceptsTab;
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {
@@ -4929,8 +4866,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -5001,8 +4937,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {
@@ -5075,8 +5010,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {
@@ -5130,8 +5064,7 @@ namespace LitDev
                             return "";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {
@@ -5175,8 +5108,7 @@ namespace LitDev
                             return 0;
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {
@@ -5231,8 +5163,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {
@@ -5280,8 +5211,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    method.Invoke(null, new object[] { ret });
+                    FastThread.Invoke(ret);
                 }
                 else
                 {
@@ -5397,8 +5327,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -5440,8 +5369,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { ret });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
@@ -5613,8 +5541,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -5697,8 +5624,7 @@ namespace LitDev
                         return "FAILED";
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             return "FAILED";
         }
@@ -5782,8 +5708,7 @@ namespace LitDev
                                 return "FAILED";
                             }
                         });
-                        MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                        return method.Invoke(null, new object[] { ret }).ToString();
+                        return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {
@@ -5830,8 +5755,7 @@ namespace LitDev
                         return "FAILED";
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             return "FAILED";
         }
@@ -5876,8 +5800,7 @@ namespace LitDev
                         return "FAILED";
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             return "FAILED";
         }
@@ -5973,8 +5896,7 @@ namespace LitDev
                         return "FAILED";
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             else
             {
@@ -6028,8 +5950,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {
@@ -6085,8 +6006,7 @@ namespace LitDev
                             return "";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {
@@ -6132,8 +6052,7 @@ namespace LitDev
                             return 0;
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {
@@ -6182,8 +6101,7 @@ namespace LitDev
                         return "FAILED";
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             else
             {
@@ -6319,8 +6237,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)
@@ -6380,8 +6297,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)
@@ -6437,8 +6353,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)
@@ -6495,8 +6410,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)
@@ -6539,8 +6453,7 @@ namespace LitDev
                         return "FAILED";
                     }
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             else
             {
@@ -6583,8 +6496,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)
@@ -6629,8 +6541,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)
@@ -6673,8 +6584,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)
@@ -6733,8 +6643,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)
@@ -6792,8 +6701,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
                 {
@@ -6877,8 +6785,7 @@ namespace LitDev
                             return "FAILED";
                         }
                     });
-                    MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    return method.Invoke(null, new object[] { ret }).ToString();
+                    return FastThread.InvokeWithReturn(ret).ToString();
                 }
             }
             catch (Exception ex)

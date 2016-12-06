@@ -26,6 +26,7 @@ using Microsoft.Expression.Shapes;
 using Microsoft.Expression.Controls;
 using SBArray = Microsoft.SmallBasic.Library.Array;
 using System.Windows.Media;
+using LitDev.Engines;
 
 namespace LitDev
 {
@@ -275,8 +276,7 @@ namespace LitDev
                         return "";
                     }
                 });
-                method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {

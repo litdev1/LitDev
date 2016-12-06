@@ -8,6 +8,7 @@ using System.Threading;
 using System.Drawing;
 using System.Collections.Generic;
 using SBArray = Microsoft.SmallBasic.Library.Array;
+using LitDev.Engines;
 
 namespace LitDev
 {
@@ -95,7 +96,7 @@ namespace LitDev
             Type SmallBasicApplicationType = typeof(SmallBasicApplication);
             try
             {
-                InvokeHelper invokeHelper = delegate
+                InvokeHelper ret = delegate
                 {
                     try
                     {
@@ -111,8 +112,7 @@ namespace LitDev
                         Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     }
                 };
-                MethodInfo method = SmallBasicApplicationType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
-                method.Invoke(null, new object[] { invokeHelper });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {

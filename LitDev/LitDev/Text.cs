@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
@@ -200,8 +201,7 @@ namespace LitDev
                     }
                     return "";
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
@@ -248,8 +248,7 @@ namespace LitDev
                     }
                     return "";
                 });
-                MethodInfo method = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                return method.Invoke(null, new object[] { ret }).ToString();
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {

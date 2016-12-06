@@ -16,13 +16,10 @@
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using Microsoft.SmallBasic.Library;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.IO;
 using System;
-using System.Reflection;
 using System.Windows.Media;
-using Microsoft.SmallBasic.Library.Internal;
 using System.Media;
 using System.Threading;
 using System.Windows;
