@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace LitDev.Engines
 {
@@ -12,12 +13,15 @@ namespace LitDev.Engines
         private static MethodInfo methodBeginInvoke = typeof(GraphicsWindow).GetMethod("BeginInvoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static MethodInfo methodInvoke = typeof(GraphicsWindow).GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static MethodInfo methodInvokeWithReturn = typeof(GraphicsWindow).GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+        private static MethodInfo methodClearDispatcherQueue = typeof(SmallBasicApplication).GetMethod("ClearDispatcherQueue", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
 
-        private static Action<object> _Action = null;
-        private static Func<object, object> _Func = null;
+        private static Action<object> _ActionInvoke = null;
+        private static Func<object, object> _FuncInvoke = null;
 
-        public static bool UseExpression = false;
-        public static bool UseAsync = false;
+        private static Dictionary<MethodInfo, Action> _Action0s = new Dictionary<MethodInfo, Action>();
+        private static Action _Action0;
+
+        public static bool UseExpression = true;
 
         public static void BeginInvoke(InvokeHelper helper)
         {
@@ -35,13 +39,11 @@ namespace LitDev.Engines
         {
             if (UseExpression)
             {
-                if (UseAsync) BeginInvokeActon(helper);
-                else InvokeActon(helper);
+                InvokeActon(helper);
             }
             else
             {
-                if (UseAsync) methodBeginInvoke.Invoke(null, new object[] { helper });
-                else methodInvoke.Invoke(null, new object[] { helper });
+                methodInvoke.Invoke(null, new object[] { helper });
             }
         }
 
@@ -57,12 +59,30 @@ namespace LitDev.Engines
             }
         }
 
+        public static void Action0(MethodInfo method)
+        {
+            if (UseExpression)
+            {
+                if (!_Action0s.TryGetValue(method, out _Action0))
+                {
+                    var methodCall = Expression.Call(null, method);
+                    _Action0 = Expression.Lambda<Action>(methodCall).Compile();
+                    _Action0s[method] = _Action0;
+                }
+                _Action0();
+            }
+            else
+            {
+                method.Invoke(null, new object[] { });
+            }
+        }
+
         private static Action<object> InvokeActon
         {
             get
             {
-                if (null == _Action) _Action = MagicAction(methodInvoke);
-                return _Action;
+                if (null == _ActionInvoke) _ActionInvoke = MagicAction(methodInvoke);
+                return _ActionInvoke;
             }
         }
 
@@ -70,8 +90,8 @@ namespace LitDev.Engines
         {
             get
             {
-                if (null == _Action) _Action = MagicAction(methodBeginInvoke);
-                return _Action;
+                if (null == _ActionInvoke) _ActionInvoke = MagicAction(methodBeginInvoke);
+                return _ActionInvoke;
             }
         }
 
@@ -79,8 +99,8 @@ namespace LitDev.Engines
         {
             get
             {
-                if (null == _Func) _Func = MagicFunc(methodInvokeWithReturn);
-                return _Func;
+                if (null == _FuncInvoke) _FuncInvoke = MagicFunc(methodInvokeWithReturn);
+                return _FuncInvoke;
             }
         }
 

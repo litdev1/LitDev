@@ -66,8 +66,6 @@ namespace LitDev
     {
         private static Type GraphicsWindowType = typeof(GraphicsWindow);
         private static List<ShapeProperty> shapeProperties = new List<ShapeProperty>();
-        //private static MethodInfo invoke = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-        //private static MethodInfo invokeWithReturn = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static Canvas _mainCanvas = null;
         private static Dictionary<string, UIElement> _objectsMap = null;
         private static Dictionary<string, RotateTransform> _rotateTransformMap = null;
@@ -135,38 +133,38 @@ namespace LitDev
             return -1;  
         }
 
+        private static void Update_Delegate()
+        {
+            try
+            {
+                foreach (ShapeProperty shape in shapeProperties)
+                {
+                    if (shape.modified)
+                    {
+                        Canvas.SetLeft(shape.obj, shape.point.X);
+                        Canvas.SetTop(shape.obj, shape.point.Y);
+                        shape.obj.Opacity = shape.opacity;
+                        shape.rotateTransform.Angle = shape.angle;
+                        shape.scaleTransform.ScaleX = shape.scale.X;
+                        shape.scaleTransform.ScaleY = shape.scale.Y;
+                        shape.obj.Visibility = shape.visibility;
+                        shape.modified = false;
+                    }
+                }
+                if (null != _mainCanvas) _mainCanvas.InvalidateVisual();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
         /// <summary>
         /// Update all of the properties of shapes set by this object that have been modifed since the last update.
         /// The shapes are not visually updated until this method is called.
         /// </summary>
         public static void Update()
         {
-            InvokeHelper ret = new InvokeHelper(delegate
-            {
-                try
-                {
-                    foreach (ShapeProperty shape in shapeProperties)
-                    {
-                        if (shape.modified)
-                        {
-                            Canvas.SetLeft(shape.obj, shape.point.X);
-                            Canvas.SetTop(shape.obj, shape.point.Y);
-                            shape.obj.Opacity = shape.opacity;
-                            shape.rotateTransform.Angle = shape.angle;
-                            shape.scaleTransform.ScaleX = shape.scale.X;
-                            shape.scaleTransform.ScaleY = shape.scale.Y;
-                            shape.obj.Visibility = shape.visibility;
-                            shape.modified = false;
-                        }
-                    }
-                    if (null != _mainCanvas) _mainCanvas.InvalidateVisual();
-                }
-                catch (Exception ex)
-                {
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                }
-            });
-            FastThread.Invoke(ret);
+            FastThread.BeginInvoke(Update_Delegate);
         }
 
         /// <summary>

@@ -93,7 +93,6 @@ namespace LitDev
 
         public void Pause()
         {
-            Type SmallBasicApplicationType = typeof(SmallBasicApplication);
             try
             {
                 InvokeHelper ret = delegate

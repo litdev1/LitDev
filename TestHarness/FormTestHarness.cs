@@ -708,6 +708,8 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive image = LDImage.NewImage(100, 100, "Red");
+            LDImage.OpenWorkingImage(image);
             Primitive xml = LDxml.Open("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\sample.xml");
             Primitive data = LDxml.ToArray();
             LDxml.FromArray(data);

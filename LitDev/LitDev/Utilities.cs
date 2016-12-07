@@ -60,34 +60,30 @@ namespace LitDev
             formEvents.ShowDialog();
         }
 
-        public static void doUpdates()
+        private static Canvas _mainCanvas;
+        private static MethodInfo methodClearDispatcherQueue = typeof(SmallBasicApplication).GetMethod("ClearDispatcherQueue", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+        private static void doUpdates_Delegate()
         {
-            Type SmallBasicApplicationType = typeof(SmallBasicApplication);
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Canvas _mainCanvas;
-
             try
             {
-                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                InvokeHelper ret = new InvokeHelper(delegate
-                {
-                    try
-                    {
-                        _mainCanvas.InvalidateVisual();
-                    }
-                    catch (Exception ex)
-                    {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                    }
-                });
-                FastThread.Invoke(ret);
-
-                MethodInfo method = SmallBasicApplicationType.GetMethod("ClearDispatcherQueue", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                method.Invoke(null, new object[] { });
+                _mainCanvas.InvalidateVisual();
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
+            }
+        }
+        public static void doUpdates()
+        {
+            try
+            {
+                _mainCanvas = (Canvas)typeof(GraphicsWindow).GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                FastThread.Invoke(doUpdates_Delegate);
+                FastThread.Action0(methodClearDispatcherQueue);
+            }
+            catch (Exception ex)
+            {
+                OnError(GetCurrentMethod(), ex);
             }
         }
 
@@ -267,14 +263,14 @@ namespace LitDev
                     }
                     catch (Exception ex)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        OnError(GetCurrentMethod(), ex);
                     }
                 };
                 FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
         }
 
@@ -294,14 +290,14 @@ namespace LitDev
                     }
                     catch (Exception ex)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        OnError(GetCurrentMethod(), ex);
                     }
                 };
                 FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
             int iState = 0;
             switch (state)
@@ -350,14 +346,14 @@ namespace LitDev
                     }
                     catch (Exception ex)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        OnError(GetCurrentMethod(), ex);
                     }
                 };
                 FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
         }
 
@@ -377,14 +373,14 @@ namespace LitDev
                     }
                     catch (Exception ex)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        OnError(GetCurrentMethod(), ex);
                     }
                 };
                 FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
             int iState = 0;
             switch (state)
@@ -436,14 +432,14 @@ namespace LitDev
                     }
                     catch (Exception ex)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        OnError(GetCurrentMethod(), ex);
                     }
                 };
                 FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
         }
 
@@ -463,14 +459,14 @@ namespace LitDev
                     }
                     catch (Exception ex)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        OnError(GetCurrentMethod(), ex);
                     }
                 };
                 FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
             int iStyle = 1;
             switch (style)
@@ -494,7 +490,7 @@ namespace LitDev
         public static void printWindow(object sender, PrintPageEventArgs e)
         {
             IntPtr _hWnd = User32.FindWindow(null, bTextWindow ? TextWindow.Title : GraphicsWindow.Title);
-            DrawingImage img = Utilities.captureWindow(_hWnd);
+            DrawingImage img = captureWindow(_hWnd);
             double width = img.Width;
             double height = img.Height;
             double border = 50;
@@ -527,7 +523,7 @@ namespace LitDev
 
                 foreach (string line in input)
                 {
-                    row = line.Split(new string[] { Utilities.CSV }, StringSplitOptions.None);
+                    row = line.Split(new string[] { CSV }, StringSplitOptions.None);
                     numCol = System.Math.Max(numCol, row.Length);
                     rowOrdered.Add(row);
                 }
@@ -543,14 +539,14 @@ namespace LitDev
                             row = rowOrdered[iRow];
                             if (iCol < row.Length)
                             {
-                                string value = Utilities.CSVParse(row[iCol], false);
+                                string value = CSVParse(row[iCol], false);
                                 if (value == "")
                                 {
                                     if (CSVplaceHolder != "") rowOutput += (iRow + 1).ToString() + "\\=" + CSVplaceHolder + "\\;";
                                 }
                                 else
                                 {
-                                    rowOutput += (iRow + 1).ToString() + "\\=" + Utilities.ArrayParse(value) + "\\;";
+                                    rowOutput += (iRow + 1).ToString() + "\\=" + ArrayParse(value) + "\\;";
                                 }
                             }
                         }
@@ -566,25 +562,25 @@ namespace LitDev
                         string rowOutput = "";
                         for (int iCol = 0; iCol < row.Length; iCol++)
                         {
-                            string value = Utilities.CSVParse(row[iCol], false);
+                            string value = CSVParse(row[iCol], false);
                             if (value == "")
                             {
                                 if (CSVplaceHolder != "") rowOutput += (iCol + 1).ToString() + "\\=" + CSVplaceHolder + "\\;";
                             }
                             else
                             {
-                                rowOutput += (iCol + 1).ToString() + "\\=" + Utilities.ArrayParse(value) + "\\;";
+                                rowOutput += (iCol + 1).ToString() + "\\=" + ArrayParse(value) + "\\;";
                             }
                         }
                         output += rowOutput + ";";
                     }
                 }
 
-                return Utilities.CreateArrayMap(output);
+                return CreateArrayMap(output);
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
                 return "";
             }
         }
@@ -606,7 +602,7 @@ namespace LitDev
                     foreach (string value in values)
                     {
 
-                        output[iRow] += Utilities.CSVParse(value.Substring(value.IndexOf('=') + 1), true) + Utilities.CSV;
+                        output[iRow] += CSVParse(value.Substring(value.IndexOf('=') + 1), true) + CSV;
                     }
                     if (output[iRow].Length > 0) output[iRow] = output[iRow].Substring(0, output[iRow].Length - 1);
                     iRow++;
@@ -616,7 +612,7 @@ namespace LitDev
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
         }
 
@@ -720,7 +716,7 @@ namespace LitDev
                     }
                     catch (Exception ex)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        OnError(GetCurrentMethod(), ex);
                     }
                     return null;
                 });
@@ -728,7 +724,7 @@ namespace LitDev
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
             return null;
         }
@@ -786,7 +782,7 @@ namespace LitDev
             }
             catch (Exception ex)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                OnError(GetCurrentMethod(), ex);
             }
         }
 
@@ -1066,7 +1062,7 @@ namespace LitDev
     }
 
     /// <summary>
-    /// General utilities.
+    /// General 
     /// </summary>
     [SmallBasicType]
     public static class LDUtilities
@@ -1643,24 +1639,12 @@ namespace LitDev
 
         /// <summary>
         /// Experimental option to speed some interactions with SmallBasicLibrary objects.
-        /// "True" or "False" (default)
+        /// "True" (default) or "False"
         /// </summary>
-        [HideFromIntellisense]
         public static Primitive UseExpression
         {
             get { return FastThread.UseExpression; }
             set { FastThread.UseExpression = value; }
-        }
-
-        /// <summary>
-        /// Experimental option to speed some interactions with SmallBasicLibrary objects.
-        /// "True" or "False" (default)
-        /// </summary>
-        [HideFromIntellisense]
-        public static Primitive UseAsync
-        {
-            get { return FastThread.UseAsync; }
-            set { FastThread.UseAsync = value; }
         }
     }
 }

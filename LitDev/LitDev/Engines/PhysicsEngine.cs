@@ -1725,6 +1725,83 @@ namespace LitDev.Engines
             Explosions.Add(explosion);
         }
 
+        private void doTimestep_Delegate()
+        {
+            try
+            {
+                Vec2 position;
+                float angle;
+                float X, Y;
+
+                //Update explosions
+                foreach (Explosion explosion in Explosions)
+                {
+                    foreach (Fragment fragment in explosion.fragments)
+                    {
+                        if (null != fragment.body && null != fragment.body.GetUserData())
+                        {
+                            Vec2 pos = fragment.body.GetPosition() - panViewP;
+                            //Shapes.Move((Primitive)fragment.body.GetUserData(), pos.X * scale - 1, pos.Y * scale - 1);
+                            UIElement elt = (UIElement)fragment.body.GetUserData();
+                            System.Windows.Controls.Canvas.SetLeft(elt, pos.X * scale - 1);
+                            System.Windows.Controls.Canvas.SetTop(elt, pos.Y * scale - 1);
+                        }
+                    }
+                    if (!explosion.Update())
+                    {
+                        Explosions.Remove(explosion);
+                        break; //can only remove one from list while iterating it
+                    }
+                }
+
+                for (Body body = world.GetBodyList(); body != null; body = body._next)
+                {
+                    for (Shape shape = body.GetShapeList(); shape != null; shape = shape._next)
+                    {
+                        if (null != shape.UserData && shape.UserData.GetType() != typeof(Sprite)) continue;
+                        Sprite sprite = (Sprite)shape.UserData;
+                        if (null != sprite)
+                        {
+                            position = body.GetPosition() - panViewP;
+                            angle = body.GetAngle();
+                            if (shape.GetType() == ShapeType.CircleShape)
+                            {
+                                CircleShape shapeCircle = (CircleShape)shape;
+                                position.X += shapeCircle.GetLocalPosition().X * (float)System.Math.Cos(angle) - shapeCircle.GetLocalPosition().Y * (float)System.Math.Sin(angle);
+                                position.Y += shapeCircle.GetLocalPosition().X * (float)System.Math.Sin(angle) + shapeCircle.GetLocalPosition().Y * (float)System.Math.Cos(angle);
+                            }
+                            else if (shape.GetType() == ShapeType.PolygonShape)
+                            {
+                                PolygonShape shapePolygon = (PolygonShape)shape;
+                                position.X += shapePolygon.GetCentroid().X * (float)System.Math.Cos(angle) - shapePolygon.GetCentroid().Y * (float)System.Math.Sin(angle);
+                                position.Y += shapePolygon.GetCentroid().X * (float)System.Math.Sin(angle) + shapePolygon.GetCentroid().Y * (float)System.Math.Cos(angle);
+                            }
+                            X = scale * position.X - sprite.widthS;
+                            Y = scale * position.Y - sprite.heightS;
+                            //Shapes.Move(sprite.name, X, Y);
+                            //Shapes.Rotate(sprite.name, angle * 180 / pi);
+                            System.Windows.Controls.Canvas.SetLeft(sprite.uiElement, X);
+                            System.Windows.Controls.Canvas.SetTop(sprite.uiElement, Y);
+                            sprite.rotateTransform.Angle = angle * 180 / pi;
+                        }
+                    }
+                }
+
+                // Inactive sprites
+                foreach (InactiveShape _shape in InactiveShapes)
+                {
+                    //Shapes.Move(_shape.name, _shape.posXS - _shape.widthS, _shape.posYS - _shape.heightS);
+                    //Shapes.Rotate(_shape.name, _shape.angleS);
+                    System.Windows.Controls.Canvas.SetLeft(_shape.uiElement, _shape.posXS - scale * panViewP.X - _shape.widthS);
+                    System.Windows.Controls.Canvas.SetTop(_shape.uiElement, _shape.posYS - scale * panViewP.Y - _shape.heightS);
+                    _shape.rotateTransform.Angle = _shape.angleS;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
         //Update
         public void doTimestep()
         {
@@ -1775,86 +1852,7 @@ namespace LitDev.Engines
             }
             panViewP -= offsetBox;
 
-            Vec2 position;
-            float angle;
-            float X, Y;
-
-            // Consistency for multi-shape bodies
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            InvokeHelper ret = new InvokeHelper(delegate
-            {
-                try
-                {
-                    //Update explosions
-                    foreach (Explosion explosion in Explosions)
-                    {
-                        foreach (Fragment fragment in explosion.fragments)
-                        {
-                            if (null != fragment.body && null != fragment.body.GetUserData())
-                            {
-                                Vec2 pos = fragment.body.GetPosition() - panViewP;
-                                //Shapes.Move((Primitive)fragment.body.GetUserData(), pos.X * scale - 1, pos.Y * scale - 1);
-                                UIElement elt = (UIElement)fragment.body.GetUserData();
-                                System.Windows.Controls.Canvas.SetLeft(elt, pos.X * scale - 1);
-                                System.Windows.Controls.Canvas.SetTop(elt, pos.Y * scale - 1);
-                            }
-                        }
-                        if (!explosion.Update())
-                        {
-                            Explosions.Remove(explosion);
-                            break; //can only remove one from list while iterating it
-                        }
-                    }
-
-                    for (Body body = world.GetBodyList(); body != null; body = body._next)
-                    {
-                        for (Shape shape = body.GetShapeList(); shape != null; shape = shape._next)
-                        {
-                            if (null != shape.UserData && shape.UserData.GetType() != typeof(Sprite)) continue;
-                            Sprite sprite = (Sprite)shape.UserData;
-                            if (null != sprite)
-                            {
-                                position = body.GetPosition() - panViewP;
-                                angle = body.GetAngle();
-                                if (shape.GetType() == ShapeType.CircleShape)
-                                {
-                                    CircleShape shapeCircle = (CircleShape)shape;
-                                    position.X += shapeCircle.GetLocalPosition().X * (float)System.Math.Cos(angle) - shapeCircle.GetLocalPosition().Y * (float)System.Math.Sin(angle);
-                                    position.Y += shapeCircle.GetLocalPosition().X * (float)System.Math.Sin(angle) + shapeCircle.GetLocalPosition().Y * (float)System.Math.Cos(angle);
-                                }
-                                else if (shape.GetType() == ShapeType.PolygonShape)
-                                {
-                                    PolygonShape shapePolygon = (PolygonShape)shape;
-                                    position.X += shapePolygon.GetCentroid().X * (float)System.Math.Cos(angle) - shapePolygon.GetCentroid().Y * (float)System.Math.Sin(angle);
-                                    position.Y += shapePolygon.GetCentroid().X * (float)System.Math.Sin(angle) + shapePolygon.GetCentroid().Y * (float)System.Math.Cos(angle);
-                                }
-                                X = scale * position.X - sprite.widthS;
-                                Y = scale * position.Y - sprite.heightS;
-                                //Shapes.Move(sprite.name, X, Y);
-                                //Shapes.Rotate(sprite.name, angle * 180 / pi);
-                                System.Windows.Controls.Canvas.SetLeft(sprite.uiElement, X);
-                                System.Windows.Controls.Canvas.SetTop(sprite.uiElement, Y);
-                                sprite.rotateTransform.Angle = angle * 180 / pi;
-                            }
-                        }
-                    }
-
-                    // Inactive sprites
-                    foreach (InactiveShape _shape in InactiveShapes)
-                    {
-                        //Shapes.Move(_shape.name, _shape.posXS - _shape.widthS, _shape.posYS - _shape.heightS);
-                        //Shapes.Rotate(_shape.name, _shape.angleS);
-                        System.Windows.Controls.Canvas.SetLeft(_shape.uiElement, _shape.posXS - scale * panViewP.X - _shape.widthS);
-                        System.Windows.Controls.Canvas.SetTop(_shape.uiElement, _shape.posYS - scale * panViewP.Y - _shape.heightS);
-                        _shape.rotateTransform.Angle = _shape.angleS;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                }
-            });
-            FastThread.Invoke(ret);
+            FastThread.BeginInvoke(doTimestep_Delegate);
         }
 
         public string getCollisions(string shapeName)

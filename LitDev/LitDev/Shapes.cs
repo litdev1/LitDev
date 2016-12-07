@@ -193,6 +193,10 @@ namespace LitDev
     [SmallBasicType]
     public static class LDShapes
     {
+        private static Type GraphicsWindowType = typeof(GraphicsWindow);
+        private static Dictionary<string, UIElement> _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        private static UIElement obj;
+
         private static List<Animated> animated = new List<Animated>();
         private static System.Windows.Forms.Timer animationTimer = null;
         private static int animationInterval = 100;
@@ -317,13 +321,11 @@ namespace LitDev
         }
 
         private static List<HitTestResult> HitTestResults = new List<HitTestResult>();
-
         private static HitTestResultBehavior _HitTestResult(HitTestResult result)
         {
             HitTestResults.Add(result);
             return HitTestResultBehavior.Continue;
         }
-
         private static HitTestResultBehavior _HitTestResultGeometry(HitTestResult result)
         {
             IntersectionDetail intersectionDetail = ((GeometryHitTestResult)result).IntersectionDetail;
@@ -342,7 +344,6 @@ namespace LitDev
                     return HitTestResultBehavior.Stop;
             }
         }
-
         private static HitTestFilterBehavior _HitTestFilterGeometry(DependencyObject obj)
         {
             return HitTestFilterBehavior.Continue; //No obvious way to filter
@@ -396,7 +397,6 @@ namespace LitDev
                 i.Foreground = brush;
             }
         }
-
         private static void treeViewBrushColour(ItemCollection items, SolidColorBrush brush)
         {
             foreach (TreeViewItem i in items)
@@ -456,13 +456,8 @@ namespace LitDev
         /// <returns>The value of the property.</returns>
         public static Primitive GetProperty(Primitive shapeName, Primitive property)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -499,13 +494,8 @@ namespace LitDev
         /// <returns>An array of properties and their values.</returns>
         public static Primitive GetProperties(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -556,13 +546,8 @@ namespace LitDev
         /// <param name="value">The value to set the property to.</param>
         public static void SetProperty(Primitive shapeName, Primitive property, Primitive value)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -598,15 +583,11 @@ namespace LitDev
         /// </returns>
         public static void ResetTurtle()
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type TurtleType = typeof(Turtle);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
             bool _initialized;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_objectsMap.TryGetValue("_turtle", out obj))
                 {
                     _initialized = (bool)TurtleType.GetField("_initialized", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
@@ -635,8 +616,6 @@ namespace LitDev
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ImageListType = typeof(ImageList);
             Type TurtleType = typeof(Turtle);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
             Dictionary<string, BitmapSource> _savedImages;
             BitmapSource img;
             RotateTransform _rotateTransform;
@@ -653,7 +632,6 @@ namespace LitDev
                         return;
                     }
                 }
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _rotateTransform = (RotateTransform)TurtleType.GetField("_rotateTransform", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue("_turtle", out obj) && null != _rotateTransform)
                 {
@@ -696,12 +674,8 @@ namespace LitDev
         /// </summary>
         public static void RemoveTurtleLines()
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 List<string> shapes = new List<string>();
                 foreach (KeyValuePair<string, UIElement> obj in _objectsMap)
                 {
@@ -725,14 +699,11 @@ namespace LitDev
         /// </summary>
         public static void RasteriseTurtleLines()
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             FieldInfo _penField;
             Pen _pen;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _penField = GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                 _pen = (Pen)_penField.GetValue(null);
                 InvokeHelper ret = new InvokeHelper(delegate
@@ -796,13 +767,8 @@ namespace LitDev
         /// </returns>
         public static void MoveLine(Primitive shapeName, Primitive x1, Primitive y1, Primitive x2, Primitive y2)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -862,13 +828,8 @@ namespace LitDev
         /// </returns>
         public static void MoveTriangle(Primitive shapeName, Primitive x1, Primitive y1, Primitive x2, Primitive y2, Primitive x3, Primitive y3)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -921,13 +882,8 @@ namespace LitDev
         /// </returns>
         public static void Move(Primitive shapeName, Primitive x, Primitive y)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -1005,15 +961,11 @@ namespace LitDev
         /// </returns>
         public static void RotateAbout(Primitive shapeName, Primitive x, Primitive y, Primitive angle)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
-            Dictionary<string, UIElement> _objectsMap;
             Dictionary<string, RotateTransform> _rotateTransformMap;
-            UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _rotateTransformMap = (Dictionary<string, RotateTransform>)ShapesType.GetField("_rotateTransformMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
@@ -1070,13 +1022,8 @@ namespace LitDev
         /// </returns>
         public static void MovePolygon(Primitive shapeName, Primitive points)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -1119,10 +1066,8 @@ namespace LitDev
         public static Primitive AddPolygon(Primitive points)
         {
             GraphicsWindow.Show();
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
             Canvas _mainCanvas;
-            Dictionary<string, UIElement> _objectsMap;
             Pen _pen;
             Brush _brush;
             string shapeName;
@@ -1136,7 +1081,6 @@ namespace LitDev
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -1188,10 +1132,8 @@ namespace LitDev
         public static Primitive AddStar(Primitive numPoint, Primitive innerRadius, Primitive outerRadius)
         {
             GraphicsWindow.Show();
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
             Canvas _mainCanvas;
-            Dictionary<string, UIElement> _objectsMap;
             Pen _pen;
             Brush _brush;
             string shapeName;
@@ -1205,7 +1147,6 @@ namespace LitDev
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -1280,10 +1221,8 @@ namespace LitDev
         public static Primitive AddRegularPolygon(Primitive numPoint, Primitive radius)
         {
             GraphicsWindow.Show();
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
             Canvas _mainCanvas;
-            Dictionary<string, UIElement> _objectsMap;
             Pen _pen;
             Brush _brush;
             string shapeName;
@@ -1297,7 +1236,6 @@ namespace LitDev
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -1370,13 +1308,10 @@ namespace LitDev
         /// </returns>
         public static Primitive OverlapBox(Primitive shape1, Primitive shape2)
         {            
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj1, obj2;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_objectsMap.TryGetValue((string)shape1, out obj1))
                 {
                     Utilities.OnShapeError(Utilities.GetCurrentMethod(), shape1);
@@ -1427,13 +1362,10 @@ namespace LitDev
         /// </returns>
         public static Primitive OverlapCircle(Primitive shape1, Primitive shape2)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj1, obj2;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_objectsMap.TryGetValue((string)shape1, out obj1))
                 {
                     Utilities.OnShapeError(Utilities.GetCurrentMethod(), shape1); 
@@ -1492,14 +1424,11 @@ namespace LitDev
         /// </returns>
         public static Primitive Overlap(Primitive shape1, Primitive shape2)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj1, obj2;
             Canvas _mainCanvas;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_objectsMap.TryGetValue((string)shape1, out obj1))
                 {
@@ -1569,14 +1498,8 @@ namespace LitDev
         /// </returns>
         public static void BrushColour(Primitive shapeName, Primitive colour)
         {
-
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -1716,14 +1639,8 @@ namespace LitDev
         /// </returns>
         public static Primitive GetColour(Primitive shapeName)
         {
-
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1997,14 +1914,8 @@ namespace LitDev
         /// </returns>
         public static void BrushShape(Primitive shapeName, Primitive brush)
         {
-
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2391,13 +2302,8 @@ namespace LitDev
         /// </returns>
         public static void PenColour(Primitive shapeName, Primitive colour)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2543,14 +2449,8 @@ namespace LitDev
         /// </returns>
         public static void Font(Primitive shapeName, Primitive family, Primitive size, Primitive bold, Primitive italic)
         {
-
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2706,13 +2606,8 @@ namespace LitDev
         /// </returns>
         public static void PenWidth(Primitive shapeName, Primitive width)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2775,14 +2670,8 @@ namespace LitDev
         /// </returns>
         public static void PenStyle(Primitive shapeName, Primitive dash, Primitive space)
         {
-
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2854,14 +2743,8 @@ namespace LitDev
         /// </returns>
         public static void ZIndex(Primitive shapeName, Primitive z_index)
         {
-
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2905,15 +2788,11 @@ namespace LitDev
         /// </returns>
         public static void ReSize(Primitive shapeName, Primitive width, Primitive height)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
             Dictionary<string, ScaleTransform> _scaleTransformMap;
             ScaleTransform scaleTransform;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _scaleTransformMap = (Dictionary<string, ScaleTransform>)GraphicsWindowType.GetField("_scaleTransformMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
@@ -2979,13 +2858,8 @@ namespace LitDev
         /// </returns>
         public static void SetSize(Primitive shapeName, Primitive width, Primitive height)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -3031,14 +2905,8 @@ namespace LitDev
         /// </returns>
         public static void Centre(Primitive shapeName, Primitive x, Primitive y)
         {
-
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -3112,13 +2980,8 @@ namespace LitDev
         /// </returns>
         public static Primitive GetLeft(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -3151,13 +3014,8 @@ namespace LitDev
         /// </returns>
         public static Primitive GetTop(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -3189,13 +3047,8 @@ namespace LitDev
         /// </returns>
         public static Primitive Width(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
@@ -3235,14 +3088,8 @@ namespace LitDev
         /// </returns>
         public static Primitive Height(Primitive shapeName)
         {
-
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
@@ -3286,16 +3133,12 @@ namespace LitDev
         /// </returns>
         public static void SetImage(Primitive shapeName, Primitive imageName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ImageListType = typeof(ImageList);
-            Dictionary<string, UIElement> _objectsMap;
             Dictionary<string, BitmapSource> _savedImages;
-            UIElement obj;
             BitmapSource img;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
@@ -3361,9 +3204,7 @@ namespace LitDev
         {
             if (((string)imageName).StartsWith("http")) imageName = Network.DownloadFile(imageName);
             GraphicsWindow.Show();
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
-            Dictionary<string, UIElement> _objectsMap;
             Canvas _mainCanvas;
             string shapeName;
 
@@ -3376,7 +3217,6 @@ namespace LitDev
                 shapeName = method.Invoke(null, new object[] { "Image" }).ToString();
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
@@ -3477,10 +3317,8 @@ namespace LitDev
         public static Primitive AddAnimatedImage(Primitive imageName, Primitive repeat, Primitive countX, Primitive countY)
         {
             GraphicsWindow.Show();
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
             Type ImageListType = typeof(ImageList);
-            Dictionary<string, UIElement> _objectsMap;
             Dictionary<string, BitmapSource> _savedImages;
             BitmapSource img;
             Canvas _mainCanvas;
@@ -3505,7 +3343,6 @@ namespace LitDev
                 shapeName = method.Invoke(null, new object[] { "Image" }).ToString();
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
@@ -3705,14 +3542,10 @@ namespace LitDev
         /// </returns>
         public static Primitive GetAllShapesAt(Primitive x, Primitive y)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
             Canvas _mainCanvas;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -3756,13 +3589,8 @@ namespace LitDev
         /// A value of 0 will flash continuously.</param>
         public static void AnimateOpacity(Primitive shapeName, Primitive interval, Primitive count)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     try
@@ -3812,16 +3640,12 @@ namespace LitDev
         /// A value of 0 will rotate continuously.</param>
         public static void AnimateRotation(Primitive shapeName, Primitive interval, Primitive count)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
-            Dictionary<string, UIElement> _objectsMap;
             Dictionary<string, RotateTransform> _rotateTransformMap;
-            UIElement obj;
             RotateTransform rotateTransform;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _rotateTransformMap = (Dictionary<string, RotateTransform>)ShapesType.GetField("_rotateTransformMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_rotateTransformMap.TryGetValue((string)shapeName, out rotateTransform))
                 {
@@ -3878,16 +3702,12 @@ namespace LitDev
         /// <param name="scaleY">The Y zoom scale factor.</param>
         public static void AnimateZoom(Primitive shapeName, Primitive interval, Primitive count, Primitive scaleX, Primitive scaleY)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
-            Dictionary<string, UIElement> _objectsMap;
             Dictionary<string, ScaleTransform> _scaleTransformMap;
-            UIElement obj;
             ScaleTransform scaleTransform;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _scaleTransformMap = (Dictionary<string, ScaleTransform>)ShapesType.GetField("_scaleTransformMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_scaleTransformMap.TryGetValue((string)shapeName, out scaleTransform))
                 {
@@ -3945,13 +3765,8 @@ namespace LitDev
         /// <param name="shapeName">The shape or control to add.</param>
         public static void SetShapeEvent(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -4027,13 +3842,10 @@ namespace LitDev
         /// <returns>An array of shape names.</returns>
         public static Primitive GetAllShapes()
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             string result = "";
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 int i = 1;
                 foreach (KeyValuePair<string, UIElement> obj in _objectsMap)
                 {
@@ -4058,13 +3870,8 @@ namespace LitDev
         /// </returns>
         public static Primitive GetOpacity(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -4092,16 +3899,13 @@ namespace LitDev
         /// <param name="scaleY">The y-axis zoom level.</param>
         public static void ZoomAll(Primitive scaleX, Primitive scaleY)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
-            Dictionary<string, UIElement> _objectsMap;
             Dictionary<string, ScaleTransform> _scaleTransformMap;
             string shapeName;
             ScaleTransform scaleTransform;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _scaleTransformMap = (Dictionary<string, ScaleTransform>)GraphicsWindowType.GetField("_scaleTransformMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 InvokeHelper ret = new InvokeHelper(delegate
                 {
@@ -4151,13 +3955,8 @@ namespace LitDev
         /// </returns>
         public static void Skew(Primitive shapeName, Primitive angleX, Primitive angleY)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
-            UIElement obj;
-
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (!_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
@@ -4194,6 +3993,45 @@ namespace LitDev
                     }
                 });
                 FastThread.Invoke(ret);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private static double _x, _y;
+        private static void FastMove_Delegate()
+        {
+            Canvas.SetLeft(obj, _x);
+            Canvas.SetTop(obj, _y);
+        }
+        /// <summary>
+        /// Moves the shape with the specified name to a new position.
+        /// This method is maximally optimsed for speed.
+        /// </summary>
+        /// <param name="shapeName">
+        /// The name of the shape to move.
+        /// </param>
+        /// <param name="x">
+        /// The x co-ordinate of the new position.
+        /// </param>
+        /// <param name="y">
+        /// The y co-ordinate of the new position.
+        /// </param>
+        public static void FastMove(Primitive shapeName, Primitive x, Primitive y)
+        {
+            try
+            {
+                if (!_objectsMap.TryGetValue(shapeName, out obj))
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return;
+                }
+
+                _x = x;
+                _y = y;
+                FastThread.BeginInvoke(FastMove_Delegate);
             }
             catch (Exception ex)
             {

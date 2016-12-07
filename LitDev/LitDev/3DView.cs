@@ -956,7 +956,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -1023,7 +1023,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -1546,7 +1546,7 @@ namespace LitDev
                         }
                         return;
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -1606,7 +1606,7 @@ namespace LitDev
                         }
                         return;
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -1666,7 +1666,7 @@ namespace LitDev
                         }
                         return;
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -1724,7 +1724,7 @@ namespace LitDev
                         }
                         return;
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -1782,7 +1782,7 @@ namespace LitDev
                         }
                         return;
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -1868,7 +1868,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -2060,7 +2060,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -2127,7 +2127,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -2194,7 +2194,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -2295,7 +2295,7 @@ namespace LitDev
                             Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                         }
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
@@ -3204,7 +3204,7 @@ namespace LitDev
                         }
                         return;
                     });
-                    FastThread.Invoke(ret);
+                    FastThread.BeginInvoke(ret);
                 }
                 else
                 {
