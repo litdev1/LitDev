@@ -47,6 +47,8 @@ namespace LitDev
     [SmallBasicType]
     public static class LD3DView
     {
+        private static Dictionary<string, UIElement> _objectsMap = (Dictionary<string, UIElement>)typeof(GraphicsWindow).GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
         private static int iLight = 0;
         private class Lighting
         {
@@ -139,7 +141,7 @@ namespace LitDev
 
             RotateTransform3D rotateTransform3D = new RotateTransform3D();
             AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
-            axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
+            axisAngleRotation3D.Axis = new Vector3D(0, 1, 0);
             axisAngleRotation3D.Angle = 0;
             rotateTransform3D.Rotation = axisAngleRotation3D;
             rotateTransform3D.CenterX = X;
@@ -148,7 +150,7 @@ namespace LitDev
 
             RotateTransform3D rotateTransform3D2 = new RotateTransform3D();
             AxisAngleRotation3D axisAngleRotation3D2 = new AxisAngleRotation3D();
-            axisAngleRotation3D2.Axis = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
+            axisAngleRotation3D2.Axis = new Vector3D(0, 1, 0);
             axisAngleRotation3D2.Angle = 0;
             rotateTransform3D2.Rotation = axisAngleRotation3D2;
             rotateTransform3D2.CenterX = X;
@@ -157,7 +159,7 @@ namespace LitDev
 
             RotateTransform3D rotateTransform3D3 = new RotateTransform3D();
             AxisAngleRotation3D axisAngleRotation3D3 = new AxisAngleRotation3D();
-            axisAngleRotation3D3.Axis = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
+            axisAngleRotation3D3.Axis = new Vector3D(0, 1, 0);
             axisAngleRotation3D3.Angle = 0;
             rotateTransform3D3.Rotation = axisAngleRotation3D3;
             rotateTransform3D3.CenterX = X;
@@ -261,35 +263,35 @@ namespace LitDev
                         Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
 
                         ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                        System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
-                        System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
+                        Vector3D lookDirection = camera.LookDirection;
+                        Vector3D upDirection = camera.UpDirection;
                         lookDirection.Normalize();
                         upDirection.Normalize();
-                        System.Windows.Media.Media3D.Vector3D screenDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, upDirection);
+                        Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
 
-                        System.Windows.Media.Media3D.Vector3D Z = new System.Windows.Media.Media3D.Vector3D(0, 0, -1);
+                        Vector3D Z = new Vector3D(0, 0, -1);
                         RotateTransform3D rotateTransform3D1 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
                         AxisAngleRotation3D axisAngleRotation3D1 = new AxisAngleRotation3D();
-                        axisAngleRotation3D1.Axis = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, Z);
-                        axisAngleRotation3D1.Angle = System.Windows.Media.Media3D.Vector3D.AngleBetween(lookDirection, Z);
+                        axisAngleRotation3D1.Axis = Vector3D.CrossProduct(lookDirection, Z);
+                        axisAngleRotation3D1.Angle = Vector3D.AngleBetween(lookDirection, Z);
                         rotateTransform3D1.Rotation = axisAngleRotation3D1;
 
-                        Z = rotateTransform3D1.Transform(new System.Windows.Media.Media3D.Vector3D(0, 0, -1)) - rotateTransform3D1.Transform(new System.Windows.Media.Media3D.Vector3D(0, 0, 0));
+                        Z = rotateTransform3D1.Transform(new Vector3D(0, 0, -1)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
                         Z.Normalize();
-                        if (System.Windows.Media.Media3D.Vector3D.DotProduct(lookDirection, Z) < 1 - tol) axisAngleRotation3D1.Angle *= -1;
+                        if (Vector3D.DotProduct(lookDirection, Z) < 1 - tol) axisAngleRotation3D1.Angle *= -1;
 
-                        System.Windows.Media.Media3D.Vector3D Y = rotateTransform3D1.Transform(new System.Windows.Media.Media3D.Vector3D(0, 1, 0)) - rotateTransform3D1.Transform(new System.Windows.Media.Media3D.Vector3D(0, 0, 0));
+                        Vector3D Y = rotateTransform3D1.Transform(new Vector3D(0, 1, 0)) - rotateTransform3D1.Transform(new Vector3D(0, 0, 0));
                         Y.Normalize();
 
                         RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
                         AxisAngleRotation3D axisAngleRotation3D2 = new AxisAngleRotation3D();
                         axisAngleRotation3D2.Axis = lookDirection;
-                        axisAngleRotation3D2.Angle = System.Windows.Media.Media3D.Vector3D.AngleBetween(upDirection, Y);
+                        axisAngleRotation3D2.Angle = Vector3D.AngleBetween(upDirection, Y);
                         rotateTransform3D2.Rotation = axisAngleRotation3D2;
 
                         Y = rotateTransform3D2.Transform(Y);
                         Y.Normalize();
-                        if (System.Windows.Media.Media3D.Vector3D.DotProduct(upDirection, Y) < 1 - tol) axisAngleRotation3D2.Angle *= -1;
+                        if (Vector3D.DotProduct(upDirection, Y) < 1 - tol) axisAngleRotation3D2.Angle *= -1;
 
                         geometry.Transform = transform3DGroup;
                     }
@@ -313,12 +315,6 @@ namespace LitDev
 
                 if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
                 {
-                    Type GraphicsWindowType = typeof(GraphicsWindow);
-                    Canvas _mainCanvas;
-                    Dictionary<string, UIElement> _objectsMap;
-                    _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                    _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-
                     foreach (Viewport3D viewport3D in views)
                     {
                         if (!_objectsMap.ContainsKey(viewport3D.Name))
@@ -341,10 +337,10 @@ namespace LitDev
                                 Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
 
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                                System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
-                                System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
+                                Vector3D lookDirection = camera.LookDirection;
+                                Vector3D upDirection = camera.UpDirection;
                                 Point3D position = camera.Position;
-                                System.Windows.Media.Media3D.Vector3D screenDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, upDirection);
+                                Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
 
                                 RotateTransform3D yawTransform = new RotateTransform3D(new AxisAngleRotation3D(upDirection, yaw), center);
                                 position = yawTransform.Transform(position);
@@ -354,9 +350,9 @@ namespace LitDev
 
                                 lookDirection = center - position;
                                 lookDirection.Normalize();
-                                screenDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, upDirection);
+                                screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
                                 screenDirection.Normalize();
-                                upDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(screenDirection, lookDirection);
+                                upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
 
                                 ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             }
@@ -381,12 +377,6 @@ namespace LitDev
         {
             lock (lockObj)
             {
-                Type GraphicsWindowType = typeof(GraphicsWindow);
-                Canvas _mainCanvas;
-                Dictionary<string, UIElement> _objectsMap;
-                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-
                 foreach (Viewport3D viewport3D in views)
                 {
                     if (!_objectsMap.ContainsKey(viewport3D.Name))
@@ -407,11 +397,6 @@ namespace LitDev
             lock (lockObj)
             {
                 if (keyDist <= 0) return;
-                Type GraphicsWindowType = typeof(GraphicsWindow);
-                Canvas _mainCanvas;
-                Dictionary<string, UIElement> _objectsMap;
-                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
                 foreach (Viewport3D viewport3D in views)
                 {
@@ -421,28 +406,28 @@ namespace LitDev
                         continue;
                     }
                     ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                    System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
-                    System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
+                    Vector3D lookDirection = camera.LookDirection;
+                    Vector3D upDirection = camera.UpDirection;
                     Point3D position = camera.Position;
                     double mult = (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) ? 1 : -1;
                     switch (e.Key)
                     {
                         case Key.X:
-                            lookDirection = new System.Windows.Media.Media3D.Vector3D(mult, 0, 0);
+                            lookDirection = new Vector3D(mult, 0, 0);
                             position = new Point3D(-keyDist * mult, 0, 0);
-                            upDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
+                            upDirection = new Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
                         case Key.Y:
-                            lookDirection = new System.Windows.Media.Media3D.Vector3D(0, mult, 0);
+                            lookDirection = new Vector3D(0, mult, 0);
                             position = new Point3D(0, -keyDist * mult, 0);
-                            upDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, 1);
+                            upDirection = new Vector3D(0, 0, 1);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
                         case Key.Z:
-                            lookDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, mult);
+                            lookDirection = new Vector3D(0, 0, mult);
                             position = new Point3D(0, 0, -keyDist * mult);
-                            upDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
+                            upDirection = new Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
                     }
@@ -454,12 +439,6 @@ namespace LitDev
         {
             lock (lockObj)
             {
-                Type GraphicsWindowType = typeof(GraphicsWindow);
-                Canvas _mainCanvas;
-                Dictionary<string, UIElement> _objectsMap;
-                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-
                 foreach (Viewport3D viewport3D in views)
                 {
                     if (!_objectsMap.ContainsKey(viewport3D.Name))
@@ -469,8 +448,8 @@ namespace LitDev
                     }
 
                     ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                    System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
-                    System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
+                    Vector3D lookDirection = camera.LookDirection;
+                    Vector3D upDirection = camera.UpDirection;
                     Point3D position = camera.Position;
 
                     if (e.LeftButton == MouseButtonState.Pressed)
@@ -491,12 +470,12 @@ namespace LitDev
                     }
                     if (e.RightButton == MouseButtonState.Pressed)
                     {
-                        upDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
+                        upDirection = new Vector3D(0, 1, 0);
                     }
 
-                    System.Windows.Media.Media3D.Vector3D screenDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(lookDirection, upDirection);
+                    Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
                     screenDirection.Normalize();
-                    upDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(screenDirection, lookDirection);
+                    upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
 
                     ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                 }
@@ -518,12 +497,6 @@ namespace LitDev
 
                 if (move == 0 && yaw == 0) return;
 
-                Type GraphicsWindowType = typeof(GraphicsWindow);
-                Canvas _mainCanvas;
-                Dictionary<string, UIElement> _objectsMap;
-                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-
                 foreach (Viewport3D viewport3D in views)
                 {
                     if (!_objectsMap.ContainsKey(viewport3D.Name))
@@ -534,6 +507,437 @@ namespace LitDev
                     if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) move *= 5;
                     if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) move /= 5;
                     MoveCamera(viewport3D.Name, yaw, 0, 0, move);
+                }
+            }
+        }
+
+        private class Delegates
+        {
+            object[] data;
+
+            public Delegates(object[] data)
+            {
+                this.data = data;
+            }
+
+            public void MoveCamera_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    double yaw = (double)data[i++];
+                    double pitch = (double)data[i++];
+                    double roll = (double)data[i++];
+                    double move = (double)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Viewport3D viewport3D = (Viewport3D)obj;
+                        ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
+                        Vector3D lookDirection = camera.LookDirection;
+                        Vector3D upDirection = camera.UpDirection;
+                        Point3D position = camera.Position;
+
+                        Vector3D rotateAbout1 = upDirection;
+                        Vector3D rotateAbout2 = Vector3D.CrossProduct(rotateAbout1, lookDirection);
+
+                        Matrix3D rotateMatrix = Matrix3D.Identity;
+                        Quaternion quaterion = new Quaternion(upDirection, -yaw);
+                        rotateMatrix.Rotate(quaterion);
+                        quaterion = new Quaternion(rotateAbout2, -pitch);
+                        rotateMatrix.Rotate(quaterion);
+                        lookDirection = rotateMatrix.Transform(lookDirection);
+                        lookDirection.Normalize();
+                        position += move * lookDirection;
+
+                        //Also rotate up direction
+                        rotateMatrix = Matrix3D.Identity;
+                        quaterion = new Quaternion(rotateAbout2, -pitch);
+                        rotateMatrix.Rotate(quaterion);
+                        quaterion = new Quaternion(lookDirection, roll);
+                        rotateMatrix.Rotate(quaterion);
+                        upDirection = rotateMatrix.Transform(upDirection);
+
+                        camera.LookDirection = lookDirection;
+                        camera.UpDirection = upDirection;
+                        camera.Position = position;
+
+                        UpdateBillBoards(viewport3D, shapeName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void ResetCamera_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    double xDir = (double)data[i++];
+                    double yDir = (double)data[i++];
+                    double zDir = (double)data[i++];
+                    double xPos = (double)data[i++];
+                    double yPos = (double)data[i++];
+                    double zPos = (double)data[i++];
+                    Primitive xUp = (Primitive)data[i++];
+                    Primitive yUp = (Primitive)data[i++];
+                    Primitive zUp = (Primitive)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Viewport3D viewport3D = (Viewport3D)obj;
+                        ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
+
+                        camera.LookDirection = new Vector3D(xDir, yDir, zDir);
+                        camera.Position = new Point3D(xPos, yPos, zPos);
+                        if (xUp == "" || yUp == "" || zUp == "")
+                        {
+                            camera.UpDirection = (xDir == 0 && zDir == 0) ? new Vector3D(0, 0, -1) : new Vector3D(0, 1, 0);
+                            Vector3D rotateAbout = Vector3D.CrossProduct(camera.LookDirection, camera.UpDirection);
+                            camera.UpDirection = Vector3D.CrossProduct(rotateAbout, camera.LookDirection);
+                        }
+                        else
+                        {
+                            camera.UpDirection = new Vector3D(xUp, yUp, zUp);
+                        }
+
+                        UpdateBillBoards(viewport3D, shapeName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void RotateGeometry_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    string geometryName = (string)data[i++];
+                    double x = (double)data[i++];
+                    double y = (double)data[i++];
+                    double z = (double)data[i++];
+                    double angle = (double)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
+                        AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
+                        axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                        axisAngleRotation3D.Angle = angle;
+                        rotateTransform3D.Rotation = axisAngleRotation3D;
+
+                        geometry.Transform = transform3DGroup;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void RotateGeometry2_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    string geometryName = (string)data[i++];
+                    double x = (double)data[i++];
+                    double y = (double)data[i++];
+                    double z = (double)data[i++];
+                    double angle = (double)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                        AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
+                        axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                        axisAngleRotation3D.Angle = angle;
+                        rotateTransform3D.Rotation = axisAngleRotation3D;
+
+                        geometry.Transform = transform3DGroup;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void RotateGeometry3_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    string geometryName = (string)data[i++];
+                    double x = (double)data[i++];
+                    double y = (double)data[i++];
+                    double z = (double)data[i++];
+                    double angle = (double)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
+                        AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
+                        axisAngleRotation3D.Axis = new Vector3D(x, y, z);
+                        axisAngleRotation3D.Angle = angle;
+                        rotateTransform3D.Rotation = axisAngleRotation3D;
+
+                        geometry.Transform = transform3DGroup;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void ScaleGeometry_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    string geometryName = (string)data[i++];
+                    double scaleX = (double)data[i++];
+                    double scaleY = (double)data[i++];
+                    double scaleZ = (double)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        ScaleTransform3D scaleTransform3D = (ScaleTransform3D)transform3DGroup.Children[(int)transform.Scale];
+                        scaleTransform3D.ScaleX = scaleX;
+                        scaleTransform3D.ScaleY = scaleY;
+                        scaleTransform3D.ScaleZ = scaleZ;
+
+                        geometry.Transform = transform3DGroup;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void TranslateGeometry_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    string geometryName = (string)data[i++];
+                    double dx = (double)data[i++];
+                    double dy = (double)data[i++];
+                    double dz = (double)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
+                        translateTransform3D.OffsetX = dx;
+                        translateTransform3D.OffsetY = dy;
+                        translateTransform3D.OffsetZ = dz;
+
+                        geometry.Transform = transform3DGroup;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void ModifyObject_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    string geometryName = (string)data[i++];
+                    string action = (string)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Viewport3D viewport3D = (Viewport3D)obj;
+                        ModelVisual3D modelVisual3D = (ModelVisual3D)viewport3D.Children[0];
+                        Model3DGroup model3DGroup = (Model3DGroup)modelVisual3D.Content;
+
+                        Geometry geom = getGeometry(geometryName);
+                        Lighting lighting = getLighting(geometryName);
+                        if (null != geom)
+                        {
+                            switch (action.ToLower())
+                            {
+                                case "x":
+                                    model3DGroup.Children.Remove(geom.geometryModel3D);
+                                    Geometries.Remove(geom);
+                                    break;
+                                case "h":
+                                    model3DGroup.Children.Remove(geom.geometryModel3D);
+                                    break;
+                                case "s":
+                                    if (!model3DGroup.Children.Contains(geom.geometryModel3D)) model3DGroup.Children.Add(geom.geometryModel3D);
+                                    break;
+                            }
+                        }
+                        else if (null != lighting)
+                        {
+                            switch (action.ToLower())
+                            {
+                                case "x":
+                                    model3DGroup.Children.Remove(lighting.light);
+                                    Lightings.Remove(lighting);
+                                    break;
+                                case "h":
+                                    model3DGroup.Children.Remove(lighting.light);
+                                    break;
+                                case "s":
+                                    if (!model3DGroup.Children.Contains(lighting.light)) model3DGroup.Children.Add(lighting.light);
+                                    break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void Freeze_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    string geometryName = (string)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Viewport3D viewport3D = (Viewport3D)obj;
+                        ModelVisual3D modelVisual3D = (ModelVisual3D)viewport3D.Children[0];
+                        Model3DGroup model3DGroup = (Model3DGroup)modelVisual3D.Content;
+
+                        Geometry geom = getGeometry(geometryName);
+                        geom.geometryModel3D.Freeze();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void SetCentre_Delegate()
+            {
+                try
+                {
+                    int i = 0;
+                    string shapeName = (string)data[i++];
+                    string geometryName = (string)data[i++];
+                    Primitive x = (string)data[i++];
+                    Primitive y = (string)data[i++];
+                    Primitive z = (string)data[i++];
+                    string options = (string)data[i++];
+                    UIElement obj = (UIElement)data[i++];
+
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
+                        RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                        RotateTransform3D rotateTransform3D3 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
+                        ScaleTransform3D scaleTransform3D = (ScaleTransform3D)transform3DGroup.Children[(int)transform.Scale];
+
+                        string opt = options.ToLower();
+                        double X = x == "" ? geometry.Bounds.X + geometry.Bounds.SizeX / 2.0 : (double)x;
+                        double Y = y == "" ? geometry.Bounds.Y + geometry.Bounds.SizeY / 2.0 : (double)y;
+                        double Z = z == "" ? geometry.Bounds.Z + geometry.Bounds.SizeZ / 2.0 : (double)z;
+
+                        if (opt.Contains("r1"))
+                        {
+                            rotateTransform3D.CenterX = X;
+                            rotateTransform3D.CenterY = Y;
+                            rotateTransform3D.CenterZ = Z;
+                        }
+                        if (opt.Contains("r2"))
+                        {
+                            rotateTransform3D2.CenterX = X;
+                            rotateTransform3D2.CenterY = Y;
+                            rotateTransform3D2.CenterZ = Z;
+                        }
+                        if (opt.Contains("r3"))
+                        {
+                            rotateTransform3D3.CenterX = X;
+                            rotateTransform3D3.CenterY = Y;
+                            rotateTransform3D3.CenterZ = Z;
+                        }
+                        if (opt.Contains("s"))
+                        {
+                            scaleTransform3D.CenterX = X;
+                            scaleTransform3D.CenterY = Y;
+                            scaleTransform3D.CenterZ = Z;
+                        }
+
+                        geometry.Transform = transform3DGroup;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 }
             }
         }
@@ -563,7 +967,6 @@ namespace LitDev
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
             Canvas _mainCanvas;
-            Dictionary<string, UIElement> _objectsMap;
             string shapeName;
 
             try
@@ -575,7 +978,6 @@ namespace LitDev
                 shapeName = method.Invoke(null, new object[] { "View3D" }).ToString();
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
@@ -595,7 +997,7 @@ namespace LitDev
 
                         PerspectiveCamera camera = new PerspectiveCamera();
                         camera.Position = new Point3D(0, 0, 10);
-                        camera.LookDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, -1);
+                        camera.LookDirection = new Vector3D(0, 0, -1);
                         camera.FieldOfView = 60;
                         viewport3D.Camera = camera;
 
@@ -700,13 +1102,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddGeometry(Primitive shapeName, Primitive points, Primitive indices, Primitive normals, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -739,7 +1138,7 @@ namespace LitDev
                                 s = Utilities.getString(normals).Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
                                 for (i = 0; i < s.Length; i += 3)
                                 {
-                                    normalCollection.Add(new System.Windows.Media.Media3D.Vector3D(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1]), Utilities.getDouble(s[i + 2])));
+                                    normalCollection.Add(new Vector3D(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1]), Utilities.getDouble(s[i + 2])));
                                 }
 
                                 // Create a collection of texture coordinates for the MeshGeometry3D.
@@ -795,8 +1194,6 @@ namespace LitDev
         /// "S" Specular - additional specular highlights.</param>
         public static void AddImage(Primitive shapeName, Primitive geometryName, Primitive textures, Primitive imageName, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
             Type ImageListType = typeof(ImageList);
             Dictionary<string, BitmapSource> _savedImages;
@@ -804,7 +1201,6 @@ namespace LitDev
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -903,60 +1299,14 @@ namespace LitDev
         /// <param name="move">The Forward/Backward movement in device coordinates (along the view direction).</param>
         public static void MoveCamera(Primitive shapeName, Primitive yaw, Primitive pitch, Primitive roll, Primitive move)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                if (_objectsMap.TryGetValue(shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Viewport3D viewport3D = (Viewport3D)obj;
-                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                                System.Windows.Media.Media3D.Vector3D lookDirection = camera.LookDirection;
-                                System.Windows.Media.Media3D.Vector3D upDirection = camera.UpDirection;
-                                Point3D position = camera.Position;
-
-                                System.Windows.Media.Media3D.Vector3D rotateAbout1 = upDirection;
-                                System.Windows.Media.Media3D.Vector3D rotateAbout2 = System.Windows.Media.Media3D.Vector3D.CrossProduct(rotateAbout1, lookDirection);
-
-                                Matrix3D rotateMatrix = Matrix3D.Identity;
-                                Quaternion quaterion = new Quaternion(upDirection, -yaw);
-                                rotateMatrix.Rotate(quaterion);
-                                quaterion = new Quaternion(rotateAbout2, -pitch);
-                                rotateMatrix.Rotate(quaterion);
-                                lookDirection = rotateMatrix.Transform(lookDirection);
-                                lookDirection.Normalize();
-                                position += move * lookDirection;
-
-                                //Also rotate up direction
-                                rotateMatrix = Matrix3D.Identity;
-                                quaterion = new Quaternion(rotateAbout2, -pitch);
-                                rotateMatrix.Rotate(quaterion);
-                                quaterion = new Quaternion(lookDirection, roll);
-                                rotateMatrix.Rotate(quaterion);
-                                upDirection = rotateMatrix.Transform(upDirection);
-
-                                camera.LookDirection = lookDirection;
-                                camera.UpDirection = upDirection;
-                                camera.Position = position;
-
-                                UpdateBillBoards(viewport3D, shapeName);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (double)yaw, (double)pitch, (double)roll, (double)move, obj });
+                    FastThread.BeginInvoke(delegates.MoveCamera_Delegate);
                 }
                 else
                 {
@@ -984,46 +1334,14 @@ namespace LitDev
         /// <param name="zUp">The optional z up direction of the camera or "".</param>
         public static void ResetCamera(Primitive shapeName, Primitive xPos, Primitive yPos, Primitive zPos, Primitive xDir, Primitive yDir, Primitive zDir, Primitive xUp, Primitive yUp, Primitive zUp)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Viewport3D viewport3D = (Viewport3D)obj;
-                                ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-
-                                camera.LookDirection = new System.Windows.Media.Media3D.Vector3D(xDir, yDir, zDir);
-                                camera.Position = new Point3D(xPos, yPos, zPos);
-                                if (xUp == "" || yUp == "" || zUp == "")
-                                {
-                                    camera.UpDirection = (xDir == 0 && zDir == 0) ? new System.Windows.Media.Media3D.Vector3D(0, 0, -1) : new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
-                                    System.Windows.Media.Media3D.Vector3D rotateAbout = System.Windows.Media.Media3D.Vector3D.CrossProduct(camera.LookDirection, camera.UpDirection);
-                                    camera.UpDirection = System.Windows.Media.Media3D.Vector3D.CrossProduct(rotateAbout, camera.LookDirection);
-                                }
-                                else
-                                {
-                                    camera.UpDirection = new System.Windows.Media.Media3D.Vector3D(xUp, yUp, zUp);
-                                }
-
-                                UpdateBillBoards(viewport3D, shapeName);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (double)xDir, (double)yDir, (double)zDir, (double)xPos, (double)yPos, (double)zPos, xUp, yUp, zUp, obj });
+                    FastThread.BeginInvoke(delegates.ResetCamera_Delegate);
                 }
                 else
                 {
@@ -1049,13 +1367,10 @@ namespace LitDev
         /// If this is negative, then an Orthographic (no perspective) camera is used with view width set to -angle). </param>
         public static void CameraProperties(Primitive shapeName, Primitive nearDistance, Primitive farDistance, Primitive angle)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -1110,13 +1425,10 @@ namespace LitDev
         /// <returns>An array of the camera position coordinates.</returns>
         public static Primitive GetCameraPosition(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1159,13 +1471,10 @@ namespace LitDev
         /// <returns>An array of the camera direction vector.</returns>
         public static Primitive GetCameraDirection(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1208,13 +1517,10 @@ namespace LitDev
         /// <returns>An array of the camera up direction vector.</returns>
         public static Primitive GetCameraUpDirection(Primitive shapeName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1261,13 +1567,10 @@ namespace LitDev
         /// <returns>The 3DView Light name.</returns>
         public static Primitive AddDirectionalLight(Primitive shapeName, Primitive colour, Primitive xDir, Primitive yDir, Primitive zDir)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1282,7 +1585,7 @@ namespace LitDev
 
                                 DirectionalLight directionalLight = new DirectionalLight();
                                 directionalLight.Color = (Color)ColorConverter.ConvertFromString(colour);
-                                directionalLight.Direction = new System.Windows.Media.Media3D.Vector3D(xDir, yDir, zDir);
+                                directionalLight.Direction = new Vector3D(xDir, yDir, zDir);
 
                                 string name = getLightingName();
                                 Lightings.Add(new Lighting(name, directionalLight));
@@ -1318,13 +1621,10 @@ namespace LitDev
         /// <returns>The 3DView Light name.</returns>
         public static Primitive AddAmbientLight(Primitive shapeName, Primitive colour)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1382,13 +1682,10 @@ namespace LitDev
         /// <returns>The 3DView Light name.</returns>
         public static Primitive AddSpotLight(Primitive shapeName, Primitive colour, Primitive xPos, Primitive yPos, Primitive zPos, Primitive xDir, Primitive yDir, Primitive zDir, Primitive angle, Primitive range)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1404,7 +1701,7 @@ namespace LitDev
                                 SpotLight spotLight = new SpotLight();
                                 spotLight.Color = (Color)ColorConverter.ConvertFromString(colour);
                                 spotLight.Position = new Point3D(xPos, yPos, zPos);
-                                spotLight.Direction = new System.Windows.Media.Media3D.Vector3D(xDir, yDir, zDir);
+                                spotLight.Direction = new Vector3D(xDir, yDir, zDir);
                                 spotLight.InnerConeAngle = angle;
                                 spotLight.OuterConeAngle = angle + 10;
                                 spotLight.Range = range;
@@ -1448,13 +1745,10 @@ namespace LitDev
         /// <returns>The 3DView Light name.</returns>
         public static Primitive AddPointLight(Primitive shapeName, Primitive colour, Primitive xPos, Primitive yPos, Primitive zPos, Primitive range)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1510,43 +1804,14 @@ namespace LitDev
         /// <param name="angle">An angle in degrees to rotate.</param>
         public static void RotateGeometry(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive angle)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
-                                AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
-                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(x, y, z);
-                                axisAngleRotation3D.Angle = angle;
-                                rotateTransform3D.Rotation = axisAngleRotation3D;
-
-                                geometry.Transform = transform3DGroup;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                        return;
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, (double)x, (double)y, (double)z, (double)angle, obj });
+                    FastThread.BeginInvoke(delegates.RotateGeometry_Delegate);
                 }
                 else
                 {
@@ -1570,43 +1835,14 @@ namespace LitDev
         /// <param name="angle">An angle in degrees to rotate.</param>
         public static void RotateGeometry2(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive angle)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
-                                AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
-                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(x, y, z);
-                                axisAngleRotation3D.Angle = angle;
-                                rotateTransform3D.Rotation = axisAngleRotation3D;
-
-                                geometry.Transform = transform3DGroup;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                        return;
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, (double)x, (double)y, (double)z, (double)angle, obj });
+                    FastThread.BeginInvoke(delegates.RotateGeometry2_Delegate);
                 }
                 else
                 {
@@ -1630,43 +1866,14 @@ namespace LitDev
         /// <param name="angle">An angle in degrees to rotate.</param>
         public static void RotateGeometry3(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive angle)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
-                                AxisAngleRotation3D axisAngleRotation3D = new AxisAngleRotation3D();
-                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(x, y, z);
-                                axisAngleRotation3D.Angle = angle;
-                                rotateTransform3D.Rotation = axisAngleRotation3D;
-
-                                geometry.Transform = transform3DGroup;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                        return;
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, (double)x, (double)y, (double)z, (double)angle, obj });
+                    FastThread.BeginInvoke(delegates.RotateGeometry3_Delegate);
                 }
                 else
                 {
@@ -1689,42 +1896,14 @@ namespace LitDev
         /// <param name="scaleZ">Z scale factor.</param>
         public static void ScaleGeometry(Primitive shapeName, Primitive geometryName, Primitive scaleX, Primitive scaleY, Primitive scaleZ)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                ScaleTransform3D scaleTransform3D = (ScaleTransform3D)transform3DGroup.Children[(int)transform.Scale];
-                                scaleTransform3D.ScaleX = scaleX;
-                                scaleTransform3D.ScaleY = scaleY;
-                                scaleTransform3D.ScaleZ = scaleZ;
-
-                                geometry.Transform = transform3DGroup;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                        return;
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, (double)scaleX, (double)scaleY, (double)scaleZ, obj });
+                    FastThread.BeginInvoke(delegates.ScaleGeometry_Delegate);
                 }
                 else
                 {
@@ -1747,42 +1926,14 @@ namespace LitDev
         /// <param name="dz">Z direction translation.</param>
         public static void TranslateGeometry(Primitive shapeName, Primitive geometryName, Primitive dx, Primitive dy, Primitive dz)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
-                                translateTransform3D.OffsetX = dx;
-                                translateTransform3D.OffsetY = dy;
-                                translateTransform3D.OffsetZ = dz;
-
-                                geometry.Transform = transform3DGroup;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                        return;
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, (double)dx, (double)dy, (double)dz, obj });
+                    FastThread.BeginInvoke(delegates.TranslateGeometry_Delegate);
                 }
                 else
                 {
@@ -1808,67 +1959,14 @@ namespace LitDev
         /// </param>
         public static void ModifyObject(Primitive shapeName, Primitive geometryName, Primitive action)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Viewport3D viewport3D = (Viewport3D)obj;
-                                ModelVisual3D modelVisual3D = (ModelVisual3D)viewport3D.Children[0];
-                                Model3DGroup model3DGroup = (Model3DGroup)modelVisual3D.Content;
-
-                                Geometry geom = getGeometry(geometryName);
-                                Lighting lighting = getLighting(geometryName);
-                                if (null != geom)
-                                {
-                                    switch (action.ToString().ToLower())
-                                    {
-                                        case "x":
-                                            model3DGroup.Children.Remove(geom.geometryModel3D);
-                                            Geometries.Remove(geom);
-                                            break;
-                                        case "h":
-                                            model3DGroup.Children.Remove(geom.geometryModel3D);
-                                            break;
-                                        case "s":
-                                            if (!model3DGroup.Children.Contains(geom.geometryModel3D)) model3DGroup.Children.Add(geom.geometryModel3D);
-                                            break;
-                                    }
-                                }
-                                else if (null != lighting)
-                                {
-                                    switch (action.ToString().ToLower())
-                                    {
-                                        case "x":
-                                            model3DGroup.Children.Remove(lighting.light);
-                                            Lightings.Remove(lighting);
-                                            break;
-                                        case "h":
-                                            model3DGroup.Children.Remove(lighting.light);
-                                            break;
-                                        case "s":
-                                            if (!model3DGroup.Children.Contains(lighting.light)) model3DGroup.Children.Add(lighting.light);
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, (string)action, obj });
+                    FastThread.BeginInvoke(delegates.ModifyObject_Delegate);
                 }
                 else
                 {
@@ -1889,13 +1987,10 @@ namespace LitDev
         /// <returns>The new copied 3DView object name.</returns>
         public static Primitive CloneObject(Primitive shapeName, Primitive geometryName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -1959,13 +2054,10 @@ namespace LitDev
         /// <returns>An array with the hit object name and its distance or "" for no hit.</returns>
         public static Primitive HitTest(Primitive shapeName, Primitive x, Primitive y)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2032,35 +2124,14 @@ namespace LitDev
         /// <param name="geometryName">The object to freeze.</param>
         public static void Freeze(Primitive shapeName, Primitive geometryName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Viewport3D viewport3D = (Viewport3D)obj;
-                                ModelVisual3D modelVisual3D = (ModelVisual3D)viewport3D.Children[0];
-                                Model3DGroup model3DGroup = (Model3DGroup)modelVisual3D.Content;
-
-                                Geometry geom = getGeometry(geometryName);
-                                geom.geometryModel3D.Freeze();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, obj });
+                    FastThread.BeginInvoke(delegates.Freeze_Delegate);
                 }
                 else
                 {
@@ -2088,13 +2159,10 @@ namespace LitDev
         /// <param name="repeats">The number of times to repeat the animation (-1 is for ever).</param>
         public static void AnimateRotation(Primitive shapeName, Primitive geometryName, Primitive xDir, Primitive yDir, Primitive zDir, Primitive startAngle, Primitive endAngle, Primitive duration, Primitive repeats)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2118,7 +2186,7 @@ namespace LitDev
                                 doubleAnimaton.From = startAngle;
                                 doubleAnimaton.To = endAngle;
                                 doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
-                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(xDir, yDir, zDir);
+                                axisAngleRotation3D.Axis = new Vector3D(xDir, yDir, zDir);
                                 axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
                             }
                         }
@@ -2155,13 +2223,10 @@ namespace LitDev
         /// <param name="repeats">The number of times to repeat the animation (-1 is for ever).</param>
         public static void AnimateRotation2(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive startAngle, Primitive endAngle, Primitive duration, Primitive repeats)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2185,7 +2250,7 @@ namespace LitDev
                                 doubleAnimaton.From = startAngle;
                                 doubleAnimaton.To = endAngle;
                                 doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
-                                axisAngleRotation3D.Axis = new System.Windows.Media.Media3D.Vector3D(x, y, z);
+                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
                                 axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
                             }
                         }
@@ -2245,13 +2310,10 @@ namespace LitDev
         /// <param name="duration">The animation duration (sec).</param>
         public static void AnimateTranslation(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive duration)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2372,13 +2434,10 @@ namespace LitDev
                 Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
                 return "";
             }
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2441,13 +2500,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddSphere(Primitive shapeName, Primitive radius, Primitive divisions, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2505,13 +2561,10 @@ namespace LitDev
         public static Primitive AddTube(Primitive shapeName, Primitive path, Primitive diameter, Primitive divisions, Primitive colour, Primitive materialType)
         {
             bool closed = false;
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2572,13 +2625,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddRevolute(Primitive shapeName, Primitive path, Primitive divisions, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2595,7 +2645,7 @@ namespace LitDev
                                     points.Add(new Point(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1])));
                                 }
                                 int thetaDiv = divisions < 2 ? 10 : (int)divisions;
-                                builder.AddRevolvedGeometry(points, new Point3D(0,0,0), new System.Windows.Media.Media3D.Vector3D(0,1,0), thetaDiv);
+                                builder.AddRevolvedGeometry(points, new Point3D(0,0,0), new Vector3D(0,1,0), thetaDiv);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;
@@ -2630,13 +2680,10 @@ namespace LitDev
         /// <param name="geometryName">The geometry object to reverse outward normals.</param>
         public static void ReverseNormals(Primitive shapeName, Primitive geometryName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelper ret = new InvokeHelper(delegate
@@ -2697,13 +2744,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddCube(Primitive shapeName, Primitive sideLength, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2759,13 +2803,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddArrow(Primitive shapeName, Primitive length, Primitive diameter, Primitive arrowLength, Primitive arrowDiameter, Primitive divisions, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2821,13 +2862,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddCone(Primitive shapeName, Primitive baseRadius, Primitive topRadius, Primitive height, Primitive divisions, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2837,7 +2875,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 MeshBuilder builder = new MeshBuilder(true, true);
-                                builder.AddCone(new Point3D(0, 0, 0), new System.Windows.Media.Media3D.Vector3D(0, 1, 0), baseRadius, topRadius, height, true, true, divisions);
+                                builder.AddCone(new Point3D(0, 0, 0), new Vector3D(0, 1, 0), baseRadius, topRadius, height, true, true, divisions);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;
@@ -2880,13 +2918,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddPyramid(Primitive shapeName, Primitive sideLength, Primitive height, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2941,13 +2976,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddPipe(Primitive shapeName, Primitive length, Primitive innerDiameter, Primitive outerDiameter, Primitive divisions, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -2999,13 +3031,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddIcosahedron(Primitive shapeName, Primitive radius, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -3058,13 +3087,10 @@ namespace LitDev
         /// <returns>The 3DView Geometry name.</returns>
         public static Primitive AddRectangle(Primitive shapeName, Primitive width, Primitive height, Primitive colour, Primitive materialType)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
@@ -3077,7 +3103,7 @@ namespace LitDev
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
 
                                 MeshBuilder builder = new MeshBuilder(true, true);
-                                builder.AddCubeFace(new Point3D(0, 0, 0), new System.Windows.Media.Media3D.Vector3D(0, 0, 1), new System.Windows.Media.Media3D.Vector3D(0, 1, 0), 0, width, height);
+                                builder.AddCubeFace(new Point3D(0, 0, 0), new Vector3D(0, 0, 1), new Vector3D(0, 1, 0), 0, width, height);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
@@ -3139,72 +3165,14 @@ namespace LitDev
         /// </param>
         public static void SetCentre(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive options)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
-                                RotateTransform3D rotateTransform3D2 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
-                                RotateTransform3D rotateTransform3D3 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
-                                ScaleTransform3D scaleTransform3D = (ScaleTransform3D)transform3DGroup.Children[(int)transform.Scale];
-
-                                string opt = ((string)options).ToLower();
-                                double X = x == "" ? geometry.Bounds.X + geometry.Bounds.SizeX / 2.0 : (double)x;
-                                double Y = y == "" ? geometry.Bounds.Y + geometry.Bounds.SizeY / 2.0 : (double)y;
-                                double Z = z == "" ? geometry.Bounds.Z + geometry.Bounds.SizeZ / 2.0 : (double)z;
-
-                                if (opt.Contains("r1"))
-                                {
-                                    rotateTransform3D.CenterX = X;
-                                    rotateTransform3D.CenterY = Y;
-                                    rotateTransform3D.CenterZ = Z;
-                                }
-                                if (opt.Contains("r2"))
-                                {
-                                    rotateTransform3D2.CenterX = X;
-                                    rotateTransform3D2.CenterY = Y;
-                                    rotateTransform3D2.CenterZ = Z;
-                                }
-                                if (opt.Contains("r3"))
-                                {
-                                    rotateTransform3D3.CenterX = X;
-                                    rotateTransform3D3.CenterY = Y;
-                                    rotateTransform3D3.CenterZ = Z;
-                                }
-                                if (opt.Contains("s"))
-                                {
-                                    scaleTransform3D.CenterX = X;
-                                    scaleTransform3D.CenterY = Y;
-                                    scaleTransform3D.CenterZ = Z;
-                                }
-
-                                geometry.Transform = transform3DGroup;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                        return;
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, x, y, z, (string)options});
+                    FastThread.BeginInvoke(delegates.SetCentre_Delegate);
                 }
                 else
                 {
@@ -3233,13 +3201,10 @@ namespace LitDev
         /// </returns>
         public static Primitive BoundingBox(Primitive shapeName, Primitive geometryName)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-            Dictionary<string, UIElement> _objectsMap;
             UIElement obj;
 
             try
             {
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
