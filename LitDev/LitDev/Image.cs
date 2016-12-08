@@ -265,6 +265,7 @@ namespace LitDev
         private static string _image;
         private static Dictionary<string, BitmapSource> _savedImages;
         private static Bitmap _bitmap;
+        private static BitmapSource _bitmapSource;
 
         public static byte range(double value)
         {
@@ -439,6 +440,18 @@ namespace LitDev
             try
             {
                 _savedImages[_image] = FastPixel.GetBitmapImage(_bitmap);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private static void SaveBitmapSource_Delegate()
+        {
+            try
+            {
+                _savedImages[_image] = _bitmapSource;
             }
             catch (Exception ex)
             {
@@ -663,18 +676,9 @@ namespace LitDev
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                     if (!_savedImages.TryGetValue((string)image, out img)) return imageCopy;
 
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            _savedImages[imageCopy] = img;
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.Invoke(ret);
+                    _image = imageCopy;
+                    _bitmapSource = img;
+                    FastThread.Invoke(SaveBitmapSource_Delegate);
                 }
                 catch (Exception ex)
                 {
