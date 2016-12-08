@@ -155,6 +155,8 @@ namespace LitDev.Engines
         private bool mouseScrollY = false;
         private bool isPlotting = false;
 
+        private object[] delegate_Data;
+
         private enum eZoom { FALSE, TRUE };
         private enum eRescale { FALSE, TRUE };
 
@@ -655,6 +657,23 @@ namespace LitDev.Engines
             return double.Parse(unit, CultureInfo.InvariantCulture);
         }
 
+        private void plotSeries_Delegate()
+        {
+            try
+            {
+                int i = 0;
+                Canvas _graph = (Canvas)delegate_Data[i++];
+                plotData _plotData = (plotData)delegate_Data[i++];
+                eZoom _eZoom = (eZoom)delegate_Data[i++];
+                eRescale _eRescale = (eRescale)delegate_Data[i++];
+
+                plotSeries(_graph, _plotData, _eZoom, _eRescale);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
         private void plotSeries(Canvas _graph, plotData _plotData, eZoom eZoom, eRescale eRescale)
         {
             if (isPlotting) return;
@@ -1307,38 +1326,34 @@ namespace LitDev.Engines
                     return;
                 }
 
-                InvokeHelper ret = new InvokeHelper(delegate
+                try
                 {
-                    try
-                    {
-                        Canvas _graph = (Canvas)obj;
+                    Canvas _graph = (Canvas)obj;
 
-                        plotData _plotData = getPlotData(graphName);
-                        // Create new series if needed (otherwise its just the graph background)
-                        if (null != data)
-                        {
-                            bool bFound = false;
-                            seriesData newSeries = createSeries(seriesLabel, data, colour, type);
-                            foreach (seriesData series in _plotData.series)
-                            {
-                                if (series.name == seriesLabel)
-                                {
-                                    series.CopyFrom(newSeries);
-                                    bFound = true;
-                                    break;
-                                }
-                            }
-                            if (!bFound) _plotData.series.Add(newSeries);
-                        }
-                        // Update plot
-                        plotSeries(_graph, _plotData, eZoom.FALSE, eRescale.TRUE);
-                    }
-                    catch (Exception ex)
+                    plotData _plotData = getPlotData(graphName);
+                    // Create new series if needed (otherwise its just the graph background)
+                    if (null != data)
                     {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        bool bFound = false;
+                        seriesData newSeries = createSeries(seriesLabel, data, colour, type);
+                        foreach (seriesData series in _plotData.series)
+                        {
+                            if (series.name == seriesLabel)
+                            {
+                                series.CopyFrom(newSeries);
+                                bFound = true;
+                                break;
+                            }
+                        }
+                        if (!bFound) _plotData.series.Add(newSeries);
                     }
-                });
-                FastThread.Invoke(ret);
+                    delegate_Data = new object[] { _graph, _plotData, eZoom.FALSE, eRescale.TRUE };
+                    FastThread.Invoke(plotSeries_Delegate);
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
             }
             catch (Exception ex)
             {
@@ -1361,34 +1376,31 @@ namespace LitDev.Engines
                     return;
                 }
 
-                InvokeHelper ret = new InvokeHelper(delegate
+                try
                 {
-                    try
-                    {
-                        Canvas _graph = (Canvas)obj;
+                    Canvas _graph = (Canvas)obj;
 
-                        foreach (plotData _plotData in plotInfo)
+                    foreach (plotData _plotData in plotInfo)
+                    {
+                        if (_plotData.name == graphName)
                         {
-                            if (_plotData.name == graphName)
+                            foreach (seriesData _series in _plotData.series)
                             {
-                                foreach (seriesData _series in _plotData.series)
+                                if (_series.name == name)
                                 {
-                                    if (_series.name == name)
-                                    {
-                                        _plotData.series.Remove(_series);
-                                        plotSeries(_graph, _plotData, eZoom.FALSE, eRescale.TRUE);
-                                        break;
-                                    }
+                                    _plotData.series.Remove(_series);
+                                    delegate_Data = new object[] { _graph, _plotData, eZoom.FALSE, eRescale.TRUE };
+                                    FastThread.Invoke(plotSeries_Delegate);
+                                    break;
                                 }
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                    }
-                });
-                FastThread.Invoke(ret);
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
             }
             catch (Exception ex)
             {
@@ -1532,38 +1544,35 @@ namespace LitDev.Engines
                 return;
             }
 
-            InvokeHelper ret = new InvokeHelper(delegate
+            try
             {
-                try
-                {
-                    Canvas _graph = (Canvas)obj;
+                Canvas _graph = (Canvas)obj;
 
-                    foreach (plotData _plotData in plotInfo)
+                foreach (plotData _plotData in plotInfo)
+                {
+                    if (_plotData.name == graphName)
                     {
-                        if (_plotData.name == graphName)
+                        if (axis == 0)
                         {
-                            if (axis == 0)
-                            {
-                                _plotData.userMinX = min;
-                                _plotData.userMaxX = max;
-                                _plotData.userIntervalX = interval;
-                            }
-                            else if (axis == 1)
-                            {
-                                _plotData.userMinY = min;
-                                _plotData.userMaxY = max;
-                                _plotData.userIntervalY = interval;
-                            }
-                            plotSeries(_graph, _plotData, eZoom.FALSE, eRescale.TRUE);
+                            _plotData.userMinX = min;
+                            _plotData.userMaxX = max;
+                            _plotData.userIntervalX = interval;
                         }
+                        else if (axis == 1)
+                        {
+                            _plotData.userMinY = min;
+                            _plotData.userMaxY = max;
+                            _plotData.userIntervalY = interval;
+                        }
+                        delegate_Data = new object[] { _graph, _plotData, eZoom.FALSE, eRescale.TRUE };
+                        FastThread.Invoke(plotSeries_Delegate);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                }
-            });
-            FastThread.Invoke(ret);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
         }
     }
 }
