@@ -79,7 +79,7 @@ namespace LitDev
             {
                 _mainCanvas = (Canvas)typeof(GraphicsWindow).GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 FastThread.Invoke(doUpdates_Delegate);
-                FastThread.Action0(methodClearDispatcherQueue);
+                FastThread.Action(methodClearDispatcherQueue);
             }
             catch (Exception ex)
             {

@@ -232,50 +232,29 @@ namespace LitDev
             for (int i = animated.Count - 1; i >= 0; i--) //Reverse order to allow removal
             {
                 Animated anim = animated[i];
-                if (!anim.paused) updateGif(anim);
-                if (!anim.shape.IsEnabled) animated.Remove(anim);
-            }
-        }
-
-        private static void updateGif(Animated anim)
-        {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-
-            InvokeHelper ret = new InvokeHelper(delegate
-            {
-                try
+                if (!anim.paused)
                 {
                     anim.iFrame++;
                     if (anim.iFrame >= anim.frames.Length && anim.repeat) anim.iFrame = 0;
                     if (anim.iFrame >= 0 && anim.iFrame < anim.frames.Length) anim.shape.Source = anim.frames[anim.iFrame].bi;
                 }
-                catch (Exception ex)
-                {
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                }
-            });
-            FastThread.Invoke(ret);
+                if (!anim.shape.IsEnabled) animated.Remove(anim);
+            }
         }
 
-        private static void updateFlash(Animated anim)
+        private static Animated delegateAnim;
+        private static void updateGif_Delegate()
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
-
-            InvokeHelper ret = new InvokeHelper(delegate
+            try
             {
-                try
-                {
-                    if (anim.shape.Visibility == Visibility.Visible)
-                        anim.shape.Visibility = Visibility.Collapsed;
-                    else
-                        anim.shape.Visibility = Visibility.Visible;
-                }
-                catch (Exception ex)
-                {
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                }
-            });
-            FastThread.Invoke(ret);
+                delegateAnim.iFrame++;
+                if (delegateAnim.iFrame >= delegateAnim.frames.Length && delegateAnim.repeat) delegateAnim.iFrame = 0;
+                if (delegateAnim.iFrame >= 0 && delegateAnim.iFrame < delegateAnim.frames.Length) delegateAnim.shape.Source = delegateAnim.frames[delegateAnim.iFrame].bi;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
         }
 
         private static PointCollection getPoints(Primitive points)
@@ -3474,7 +3453,8 @@ namespace LitDev
                 if (anim.name == shapeName)
                 {
                     anim.iFrame = image - 2;
-                    updateGif(anim);
+                    delegateAnim = anim;
+                    FastThread.BeginInvoke(updateGif_Delegate);
                 }
             }
         }

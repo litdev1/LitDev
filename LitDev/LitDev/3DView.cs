@@ -1059,7 +1059,7 @@ namespace LitDev
                         bShift = shift;
                         keyDist = keyDistance;
                         speedMult = speed;
-                        if (lastPos == new Point(-1,-1))
+                        if (lastPos == new Point(-1, -1))
                         {
                             _window.MouseMove += new MouseEventHandler(_MouseMove);
                             _window.MouseWheel += new MouseWheelEventHandler(_MouseWheel);
@@ -2645,7 +2645,7 @@ namespace LitDev
                                     points.Add(new Point(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1])));
                                 }
                                 int thetaDiv = divisions < 2 ? 10 : (int)divisions;
-                                builder.AddRevolvedGeometry(points, new Point3D(0,0,0), new Vector3D(0,1,0), thetaDiv);
+                                builder.AddRevolvedGeometry(points, new Point3D(0, 0, 0), new Vector3D(0, 1, 0), thetaDiv);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;

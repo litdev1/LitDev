@@ -13,13 +13,19 @@ namespace LitDev.Engines
         private static MethodInfo methodBeginInvoke = typeof(GraphicsWindow).GetMethod("BeginInvoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static MethodInfo methodInvoke = typeof(GraphicsWindow).GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static MethodInfo methodInvokeWithReturn = typeof(GraphicsWindow).GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-        private static MethodInfo methodClearDispatcherQueue = typeof(SmallBasicApplication).GetMethod("ClearDispatcherQueue", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
 
         private static Action<object> _ActionInvoke = null;
         private static Func<object, object> _FuncInvoke = null;
 
         private static Dictionary<MethodInfo, Action> _Action0s = new Dictionary<MethodInfo, Action>();
         private static Action _Action0;
+        private static Dictionary<MethodInfo, Action<object>> _Action1s = new Dictionary<MethodInfo, Action<object>>();
+        private static Action<object> _Action1;
+
+        private static Dictionary<MethodInfo, Func<object>> _Func0s = new Dictionary<MethodInfo, Func<object>>();
+        private static Func<object> _Func0;
+        private static Dictionary<MethodInfo, Func<object, object>> _Func1s = new Dictionary<MethodInfo, Func<object, object>>();
+        private static Func<object, object> _Func1;
 
         public static bool UseExpression = true;
 
@@ -27,7 +33,8 @@ namespace LitDev.Engines
         {
             if (UseExpression)
             {
-                BeginInvokeActon(helper);
+                if (null == _ActionInvoke) _ActionInvoke = MagicAction(methodBeginInvoke);
+                _ActionInvoke(helper);
             }
             else
             {
@@ -39,7 +46,8 @@ namespace LitDev.Engines
         {
             if (UseExpression)
             {
-                InvokeActon(helper);
+                if (null == _ActionInvoke) _ActionInvoke = MagicAction(methodInvoke);
+                _ActionInvoke(helper);
             }
             else
             {
@@ -51,7 +59,8 @@ namespace LitDev.Engines
         {
             if (UseExpression)
             {
-                return InvokeFunc(helper);
+                if (null == _FuncInvoke) _FuncInvoke = MagicFunc(methodInvokeWithReturn);
+                return _FuncInvoke(helper);
             }
             else
             {
@@ -59,48 +68,83 @@ namespace LitDev.Engines
             }
         }
 
-        public static void Action0(MethodInfo method)
+        public static void Action(MethodInfo method, InvokeHelper helper = null)
         {
-            if (UseExpression)
+            if (null == helper)
             {
-                if (!_Action0s.TryGetValue(method, out _Action0))
+                if (UseExpression)
                 {
-                    var methodCall = Expression.Call(null, method);
-                    _Action0 = Expression.Lambda<Action>(methodCall).Compile();
-                    _Action0s[method] = _Action0;
+                    if (!_Action0s.TryGetValue(method, out _Action0))
+                    {
+                        var methodCall = Expression.Call(null, method);
+                        _Action0 = Expression.Lambda<Action>(methodCall).Compile();
+                        _Action0s[method] = _Action0;
+                    }
+                    _Action0();
                 }
-                _Action0();
+                else
+                {
+                    method.Invoke(null, new object[] { });
+                }
             }
             else
             {
-                method.Invoke(null, new object[] { });
+                if (UseExpression)
+                {
+                    if (!_Action1s.TryGetValue(method, out _Action1))
+                    {
+                        var parameter = method.GetParameters().Single();
+                        var argument = Expression.Parameter(typeof(object), "argument");
+                        var methodCall = Expression.Call(null, method, Expression.Convert(argument, parameter.ParameterType));
+                        _Action1 = Expression.Lambda<Action<object>>(methodCall, argument).Compile();
+                        _Action1s[method] = _Action1;
+                    }
+                    _Action0();
+                }
+                else
+                {
+                    method.Invoke(null, new object[] { helper });
+                }
             }
         }
 
-        private static Action<object> InvokeActon
+        public static object Func(MethodInfo method, InvokeHelperWithReturn helper = null)
         {
-            get
+            if (null == helper)
             {
-                if (null == _ActionInvoke) _ActionInvoke = MagicAction(methodInvoke);
-                return _ActionInvoke;
+                if (UseExpression)
+                {
+                    if (!_Func0s.TryGetValue(method, out _Func0))
+                    {
+                        var methodCall = Expression.Call(null, method);
+                        _Func0 = Expression.Lambda<Func<object>>(methodCall).Compile();
+                        _Func0s[method] = _Func0;
+                    }
+                    return _Func0();
+                }
+                else
+                {
+                    return method.Invoke(null, new object[] { });
+                }
             }
-        }
-
-        private static Action<object> BeginInvokeActon
-        {
-            get
+            else
             {
-                if (null == _ActionInvoke) _ActionInvoke = MagicAction(methodBeginInvoke);
-                return _ActionInvoke;
-            }
-        }
-
-        private static Func<object, object> InvokeFunc
-        {
-            get
-            {
-                if (null == _FuncInvoke) _FuncInvoke = MagicFunc(methodInvokeWithReturn);
-                return _FuncInvoke;
+                if (UseExpression)
+                {
+                    if (!_Func1s.TryGetValue(method, out _Func1))
+                    {
+                        var parameter = method.GetParameters().Single();
+                        var argument = Expression.Parameter(typeof(object), "argument");
+                        var methodCall = Expression.Call(null, method, Expression.Convert(argument, parameter.ParameterType) );
+                        _Func1 = Expression.Lambda<Func<object, object>>(methodCall, argument).Compile();
+                        _Func1s[method] = _Func1;
+                    }
+                    return _Func1(helper);
+                }
+                else
+                {
+                    return method.Invoke(null, new object[] { helper });
+                }
             }
         }
 
