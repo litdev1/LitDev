@@ -622,6 +622,17 @@ namespace LitDev
             }
         }
 
+        private static string delegate_imageName;
+        private static BitmapSource delegate_bitmapSource;
+        private static Bitmap delegate_bitmap;
+        private static void CopyBitmapSource_Delegate()
+        {
+            _savedImages[delegate_imageName] = delegate_bitmapSource.Clone();
+        }
+        private static void CopyBitmap_Delegate()
+        {
+            _savedImages[delegate_imageName] = FastPixel.GetBitmapImage(delegate_bitmap).Clone();
+        }
         /// <summary>
         /// Copy an image from the ImageList.
         /// </summary>
@@ -639,12 +650,14 @@ namespace LitDev
 
                 try
                 {
+                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                    if (!_savedImages.TryGetValue(image, out img)) return imageCopy;
                     MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                     imageCopy = method.Invoke(null, new object[] { "ImageList" }).ToString();
-                    _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                    if (!_savedImages.TryGetValue((string)image, out img)) return imageCopy;
 
-                    FastThread.SaveBitmapSource(imageCopy, img);
+                    delegate_imageName = imageCopy;
+                    delegate_bitmapSource = img;
+                    FastThread.Invoke(CopyBitmapSource_Delegate);
                 }
                 catch (Exception ex)
                 {
@@ -722,7 +735,9 @@ namespace LitDev
                     }
                     fp.Unlock(true);
 
-                    FastThread.SaveImage(image, dImg);
+                    delegate_imageName = image;
+                    delegate_bitmap = dImg;
+                    FastThread.Invoke(CopyBitmap_Delegate);
                 }
                 catch (Exception ex)
                 {
@@ -766,8 +781,9 @@ namespace LitDev
                     }
                     fp.Unlock(true);
 
-                    FastThread.SaveImage(image, dImg);
-
+                    delegate_imageName = image;
+                    delegate_bitmap = dImg;
+                    FastThread.Invoke(CopyBitmap_Delegate);
                 }
                 catch (Exception ex)
                 {
@@ -816,11 +832,11 @@ namespace LitDev
 
                 try
                 {
-                    MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    imageNew = method.Invoke(null, new object[] { "ImageList" }).ToString();
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                     if (!_savedImages.TryGetValue((string)image1, out img1)) return imageNew;
                     if (!_savedImages.TryGetValue((string)image2, out img2)) return imageNew;
+                    MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    imageNew = method.Invoke(null, new object[] { "ImageList" }).ToString();
 
                     Bitmap dImg1 = FastPixel.GetBitmap(img1);
                     Bitmap dImg2 = FastPixel.GetBitmap(img2);
@@ -842,7 +858,9 @@ namespace LitDev
                         fpImg1.Unlock(true);
                         fpImg2.Unlock(false);
 
-                        FastThread.SaveImage(imageNew, dImg1);
+                        delegate_imageName = imageNew;
+                        delegate_bitmap = dImg1;
+                        FastThread.Invoke(CopyBitmap_Delegate);
                     }
                 }
                 catch (Exception ex)
@@ -873,11 +891,11 @@ namespace LitDev
 
                 try
                 {
-                    MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                    imageNew = method.Invoke(null, new object[] { "ImageList" }).ToString();
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                     if (!_savedImages.TryGetValue((string)image1, out img1)) return imageNew;
                     if (!_savedImages.TryGetValue((string)image2, out img2)) return imageNew;
+                    MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    imageNew = method.Invoke(null, new object[] { "ImageList" }).ToString();
 
                     Bitmap dImg1 = FastPixel.GetBitmap(img1);
                     Bitmap dImg2 = FastPixel.GetBitmap(img2);
@@ -899,7 +917,9 @@ namespace LitDev
                         fpImg1.Unlock(true);
                         fpImg2.Unlock(false);
 
-                        FastThread.SaveImage(imageNew, dImg1);
+                        delegate_imageName = imageNew;
+                        delegate_bitmap = dImg1;
+                        FastThread.Invoke(CopyBitmap_Delegate);
                     }
                 }
                 catch (Exception ex)
