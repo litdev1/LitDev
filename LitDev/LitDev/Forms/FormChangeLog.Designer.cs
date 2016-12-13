@@ -35,7 +35,7 @@
             System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("6) Selected LD3DView visual updates");
             System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("7) LDEffect");
             System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("8) LDGraph");
-            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("9) LDShapes animated gifs");
+            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("9) LDShapes animated gifs and Overlap methods");
             System.Windows.Forms.TreeNode treeNode17 = new System.Windows.Forms.TreeNode("General", new System.Windows.Forms.TreeNode[] {
             treeNode7,
             treeNode8,
@@ -1781,7 +1781,7 @@
             treeNode15.Name = "Node10";
             treeNode15.Text = "8) LDGraph";
             treeNode16.Name = "Node11";
-            treeNode16.Text = "9) LDShapes animated gifs";
+            treeNode16.Text = "9) LDShapes animated gifs and Overlap methods";
             treeNode17.Name = "Node0";
             treeNode17.Text = "General";
             treeNode18.Name = "Node0";

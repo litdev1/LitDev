@@ -17,16 +17,12 @@
 
 using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Media;
-using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {

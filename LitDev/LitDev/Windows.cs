@@ -42,7 +42,6 @@ namespace LitDev
         private static int currentWin = 0;
         private static int focusWin = 0;
         private static Type GraphicsWindowType = typeof(GraphicsWindow);
-        //private static MethodInfo mInvoke = GraphicsWindowType.GetMethod("Invoke", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
         private static MethodInfo mCreateWindow = GraphicsWindowType.GetMethod("CreateWindow", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic);
         private static SmallBasicCallback ActivatedDelegate = null;
         private static void ActivatedHandler(Object sender, EventArgs e)

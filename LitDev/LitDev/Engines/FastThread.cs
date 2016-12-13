@@ -5,14 +5,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Windows.Threading;
+using System.Windows.Media.Imaging;
+using System.Drawing;
 
 namespace LitDev.Engines
 {
     class FastThread
     {
-        private static MethodInfo methodBeginInvoke = typeof(GraphicsWindow).GetMethod("BeginInvoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-        private static MethodInfo methodInvoke = typeof(GraphicsWindow).GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-        private static MethodInfo methodInvokeWithReturn = typeof(GraphicsWindow).GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+        private static MethodInfo methodBeginInvoke = typeof(SmallBasicApplication).GetMethod("BeginInvoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+        private static MethodInfo methodInvoke = typeof(SmallBasicApplication).GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+        private static MethodInfo methodInvokeWithReturn = typeof(SmallBasicApplication).GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
 
         private static Action<object> _ActionInvoke = null;
         private static Func<object, object> _FuncInvoke = null;
@@ -27,6 +30,10 @@ namespace LitDev.Engines
         private static Dictionary<MethodInfo, Func<object, object>> _Func1s = new Dictionary<MethodInfo, Func<object, object>>();
         private static Func<object, object> _Func1;
 
+        private static Dispatcher _dispatcher = (Dispatcher)typeof(SmallBasicApplication).GetField("_dispatcher", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        private static Dictionary<string, BitmapSource> _savedImages = (Dictionary<string, BitmapSource>)typeof(ImageList).GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+        public static bool UseDispatcher = true;
         public static bool UseExpression = true;
 
         public static void BeginInvoke(InvokeHelper helper)
@@ -44,7 +51,11 @@ namespace LitDev.Engines
 
         public static void Invoke(InvokeHelper helper)
         {
-            if (UseExpression)
+            if (UseDispatcher)
+            {
+                _dispatcher.Invoke(DispatcherPriority.Render, helper);
+            }
+            else if (UseExpression)
             {
                 if (null == _ActionInvoke) _ActionInvoke = MagicAction(methodInvoke);
                 _ActionInvoke(helper);
@@ -57,7 +68,11 @@ namespace LitDev.Engines
 
         public static object InvokeWithReturn(InvokeHelperWithReturn helper)
         {
-            if (UseExpression)
+            if (UseDispatcher)
+            {
+                return _dispatcher.Invoke(DispatcherPriority.Render, helper);
+            }
+            else if (UseExpression)
             {
                 if (null == _FuncInvoke) _FuncInvoke = MagicFunc(methodInvokeWithReturn);
                 return _FuncInvoke(helper);
@@ -68,84 +83,85 @@ namespace LitDev.Engines
             }
         }
 
-        public static void Action(MethodInfo method, InvokeHelper helper = null)
+        public static void Action(MethodInfo method)
         {
-            if (null == helper)
+            if (UseExpression)
             {
-                if (UseExpression)
+                if (!_Action0s.TryGetValue(method, out _Action0))
                 {
-                    if (!_Action0s.TryGetValue(method, out _Action0))
-                    {
-                        var methodCall = Expression.Call(null, method);
-                        _Action0 = Expression.Lambda<Action>(methodCall).Compile();
-                        _Action0s[method] = _Action0;
-                    }
-                    _Action0();
+                    var methodCall = Expression.Call(null, method);
+                    _Action0 = Expression.Lambda<Action>(methodCall).Compile();
+                    _Action0s[method] = _Action0;
                 }
-                else
-                {
-                    method.Invoke(null, new object[] { });
-                }
+                _Action0();
             }
             else
             {
-                if (UseExpression)
-                {
-                    if (!_Action1s.TryGetValue(method, out _Action1))
-                    {
-                        var parameter = method.GetParameters().Single();
-                        var argument = Expression.Parameter(typeof(object), "argument");
-                        var methodCall = Expression.Call(null, method, Expression.Convert(argument, parameter.ParameterType));
-                        _Action1 = Expression.Lambda<Action<object>>(methodCall, argument).Compile();
-                        _Action1s[method] = _Action1;
-                    }
-                    _Action0();
-                }
-                else
-                {
-                    method.Invoke(null, new object[] { helper });
-                }
+                method.Invoke(null, new object[] { });
             }
         }
 
-        public static object Func(MethodInfo method, InvokeHelperWithReturn helper = null)
+        public static void Action<T>(MethodInfo method, T helper)
         {
-            if (null == helper)
+            if (UseExpression)
             {
-                if (UseExpression)
+                if (!_Action1s.TryGetValue(method, out _Action1))
                 {
-                    if (!_Func0s.TryGetValue(method, out _Func0))
-                    {
-                        var methodCall = Expression.Call(null, method);
-                        _Func0 = Expression.Lambda<Func<object>>(methodCall).Compile();
-                        _Func0s[method] = _Func0;
-                    }
-                    return _Func0();
+                    var parameter = method.GetParameters().Single();
+                    var argument = Expression.Parameter(typeof(object), "argument");
+                    var methodCall = Expression.Call(null, method, Expression.Convert(argument, parameter.ParameterType));
+                    _Action1 = Expression.Lambda<Action<object>>(methodCall, argument).Compile();
+                    _Action1s[method] = _Action1;
                 }
-                else
-                {
-                    return method.Invoke(null, new object[] { });
-                }
+                _Action1(helper);
             }
             else
             {
-                if (UseExpression)
-                {
-                    if (!_Func1s.TryGetValue(method, out _Func1))
-                    {
-                        var parameter = method.GetParameters().Single();
-                        var argument = Expression.Parameter(typeof(object), "argument");
-                        var methodCall = Expression.Call(null, method, Expression.Convert(argument, parameter.ParameterType) );
-                        _Func1 = Expression.Lambda<Func<object, object>>(methodCall, argument).Compile();
-                        _Func1s[method] = _Func1;
-                    }
-                    return _Func1(helper);
-                }
-                else
-                {
-                    return method.Invoke(null, new object[] { helper });
-                }
+                method.Invoke(null, new object[] { helper });
             }
+        }
+
+        public static object Func(MethodInfo method)
+        {
+            if (UseExpression)
+            {
+                if (!_Func0s.TryGetValue(method, out _Func0))
+                {
+                    var methodCall = Expression.Call(null, method);
+                    _Func0 = Expression.Lambda<Func<object>>(methodCall).Compile();
+                    _Func0s[method] = _Func0;
+                }
+                return _Func0();
+            }
+            else
+            {
+                return method.Invoke(null, new object[] { });
+            }
+        }
+
+        public static object Func<T>(MethodInfo method, T helper)
+        {
+            if (UseExpression)
+            {
+                if (!_Func1s.TryGetValue(method, out _Func1))
+                {
+                    var parameter = method.GetParameters().Single();
+                    var argument = Expression.Parameter(typeof(object), "argument");
+                    var methodCall = Expression.Call(null, method, Expression.Convert(argument, parameter.ParameterType));
+                    _Func1 = Expression.Lambda<Func<object, object>>(methodCall, argument).Compile();
+                    _Func1s[method] = _Func1;
+                }
+                return _Func1(helper);
+            }
+            else
+            {
+                return method.Invoke(null, new object[] { helper });
+            }
+        }
+
+        public static Dispatcher Dispatcher
+        {
+            get { return _dispatcher; }
         }
 
         private static Action<object> MagicAction(MethodInfo method)
@@ -202,6 +218,28 @@ namespace LitDev.Engines
                 Expression.Convert(methodCall, typeof(object)),
                 instance, argument
                 ).Compile();
+        }
+
+        private delegate void SaveImage_Type(string imageName, Bitmap bitmap);
+        private static SaveImage_Type del_SaveImage = SaveImage_Delegate;
+        private static void SaveImage_Delegate(string imageName, Bitmap bitmap)
+        {
+            _savedImages[imageName] = FastPixel.GetBitmapImage(bitmap);
+        }
+        public static void SaveImage(string imageName, Bitmap bitmap)
+        {
+            _dispatcher.Invoke(DispatcherPriority.Render, del_SaveImage, new object[] { imageName, bitmap });
+        }
+
+        private delegate void SaveBitmapSource_Type(string imageName, BitmapSource bitmapSource);
+        private static SaveBitmapSource_Type del_SaveBitmapSource = SaveBitmapSource_Delegate;
+        private static void SaveBitmapSource_Delegate(string imageName, BitmapSource bitmapSource)
+        {
+            _savedImages[imageName] = bitmapSource;
+        }
+        public static void SaveBitmapSource(string imageName, BitmapSource bitmapSource)
+        {
+            _dispatcher.Invoke(DispatcherPriority.Render, del_SaveBitmapSource, new object[] { imageName, bitmapSource });
         }
     }
 }

@@ -38,6 +38,7 @@ using System.Security.Permissions;
 using Microsoft.Win32.SafeHandles;
 using System.Threading;
 using LitDev.Engines;
+using System.Windows.Threading;
 
 namespace LitDev
 {
@@ -1645,6 +1646,16 @@ namespace LitDev
         {
             get { return FastThread.UseExpression; }
             set { FastThread.UseExpression = value; }
+        }
+
+        /// <summary>
+        /// Experimental option to speed some interactions with SmallBasicLibrary objects.
+        /// "True" (default) or "False"
+        /// </summary>
+        public static Primitive UseDispatcher
+        {
+            get { return FastThread.UseDispatcher; }
+            set { FastThread.UseDispatcher = value; }
         }
     }
 }

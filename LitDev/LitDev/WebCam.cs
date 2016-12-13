@@ -105,8 +105,6 @@ namespace LitDev
         private static List<Image> images = new List<Image>();
         private static System.Windows.Forms.Timer timer;
         private static int interval = 20;
-        //private static MethodInfo method1 = GraphicsWindowType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-        //private static MethodInfo method2 = GraphicsWindowType.GetMethod("InvokeWithReturn", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static MethodInfo method3 = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static eEffect effect = eEffect.NONE;
         private static Primitive _parameter = "";
@@ -899,19 +897,6 @@ namespace LitDev
                         if (_width < dImg.Width && _height < dImg.Height) dImg = dImg.GetThumbnailImage(_width, _height, dummyCallback, IntPtr.Zero);
                         dImg = DoEffect(dImg, effect, _parameter);
 
-                        //InvokeHelper ret = new InvokeHelper(delegate
-                        //{
-                        //    MemoryStream ms = new MemoryStream();
-                        //    dImg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                        //    BitmapImage bImg = new BitmapImage();
-                        //    bImg.BeginInit();
-                        //    bImg.StreamSource = ms;
-                        //    bImg.EndInit();
-                        //    foreach (Image image in images)
-                        //    {
-                        //        image.Source = bImg;
-                        //    }
-                        //});
                         FastThread.Invoke(UpdateImage_Delegate);
                     }
                     catch (Exception ex)

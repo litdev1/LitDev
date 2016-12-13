@@ -197,6 +197,9 @@ namespace LitDev
         private static Dictionary<string, UIElement> _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
         private static UIElement obj;
 
+        private static object[] delegate_Data;
+        private static double _x, _y;
+
         private static List<Animated> animated = new List<Animated>();
         private static System.Windows.Forms.Timer animationTimer = null;
         private static int animationInterval = 100;
@@ -1302,23 +1305,11 @@ namespace LitDev
                     return "False";
                 }
 
-                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
-                {
-                    try
-                    {
-                        Rect rect1 = new Rect(obj1.RenderSize);
-                        Rect rect2 = new Rect(obj2.RenderSize);
-                        rect1.Offset(System.Windows.Media.VisualTreeHelper.GetOffset(obj1));
-                        rect2.Offset(System.Windows.Media.VisualTreeHelper.GetOffset(obj2));
-                        return rect1.IntersectsWith(rect2) ? "True" : "False";
-                    }
-                    catch (Exception ex)
-                    {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        return "False";
-                    }
-                });
-                return FastThread.InvokeWithReturn(ret).ToString();
+                Rect rect1 = new Rect(obj1.RenderSize);
+                Rect rect2 = new Rect(obj2.RenderSize);
+                rect1.Offset(VisualTreeHelper.GetOffset(obj1));
+                rect2.Offset(VisualTreeHelper.GetOffset(obj2));
+                return rect1.IntersectsWith(rect2) ? "True" : "False";
             }
             catch (Exception ex)
             {
@@ -1356,30 +1347,19 @@ namespace LitDev
                     return "False";
                 }
 
-                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
-                {
-                    try
-                    {
-                        Rect rect1 = new Rect(obj1.RenderSize);
-                        Rect rect2 = new Rect(obj2.RenderSize);
-                        rect1.Offset(System.Windows.Media.VisualTreeHelper.GetOffset(obj1));
-                        rect2.Offset(System.Windows.Media.VisualTreeHelper.GetOffset(obj2));
+                Rect rect1 = new Rect(obj1.RenderSize);
+                Rect rect2 = new Rect(obj2.RenderSize);
+                rect1.Offset(VisualTreeHelper.GetOffset(obj1));
+                rect2.Offset(VisualTreeHelper.GetOffset(obj2));
 
-                        double rad1 = System.Math.Sqrt((rect1.Width * rect1.Width + rect1.Height * rect1.Height) / 2.0) / 2.0;
-                        double rad2 = System.Math.Sqrt((rect2.Width * rect2.Width + rect2.Height * rect2.Height) / 2.0) / 2.0;
-                        double dx = (rect1.X + rect1.Width / 2.0) - (rect2.X + rect2.Width / 2.0);
-                        double dy = (rect1.Y + rect1.Height / 2.0) - (rect2.Y + rect2.Height / 2.0);
-                        double dist = System.Math.Sqrt(dx * dx + dy * dy);
+                double rad1 = System.Math.Sqrt((rect1.Width * rect1.Width + rect1.Height * rect1.Height) / 2.0) / 2.0;
+                double rad2 = System.Math.Sqrt((rect2.Width * rect2.Width + rect2.Height * rect2.Height) / 2.0) / 2.0;
+                double dx = (rect1.X + rect1.Width / 2.0) - (rect2.X + rect2.Width / 2.0);
+                double dy = (rect1.Y + rect1.Height / 2.0) - (rect2.Y + rect2.Height / 2.0);
+                double dist = System.Math.Sqrt(dx * dx + dy * dy);
 
-                        return dist <= rad1 + rad2 ? "True" : "False";
-                    }
-                    catch (Exception ex)
-                    {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        return "False";
-                    }
-                });
-                return FastThread.InvokeWithReturn(ret).ToString();
+                return dist <= rad1 + rad2 ? "True" : "False";
+
             }
             catch (Exception ex)
             {
@@ -1388,6 +1368,28 @@ namespace LitDev
             }
         }
 
+        private static void Overlap_Delegate()
+        {
+            int i = 0;
+            Canvas _mainCanvas = (Canvas)delegate_Data[i++];
+            UIElement obj1 = (UIElement)delegate_Data[i++];
+
+            Rect rect1 = new Rect(obj1.RenderSize);
+            rect1.Offset(VisualTreeHelper.GetOffset(obj1));
+
+            if (obj1.GetType() == typeof(Ellipse))
+            {
+                EllipseGeometry geometry = new EllipseGeometry(rect1);
+                HitTestResults.Clear();
+                VisualTreeHelper.HitTest(_mainCanvas, new HitTestFilterCallback(_HitTestFilterGeometry), new HitTestResultCallback(_HitTestResultGeometry), new GeometryHitTestParameters(geometry));
+            }
+            else
+            {
+                RectangleGeometry geometry = new RectangleGeometry(rect1);
+                HitTestResults.Clear();
+                VisualTreeHelper.HitTest(_mainCanvas, new HitTestFilterCallback(_HitTestFilterGeometry), new HitTestResultCallback(_HitTestResultGeometry), new GeometryHitTestParameters(geometry));
+            }
+        }
         /// <summary>
         /// Checks for shape overlap (collision detection for any ellipse or rectangle shape types).
         /// The first shape should be unZoomed and unRotated.
@@ -1420,41 +1422,16 @@ namespace LitDev
                     return "False";
                 }
 
-                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
-                {
-                    try
-                    {
-                        Utilities.doUpdates();
-                        if (obj1.GetType() == typeof(Ellipse))
-                        {
-                            Rect rect1 = new Rect(obj1.RenderSize);
-                            rect1.Offset(System.Windows.Media.VisualTreeHelper.GetOffset(obj1));
-                            EllipseGeometry geometry1 = new EllipseGeometry(rect1);
-                            HitTestResults.Clear();
-                            VisualTreeHelper.HitTest(_mainCanvas, new HitTestFilterCallback(_HitTestFilterGeometry), new HitTestResultCallback(_HitTestResultGeometry), new GeometryHitTestParameters(geometry1));
-                        }
-                        else
-                        {
-                            Rect rect1 = new Rect(obj1.RenderSize);
-                            rect1.Offset(System.Windows.Media.VisualTreeHelper.GetOffset(obj1));
-                            RectangleGeometry geometry1 = new RectangleGeometry(rect1);
-                            HitTestResults.Clear();
-                            VisualTreeHelper.HitTest(_mainCanvas, new HitTestFilterCallback(_HitTestFilterGeometry), new HitTestResultCallback(_HitTestResultGeometry), new GeometryHitTestParameters(geometry1));
-                        }
+                Utilities.doUpdates();
+                delegate_Data = new object[] { _mainCanvas, obj1 };
+                FastThread.Invoke(Overlap_Delegate);
 
-                        foreach (HitTestResult i in HitTestResults)
-                        {
-                            if (i.VisualHit == obj2) return "True";
-                        }
-                        return "False";
-                    }
-                    catch (Exception ex)
-                    {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        return "False";
-                    }
-                });
-                return FastThread.InvokeWithReturn(ret).ToString();
+                foreach (HitTestResult i in HitTestResults)
+                {
+                    if (i.VisualHit == obj2) return "True";
+                }
+
+                return "False";
             }
             catch (Exception ex)
             {
@@ -2867,8 +2844,54 @@ namespace LitDev
             }
         }
 
+        private static void Centre_Delegate()
+        {
+            try
+            {
+                if (obj.GetType() == typeof(Polygon))
+                {
+                    Polygon shape = (Polygon)obj;
+                    int numPoint = shape.Points.Count;
+                    double centreX = 0;
+                    double centreY = 0;
+                    for (int i = 0; i < numPoint; i++)
+                    {
+                        centreX += shape.Points[i].X;
+                        centreY += shape.Points[i].Y;
+                    }
+                    centreX /= (double)numPoint;
+                    centreY /= (double)numPoint;
+                    PointCollection pointCollection = new PointCollection();
+                    for (int i = 0; i < numPoint; i++)
+                    {
+                        pointCollection.Add(new Point(shape.Points[i].X + _x - centreX, shape.Points[i].Y + _y - centreY));
+                    }
+                    shape.Points = pointCollection;
+                }
+                else if (obj.GetType() == typeof(Line))
+                {
+                    Line shape = (Line)obj;
+                    double vecX = shape.X2 - shape.X1;
+                    double vecY = shape.Y2 - shape.Y1;
+                    shape.X1 = (2 * _x - vecX) / 2.0;
+                    shape.X2 = (2 * _x + vecX) / 2.0;
+                    shape.Y1 = (2 * _y - vecY) / 2.0;
+                    shape.Y2 = (2 * _y + vecY) / 2.0;
+                }
+                else
+                {
+                    FrameworkElement frameworkElement = obj as FrameworkElement;
+                    Canvas.SetLeft(obj, _x - frameworkElement.ActualWidth / 2.0);
+                    Canvas.SetTop(obj, _y - frameworkElement.ActualHeight / 2.0);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
         /// <summary>
-        /// Centre the shape on a point, also woks for zoomed shapes.
+        /// Centre the shape on a point, also works for zoomed shapes.
         /// </summary>
         /// <param name="shapeName">
         /// The shape or control name.
@@ -2888,53 +2911,9 @@ namespace LitDev
             {
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Polygon))
-                            {
-                                Polygon shape = (Polygon)obj;
-                                int numPoint = shape.Points.Count;
-                                double centreX = 0;
-                                double centreY = 0;
-                                for (int i = 0; i < numPoint; i++)
-                                {
-                                    centreX += shape.Points[i].X;
-                                    centreY += shape.Points[i].Y;
-                                }
-                                centreX /= (double)numPoint;
-                                centreY /= (double)numPoint;
-                                PointCollection pointCollection = new PointCollection();
-                                for (int i = 0; i < numPoint; i++)
-                                {
-                                    pointCollection.Add(new Point(shape.Points[i].X + x - centreX, shape.Points[i].Y + y - centreY));
-                                }
-                                shape.Points = pointCollection;
-                            }
-                            else if (obj.GetType() == typeof(Line))
-                            {
-                                Line shape = (Line)obj;
-                                double vecX = shape.X2 - shape.X1;
-                                double vecY = shape.Y2 - shape.Y1;
-                                shape.X1 = (2 * x - vecX) / 2.0;
-                                shape.X2 = (2 * x + vecX) / 2.0;
-                                shape.Y1 = (2 * y - vecY) / 2.0;
-                                shape.Y2 = (2 * y + vecY) / 2.0;
-                            }
-                            else
-                            {
-                                FrameworkElement frameworkElement = obj as FrameworkElement;
-                                Canvas.SetLeft(obj, x - frameworkElement.ActualWidth / 2.0);
-                                Canvas.SetTop(obj, y - frameworkElement.ActualHeight / 2.0);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.Invoke(ret);
+                    _x = x;
+                    _y = y;
+                    FastThread.BeginInvoke(Centre_Delegate);
                 }
                 else
                 {
@@ -3854,10 +3833,7 @@ namespace LitDev
             {
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
-                    {
-                        return (obj.Opacity * 100).ToString(CultureInfo.InvariantCulture);
-                    });
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(() => (obj.Opacity * 100).ToString(CultureInfo.InvariantCulture));
                     return FastThread.InvokeWithReturn(ret).ToString();
                 }
                 else
@@ -3980,7 +3956,6 @@ namespace LitDev
             }
         }
 
-        private static double _x, _y;
         private static void FastMove_Delegate()
         {
             Canvas.SetLeft(obj, _x);
