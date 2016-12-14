@@ -708,6 +708,13 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive img = Microsoft.SmallBasic.Library.ImageList.LoadImage("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/STS120LaunchHiRes-edit1.jpg/153px-STS120LaunchHiRes-edit1.jpg");
+            Primitive x1 = LDImage.Copy(img);
+            LDImage.EffectCharcoal(x1);
+
+
+
+
             Primitive image = LDImage.NewImage(100, 100, "Red");
             LDImage.OpenWorkingImage(image);
             Primitive xml = LDxml.Open("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\sample.xml");

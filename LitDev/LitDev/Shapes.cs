@@ -3433,7 +3433,7 @@ namespace LitDev
                 {
                     anim.iFrame = image - 2;
                     delegateAnim = anim;
-                    FastThread.BeginInvoke(updateGif_Delegate);
+                    FastThread.Invoke(updateGif_Delegate);
                 }
             }
         }

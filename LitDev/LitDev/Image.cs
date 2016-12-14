@@ -285,7 +285,7 @@ namespace LitDev
                     Bitmap dImg = FastPixel.GetBitmap(img);
                     dImg = (Bitmap)LDWebCam.DoEffect(dImg, effect, parameter);
 
-                    FastThread.SaveImage(image, dImg);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -458,7 +458,7 @@ namespace LitDev
                         Color c = (Color)colConvert.ConvertFromString(colour);
 
                         dImg.SetPixel(x, y, c);
-                        FastThread.SaveImage(image, dImg);
+                        FastThread.SaveBitmap(image, dImg);
                     }
                 }
                 catch (Exception ex)
@@ -622,17 +622,6 @@ namespace LitDev
             }
         }
 
-        private static string delegate_imageName;
-        private static BitmapSource delegate_bitmapSource;
-        private static Bitmap delegate_bitmap;
-        private static void CopyBitmapSource_Delegate()
-        {
-            _savedImages[delegate_imageName] = delegate_bitmapSource.Clone();
-        }
-        private static void CopyBitmap_Delegate()
-        {
-            _savedImages[delegate_imageName] = FastPixel.GetBitmapImage(delegate_bitmap).Clone();
-        }
         /// <summary>
         /// Copy an image from the ImageList.
         /// </summary>
@@ -655,9 +644,7 @@ namespace LitDev
                     MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                     imageCopy = method.Invoke(null, new object[] { "ImageList" }).ToString();
 
-                    delegate_imageName = imageCopy;
-                    delegate_bitmapSource = img;
-                    FastThread.Invoke(CopyBitmapSource_Delegate);
+                    FastThread.SaveBitmapSource(imageCopy, img, true);
                 }
                 catch (Exception ex)
                 {
@@ -691,7 +678,7 @@ namespace LitDev
                     Image.GetThumbnailImageAbort dummyCallback = new Image.GetThumbnailImageAbort(LDWebCam.ResizeAbort);
                     dImg = (Bitmap)dImg.GetThumbnailImage(width, height, dummyCallback, IntPtr.Zero);
 
-                    FastThread.SaveImage(image, dImg);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -735,9 +722,7 @@ namespace LitDev
                     }
                     fp.Unlock(true);
 
-                    delegate_imageName = image;
-                    delegate_bitmap = dImg;
-                    FastThread.Invoke(CopyBitmap_Delegate);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -781,9 +766,7 @@ namespace LitDev
                     }
                     fp.Unlock(true);
 
-                    delegate_imageName = image;
-                    delegate_bitmap = dImg;
-                    FastThread.Invoke(CopyBitmap_Delegate);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -858,9 +841,7 @@ namespace LitDev
                         fpImg1.Unlock(true);
                         fpImg2.Unlock(false);
 
-                        delegate_imageName = imageNew;
-                        delegate_bitmap = dImg1;
-                        FastThread.Invoke(CopyBitmap_Delegate);
+                        FastThread.SaveBitmap(imageNew, dImg1, true);
                     }
                 }
                 catch (Exception ex)
@@ -917,9 +898,7 @@ namespace LitDev
                         fpImg1.Unlock(true);
                         fpImg2.Unlock(false);
 
-                        delegate_imageName = imageNew;
-                        delegate_bitmap = dImg1;
-                        FastThread.Invoke(CopyBitmap_Delegate);
+                        FastThread.SaveBitmap(imageNew, dImg1, true);
                     }
                 }
                 catch (Exception ex)
@@ -961,7 +940,7 @@ namespace LitDev
                     Rectangle cropArea = new Rectangle(x, y, width, height);
                     dImg = dImg.Clone(cropArea, dImg.PixelFormat);
 
-                    FastThread.SaveImage(image, dImg);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -1037,7 +1016,7 @@ namespace LitDev
                     }
                     fp.Unlock(true);
 
-                    FastThread.SaveImage(image, dImg);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -1090,7 +1069,7 @@ namespace LitDev
                     }
                     fp.Unlock(true);
 
-                    FastThread.SaveImage(image, dImg);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -1511,7 +1490,7 @@ namespace LitDev
                 _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 string imageName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
 
-                FastThread.SaveImage(imageName, svgDocument.Draw());
+                FastThread.SaveBitmap(imageName, svgDocument.Draw());
 
                 return imageName;
             }
@@ -1646,7 +1625,7 @@ namespace LitDev
 
                     Graphics.FromImage(img).FillRectangle(new SolidBrush((Color)colConvert.ConvertFromString(colour)), 0, 0, width, height);
 
-                    FastThread.SaveImage(imageName, img);
+                    FastThread.SaveBitmap(imageName, img);
                     return imageName;
                 }
                 catch (Exception ex)
@@ -1730,7 +1709,7 @@ namespace LitDev
                 }
                 fp.Unlock(true);
 
-                FastThread.SaveImage(imageNew, dImg);
+                FastThread.SaveBitmap(imageNew, dImg);
             }
             catch (Exception ex)
             {
@@ -1791,7 +1770,7 @@ namespace LitDev
                     if (!_workingImages.TryGetValue((string)image, out workingImg)) return;
                     workingImg.fp.Unlock(true);
 
-                    FastThread.SaveImage(image, workingImg.bm);
+                    FastThread.SaveBitmap(image, workingImg.bm);
 
                     _workingImages.Remove(image);
                 }
@@ -1962,7 +1941,7 @@ namespace LitDev
                         }
                     }
 
-                    FastThread.SaveImage(imageName, dImg);
+                    FastThread.SaveBitmap(imageName, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -2092,7 +2071,7 @@ namespace LitDev
                     }
                     fp.Unlock(true);
 
-                    FastThread.SaveImage(normalMap, bm);
+                    FastThread.SaveBitmap(normalMap, bm);
                 }
                 catch (Exception ex)
                 {
@@ -2133,7 +2112,7 @@ namespace LitDev
                     Bitmap dImg = FastPixel.GetBitmap(img);
                     dImg.MakeTransparent((Color)colConvert.ConvertFromString(colour));
 
-                    FastThread.SaveImage(image, dImg);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -2182,7 +2161,7 @@ namespace LitDev
                     }
                     fp.Unlock(true);
 
-                    FastThread.SaveImage(image, dImg);
+                    FastThread.SaveBitmap(image, dImg);
                 }
                 catch (Exception ex)
                 {
@@ -2227,7 +2206,7 @@ namespace LitDev
                     {
                         Bitmap dImg = currImg.Clone(new Rectangle(0, 0, currImg.Width, currImg.Height), PixelFormat.Format32bppArgb);
 
-                        FastThread.SaveImage(image, dImg);
+                        FastThread.SaveBitmap(image, dImg);
                     }
                     result = "SUCCESS";
                 }

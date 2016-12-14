@@ -220,26 +220,37 @@ namespace LitDev.Engines
                 ).Compile();
         }
 
-        private delegate void SaveImage_Type(string imageName, Bitmap bitmap);
-        private static SaveImage_Type del_SaveImage = SaveImage_Delegate;
-        private static void SaveImage_Delegate(string imageName, Bitmap bitmap)
+        private static string _imageName;
+        private static Bitmap _bitmap;
+        private static BitmapSource _bitmapSource;
+        private static bool _bCopy;
+        private static void SaveBitmap_Delegate()
         {
-            _savedImages[imageName] = FastPixel.GetBitmapImage(bitmap);
+            if (_bCopy)
+                _savedImages[_imageName] = FastPixel.GetBitmapImage(_bitmap).Clone();
+            else
+            _savedImages[_imageName] = FastPixel.GetBitmapImage(_bitmap);
         }
-        public static void SaveImage(string imageName, Bitmap bitmap)
+        public static void SaveBitmap(string imageName, Bitmap bitmap, bool bCopy = false)
         {
-            _dispatcher.Invoke(DispatcherPriority.Render, del_SaveImage, new object[] { imageName, bitmap });
+            _imageName = imageName;
+            _bitmap = bitmap;
+            Invoke(SaveBitmap_Delegate);
         }
 
-        private delegate void SaveBitmapSource_Type(string imageName, BitmapSource bitmapSource);
-        private static SaveBitmapSource_Type del_SaveBitmapSource = SaveBitmapSource_Delegate;
-        private static void SaveBitmapSource_Delegate(string imageName, BitmapSource bitmapSource)
+        private static void SaveBitmapSource_Delegate()
         {
-            _savedImages[imageName] = bitmapSource;
+            if (_bCopy)
+                _savedImages[_imageName] = _bitmapSource.Clone();
+            else
+                _savedImages[_imageName] = _bitmapSource;
         }
-        public static void SaveBitmapSource(string imageName, BitmapSource bitmapSource)
+        public static void SaveBitmapSource(string imageName, BitmapSource bitmapSource, bool bCopy = false)
         {
-            _dispatcher.Invoke(DispatcherPriority.Render, del_SaveBitmapSource, new object[] { imageName, bitmapSource });
+            _imageName = imageName;
+            _bitmapSource = bitmapSource;
+            _bCopy = bCopy;
+            Invoke(SaveBitmapSource_Delegate);
         }
     }
 }
