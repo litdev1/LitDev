@@ -1852,7 +1852,7 @@ namespace LitDev.Engines
             }
             panViewP -= offsetBox;
 
-            FastThread.BeginInvoke(doTimestep_Delegate);
+            FastThread.Invoke(doTimestep_Delegate);
         }
 
         public string getCollisions(string shapeName)

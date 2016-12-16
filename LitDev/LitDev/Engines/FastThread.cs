@@ -35,10 +35,21 @@ namespace LitDev.Engines
 
         public static bool UseDispatcher = true;
         public static bool UseExpression = true;
+        public enum eForce { NONE, INVOKE, BEGININVOKE};
+        public static eForce force = eForce.NONE;
+        public static DispatcherPriority priority = DispatcherPriority.Render;
 
         public static void BeginInvoke(InvokeHelper helper)
         {
-            if (UseExpression)
+            if (force == eForce.INVOKE)
+            {
+                Invoke(helper);
+            }
+            else if (UseDispatcher)
+            {
+                _dispatcher.BeginInvoke(priority, helper);
+            }
+            else if (UseExpression)
             {
                 if (null == _ActionInvoke) _ActionInvoke = MagicAction(methodBeginInvoke);
                 _ActionInvoke(helper);
@@ -51,9 +62,13 @@ namespace LitDev.Engines
 
         public static void Invoke(InvokeHelper helper)
         {
-            if (UseDispatcher)
+            if (force == eForce.BEGININVOKE)
             {
-                _dispatcher.Invoke(DispatcherPriority.Render, helper);
+                BeginInvoke(helper);
+            }
+            else if (UseDispatcher)
+            {
+                _dispatcher.Invoke(priority, helper);
             }
             else if (UseExpression)
             {
@@ -70,7 +85,7 @@ namespace LitDev.Engines
         {
             if (UseDispatcher)
             {
-                return _dispatcher.Invoke(DispatcherPriority.Render, helper);
+                return _dispatcher.Invoke(priority, helper);
             }
             else if (UseExpression)
             {
@@ -229,7 +244,7 @@ namespace LitDev.Engines
             if (_bCopy)
                 _savedImages[_imageName] = FastPixel.GetBitmapImage(_bitmap).Clone();
             else
-            _savedImages[_imageName] = FastPixel.GetBitmapImage(_bitmap);
+                _savedImages[_imageName] = FastPixel.GetBitmapImage(_bitmap);
         }
         public static void SaveBitmap(string imageName, Bitmap bitmap, bool bCopy = false)
         {

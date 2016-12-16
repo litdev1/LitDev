@@ -1657,6 +1657,26 @@ namespace LitDev
             get { return FastThread.UseDispatcher; }
             set { FastThread.UseDispatcher = value; }
         }
+
+        /// <summary>
+        /// Experimental option to speed some interactions with SmallBasicLibrary objects.
+        /// 0 no force (default), 1 force Invoke (serial), 2 force BeginInvoke (async)
+        /// </summary>
+        public static Primitive ForceInvoke
+        {
+            get { return (int)FastThread.force; }
+            set { FastThread.force = (FastThread.eForce)(int)value; }
+        }
+
+        /// <summary>
+        /// Experimental option to speed some dispatcher interactions with SmallBasicLibrary objects.
+        /// 1 to 10, (default 7, Render)
+        /// </summary>
+        public static Primitive Priority
+        {
+            get { return (int)FastThread.priority; }
+            set { FastThread.priority = (DispatcherPriority)(int)value; }
+        }
     }
 }
 
