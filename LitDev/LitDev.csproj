@@ -105,6 +105,7 @@
     <Reference Include="Microsoft.Expression.Drawing, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Expression.Effects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.JScript" />
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\MySql.Data.dll</HintPath>
@@ -241,6 +242,7 @@
     <Compile Include="LitDev\Engines\FastPixel.cs" />
     <Compile Include="LitDev\Engines\FastThread.cs" />
     <Compile Include="LitDev\Engines\UnitSystem.cs" />
+    <Compile Include="LitDev\FastArray.cs" />
     <Compile Include="LitDev\Timer.cs" />
     <Compile Include="LitDev\Units.cs" />
     <Compile Include="LitDev\Engines\FIP.cs" />

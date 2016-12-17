@@ -708,6 +708,10 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive a = LDFastArray.Add2D(1000,1000);
+            LDFastArray.Set2D(a, 500,1001,20);
+            Primitive b = LDFastArray.Get2D(a,500,1001);
+
             Primitive img = Microsoft.SmallBasic.Library.ImageList.LoadImage("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/STS120LaunchHiRes-edit1.jpg/153px-STS120LaunchHiRes-edit1.jpg");
             Primitive x1 = LDImage.Copy(img);
             LDImage.EffectCharcoal(x1);

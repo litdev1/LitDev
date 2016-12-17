@@ -617,7 +617,7 @@ namespace LitDev
             }
         }
 
-        private static string CSVParse(string item, bool bToCSV)
+        public static string CSVParse(string item, bool bToCSV)
         {
             if (bToCSV)
             {
