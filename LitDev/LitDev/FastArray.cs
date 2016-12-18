@@ -27,15 +27,19 @@ namespace LitDev
 {
     public class List3D
     {
-        public string name;
-        public List<List<List<Primitive>>> list3D;
-        public List<List<Primitive>> list2D;
-        public List<Primitive> list;
-        public int dim1;
-        public int dim2;
-        public int dim3;
+        private string name;
+        private List<List<List<Primitive>>> list3D;
+        private List<List<Primitive>> list2D;
+        private List<Primitive> list1D;
+        private int dim1;
+        private int dim2;
+        private int dim3;
+        private bool exact = true;
+        private string match = "";
 
-        public List3D(int dim1, int dim2 = 1, int dim3 = 1)
+        public string Name { get { return name; } }
+
+        public List3D(int dim1 = 0, int dim2 = 0, int dim3 = 0)
         {
             this.dim1 = dim1;
             this.dim2 = dim2;
@@ -52,6 +56,12 @@ namespace LitDev
             name = "Array" + i;
         }
 
+        private bool FindComparer(Primitive item)
+        {
+            if (exact) return ((string)item).ToLower() == match.ToLower();
+            return ((string)item).ToLower().Contains(match.ToLower());
+        }
+
         private void Grow(int index1, int index2, int index3)
         {
             for (int i = list3D.Count; i < index1; i++)
@@ -60,28 +70,32 @@ namespace LitDev
                 list3D.Add(list2D);
                 for (int j = list2D.Count; j < dim2; j++)
                 {
-                    list = new List<Primitive>();
-                    list2D.Add(list);
+                    list1D = new List<Primitive>();
+                    list2D.Add(list1D);
                     for (int k = 0; k < dim3; k++)
                     {
-                        list.Add("");
+                        list1D.Add("");
                     }
                 }
             }
+            if (list3D.Count == 0) return;
+
             list2D = list3D[index1 - 1];
             for (int j = list2D.Count; j < index2; j++)
             {
-                list = new List<Primitive>();
-                list2D.Add(list);
+                list1D = new List<Primitive>();
+                list2D.Add(list1D);
                 for (int k = 0; k < dim3; k++)
                 {
-                    list.Add("");
+                    list1D.Add("");
                 }
             }
-            list = list2D[index2 - 1];
-            for (int k = list.Count; k < index3; k++)
+            if (list2D.Count == 0) return;
+
+            list1D = list2D[index2 - 1];
+            for (int k = list1D.Count; k < index3; k++)
             {
-                list.Add("");
+                list1D.Add("");
             }
         }
 
@@ -96,9 +110,9 @@ namespace LitDev
             if (index1 > list3D.Count) return "";
             list2D = list3D[index1 - 1];
             if (index2 > list2D.Count) return "";
-            list = list2D[index2 - 1];
-            if (index3 > list.Count) return "";
-            return list[index3 - 1];
+            list1D = list2D[index2 - 1];
+            if (index3 > list1D.Count) return "";
+            return list1D[index3 - 1];
         }
 
         public int Dim1()
@@ -106,28 +120,54 @@ namespace LitDev
             return list3D.Count;
         }
 
-        public int Dim2(int index1)
+        public int Dim2(int index1 = 1)
         {
             if (index1 > list3D.Count) return 0;
             list2D = list3D[index1 - 1];
             return list2D.Count;
         }
 
-        public int Dim3(int index1, int index2)
+        public int Dim3(int index1 = 1, int index2 = 1)
         {
             if (index1 > list3D.Count) return 0;
             list2D = list3D[index1 - 1];
             if (index2 > list2D.Count) return 0;
-            list = list2D[index2 - 1];
-            return list.Count;
+            list1D = list2D[index2 - 1];
+            return list1D.Count;
+        }
+
+        public void Clear()
+        {
+            list3D.Clear();
+        }
+
+        public void Collapse()
+        {
+            for (int i = list3D.Count - 1; i >= 0; i--)
+            {
+                list2D = list3D[i];
+                for (int j = list2D.Count - 1; j >= 0; j--)
+                {
+                    list1D = list2D[j];
+                    list1D.RemoveAll(FindComparer);
+                    if (list1D.Count == 0)
+                    {
+                        list2D.RemoveAt(j);
+                    }
+                }
+                if (list2D.Count == 0)
+                {
+                    list3D.RemoveAt(i);
+                }
+            }
         }
     }
 
     /// <summary>
     /// This object provides another faster way of storing values in a Arrays.
     /// It can handle 1, 2 and 3 dimensional arrays and has methods to read and write 2D arrays to files in CSV format.
-    /// It is also possible for different rows to have different numbers of elements.
-    /// Internally it uses lists that allow the original dimensions to be exceeded, but it is most efficient to set the size that you will need at the start.
+    /// It is also possible for different rows in an array to have different numbers of elements.
+    /// Internally it uses lists that allow the original dimensions to be exceeded, so it is possible to intialise dimension size to 1.
     /// The indexing is by integer starting from 1.
     /// </summary>
     [SmallBasicType]
@@ -135,24 +175,36 @@ namespace LitDev
     {
         public static Dictionary<string, List3D> _listMap = new Dictionary<string, List3D>();
         private static List3D _list3D;
-        private static FieldInfo _fieldInfo = typeof(Primitive).GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);
+
+        /// <summary>
+        /// Create a new array.
+        /// This is a general array that can be used as a 1D, 2D or 3D array, depending on the data set.
+        /// For most cases this is the simplest array constructor.
+        /// </summary>
+        /// <returns>The array name.</returns>
+        public static Primitive Add()
+        {
+            _list3D = new List3D();
+            _listMap[_list3D.Name] = _list3D;
+            return _list3D.Name;
+        }
 
         /// <summary>
         /// Create a new 1D array.
-        /// It is efficient to initially size the array to a maximum size that will be used, but it will grow as required.
+        /// It is possible to initially size the array to a maximum size that will be used, but it will grow as required.
         /// </summary>
         /// <param name="dim1">The initial first dimension size.</param>
         /// <returns>The 1D array name.</returns>
         public static Primitive Add1D(Primitive dim1)
         {
             _list3D = new List3D(dim1);
-            _listMap[_list3D.name] = _list3D;
-            return _list3D.name;
+            _listMap[_list3D.Name] = _list3D;
+            return _list3D.Name;
         }
 
         /// <summary>
         /// Create a new 2D array.
-        /// It is efficient to initially size the array to a maximum size that will be used, but it will grow as required.
+        /// It is possible to initially size the array to a maximum size that will be used, but it will grow as required.
         /// </summary>
         /// <param name="dim1">The initial first dimension size.</param>
         /// <param name="dim2">The initial second dimension size.</param>
@@ -160,13 +212,13 @@ namespace LitDev
         public static Primitive Add2D(Primitive dim1, Primitive dim2)
         {
             _list3D = new List3D(dim1, dim2);
-            _listMap[_list3D.name] = _list3D;
-            return _list3D.name;
+            _listMap[_list3D.Name] = _list3D;
+            return _list3D.Name;
         }
 
         /// <summary>
         /// Create a new 3D array.
-        /// It is efficient to initially size the array to a maximum size that will be used, but it will grow as required.
+        /// It is possible to initially size the array to a maximum size that will be used, but it will grow as required.
         /// </summary>
         /// <param name="dim1">The initial first dimension size.</param>
         /// <param name="dim2">The initial second dimension size.</param>
@@ -175,8 +227,8 @@ namespace LitDev
         public static Primitive Add3D(Primitive dim1, Primitive dim2, Primitive dim3)
         {
             _list3D = new List3D(dim1, dim2, dim3);
-            _listMap[_list3D.name] = _list3D;
-            return _list3D.name;
+            _listMap[_list3D.Name] = _list3D;
+            return _list3D.Name;
         }
 
         /// <summary>
@@ -272,7 +324,7 @@ namespace LitDev
         /// Get the current size of the second dimension.
         /// </summary>
         /// <param name="arrayName">The array name.</param>
-        /// <param name="index1">The first index to get the size of.</param>
+        /// <param name="index1">The first index to get the size of, may be 1 if all rows have the same size.</param>
         /// <returns>The second dimension size.</returns>
         public static Primitive Dim2(Primitive arrayName, Primitive index1)
         {
@@ -284,8 +336,8 @@ namespace LitDev
         /// Get the current size of the third dimension.
         /// </summary>
         /// <param name="arrayName">The array name.</param>
-        /// <param name="index1">The first index to get the size of.</param>
-        /// <param name="index2">The second index to get the size of.</param>
+        /// <param name="index1">The first index to get the size of, may be 1 if all rows have the same size.</param>
+        /// <param name="index2">The second index to get the size of, may be 1 if all rows have the same size.</param>
         /// <returns>The third dimension size.</returns>
         public static Primitive Dim3(Primitive arrayName, Primitive index1, Primitive index2)
         {
@@ -294,7 +346,18 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Read a CSV (comma separated values) file into an array.
+        /// Delete an array.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        public static void Remove(Primitive arrayName)
+        {
+            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
+            _list3D.Clear();
+            _listMap.Remove(arrayName);
+        }
+
+        /// <summary>
+        /// Read a CSV (comma separated values) file into a 2D FastArray  array.
         /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
         /// </summary>
         /// <param name="fileName">
@@ -383,65 +446,143 @@ namespace LitDev
             }
         }
 
-        //[HideFromIntellisense]
-        //public static Primitive FromSB(Primitive sbArray)
-        //{
-        //    Dictionary<Primitive, Primitive> _arrayMap1, _arrayMap2, _arrayMap3;
-        //    int dim1 = 1, dim2 = 1, dim3 = 1;
-        //    _arrayMap1 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(sbArray));
-        //    dim1 = System.Math.Max(dim1, _arrayMap1.Count);
-        //    foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
-        //    {
-        //        _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
-        //        dim2 = System.Math.Max(dim2, _arrayMap2.Count);
-        //        foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
-        //        {
-        //            dim3 = System.Math.Max(dim3, _arrayMap2.Count);
-        //        }
-        //    }
+        /// <summary>
+        /// Convert a SmallBasic array (up to 3 dimensions) to a FastArray array.
+        /// All indices in the Small Basic array are replaced with consecutive integer indices.
+        /// </summary>
+        /// <param name="sbArray">The Small Basic array.</param>
+        /// <returns>A new FastArray or "".</returns>
+        public static Primitive FromSB(Primitive sbArray)
+        {
+            try
+            {
+                FieldInfo _fieldInfo = typeof(Primitive).GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                Dictionary<Primitive, Primitive> _arrayMap1, _arrayMap2, _arrayMap3;
+                int dim1 = 1, dim2 = 1, dim3 = 1;
+                _arrayMap1 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(sbArray));
+                dim1 = System.Math.Max(dim1, _arrayMap1.Count);
+                foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
+                {
+                    _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
+                    dim2 = System.Math.Max(dim2, _arrayMap2.Count);
+                    foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
+                    {
+                        _arrayMap3 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp2.Value));
+                        dim3 = System.Math.Max(dim3, _arrayMap3.Count);
+                    }
+                }
 
-        //    _list3D = new List3D(dim1, dim2, dim3);
-        //    _listMap[_list3D.name] = _list3D;
+                _list3D = new List3D(dim1, dim2, dim3);
+                _listMap[_list3D.Name] = _list3D;
 
-        //    int i = 1, j = 1, k = 1;
-        //    if (dim1 > 1)
-        //    {
-        //        foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
-        //        {
-        //            if (dim2 > 1)
-        //            {
-        //                _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
-        //                foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
-        //                {
-        //                    if (dim3 > 1)
-        //                    {
-        //                        _arrayMap3 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp2.Value));
-        //                        foreach (KeyValuePair<Primitive, Primitive> kvp3 in _arrayMap3)
-        //                        {
-        //                            _list3D.Set(kvp3.Value, i, j, k);
-        //                            k++;
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        _list3D.Set(kvp2.Value, i, j, k);
-        //                    }
-        //                    j++;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                _list3D.Set(kvp1.Value, i, j, k);
-        //            }
-        //            i++;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        _list3D.Set(sbArray, i, j, k);
-        //    }
+                int i, j, k;
+                i = 1;
+                if (dim1 > 1)
+                {
+                    foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
+                    {
+                        j = 1;
+                        if (dim2 > 1)
+                        {
+                            _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
+                            foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
+                            {
+                                k = 1;
+                                if (dim3 > 1)
+                                {
+                                    _arrayMap3 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp2.Value));
+                                    foreach (KeyValuePair<Primitive, Primitive> kvp3 in _arrayMap3)
+                                    {
+                                        _list3D.Set(kvp3.Value, i, j, k);
+                                        k++;
+                                    }
+                                }
+                                else
+                                {
+                                    _list3D.Set(kvp2.Value, i, j, k);
+                                }
+                                j++;
+                            }
+                        }
+                        else
+                        {
+                            _list3D.Set(kvp1.Value, i, j);
+                        }
+                        i++;
+                    }
+                }
+                else
+                {
+                    _list3D.Set(sbArray, i);
+                }
 
-        //    return _list3D.name;
-        //}
+                return _list3D.Name;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Convert a FastArray array to a Small Basic array.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <returns>A Small Basic array or "".</returns>
+        public static Primitive ToSB(Primitive arrayName)
+        {
+            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
+
+            try
+            {
+                Primitive result = "";
+                for (int i = 0; i < _list3D.Dim1(); i++)
+                {
+                    if (_list3D.Dim2(i + 1) == 1 && _list3D.Dim3(i + 1) == 1)
+                    {
+                        result[i + 1] = _list3D.Get(i + 1);
+                    }
+                    else
+                    {
+                        Primitive result1 = "";
+                        for (int j = 0; j < _list3D.Dim2(i + 1); j++)
+                        {
+                            if (_list3D.Dim3(i + 1, j + 1) == 1)
+                            {
+                                result1[j + 1] = _list3D.Get(i + 1, j + 1);
+                            }
+                            else
+                            {
+                                Primitive result2 = "";
+                                for (int k = 0; k < _list3D.Dim3(i + 1, j + 1); k++)
+                                {
+                                    result2[k + 1] = _list3D.Get(i + 1, j + 1, k + 1);
+                                }
+                                result1[j + 1] = result2;
+                            }
+                        }
+                        result[i + 1] = result1;
+                    }
+                }
+                return Utilities.CreateArrayMap(result);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Remove all empty "" entries in an array, redimensioning it.
+        /// Note that indices may change if internal entries are removed.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        public static void Collapse(Primitive arrayName)
+        {
+            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
+            _list3D.Collapse();
+        }
     }
 }

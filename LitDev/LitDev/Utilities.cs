@@ -1412,7 +1412,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// A deliminator for reading and writing CSV files
+        /// A single character deliminator for reading and writing CSV files
         /// Default ","
         /// </summary>
         public static Primitive CSVDeliminator
@@ -1423,7 +1423,7 @@ namespace LitDev
             }
             set
             {
-                Utilities.CSV = value;
+                Utilities.CSV = ((string)value).Substring(0, 1);
             }
         }
 
