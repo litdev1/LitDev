@@ -34,16 +34,22 @@ namespace LitDev
         private int dim1;
         private int dim2;
         private int dim3;
+        private int iDimension = 0; //Undefined
         private bool exact = true;
         private string match = "";
 
         public string Name { get { return name; } }
+
+        public int Dimension { get { return iDimension; } }
 
         public List3D(int dim1 = 0, int dim2 = 0, int dim3 = 0)
         {
             this.dim1 = dim1;
             this.dim2 = dim2;
             this.dim3 = dim3;
+            if (dim1 > 0) iDimension = 1;
+            if (dim2 > 0) iDimension = 2;
+            if (dim3 > 0) iDimension = 3;
             NewName();
             list3D = new List<List<List<Primitive>>>();
             Grow(dim1, dim2, dim3);
@@ -99,8 +105,17 @@ namespace LitDev
             }
         }
 
+        private bool CheckDimension(int index1, int index2, int index3)
+        {
+            if (iDimension == 0 || iDimension == 3) return true;
+            if (iDimension < 3 && index3 > 1) return false;
+            if (iDimension < 2 && index2 > 1) return false;
+            return true;
+        }
+
         public void Set(Primitive value, int index1, int index2 = 1, int index3 = 1)
         {
+            if (!CheckDimension(index1, index2, index3)) return;
             Grow(index1, index2, index3);
             list3D[index1 - 1][index2 - 1][index3 - 1] = value;
         }
@@ -176,10 +191,83 @@ namespace LitDev
         public static Dictionary<string, List3D> _listMap = new Dictionary<string, List3D>();
         private static List3D _list3D;
 
+        private static string ConnvertFromSB(Primitive sbArray, bool bValues)
+        {
+            try
+            {
+                FieldInfo _fieldInfo = typeof(Primitive).GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                Dictionary<Primitive, Primitive> _arrayMap1, _arrayMap2, _arrayMap3;
+                int dim1 = 0, dim2 = 0, dim3 = 0;
+                _arrayMap1 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(sbArray));
+                dim1 = System.Math.Max(dim1, _arrayMap1.Count);
+                foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
+                {
+                    _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
+                    dim2 = System.Math.Max(dim2, _arrayMap2.Count);
+                    foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
+                    {
+                        _arrayMap3 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp2.Value));
+                        dim3 = System.Math.Max(dim3, _arrayMap3.Count);
+                    }
+                }
+
+                _list3D = new List3D(dim1, dim2, dim3);
+                _listMap[_list3D.Name] = _list3D;
+
+                int i, j, k;
+                i = 1;
+                if (dim1 > 0)
+                {
+                    foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
+                    {
+                        j = 1;
+                        if (dim2 > 0)
+                        {
+                            _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
+                            foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
+                            {
+                                k = 1;
+                                if (dim3 > 0)
+                                {
+                                    _arrayMap3 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp2.Value));
+                                    foreach (KeyValuePair<Primitive, Primitive> kvp3 in _arrayMap3)
+                                    {
+                                        _list3D.Set(bValues ? kvp3.Value : kvp3.Key, i, j, k);
+                                        k++;
+                                    }
+                                }
+                                else
+                                {
+                                    _list3D.Set(bValues ? kvp2.Value : kvp2.Key, i, j, k);
+                                }
+                                j++;
+                            }
+                        }
+                        else
+                        {
+                            _list3D.Set(bValues ? kvp1.Value : kvp1.Key, i, j);
+                        }
+                        i++;
+                    }
+                }
+                else
+                {
+                    if (bValues) _list3D.Set(sbArray, i);
+                }
+
+                return _list3D.Name;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
         /// <summary>
         /// Create a new array.
         /// This is a general array that can be used as a 1D, 2D or 3D array, depending on the data set.
-        /// For most cases this is the simplest array constructor.
+        /// For most cases this is the best array constructor.
         /// </summary>
         /// <returns>The array name.</returns>
         public static Primitive Add()
@@ -191,7 +279,8 @@ namespace LitDev
 
         /// <summary>
         /// Create a new 1D array.
-        /// It is possible to initially size the array to a maximum size that will be used, but it will grow as required.
+        /// It is possible to initially size the array that will be used, but it will grow as required.
+        /// 2D and 3D values will not be set.
         /// </summary>
         /// <param name="dim1">The initial first dimension size.</param>
         /// <returns>The 1D array name.</returns>
@@ -204,7 +293,8 @@ namespace LitDev
 
         /// <summary>
         /// Create a new 2D array.
-        /// It is possible to initially size the array to a maximum size that will be used, but it will grow as required.
+        /// It is possible to initially size the array that will be used, but it will grow as required.
+        /// 3D values will not be set.
         /// </summary>
         /// <param name="dim1">The initial first dimension size.</param>
         /// <param name="dim2">The initial second dimension size.</param>
@@ -218,7 +308,7 @@ namespace LitDev
 
         /// <summary>
         /// Create a new 3D array.
-        /// It is possible to initially size the array to a maximum size that will be used, but it will grow as required.
+        /// It is possible to initially size the array that will be used, but it will grow as required.
         /// </summary>
         /// <param name="dim1">The initial first dimension size.</param>
         /// <param name="dim2">The initial second dimension size.</param>
@@ -329,6 +419,7 @@ namespace LitDev
         public static Primitive Dim2(Primitive arrayName, Primitive index1)
         {
             if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
+            if (_list3D.Dimension > 0 && _list3D.Dimension < 2) return 0;
             return _list3D.Dim2(index1);
         }
 
@@ -342,6 +433,7 @@ namespace LitDev
         public static Primitive Dim3(Primitive arrayName, Primitive index1, Primitive index2)
         {
             if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
+            if (_list3D.Dimension > 0 && _list3D.Dimension < 3) return 0;
             return _list3D.Dim3(index1, index2);
         }
 
@@ -454,75 +546,18 @@ namespace LitDev
         /// <returns>A new FastArray or "".</returns>
         public static Primitive FromSB(Primitive sbArray)
         {
-            try
-            {
-                FieldInfo _fieldInfo = typeof(Primitive).GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);
-                Dictionary<Primitive, Primitive> _arrayMap1, _arrayMap2, _arrayMap3;
-                int dim1 = 1, dim2 = 1, dim3 = 1;
-                _arrayMap1 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(sbArray));
-                dim1 = System.Math.Max(dim1, _arrayMap1.Count);
-                foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
-                {
-                    _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
-                    dim2 = System.Math.Max(dim2, _arrayMap2.Count);
-                    foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
-                    {
-                        _arrayMap3 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp2.Value));
-                        dim3 = System.Math.Max(dim3, _arrayMap3.Count);
-                    }
-                }
+            return ConnvertFromSB(sbArray, true);
+        }
 
-                _list3D = new List3D(dim1, dim2, dim3);
-                _listMap[_list3D.Name] = _list3D;
-
-                int i, j, k;
-                i = 1;
-                if (dim1 > 1)
-                {
-                    foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
-                    {
-                        j = 1;
-                        if (dim2 > 1)
-                        {
-                            _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
-                            foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
-                            {
-                                k = 1;
-                                if (dim3 > 1)
-                                {
-                                    _arrayMap3 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp2.Value));
-                                    foreach (KeyValuePair<Primitive, Primitive> kvp3 in _arrayMap3)
-                                    {
-                                        _list3D.Set(kvp3.Value, i, j, k);
-                                        k++;
-                                    }
-                                }
-                                else
-                                {
-                                    _list3D.Set(kvp2.Value, i, j, k);
-                                }
-                                j++;
-                            }
-                        }
-                        else
-                        {
-                            _list3D.Set(kvp1.Value, i, j);
-                        }
-                        i++;
-                    }
-                }
-                else
-                {
-                    _list3D.Set(sbArray, i);
-                }
-
-                return _list3D.Name;
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "";
-            }
+        /// <summary>
+        /// Convert a SmallBasic array (up to 3 dimensions) to a FastArray array.
+        /// This method creates an array only containing the Small Basic array indices.
+        /// </summary>
+        /// <param name="sbArray">The Small Basic array.</param>
+        /// <returns>A new FastArray or "".</returns>
+        public static Primitive FromSBIndices(Primitive sbArray)
+        {
+            return ConnvertFromSB(sbArray, false);
         }
 
         /// <summary>
@@ -575,8 +610,8 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Remove all empty "" entries in an array, redimensioning it.
-        /// Note that indices may change if internal entries are removed.
+        /// Remove all empty "" entries in an array.
+        /// Note that indices or even dimensions may change if internal entries are removed.
         /// </summary>
         /// <param name="arrayName">The array name.</param>
         public static void Collapse(Primitive arrayName)
