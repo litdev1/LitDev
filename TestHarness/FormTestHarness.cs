@@ -713,7 +713,7 @@ namespace TestHarness
             Primitive sb1 = LDFastArray.ToSB(arr);
 
             Primitive a = LDFastArray.Add2D(3,3);
-            LDFastArray.Set2D(a, 2, 1, 10);
+            LDFastArray.Set2D(a, 2, 5, 10);
             LDFastArray.Set2D(a, 2, 2, 20);
             LDFastArray.Set2D(a, 1, 8, 30);
             LDFastArray.Collapse(a);

@@ -172,7 +172,7 @@ namespace LitDev
                 for (int j = list2D.Count - 1; j >= 0; j--)
                 {
                     list1D = list2D[j];
-                    list1D.RemoveAll(FindComparer);
+                    list1D.RemoveAll(item => item == "");
                     if (list1D.Count == 0)
                     {
                         list2D.RemoveAt(j);
@@ -395,11 +395,10 @@ namespace LitDev
                 }
 
                 list3D.Clear();
-                dim1 = numRow;
-                dim2 = numCol;
+                dim1 = 1;
+                dim2 = 1;
                 dim3 = 1;
                 iDimension = 2;
-                Grow(dim1, dim2, dim3);
 
                 for (int iRow = 0; iRow < numRow; iRow++)
                 {
@@ -526,7 +525,7 @@ namespace LitDev
 
     /// <summary>
     /// This object provides another faster way of storing values in an Array.
-    /// It can handle 1, 2 and 3 dimensional arrays and has methods to read and write 2D arrays to files in CSV format.
+    /// It can handle 1, 2 and 3 dimensional arrays and has methods to read and write arrays to files, including in CSV format.
     /// It is also possible for different rows in an array to have different numbers of elements.
     /// Internally it uses lists that allow the original dimension sizes to be exceeded.
     /// The indexing is by integer starting from 1.
@@ -550,6 +549,7 @@ namespace LitDev
             return _list3D.Name;
         }
 
+        [HideFromIntellisense]
         /// <summary>
         /// Create a new 1D array.
         /// It is possible to initially size the array that will be used, but it will grow as required.
@@ -564,6 +564,7 @@ namespace LitDev
             return _list3D.Name;
         }
 
+        [HideFromIntellisense]
         /// <summary>
         /// Create a new 2D array.
         /// It is possible to initially size the array that will be used, but it will grow as required.
@@ -579,6 +580,7 @@ namespace LitDev
             return _list3D.Name;
         }
 
+        [HideFromIntellisense]
         /// <summary>
         /// Create a new 3D array.
         /// It is possible to initially size the array that will be used, but it will grow as required.
