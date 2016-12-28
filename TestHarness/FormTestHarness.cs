@@ -709,15 +709,15 @@ namespace TestHarness
         private void buttonTest_Click(object sender, EventArgs e)
         {
             Primitive sb = "1=1\\=\"hello\"\\;2\\=1\\;3\\=2\\;;2=1\\=3\\;2\\=test\\;3\\=3\\;;";
-            Primitive arr = LDFastArray.FromSB(sb);
-            Primitive sb1 = LDFastArray.ToSB(arr);
+            Primitive arr = LDFastArray.CreateFromValues(sb);
+            Primitive sb1 = LDFastArray.ToArray(arr);
 
-            Primitive a = LDFastArray.Add2D(3,3);
+            Primitive a = LDFastArray.Add2D();
             LDFastArray.Set2D(a, 2, 5, 10);
             LDFastArray.Set2D(a, 2, 2, 20);
             LDFastArray.Set2D(a, 1, 8, 30);
             LDFastArray.Collapse(a);
-            Primitive b = LDFastArray.ToSB(a);
+            Primitive b = LDFastArray.ToArray(a);
 
             Primitive img = Microsoft.SmallBasic.Library.ImageList.LoadImage("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/STS120LaunchHiRes-edit1.jpg/153px-STS120LaunchHiRes-edit1.jpg");
             Primitive x1 = LDImage.Copy(img);

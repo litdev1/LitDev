@@ -883,9 +883,9 @@ namespace LitDev
                     int i = 0;
                     string shapeName = (string)data[i++];
                     string geometryName = (string)data[i++];
-                    Primitive x = (string)data[i++];
-                    Primitive y = (string)data[i++];
-                    Primitive z = (string)data[i++];
+                    Primitive x = (Primitive)data[i++];
+                    Primitive y = (Primitive)data[i++];
+                    Primitive z = (Primitive)data[i++];
                     string options = (string)data[i++];
                     UIElement obj = (UIElement)data[i++];
 
@@ -3171,7 +3171,7 @@ namespace LitDev
             {
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, x, y, z, (string)options});
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, x, y, z, (string)options, obj});
                     FastThread.BeginInvoke(delegates.SetCentre_Delegate);
                 }
                 else

@@ -62,16 +62,16 @@ namespace LitDev
             }            
         }
 
-        private static T DeepCopy<T>(this T theSource)
+        private static T DeepCopy<T>(T theSource)
         {
             T theCopy;
-            DataContractSerializer theDataContactSerializer = new DataContractSerializer(typeof(T));
+            DataContractSerializer dataContactSerializer = new DataContractSerializer(typeof(T));
 
-            using (MemoryStream memStream = new MemoryStream())
+            using (MemoryStream ms = new MemoryStream())
             {
-                theDataContactSerializer.WriteObject(memStream, theSource);
-                memStream.Position = 0;
-                theCopy = (T)theDataContactSerializer.ReadObject(memStream);
+                dataContactSerializer.WriteObject(ms, theSource);
+                ms.Position = 0;
+                theCopy = (T)dataContactSerializer.ReadObject(ms);
             }
             return theCopy;
         }
@@ -6141,8 +6141,8 @@ namespace LitDev
                             line = "";
                             for (int j = 0; j < colCount; j++)
                             {
-                                line += (null == dataView.Rows[i].Cells[j].Value) ? "" : dataView.Rows[i].Cells[j].Value.ToString();
-                                if (j < colCount - 1) line += ",";
+                                line += (null == dataView.Rows[i].Cells[j].Value) ? "" : Utilities.CSVParse(dataView.Rows[i].Cells[j].Value.ToString(), true);
+                                if (j < colCount - 1) line += Utilities.CSV;
                             }
                             file.WriteLine(line);
                         }
@@ -6200,7 +6200,7 @@ namespace LitDev
                                 string[] values;
                                 while (!file.EndOfStream)
                                 {
-                                    values = file.ReadLine().Split(',');
+                                    values = file.ReadLine().Split(new string[] { Utilities.CSV }, StringSplitOptions.None);
                                     if (values.Length >= colCount)
                                     {
                                         if (null == dataTable)
@@ -6209,7 +6209,7 @@ namespace LitDev
                                             newRow.CreateCells(dataView);
                                             for (int i = 0; i < colCount; i++)
                                             {
-                                                newRow.Cells[i].Value = values[i];
+                                                newRow.Cells[i].Value = Utilities.CSVParse(values[i],false);
                                             }
                                             dataView.Rows.Add(newRow);
                                         }
@@ -6220,7 +6220,7 @@ namespace LitDev
                                             System.Array.Copy(newDataRow.ItemArray, 0, array, 0, colCount);
                                             for (int i = 0; i < colCount; i++)
                                             {
-                                                array[i] = Convert.ChangeType((string)values[i], dataTable.Columns[i].DataType);
+                                                array[i] = Convert.ChangeType(Utilities.CSVParse(values[i], false), dataTable.Columns[i].DataType);
                                             }
                                             newDataRow.ItemArray = array;
                                             dataTable.Rows.Add(newDataRow);
@@ -6712,6 +6712,58 @@ namespace LitDev
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Set the alignment for a dataview column.
+        /// </summary>
+        /// <param name="shapeName">The dataview control.</param>
+        /// <param name="col">The column number.</param>
+        /// <param name="alignment">"Left", "Center" or "Right"</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive DataViewColAlignment(Primitive shapeName, Primitive col, Primitive alignment)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+            if (_objectsMap.TryGetValue((string)shapeName, out obj))
+            {
+                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                {
+                    try
+                    {
+                        WindowsFormsHost shape = (WindowsFormsHost)obj;
+                        System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
+
+                        switch (((string)alignment).ToLower())
+                        {
+                            case "left":
+                                dataView.Columns[(int)(col - 1)].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+                                break;
+                            case "right":
+                                dataView.Columns[(int)(col - 1)].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+                                break;
+                            case "center":
+                                dataView.Columns[(int)(col - 1)].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+                                break;
+                        }
+                        return "SUCCESS";
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        return "FAILED";
+                    }
+                });
+                return FastThread.InvokeWithReturn(ret).ToString();
+            }
+            else
+            {
+                Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
                 return "FAILED";
             }
         }

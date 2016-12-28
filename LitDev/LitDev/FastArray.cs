@@ -24,56 +24,366 @@ using System.Text;
 
 namespace LitDev
 {
+    public class ListXD
+    {
+        private class ListGen : List<ListGen>
+        {
+            public Primitive Value;
+        }
+
+        private string name;
+        private ListGen listGenMain;
+        private ListGen listGen;
+        private FieldInfo _fieldInfo = typeof(Primitive).GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);
+        private static readonly int MAXINDEX = 100;
+
+        public int numIndex;
+        public int[] index;
+
+        public string Name { get { return name; } }
+
+        public ListXD()
+        {
+            NewName();
+            listGenMain = new ListGen();
+            index = new int[MAXINDEX];
+        }
+
+        private void NewName()
+        {
+            int i = 1;
+            while (LDFastArray.listMap.ContainsKey("FastArray" + i)) i++;
+            name = "FastArray" + i;
+        }
+
+        public void SetIndices(string indices)
+        {
+            numIndex = 0;
+            int ind = 0;
+            for (int i = 0; i < indices.Length; i++)
+            {
+                if (indices[i] == ',' || indices[i] == ' ')
+                {
+                    index[numIndex++] = ind;
+                    ind = 0;
+                }
+                else
+                {
+                    ind = ind * 10 + indices[i] - '0';
+                }
+            }
+            index[numIndex++] = ind;
+        }
+
+        public void Set(Primitive value)
+        {
+            try
+            {
+                listGen = listGenMain;
+                for (int i = 0; i < numIndex; i++)
+                {
+                    int ind = index[i];
+                    for (int j = listGen.Count; j < ind; j++)
+                    {
+                        listGen.Add(new ListGen());
+                    }
+                    listGen = listGen[ind - 1];
+                }
+                listGen.Value = value;
+            }
+            catch
+            {
+            }
+        }
+
+        public Primitive Get()
+        {
+            try
+            {
+                listGen = listGenMain;
+                for (int i = 0; i < numIndex; i++)
+                {
+                    listGen = listGen[index[i] - 1];
+                }
+                return listGen.Value;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        public int Dim(string indices)
+        {
+            listGen = listGenMain;
+            for (int i = 0; i < numIndex; i++)
+            {
+                listGen = listGen[index[i] - 1];
+            }
+            return listGen.Count;
+        }
+
+        private void CollapseRecursion(ListGen listFrom)
+        {
+            for (int i = listFrom.Count - 1; i >= 0; i--)
+            {
+                listFrom[i].RemoveAll(item => item.Count == 0 && item.Value == "");
+                if (listFrom[i].Count == 0)
+                {
+                    listFrom.RemoveAt(i);
+                    continue;
+                }
+                CollapseRecursion(listFrom[i]);
+            }
+        }
+        public void Collapse()
+        {
+            Primitive result = "";
+            CollapseRecursion(listGenMain);
+        }
+
+        private void WriteRecursion(ListGen listFrom, BinaryWriter bw)
+        {
+            bw.Write(listFrom.Count);
+            if (listFrom.Count == 0)
+            {
+                bw.Write((string)listFrom.Value);
+            }
+            for (int i = 0; i < listFrom.Count; i++)
+            {
+                WriteRecursion(listGen[i], bw);
+            }
+        }
+        private void WriteRecursion(ListGen listFrom, StreamWriter sw, string line)
+        {
+            for (int i = 0; i < listFrom.Count; i++)
+            {
+                if (listFrom[i].Count == 0)
+                {
+                    line += " : " + listFrom[i].Value;
+                    sw.WriteLine(line);
+                }
+                else
+                {
+                    line += i + " ";
+                    WriteRecursion(listGen[i], sw, line);
+                }
+            }
+        }
+        public void Write(string fileName, bool binary)
+        {
+            try
+            {
+                if (binary)
+                {
+                    using (FileStream fs = System.IO.File.Open(fileName, FileMode.Create))
+                    {
+                        using (BinaryWriter bw = new BinaryWriter(fs, Encoding.UTF8))
+                        {
+                            //bw.Write(dimension);
+
+                            WriteRecursion(listGenMain, bw);
+                        }
+                    }
+                }
+                else
+                {
+                    using (FileStream fs = System.IO.File.Open(fileName, FileMode.Create))
+                    {
+                        using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
+                        {
+                            //sw.WriteLine(dimension);
+
+                            string line = "";
+                            WriteRecursion(listGenMain, sw, line);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private void ReadRecursion(ListGen listTo, BinaryReader br)
+        {
+            int num = br.ReadInt32();
+            if (num == 0)
+            {
+                listTo.Value = br.ReadString();
+            }
+            for (int i = 0; i < num; i++)
+            {
+                listTo.Add(new ListGen());
+                ReadRecursion(listTo[i], br);
+            }
+        }
+        public void Read(string fileName, bool binary)
+        {
+            try
+            {
+                if (binary)
+                {
+                    using (FileStream fs = System.IO.File.Open(fileName, FileMode.Open))
+                    {
+                        using (BinaryReader br = new BinaryReader(fs, Encoding.UTF8))
+                        {
+                            //dimension = br.ReadInt32();
+
+                            listGenMain.Clear();
+                            ReadRecursion(listGenMain, br);
+                        }
+                    }
+                }
+                else
+                {
+                    using (FileStream fs = System.IO.File.Open(fileName, FileMode.Open))
+                    {
+                        using (StreamReader sr = new StreamReader(fs, Encoding.UTF8))
+                        {
+                            //dimension = int.Parse(sr.ReadLine());
+
+                            listGenMain.Clear();
+                            while (sr.Peek() >= 0)
+                            {
+                                string line = sr.ReadLine();
+                                string[] split = line.Split(' ');
+                                listGen = listGenMain;
+                                for (int i = 0; i < split.Length; i++)
+                                {
+                                    if (split[i] == ":")
+                                    {
+                                        for (int j = i+1; j < split.Length; j++) listGen.Value += split[j];
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        listGen = listGen[int.Parse(split[i]) - 1];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private void FromSBRecursion(Primitive sbArray, ListGen listTo, bool bValues)
+        {
+            Dictionary<Primitive, Primitive> _arrayMap = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(sbArray));
+            if (_arrayMap.Count > 0)
+            {
+                foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
+                {
+                    Dictionary<Primitive, Primitive> _arrayMap1 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp.Value));
+                    if (_arrayMap1.Count > 0)
+                    {
+                        listGen = new ListGen();
+                        listTo.Add(listGen);
+                        FromSBRecursion(kvp.Value, listGen, bValues);
+                    }
+                    else
+                    {
+                        listTo.Value = bValues ? kvp.Value : kvp.Key;
+                    }
+                    FromSBRecursion(kvp.Value, listTo, bValues);
+                }
+            }
+            else
+            {
+                if (bValues) listTo.Value = sbArray;
+            }
+        }
+        public void FromSB(Primitive sbArray, bool bValues)
+        {
+            try
+            {
+                listGenMain = new ListGen();
+                FromSBRecursion(sbArray, listGenMain, bValues);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private void ToSBRecursion(ListGen listFrom, Primitive result)
+        {
+            if (listFrom.Count == 0)
+            {
+                result = listFrom.Value;
+            }
+            else
+            {
+                for (int i = 0; i < listFrom.Count; i++)
+                {
+                    Primitive newResult = "";
+                    ToSBRecursion(listFrom[i], newResult);
+                    result[i + 1] = newResult;
+                }
+            }
+        }
+        public Primitive ToSB()
+        {
+            try
+            {
+                Primitive result = "";
+                ToSBRecursion(listGenMain, result);
+                return Utilities.CreateArrayMap(result);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        private void CopyRecursion(ListGen listFrom, ListGen listTo)
+        {
+            for (int i = 0; i < listFrom.Count; i++)
+            {
+                listTo.Add(new ListGen());
+                listTo[i].Value = listFrom[i].Value;
+                CopyRecursion(listFrom[i], listTo[i]);
+            }
+        }
+        public ListXD Copy()
+        {
+            ListXD copy = new ListXD();
+            CopyRecursion(listGenMain, copy.listGenMain);
+            return copy;
+        }
+    }
+
     public class List3D
     {
         private string name;
         private List<List<List<Primitive>>> list3D;
         private List<List<Primitive>> list2D;
         private List<Primitive> list1D;
-        private int dim1;
-        private int dim2;
-        private int dim3;
-        private int iDimension = 3; //Undefined
-        private bool exactMatch = true;
-        private bool caseSensitive = false;
-        private string match = "";
+        private int dimension;
 
         public string Name { get { return name; } }
 
-        public int Dimension { get { return iDimension; } }
+        public int Dimension { get { return dimension; } }
 
-        public List3D(int Dim1 = 0, int Dim2 = 0, int Dim3 = 0)
+        public List3D(int dimension = 3)
         {
-            dim1 = System.Math.Max(Dim1, 1);
-            dim2 = System.Math.Max(Dim2, 1);
-            dim3 = System.Math.Max(Dim3, 1);
-            if (Dim1 > 0) iDimension = 1;
-            if (Dim2 > 0) iDimension = 2;
-            if (Dim3 > 0) iDimension = 3;
+            this.dimension = dimension;
             NewName();
             list3D = new List<List<List<Primitive>>>();
-            Grow(dim1, dim2, dim3);
         }
 
         private void NewName()
         {
             int i = 1;
-            while (LDFastArray._listMap.ContainsKey("Array" + i)) i++;
-            name = "Array" + i;
-        }
-
-        private bool FindComparer(Primitive item)
-        {
-            if (caseSensitive)
-            {
-                if (exactMatch) return item == match;
-                return ((string)item).Contains(match);
-            }
-            else
-            {
-                if (exactMatch) return ((string)item).ToLower() == match.ToLower();
-                return ((string)item).ToLower().Contains(match.ToLower());
-            }
+            while (LDFastArray.listMap.ContainsKey("FastArray" + i)) i++;
+            name = "FastArray" + i;
         }
 
         private void Grow(int index1, int index2, int index3)
@@ -82,29 +392,20 @@ namespace LitDev
             {
                 list2D = new List<List<Primitive>>();
                 list3D.Add(list2D);
-                for (int j = list2D.Count; j < dim2; j++)
-                {
-                    list1D = new List<Primitive>();
-                    list2D.Add(list1D);
-                    for (int k = 0; k < dim3; k++)
-                    {
-                        list1D.Add("");
-                    }
-                }
+                list1D = new List<Primitive>();
+                list2D.Add(list1D);
+                list1D.Add("");
             }
-            if (iDimension == 1 || list3D.Count == 0) return;
+            if (dimension == 1) return;
 
             list2D = list3D[index1 - 1];
             for (int j = list2D.Count; j < index2; j++)
             {
                 list1D = new List<Primitive>();
                 list2D.Add(list1D);
-                for (int k = 0; k < dim3; k++)
-                {
-                    list1D.Add("");
-                }
+                list1D.Add("");
             }
-            if (iDimension == 2 || list2D.Count == 0) return;
+            if (dimension == 2) return;
 
             list1D = list2D[index2 - 1];
             for (int k = list1D.Count; k < index3; k++)
@@ -113,29 +414,28 @@ namespace LitDev
             }
         }
 
-        private bool CheckDimension(int index1, int index2, int index3)
-        {
-            if (iDimension == 3) return true;
-            if (iDimension < 3 && index3 > 1) return false;
-            if (iDimension < 2 && index2 > 1) return false;
-            return true;
-        }
-
         public void Set(Primitive value, int index1, int index2 = 1, int index3 = 1)
         {
-            if (!CheckDimension(index1, index2, index3)) return;
-            Grow(index1, index2, index3);
-            list3D[index1 - 1][index2 - 1][index3 - 1] = value;
+            try
+            {
+                Grow(index1, index2, index3);
+                list3D[index1 - 1][index2 - 1][index3 - 1] = value;
+            }
+            catch
+            {
+            }
         }
 
         public Primitive Get(int index1, int index2 = 1, int index3 = 1)
         {
-            if (index1 > list3D.Count) return "";
-            list2D = list3D[index1 - 1];
-            if (index2 > list2D.Count) return "";
-            list1D = list2D[index2 - 1];
-            if (index3 > list1D.Count) return "";
-            return list1D[index3 - 1];
+            try
+            {
+                return list3D[index1 - 1][index2 - 1][index3 - 1];
+            }
+            catch
+            {
+                return "";
+            }
         }
 
         public int Dim1()
@@ -195,10 +495,7 @@ namespace LitDev
                     {
                         using (BinaryWriter bw = new BinaryWriter(fs, Encoding.UTF8))
                         {
-                            bw.Write(dim1);
-                            bw.Write(dim2);
-                            bw.Write(dim3);
-                            bw.Write(iDimension);
+                            bw.Write(dimension);
 
                             bw.Write(list3D.Count);
                             for (int i = 0; i < list3D.Count; i++)
@@ -225,7 +522,7 @@ namespace LitDev
                         using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
                         {
                             string line;
-                            sw.WriteLine(iDimension);
+                            sw.WriteLine(dimension);
                             for (int i = 0; i < list3D.Count; i++)
                             {
                                 list2D = list3D[i];
@@ -234,7 +531,7 @@ namespace LitDev
                                     list1D = list2D[j];
                                     for (int k = 0; k < list1D.Count; k++)
                                     {
-                                        switch (iDimension)
+                                        switch (dimension)
                                         {
                                             case 1:
                                                 line = (i + 1) + " " + list1D[k];
@@ -272,10 +569,7 @@ namespace LitDev
                     {
                         using (BinaryReader br = new BinaryReader(fs, Encoding.UTF8))
                         {
-                            dim1 = br.ReadInt32();
-                            dim2 = br.ReadInt32();
-                            dim3 = br.ReadInt32();
-                            iDimension = br.ReadInt32();
+                            dimension = br.ReadInt32();
 
                             list3D.Clear();
                             int num1 = br.ReadInt32();
@@ -307,12 +601,12 @@ namespace LitDev
                             int i, j, k;
                             string value;
                             list3D.Clear();
-                            iDimension = int.Parse(sr.ReadLine());
+                            dimension = int.Parse(sr.ReadLine());
                             while (sr.Peek() >= 0)
                             {
                                 string line = sr.ReadLine();
-                                string[] split = line.Split(new char[] { ' ' });
-                                switch (iDimension)
+                                string[] split = line.Split(' ');
+                                switch (dimension)
                                 {
                                     case 1:
                                         {
@@ -395,10 +689,7 @@ namespace LitDev
                 }
 
                 list3D.Clear();
-                dim1 = 1;
-                dim2 = 1;
-                dim3 = 1;
-                iDimension = 2;
+                dimension = 2;
 
                 for (int iRow = 0; iRow < numRow; iRow++)
                 {
@@ -424,31 +715,28 @@ namespace LitDev
                 Dictionary<Primitive, Primitive> _arrayMap1, _arrayMap2, _arrayMap3;
 
                 list3D.Clear();
-                dim1 = 1;
-                dim2 = 1;
-                dim3 = 1;
-                iDimension = 0;
+                dimension = 0;
 
                 int i, j, k;
                 i = 1;
                 _arrayMap1 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(sbArray));
                 if (_arrayMap1.Count > 0)
                 {
-                    iDimension = System.Math.Max(iDimension, 1);
+                    dimension = System.Math.Max(dimension, 1);
                     foreach (KeyValuePair<Primitive, Primitive> kvp1 in _arrayMap1)
                     {
                         j = 1;
                         _arrayMap2 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp1.Value));
                         if (_arrayMap2.Count > 0)
                         {
-                            iDimension = System.Math.Max(iDimension, 2);
+                            dimension = System.Math.Max(dimension, 2);
                             foreach (KeyValuePair<Primitive, Primitive> kvp2 in _arrayMap2)
                             {
                                 k = 1;
                                 _arrayMap3 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp2.Value));
                                 if (_arrayMap3.Count > 0)
                                 {
-                                    iDimension = System.Math.Max(iDimension, 3);
+                                    dimension = System.Math.Max(dimension, 3);
                                     foreach (KeyValuePair<Primitive, Primitive> kvp3 in _arrayMap3)
                                     {
                                         Set(bValues ? kvp3.Value : kvp3.Key, i, j, k);
@@ -521,20 +809,70 @@ namespace LitDev
                 return "";
             }
         }
+
+        public List3D Copy()
+        {
+            List3D copy = new List3D(dimension);
+            for (int i = 0; i < list3D.Count; i++)
+            {
+                list2D = list3D[i];
+                for (int j = 0; j < list2D.Count; j++)
+                {
+                    list1D = list2D[j];
+                    for (int k = 0; k < list1D.Count; k++)
+                    {
+                        copy.Set(list1D[k], i, j, k);
+                    }
+                }
+            }
+            return copy;
+        }
     }
 
     /// <summary>
     /// This object provides another faster way of storing values in an Array.
     /// It can handle 1, 2 and 3 dimensional arrays and has methods to read and write arrays to files, including in CSV format.
-    /// It is also possible for different rows in an array to have different numbers of elements.
-    /// Internally it uses lists that allow the original dimension sizes to be exceeded.
+    /// It is also possible for different rows in an array to have different dimensions or numbers of elements, just like Small Basic arrays.
+    /// Internally it uses lists that allow the sizes to grow so that the array size doesn't need to be set at the start.
     /// The indexing is by integer starting from 1.
     /// </summary>
     [SmallBasicType]
     public static class LDFastArray
     {
-        public static Dictionary<string, List3D> _listMap = new Dictionary<string, List3D>();
-        private static List3D _list3D;
+        public static Dictionary<string, List3D> listMap = new Dictionary<string, List3D>();
+        private static List3D list3D;
+
+        public static Dictionary<string, ListXD> listXMap = new Dictionary<string, ListXD>();
+        private static ListXD listXD;
+        [HideFromIntellisense]
+        public static Primitive AddX()
+        {
+            listXD = new ListXD();
+            listXMap[listXD.Name] = listXD;
+            return listXD.Name;
+        }
+        [HideFromIntellisense]
+        public static void SetXD(Primitive arrayName, Primitive indices, Primitive value)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return;
+            listXD.SetIndices(indices);
+            //listXD.numIndex = 3;
+            //listXD.index[0] = index1;
+            //listXD.index[1] = index2;
+            //listXD.index[2] = index3;
+            listXD.Set(value);
+        }
+        [HideFromIntellisense]
+        public static Primitive GetXD(Primitive arrayName, Primitive indices)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+            listXD.SetIndices(indices);
+            //listXD.numIndex = 3;
+            //listXD.index[0] = index1;
+            //listXD.index[1] = index2;
+            //listXD.index[2] = index3;
+            return listXD.Get();
+        }
 
         /// <summary>
         /// Create a new array.
@@ -544,56 +882,33 @@ namespace LitDev
         /// <returns>The array name.</returns>
         public static Primitive Add()
         {
-            _list3D = new List3D();
-            _listMap[_list3D.Name] = _list3D;
-            return _list3D.Name;
+            list3D = new List3D();
+            listMap[list3D.Name] = list3D;
+            return list3D.Name;
         }
 
-        [HideFromIntellisense]
         /// <summary>
         /// Create a new 1D array.
-        /// It is possible to initially size the array that will be used, but it will grow as required.
-        /// 2D and 3D values will not be set for an array created with this method.
+        /// 2D or 3D values will not be set for an array created with this method.
         /// </summary>
-        /// <param name="dim1">The initial first dimension size, may be 1 allowing the array grow as data is added.</param>
         /// <returns>The 1D array name.</returns>
-        public static Primitive Add1D(Primitive dim1)
+        public static Primitive Add1D()
         {
-            _list3D = new List3D(dim1);
-            _listMap[_list3D.Name] = _list3D;
-            return _list3D.Name;
+            list3D = new List3D(1);
+            listMap[list3D.Name] = list3D;
+            return list3D.Name;
         }
 
-        [HideFromIntellisense]
         /// <summary>
         /// Create a new 2D array.
-        /// It is possible to initially size the array that will be used, but it will grow as required.
         /// 3D values will not be set for an array created with this method.
         /// </summary>
-        /// <param name="dim1">The initial first dimension size, may be 1 allowing the array grow as data is added.</param>
-        /// <param name="dim2">The initial second dimension size, may be 1 allowing the array grow as data is added.</param>
         /// <returns>The 2D array name.</returns>
-        public static Primitive Add2D(Primitive dim1, Primitive dim2)
+        public static Primitive Add2D()
         {
-            _list3D = new List3D(dim1, dim2);
-            _listMap[_list3D.Name] = _list3D;
-            return _list3D.Name;
-        }
-
-        [HideFromIntellisense]
-        /// <summary>
-        /// Create a new 3D array.
-        /// It is possible to initially size the array that will be used, but it will grow as required.
-        /// </summary>
-        /// <param name="dim1">The initial first dimension size, may be 1 allowing the array grow as data is added.</param>
-        /// <param name="dim2">The initial second dimension size, may be 1 allowing the array grow as data is added.</param>
-        /// <param name="dim3">The initial third dimension size, may be 1 allowing the array grow as data is added.</param>
-        /// <returns>The 3D array name.</returns>
-        public static Primitive Add3D(Primitive dim1, Primitive dim2, Primitive dim3)
-        {
-            _list3D = new List3D(dim1, dim2, dim3);
-            _listMap[_list3D.Name] = _list3D;
-            return _list3D.Name;
+            list3D = new List3D(2);
+            listMap[list3D.Name] = list3D;
+            return list3D.Name;
         }
 
         /// <summary>
@@ -604,8 +919,8 @@ namespace LitDev
         /// <param name="value">The value to set.</param>
         public static void Set1D(Primitive arrayName, Primitive index1, Primitive value)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
-            _list3D.Set(value, index1);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return;
+            list3D.Set(value, index1);
         }
 
         /// <summary>
@@ -617,8 +932,8 @@ namespace LitDev
         /// <param name="value">The value to set.</param>
         public static void Set2D(Primitive arrayName, Primitive index1, Primitive index2, Primitive value)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
-            _list3D.Set(value, index1, index2);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return;
+            list3D.Set(value, index1, index2);
         }
 
         /// <summary>
@@ -631,8 +946,8 @@ namespace LitDev
         /// <param name="value">The value to set.</param>
         public static void Set3D(Primitive arrayName, Primitive index1, Primitive index2, Primitive index3, Primitive value)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
-            _list3D.Set(value, index1, index2, index3);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return;
+            list3D.Set(value, index1, index2, index3);
         }
 
         /// <summary>
@@ -643,8 +958,8 @@ namespace LitDev
         /// <returns>The array value or "" on failure.</returns>
         public static Primitive Get1D(Primitive arrayName, Primitive index1)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
-            return _list3D.Get(index1);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
+            return list3D.Get(index1);
         }
 
         /// <summary>
@@ -656,8 +971,8 @@ namespace LitDev
         /// <returns>The array value or "" on failure.</returns>
         public static Primitive Get2D(Primitive arrayName, Primitive index1, Primitive index2)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
-            return _list3D.Get(index1, index2);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
+            return list3D.Get(index1, index2);
         }
 
         /// <summary>
@@ -670,8 +985,8 @@ namespace LitDev
         /// <returns>The array value or "" on failure.</returns>
         public static Primitive Get3D(Primitive arrayName, Primitive index1, Primitive index2, Primitive index3)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
-            return _list3D.Get(index1, index2, index3);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
+            return list3D.Get(index1, index2, index3);
         }
 
         /// <summary>
@@ -681,8 +996,8 @@ namespace LitDev
         /// <returns>The first dimension size.</returns>
         public static Primitive Dim1(Primitive arrayName)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
-            return _list3D.Dim1();
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
+            return list3D.Dim1();
         }
 
         /// <summary>
@@ -693,9 +1008,9 @@ namespace LitDev
         /// <returns>The second dimension size.</returns>
         public static Primitive Dim2(Primitive arrayName, Primitive index1)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
-            if (_list3D.Dimension < 2) return 0;
-            return _list3D.Dim2(index1);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
+            if (list3D.Dimension < 2) return 0;
+            return list3D.Dim2(index1);
         }
 
         /// <summary>
@@ -707,9 +1022,9 @@ namespace LitDev
         /// <returns>The third dimension size.</returns>
         public static Primitive Dim3(Primitive arrayName, Primitive index1, Primitive index2)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
-            if (_list3D.Dimension < 3) return 0;
-            return _list3D.Dim3(index1, index2);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
+            if (list3D.Dimension < 3) return 0;
+            return list3D.Dim3(index1, index2);
         }
 
         /// <summary>
@@ -718,9 +1033,9 @@ namespace LitDev
         /// <param name="arrayName">The array name.</param>
         public static void Remove(Primitive arrayName)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
-            _list3D.Clear();
-            _listMap.Remove(arrayName);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return;
+            list3D.Clear();
+            listMap.Remove(arrayName);
         }
 
         /// <summary>
@@ -742,9 +1057,9 @@ namespace LitDev
             }
 
             string arrayName = Add();
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
 
-            _list3D.ReadCSV(fileName);
+            list3D.ReadCSV(fileName);
             return arrayName;
         }
 
@@ -760,9 +1075,9 @@ namespace LitDev
         /// </param>
         public static void WriteCSV(Primitive arrayName, Primitive fileName)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
+            if (!listMap.TryGetValue(arrayName, out list3D)) return;
 
-            _list3D.WriteCSV(fileName);
+            list3D.WriteCSV(fileName);
         }
 
         /// <summary>
@@ -771,12 +1086,12 @@ namespace LitDev
         /// </summary>
         /// <param name="sbArray">The Small Basic array.</param>
         /// <returns>A new FastArray or "".</returns>
-        public static Primitive FromSB(Primitive sbArray)
+        public static Primitive CreateFromValues(Primitive sbArray)
         {
             string arrayName = Add();
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
 
-            _list3D.FromSB(sbArray, true);
+            list3D.FromSB(sbArray, true);
             return arrayName;
         }
 
@@ -786,12 +1101,12 @@ namespace LitDev
         /// </summary>
         /// <param name="sbArray">The Small Basic array.</param>
         /// <returns>A new FastArray or "".</returns>
-        public static Primitive FromSBIndices(Primitive sbArray)
+        public static Primitive CreateFromIndices(Primitive sbArray)
         {
             string arrayName = Add();
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
 
-            _list3D.FromSB(sbArray, false);
+            list3D.FromSB(sbArray, false);
             return arrayName;
         }
 
@@ -800,22 +1115,22 @@ namespace LitDev
         /// </summary>
         /// <param name="arrayName">The array name.</param>
         /// <returns>A Small Basic array or "".</returns>
-        public static Primitive ToSB(Primitive arrayName)
+        public static Primitive ToArray(Primitive arrayName)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
 
-            return _list3D.ToSB();
+            return list3D.ToSB();
         }
 
         /// <summary>
         /// Remove all empty "" entries in an array.
-        /// Note that indices or even dimensions may change if internal entries are removed.
+        /// Note that indices or even dimensions may change if public entries are removed.
         /// </summary>
         /// <param name="arrayName">The array name.</param>
         public static void Collapse(Primitive arrayName)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
-            _list3D.Collapse();
+            if (!listMap.TryGetValue(arrayName, out list3D)) return;
+            list3D.Collapse();
         }
 
         /// <summary>
@@ -826,8 +1141,8 @@ namespace LitDev
         /// <param name="binary">Binary ("True") or text ("False") formatted file.</param>
         public static void Write(Primitive arrayName, Primitive fileName, Primitive binary)
         {
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return;
-            _list3D.Write(fileName, binary);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return;
+            list3D.Write(fileName, binary);
         }
 
         /// <summary>
@@ -845,9 +1160,23 @@ namespace LitDev
             }
 
             string arrayName = Add();
-            if (!_listMap.TryGetValue(arrayName, out _list3D)) return "";
-            _list3D.Read(fileName, binary);
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
+            list3D.Read(fileName, binary);
             return arrayName;
+        }
+
+        /// <summary>
+        /// Copy an array.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <returns>A copy of the array.</returns>
+        public static Primitive Copy(Primitive arrayName)
+        {
+            if (!listMap.TryGetValue(arrayName, out list3D)) return "";
+
+            List3D List3DCopy = list3D.Copy();
+            listMap[List3DCopy.Name] = List3DCopy;
+            return List3DCopy.Name;
         }
     }
 }

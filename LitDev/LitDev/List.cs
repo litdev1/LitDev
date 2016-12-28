@@ -831,18 +831,18 @@ namespace LitDev
         /// Copy a SmallBasic array to a list.
         /// The array indices are ignored by the list.
         /// </summary>
-        /// <param name="arrayName">
+        /// <param name="sbArray">
         /// The SmallBasic array.
         /// </param>
         /// <returns>The created list.</returns>
-        public static Primitive FromArray(Primitive arrayName)
+        public static Primitive CreateFromValues(Primitive sbArray)
         {
             try
             {
                 Type PrimitiveType = typeof(Primitive);
                 Dictionary<Primitive, Primitive> _arrayMap;
-                arrayName = Utilities.CreateArrayMap(arrayName);
-                _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(arrayName);
+                sbArray = Utilities.CreateArrayMap(sbArray);
+                _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(sbArray);
 
                 string newListName = "List" + ++listCount;
                 List<Primitive> newList = new List<Primitive>();
@@ -863,12 +863,12 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Create a new list from the indices of a Small Basic array.
+        /// Copy a SmallBasic array indices to a list.
         /// </summary>
-        /// <param name="sbArray">The SB array.</param>
-        /// <returns>
-        /// The new list or "FAILED".
-        /// </returns>
+        /// <param name="sbArray">
+        /// The SmallBasic array.
+        /// </param>
+        /// <returns>The created list.</returns>
         public static Primitive CreateFromIndices(Primitive sbArray)
         {
             try
@@ -878,58 +878,34 @@ namespace LitDev
                 sbArray = Utilities.CreateArrayMap(sbArray);
                 _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(sbArray);
 
-                List<Primitive> list;
-                string listName = "List" + ++listCount;
-                list = new List<Primitive>();
+                string newListName = "List" + ++listCount;
+                List<Primitive> newList = new List<Primitive>();
 
                 foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
                 {
-                    list.Add(kvp.Key);
+                    newList.Add(kvp.Key);
                 }
 
-                _listMap[listName] = list;
-                return listName;
+                _listMap[newListName] = newList;
+                return newListName;
             }
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "FAILED";
             }
+            return "";
         }
 
-        /// <summary>
-        /// Create a new list from the values of a Small Basic array.
-        /// </summary>
-        /// <param name="sbArray">The SB array.</param>
-        /// <returns>
-        /// The new list or "FAILED".
-        /// </returns>
-        public static Primitive CreateFromValues(Primitive sbArray)
+        [HideFromIntellisense]
+        public static Primitive FromArrayIndices(Primitive sbArray)
         {
-            try
-            {
-                Type PrimitiveType = typeof(Primitive);
-                Dictionary<Primitive, Primitive> _arrayMap;
-                sbArray = Utilities.CreateArrayMap(sbArray);
-                _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(sbArray);
+            return CreateFromIndices(sbArray);
+        }
 
-                List<Primitive> list;
-                string listName = "List" + ++listCount;
-                list = new List<Primitive>();
-
-                foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
-                {
-                    list.Add(kvp.Value);
-                }
-
-                _listMap[listName] = list;
-                return listName;
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "FAILED";
-            }
+        [HideFromIntellisense]
+        public static Primitive FromArray(Primitive sbArray)
+        {
+            return CreateFromValues(sbArray);
         }
     }
 }
