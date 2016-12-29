@@ -54,6 +54,13 @@ namespace LitDev
         public static string CSVplaceHolder = "";
         public static string CSV = ",";
 
+        private static int numPages;
+        private static int pageNumber;
+        public static int NumPages
+        {
+            set { numPages = value; pageNumber = 0; }
+        }
+
         public static FormEvents formEvents = new FormEvents();
         public static Thread formEventsThread = new Thread(ShowFormEvents);
         public static void ShowFormEvents()
@@ -508,6 +515,9 @@ namespace LitDev
                 height = maxHeight;
             }
             e.Graphics.DrawImage(img, (int)(border + (maxWidth - width) / 2), (int)(border + (maxHeight - height) / 2), (int)width, (int)height);
+
+            pageNumber++;
+            e.HasMorePages = pageNumber < numPages;
         }
 
         public static string ReadCSV(string fileName, bool bTranspose)

@@ -158,20 +158,18 @@ namespace LitDev
             GraphicsWindow.Show();
             Utilities.bTextWindow = false;
             Utilities.bBorder = border;
+            Utilities.NumPages = 1;
             PrintDocument pd = new PrintDocument();
             pd.PrintPage += new PrintPageEventHandler(Utilities.printWindow);
-            System.Windows.Forms.PrintPreviewDialog dlg = new System.Windows.Forms.PrintPreviewDialog();
-            dlg.Document = pd;
-            dlg.Width = 600;
-            dlg.Height = 600;
-            dlg.ShowIcon = false;
-            dlg.TopMost = true;
             if (LDUtilities.showPreview)
             {
-                if (dlg.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK)
-                {
-                    pd.Print();
-                }
+                System.Windows.Forms.PrintPreviewDialog dlg = new System.Windows.Forms.PrintPreviewDialog();
+                dlg.Document = pd;
+                dlg.Width = 600;
+                dlg.Height = 600;
+                dlg.ShowIcon = false;
+                dlg.TopMost = true;
+                dlg.ShowDialog(Utilities.ForegroundHandle());
             }
             else
             {

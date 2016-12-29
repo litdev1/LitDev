@@ -102,7 +102,7 @@ namespace LitDev
 
         /// <summary>
         /// Low level event when a key is pressed down.
-        /// This event is independent of any window focus, i.e. not just for GraphicsWindow.
+        /// This event is independent of any window focus, i.e. not just for TextWindow or GraphicsWindow.
         /// </summary>
         public static event SmallBasicCallback KeyDown
         {
@@ -119,7 +119,7 @@ namespace LitDev
 
         /// <summary>
         /// Low level event when a key is released.
-        /// This event is independent of any window focus, i.e. not just for GraphicsWindow.
+        /// This event is independent of any window focus, i.e. not just for TextWindow or GraphicsWindow.
         /// </summary>
         public static event SmallBasicCallback KeyUp
         {
@@ -317,21 +317,21 @@ namespace LitDev
             TextWindow.Show();
             Utilities.bTextWindow = true;
             Utilities.bBorder = border;
+            Utilities.NumPages = 1;
             PrintDocument pd = new PrintDocument();
             pd.PrintPage += new PrintPageEventHandler(Utilities.printWindow);
 
-            System.Windows.Forms.PrintPreviewDialog dlg = new System.Windows.Forms.PrintPreviewDialog();
-            dlg.Document = pd;
-            dlg.Width = 600;
-            dlg.Height = 600;
-            dlg.ShowIcon = false;
-            dlg.TopMost = true;
             if (LDUtilities.showPreview)
             {
-                if (dlg.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK)
-                {
-                    pd.Print();
-                }
+                //var dlg1 = new PrintDialog();
+                //TextWindow.WriteLine(dlg1.ShowDialog().ToString());
+                PrintPreviewDialog dlg = new PrintPreviewDialog();
+                dlg.Document = pd;
+                dlg.Width = 600;
+                dlg.Height = 600;
+                dlg.ShowIcon = false;
+                dlg.TopMost = true;
+                dlg.ShowDialog(Utilities.ForegroundHandle());
             }
             else
             {

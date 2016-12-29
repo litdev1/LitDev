@@ -113,7 +113,7 @@ namespace LitDev
             }
         }
 
-        public int Dim(string indices)
+        public int Dim()
         {
             listGen = listGenMain;
             for (int i = 0; i < numIndex; i++)
@@ -872,6 +872,64 @@ namespace LitDev
             //listXD.index[1] = index2;
             //listXD.index[2] = index3;
             return listXD.Get();
+        }
+        [HideFromIntellisense]
+        public static Primitive DimX(Primitive arrayName, Primitive indices)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+            listXD.SetIndices(indices);
+            return listXD.Dim();
+        }
+        [HideFromIntellisense]
+        public static void CollapseX(Primitive arrayName)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return;
+            listXD.Collapse();
+        }
+        [HideFromIntellisense]
+        public static Primitive ReadX(Primitive fileName, Primitive binary)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+
+            string arrayName = AddX();
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+            listXD.Read(fileName, binary);
+            return arrayName;
+        }
+        [HideFromIntellisense]
+        public static void WriteX(Primitive arrayName, Primitive fileName, Primitive binary)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return;
+            listXD.Write(fileName, binary);
+        }
+        [HideFromIntellisense]
+        public static Primitive CreateFromValuesX(Primitive sbArray)
+        {
+            string arrayName = AddX();
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+
+            listXD.FromSB(sbArray, true);
+            return arrayName;
+        }
+        [HideFromIntellisense]
+        public static Primitive CreateFromIndicesX(Primitive sbArray)
+        {
+            string arrayName = AddX();
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+
+            listXD.FromSB(sbArray, false);
+            return arrayName;
+        }
+        [HideFromIntellisense]
+        public static Primitive ToArrayX(Primitive arrayName)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+
+            return listXD.ToSB();
         }
 
         /// <summary>

@@ -53,7 +53,7 @@
             treeNode18,
             treeNode19});
             System.Windows.Forms.TreeNode treeNode21 = new System.Windows.Forms.TreeNode("DataViewColAlignment method added");
-            System.Windows.Forms.TreeNode treeNode22 = new System.Windows.Forms.TreeNode("DataViewSaveAsCSV and DataViewLoadFromCSV fixed to work with CSVDeliminator");
+            System.Windows.Forms.TreeNode treeNode22 = new System.Windows.Forms.TreeNode("DataViewSaveAsCSV and DataViewReadFromCSV fixed to work with CSVDeliminator");
             System.Windows.Forms.TreeNode treeNode23 = new System.Windows.Forms.TreeNode("LDControls", new System.Windows.Forms.TreeNode[] {
             treeNode21,
             treeNode22});
@@ -1805,7 +1805,7 @@
             treeNode21.Name = "Node1";
             treeNode21.Text = "DataViewColAlignment method added";
             treeNode22.Name = "Node2";
-            treeNode22.Text = "DataViewSaveAsCSV and DataViewLoadFromCSV fixed to work with CSVDeliminator";
+            treeNode22.Text = "DataViewSaveAsCSV and DataViewReadFromCSV fixed to work with CSVDeliminator";
             treeNode23.Name = "Node0";
             treeNode23.Text = "LDControls";
             treeNode24.Name = "Node0";

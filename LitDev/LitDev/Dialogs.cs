@@ -21,6 +21,7 @@ using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Globalization;
 using System.Reflection;
 using System.Threading;
