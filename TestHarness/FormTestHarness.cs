@@ -708,6 +708,11 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive xx = LDFastArray._Add();
+            LDFastArray._Set(xx,"1 2 3",24);
+            FieldInfo _primitive = typeof(Primitive).GetField("_primitive", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);
+            Primitive aa = "1 23 45";
+            string bb = (string)_primitive.GetValue(aa);
             Primitive sb = "1=1\\=\"hello\"\\;2\\=1\\;3\\=2\\;;2=1\\=3\\;2\\=test\\;3\\=3\\;;";
             Primitive arr = LDFastArray.CreateFromValues(sb);
             Primitive sb1 = LDFastArray.ToArray(arr);

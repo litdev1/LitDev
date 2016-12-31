@@ -34,19 +34,25 @@ namespace LitDev
         private string name;
         private ListGen listGenMain;
         private ListGen listGen;
+        private int dimension;
         private FieldInfo _fieldInfo = typeof(Primitive).GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);
-        private static readonly int MAXINDEX = 100;
+        private const int MAXDIM = 100;
+        private const int zero = '0';
+        private const int nine = '9';
 
         public int numIndex;
         public int[] index;
 
         public string Name { get { return name; } }
 
-        public ListXD()
+        public int Dimension { get { return dimension; } }
+
+        public ListXD(int dimension = MAXDIM)
         {
+            this.dimension = dimension;
             NewName();
             listGenMain = new ListGen();
-            index = new int[MAXINDEX];
+            index = new int[MAXDIM];
         }
 
         private void NewName()
@@ -58,21 +64,29 @@ namespace LitDev
 
         public void SetIndices(string indices)
         {
+            //string[] split = indices.Split(new char[] { ' ' });
+            //numIndex = split.Length;
+            //for (int i = 0; i < numIndex; i++) index[i] = int.Parse(split[i]);
+            //return;
+
             numIndex = 0;
-            int ind = 0;
-            for (int i = 0; i < indices.Length; i++)
+            if (indices.Length > 0)
             {
-                if (indices[i] == ',' || indices[i] == ' ')
+                int ind = 0;
+                for (int i = 0; i < indices.Length; i++)
                 {
-                    index[numIndex++] = ind;
-                    ind = 0;
+                    if (indices[i] < zero || indices[i] > nine)
+                    {
+                        index[numIndex++] = ind;
+                        ind = 0;
+                    }
+                    else
+                    {
+                        ind = ind * 10 + indices[i] - zero;
+                    }
                 }
-                else
-                {
-                    ind = ind * 10 + indices[i] - '0';
-                }
+                index[numIndex++] = ind;
             }
-            index[numIndex++] = ind;
         }
 
         public void Set(Primitive value)
@@ -127,8 +141,7 @@ namespace LitDev
         {
             for (int i = listFrom.Count - 1; i >= 0; i--)
             {
-                listFrom[i].RemoveAll(item => item.Count == 0 && item.Value == "");
-                if (listFrom[i].Count == 0)
+                if (listFrom[i].Count == 0 && listFrom[i].Value == "")
                 {
                     listFrom.RemoveAt(i);
                     continue;
@@ -151,22 +164,22 @@ namespace LitDev
             }
             for (int i = 0; i < listFrom.Count; i++)
             {
-                WriteRecursion(listGen[i], bw);
+                WriteRecursion(listFrom[i], bw);
             }
         }
         private void WriteRecursion(ListGen listFrom, StreamWriter sw, string line)
         {
             for (int i = 0; i < listFrom.Count; i++)
             {
+                string newline = line + (i + 1).ToString() + " ";
                 if (listFrom[i].Count == 0)
                 {
-                    line += " : " + listFrom[i].Value;
-                    sw.WriteLine(line);
+                    newline += ": " + listFrom[i].Value;
+                    sw.WriteLine(newline);
                 }
                 else
                 {
-                    line += i + " ";
-                    WriteRecursion(listGen[i], sw, line);
+                    WriteRecursion(listFrom[i], sw, newline);
                 }
             }
         }
@@ -180,7 +193,7 @@ namespace LitDev
                     {
                         using (BinaryWriter bw = new BinaryWriter(fs, Encoding.UTF8))
                         {
-                            //bw.Write(dimension);
+                            bw.Write(dimension);
 
                             WriteRecursion(listGenMain, bw);
                         }
@@ -192,7 +205,7 @@ namespace LitDev
                     {
                         using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
                         {
-                            //sw.WriteLine(dimension);
+                            sw.WriteLine(dimension);
 
                             string line = "";
                             WriteRecursion(listGenMain, sw, line);
@@ -229,7 +242,7 @@ namespace LitDev
                     {
                         using (BinaryReader br = new BinaryReader(fs, Encoding.UTF8))
                         {
-                            //dimension = br.ReadInt32();
+                            dimension = br.ReadInt32();
 
                             listGenMain.Clear();
                             ReadRecursion(listGenMain, br);
@@ -242,7 +255,7 @@ namespace LitDev
                     {
                         using (StreamReader sr = new StreamReader(fs, Encoding.UTF8))
                         {
-                            //dimension = int.Parse(sr.ReadLine());
+                            dimension = int.Parse(sr.ReadLine());
 
                             listGenMain.Clear();
                             while (sr.Peek() >= 0)
@@ -259,7 +272,12 @@ namespace LitDev
                                     }
                                     else
                                     {
-                                        listGen = listGen[int.Parse(split[i]) - 1];
+                                        int ind = int.Parse(split[i]);
+                                        for (int j = listGen.Count; j < ind; j++)
+                                        {
+                                            listGen.Add(new ListGen());
+                                        }
+                                        listGen = listGen[ind - 1];
                                     }
                                 }
                             }
@@ -281,17 +299,16 @@ namespace LitDev
                 foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
                 {
                     Dictionary<Primitive, Primitive> _arrayMap1 = (Dictionary<Primitive, Primitive>)_fieldInfo.GetValue(Utilities.CreateArrayMap(kvp.Value));
+                    listGen = new ListGen();
+                    listTo.Add(listGen);
                     if (_arrayMap1.Count > 0)
                     {
-                        listGen = new ListGen();
-                        listTo.Add(listGen);
                         FromSBRecursion(kvp.Value, listGen, bValues);
                     }
                     else
                     {
-                        listTo.Value = bValues ? kvp.Value : kvp.Key;
+                        listGen.Value = bValues ? kvp.Value : kvp.Key;
                     }
-                    FromSBRecursion(kvp.Value, listTo, bValues);
                 }
             }
             else
@@ -312,7 +329,7 @@ namespace LitDev
             }
         }
 
-        private void ToSBRecursion(ListGen listFrom, Primitive result)
+        private Primitive ToSBRecursion(ListGen listFrom, Primitive result)
         {
             if (listFrom.Count == 0)
             {
@@ -323,18 +340,17 @@ namespace LitDev
                 for (int i = 0; i < listFrom.Count; i++)
                 {
                     Primitive newResult = "";
-                    ToSBRecursion(listFrom[i], newResult);
-                    result[i + 1] = newResult;
+                    result[i + 1] = ToSBRecursion(listFrom[i], newResult);
                 }
             }
+            return result;
         }
         public Primitive ToSB()
         {
             try
             {
                 Primitive result = "";
-                ToSBRecursion(listGenMain, result);
-                return Utilities.CreateArrayMap(result);
+                return Utilities.CreateArrayMap(ToSBRecursion(listGenMain, result));
             }
             catch (Exception ex)
             {
@@ -354,9 +370,73 @@ namespace LitDev
         }
         public ListXD Copy()
         {
-            ListXD copy = new ListXD();
+            ListXD copy = new ListXD(dimension);
             CopyRecursion(listGenMain, copy.listGenMain);
             return copy;
+        }
+
+        public void WriteCSV(string fileName)
+        {
+            try
+            {
+                string[] output = new string[listGenMain.Count];
+
+                for (int iRow = 0; iRow < listGenMain.Count; iRow++)
+                {
+                    listGen = listGenMain[iRow];
+                    for (int iCol = 0; iCol < listGen.Count; iCol++)
+                    {
+                        output[iRow] += Utilities.CSVParse(listGen[iCol].Value, true) + Utilities.CSV;
+                    }
+                    if (output[iRow].Length > 0) output[iRow] = output[iRow].Substring(0, output[iRow].Length - 1);
+                }
+
+                System.IO.File.WriteAllLines(fileName, output);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        public void ReadCSV(string fileName)
+        {
+            try
+            {
+                string[] input = System.IO.File.ReadAllLines(fileName);
+
+                string[] row;
+                List<string[]> rowOrdered = new List<string[]>();
+                int numRow = input.Length;
+                int numCol = 1;
+
+                foreach (string line in input)
+                {
+                    row = line.Split(new string[] { Utilities.CSV }, StringSplitOptions.None);
+                    numCol = System.Math.Max(numCol, row.Length);
+                    rowOrdered.Add(row);
+                }
+
+                listGenMain.Clear();
+                ListGen listGen1, listGen2;
+
+                for (int iRow = 0; iRow < numRow; iRow++)
+                {
+                    listGen1 = new ListGen();
+                    listGenMain.Add(listGen1);
+                    row = rowOrdered[iRow];
+                    for (int iCol = 0; iCol < row.Length; iCol++)
+                    {
+                        listGen2 = new ListGen();
+                        listGen1.Add(listGen2);
+                        listGen2.Value = Utilities.CSVParse(row[iCol], false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
         }
     }
 
@@ -508,6 +588,7 @@ namespace LitDev
                                     bw.Write(list1D.Count);
                                     for (int k = 0; k < list1D.Count; k++)
                                     {
+                                        bw.Write(0);
                                         bw.Write((string)list1D[k]);
                                     }
                                 }
@@ -585,6 +666,7 @@ namespace LitDev
                                     int num3 = br.ReadInt32();
                                     for (int k = 0; k < num3; k++)
                                     {
+                                        int num4 = br.ReadInt32();
                                         list1D.Add(br.ReadString());
                                     }
                                 }
@@ -832,9 +914,10 @@ namespace LitDev
     /// <summary>
     /// This object provides another faster way of storing values in an Array.
     /// It can handle 1, 2 and 3 dimensional arrays and has methods to read and write arrays to files, including in CSV format.
-    /// It is also possible for different rows in an array to have different dimensions or numbers of elements, just like Small Basic arrays.
+    /// It is also possible for different rows in an array to have different dimensions or numbers of elements (jagged array), just like Small Basic arrays.
     /// Internally it uses lists that allow the sizes to grow so that the array size doesn't need to be set at the start.
     /// The indexing is by integer starting from 1.
+    /// Some higher dimension (>3) experimental (subject to change prefixed by _) methods are also present.
     /// </summary>
     [SmallBasicType]
     public static class LDFastArray
@@ -844,50 +927,195 @@ namespace LitDev
 
         public static Dictionary<string, ListXD> listXMap = new Dictionary<string, ListXD>();
         private static ListXD listXD;
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Create a new array.
+        /// </summary>
+        /// <returns>The array name.</returns>
         [HideFromIntellisense]
-        public static Primitive AddX()
+        public static Primitive _Add()
         {
             listXD = new ListXD();
             listXMap[listXD.Name] = listXD;
             return listXD.Name;
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Set a value.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="indices">A comma (or other deliminator) separated list of indices.</param>
+        /// <param name="value">The value to set.</param>
         [HideFromIntellisense]
-        public static void SetXD(Primitive arrayName, Primitive indices, Primitive value)
+        public static void _Set(Primitive arrayName, Primitive indices, Primitive value)
         {
             if (!listXMap.TryGetValue(arrayName, out listXD)) return;
             listXD.SetIndices(indices);
-            //listXD.numIndex = 3;
-            //listXD.index[0] = index1;
-            //listXD.index[1] = index2;
-            //listXD.index[2] = index3;
             listXD.Set(value);
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Set a 1D value.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="index1">The first dimension integer index.</param>
+        /// <param name="value">The value to set.</param>
         [HideFromIntellisense]
-        public static Primitive GetXD(Primitive arrayName, Primitive indices)
+        public static void _Set1D(Primitive arrayName, Primitive index1, Primitive value)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return;
+            listXD.numIndex = 1;
+            listXD.index[0] = index1;
+            listXD.Set(value);
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Set a 2D value.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="index1">The first dimension integer index.</param>
+        /// <param name="index2">The second dimension integer index.</param>
+        /// <param name="value">The value to set.</param>
+        [HideFromIntellisense]
+        public static void _Set2D(Primitive arrayName, Primitive index1, Primitive index2, Primitive value)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return;
+            listXD.numIndex = 2;
+            listXD.index[0] = index1;
+            listXD.index[1] = index2;
+            listXD.Set(value);
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Set a 3D value.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="index1">The first dimension integer index.</param>
+        /// <param name="index2">The second dimension integer index.</param>
+        /// <param name="index3">The third dimension integer index.</param>
+        /// <param name="value">The value to set.</param>
+        [HideFromIntellisense]
+        public static void _Set3D(Primitive arrayName, Primitive index1, Primitive index2, Primitive index3, Primitive value)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return;
+            listXD.numIndex = 3;
+            listXD.index[0] = index1;
+            listXD.index[1] = index2;
+            listXD.index[2] = index3;
+            listXD.Set(value);
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Get a value.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="indices">A comma (or other deliminator) separated list of indices.</param>
+        /// <returns>The array value or "" on failure.</returns>
+        [HideFromIntellisense]
+        public static Primitive _Get(Primitive arrayName, Primitive indices)
         {
             if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
             listXD.SetIndices(indices);
-            //listXD.numIndex = 3;
-            //listXD.index[0] = index1;
-            //listXD.index[1] = index2;
-            //listXD.index[2] = index3;
             return listXD.Get();
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Get a 1D value.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="index1">The first dimension integer index.</param>
+        /// <returns>The array value or "" on failure.</returns>
         [HideFromIntellisense]
-        public static Primitive DimX(Primitive arrayName, Primitive indices)
+        public static Primitive _Get1D(Primitive arrayName, Primitive index1)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+            listXD.numIndex = 1;
+            listXD.index[0] = index1;
+            return listXD.Get();
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Get a 2D value.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="index1">The first dimension integer index.</param>
+        /// <param name="index2">The second dimension integer index.</param>
+        /// <returns>The array value or "" on failure.</returns>
+        [HideFromIntellisense]
+        public static Primitive _Get2D(Primitive arrayName, Primitive index1, Primitive index2)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+            listXD.numIndex = 2;
+            listXD.index[0] = index1;
+            listXD.index[1] = index2;
+            return listXD.Get();
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Get a 3D value.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="index1">The first dimension integer index.</param>
+        /// <param name="index2">The second dimension integer index.</param>
+        /// <param name="index3">The third dimension integer index.</param>
+        /// <returns>The array value or "" on failure.</returns>
+        [HideFromIntellisense]
+        public static Primitive _Get3D(Primitive arrayName, Primitive index1, Primitive index2, Primitive index3)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+            listXD.numIndex = 3;
+            listXD.index[0] = index1;
+            listXD.index[1] = index2;
+            listXD.index[2] = index3;
+            return listXD.Get();
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Get the current size of a dimension.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="indices">A comma (or other deliminator) separated list of indices.</param>
+        /// <returns>The dimension size.</returns>
+        [HideFromIntellisense]
+        public static Primitive _Dim(Primitive arrayName, Primitive indices)
         {
             if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
             listXD.SetIndices(indices);
             return listXD.Dim();
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Remove all empty "" entries in an array.
+        /// Note that indices or even dimensions may change if public entries are removed.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
         [HideFromIntellisense]
-        public static void CollapseX(Primitive arrayName)
+        public static void _Collapse(Primitive arrayName)
         {
             if (!listXMap.TryGetValue(arrayName, out listXD)) return;
             listXD.Collapse();
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Create a new array and initialise it from a file.
+        /// </summary>
+        /// <param name="fileName">The full path of the file.</param>
+        /// <param name="binary">Binary ("True") or text ("False") formatted file.</param>
+        /// <returns>The array name.</returns>
         [HideFromIntellisense]
-        public static Primitive ReadX(Primitive fileName, Primitive binary)
+        public static Primitive _Read(Primitive fileName, Primitive binary)
         {
             if (!System.IO.File.Exists(fileName))
             {
@@ -895,41 +1123,124 @@ namespace LitDev
                 return "";
             }
 
-            string arrayName = AddX();
+            string arrayName = _Add();
             if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
             listXD.Read(fileName, binary);
             return arrayName;
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Save an array to a file.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <param name="fileName">The full path of the file.</param>
+        /// <param name="binary">Binary ("True") or text ("False") formatted file.</param>
         [HideFromIntellisense]
-        public static void WriteX(Primitive arrayName, Primitive fileName, Primitive binary)
+        public static void _Write(Primitive arrayName, Primitive fileName, Primitive binary)
         {
             if (!listXMap.TryGetValue(arrayName, out listXD)) return;
             listXD.Write(fileName, binary);
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Convert a SmallBasic array to a FastArray array.
+        /// All indices in the Small Basic array are replaced with consecutive integer indices.
+        /// </summary>
+        /// <param name="sbArray">The Small Basic array.</param>
+        /// <returns>A new FastArray or "".</returns>
         [HideFromIntellisense]
-        public static Primitive CreateFromValuesX(Primitive sbArray)
+        public static Primitive _CreateFromValues(Primitive sbArray)
         {
-            string arrayName = AddX();
+            string arrayName = _Add();
             if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
 
             listXD.FromSB(sbArray, true);
             return arrayName;
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Convert a SmallBasic array (up to 3 dimensions) to a FastArray array.
+        /// This method creates an array only containing the Small Basic array indices.
+        /// </summary>
+        /// <param name="sbArray">The Small Basic array.</param>
+        /// <returns>A new FastArray or "".</returns>
         [HideFromIntellisense]
-        public static Primitive CreateFromIndicesX(Primitive sbArray)
+        public static Primitive _CreateFromIndices(Primitive sbArray)
         {
-            string arrayName = AddX();
+            string arrayName = _Add();
             if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
 
             listXD.FromSB(sbArray, false);
             return arrayName;
         }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Convert a FastArray array to a Small Basic array.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <returns>A Small Basic array or "".</returns>
         [HideFromIntellisense]
-        public static Primitive ToArrayX(Primitive arrayName)
+        public static Primitive _ToArray(Primitive arrayName)
         {
             if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
 
             return listXD.ToSB();
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Read a CSV (comma separated values) file into a 2D FastArray array.
+        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// </summary>
+        /// <param name="fileName">The full path of the CSV file.</param>
+        /// <returns>A 2D FastArray with CSV file imported or "".</returns>
+        [HideFromIntellisense]
+        public static Primitive _ReadCSV(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+
+            string arrayName = _Add();
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+
+            listXD.ReadCSV(fileName);
+            return arrayName;
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// Write a 2D FastArray array to a CSV (comma separated values) file.
+        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// </summary>
+        /// <param name="arrayName">The 2D array name.</param>
+        /// <param name="fileName">The full path of the CSV file.</param>
+        [HideFromIntellisense]
+        public static void _WriteCSV(Primitive arrayName, Primitive fileName)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return;
+
+            listXD.WriteCSV(fileName);
+        }
+
+        /// <summary>
+        /// Copy an array.
+        /// </summary>
+        /// <param name="arrayName">The array name.</param>
+        /// <returns>A copy of the array.</returns>
+        public static Primitive _Copy(Primitive arrayName)
+        {
+            if (!listXMap.TryGetValue(arrayName, out listXD)) return "";
+
+            ListXD ListXDCopy = listXD.Copy();
+            listXMap[ListXDCopy.Name] = ListXDCopy;
+            return ListXDCopy.Name;
         }
 
         /// <summary>

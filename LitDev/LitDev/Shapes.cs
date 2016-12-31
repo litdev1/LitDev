@@ -303,6 +303,7 @@ namespace LitDev
         }
 
         private static List<HitTestResult> HitTestResults = new List<HitTestResult>();
+        private static IntersectionDetail lastIntersectionDetail = IntersectionDetail.NotCalculated;
         private static HitTestResultBehavior _HitTestResult(HitTestResult result)
         {
             HitTestResults.Add(result);
@@ -310,8 +311,8 @@ namespace LitDev
         }
         private static HitTestResultBehavior _HitTestResultGeometry(HitTestResult result)
         {
-            IntersectionDetail intersectionDetail = ((GeometryHitTestResult)result).IntersectionDetail;
-            switch (intersectionDetail)
+            IntersectionDetail detail = ((GeometryHitTestResult)result).IntersectionDetail;
+            switch (detail)
             {
                 case IntersectionDetail.FullyContains:
                     HitTestResults.Add(result);
@@ -1426,9 +1427,14 @@ namespace LitDev
                 delegate_Data = new object[] { _mainCanvas, obj1 };
                 FastThread.Invoke(Overlap_Delegate);
 
+                lastIntersectionDetail = IntersectionDetail.Empty;
                 foreach (HitTestResult i in HitTestResults)
                 {
-                    if (i.VisualHit == obj2) return "True";
+                    if (i.VisualHit == obj2)
+                    {
+                        lastIntersectionDetail = ((GeometryHitTestResult)i).IntersectionDetail;
+                        return "True";
+                    }
                 }
 
                 return "False";
@@ -1438,6 +1444,19 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return "False";
             }
+        }
+
+        /// <summary>
+        /// Following a call to Overlap, this property provides additional detail abut the intersection.
+        /// Result may be one of:
+        /// "Empty" - no intersection
+        /// "FullyContains" - shape1 is completely inside shape2
+        /// "Intersects" - overlap but neither is fully contained
+        /// "FullyInside" - shape2 is completely inside shape1
+        /// </summary>
+        public static Primitive OverlapDetail
+        {
+            get { return lastIntersectionDetail.ToString(); }
         }
 
         /// <summary>
