@@ -1295,6 +1295,7 @@ namespace LitDev
 
             try
             {
+                lastIntersectionDetail = IntersectionDetail.Empty;
                 if (!_objectsMap.TryGetValue((string)shape1, out obj1))
                 {
                     Utilities.OnShapeError(Utilities.GetCurrentMethod(), shape1);
@@ -1310,7 +1311,17 @@ namespace LitDev
                 Rect rect2 = new Rect(obj2.RenderSize);
                 rect1.Offset(VisualTreeHelper.GetOffset(obj1));
                 rect2.Offset(VisualTreeHelper.GetOffset(obj2));
-                return rect1.IntersectsWith(rect2) ? "True" : "False";
+                if (rect1.IntersectsWith(rect2))
+                {
+                    if (rect2.Contains(rect1)) lastIntersectionDetail = IntersectionDetail.FullyContains;
+                    else if (rect1.Contains(rect2)) lastIntersectionDetail = IntersectionDetail.FullyInside;
+                    else lastIntersectionDetail = IntersectionDetail.Intersects;
+                    return "True";
+                }
+                else
+                {
+                    return "False";
+                }
             }
             catch (Exception ex)
             {
@@ -1337,6 +1348,7 @@ namespace LitDev
 
             try
             {
+                lastIntersectionDetail = IntersectionDetail.Empty;
                 if (!_objectsMap.TryGetValue((string)shape1, out obj1))
                 {
                     Utilities.OnShapeError(Utilities.GetCurrentMethod(), shape1); 
@@ -1359,8 +1371,17 @@ namespace LitDev
                 double dy = (rect1.Y + rect1.Height / 2.0) - (rect2.Y + rect2.Height / 2.0);
                 double dist = System.Math.Sqrt(dx * dx + dy * dy);
 
-                return dist <= rad1 + rad2 ? "True" : "False";
-
+                if (dist <= rad1 + rad2)
+                {
+                    lastIntersectionDetail = IntersectionDetail.Intersects;
+                    if (dist + rad1 <= rad2) lastIntersectionDetail = IntersectionDetail.FullyContains;
+                    if (dist + rad2 <= rad1) lastIntersectionDetail = IntersectionDetail.FullyInside;
+                    return "True";
+                }
+                else
+                {
+                    return "False";
+                }
             }
             catch (Exception ex)
             {
@@ -1447,7 +1468,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Following a call to Overlap, this property provides additional detail abut the intersection.
+        /// Following a call to an Overlap method, this property provides additional detail abut the intersection.
         /// Result may be one of:
         /// "Empty" - no intersection
         /// "FullyContains" - shape1 is completely inside shape2

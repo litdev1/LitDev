@@ -708,8 +708,8 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            Primitive xx = LDFastArray._Add();
-            LDFastArray._Set(xx,"1 2 3",24);
+            Primitive xx = LDFastArray.Add();
+            LDFastArray.Set(xx,"1 2 3",24);
             FieldInfo _primitive = typeof(Primitive).GetField("_primitive", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);
             Primitive aa = "1 23 45";
             string bb = (string)_primitive.GetValue(aa);
@@ -717,7 +717,7 @@ namespace TestHarness
             Primitive arr = LDFastArray.CreateFromValues(sb);
             Primitive sb1 = LDFastArray.ToArray(arr);
 
-            Primitive a = LDFastArray.Add2D();
+            Primitive a = LDFastArray.Add();
             LDFastArray.Set2D(a, 2, 5, 10);
             LDFastArray.Set2D(a, 2, 2, 20);
             LDFastArray.Set2D(a, 1, 8, 30);

@@ -253,7 +253,8 @@ namespace LitDev
                 //output.Add("Program.Delay(1000)"); //To ensure start at the beginning
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    if (lines[i].Trim().Length > 0 && !lines[i].Trim().StartsWith("'"))
+                    string line = lines[i].Trim();
+                    if (line.Length > 0 && !line.StartsWith("'"))
                     {
                         output.Add("LDDebug.Break(" + (i + 1).ToString() + ")");
                     }

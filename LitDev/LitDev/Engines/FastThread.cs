@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Windows.Threading;
 using System.Windows.Media.Imaging;
 using System.Drawing;
+using System.Reflection.Emit;
 
 namespace LitDev.Engines
 {
@@ -266,6 +267,44 @@ namespace LitDev.Engines
             _bitmapSource = bitmapSource;
             _bCopy = bCopy;
             Invoke(SaveBitmapSource_Delegate);
+        }
+
+        public static Func<T> CreateGetter<T>(FieldInfo field)
+        {
+            string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
+            DynamicMethod setterMethod = new DynamicMethod(methodName, typeof(T), null, true);
+            ILGenerator gen = setterMethod.GetILGenerator();
+            if (field.IsStatic)
+            {
+                gen.Emit(OpCodes.Ldsfld, field);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Ldarg_0);
+                gen.Emit(OpCodes.Ldfld, field);
+            }
+            gen.Emit(OpCodes.Ret);
+            return (Func<T>)setterMethod.CreateDelegate(typeof(Func<T>));
+        }
+
+        public static Action<T> CreateSetter<T>(FieldInfo field)
+        {
+            string methodName = field.ReflectedType.FullName + ".set_" + field.Name;
+            DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[1] { typeof(T) }, true);
+            ILGenerator gen = setterMethod.GetILGenerator();
+            if (field.IsStatic)
+            {
+                gen.Emit(OpCodes.Ldarg_1);
+                gen.Emit(OpCodes.Stsfld, field);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Ldarg_0);
+                gen.Emit(OpCodes.Ldarg_1);
+                gen.Emit(OpCodes.Stfld, field);
+            }
+            gen.Emit(OpCodes.Ret);
+            return (Action<T>)setterMethod.CreateDelegate(typeof(Action<T>));
         }
     }
 }
