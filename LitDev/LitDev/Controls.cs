@@ -483,6 +483,15 @@ namespace LitDev
                 e.Handled = true;
             }
         }
+        private static string _LastRichTextBox = "";
+        private static SmallBasicCallback _RichTextBoxTextTypedDelegate = null;
+        private static void _RichTextBoxTextTypedEvent(object sender, TextChangedEventArgs e)
+        {
+            RichTextBox richTextBox = (RichTextBox)sender;
+            _LastRichTextBox = richTextBox.Name;
+            if (null == _RichTextBoxTextTypedDelegate) return;
+            _RichTextBoxTextTypedDelegate();
+        }
 
         private static string _LastMediaPlayer = "";
         private static SmallBasicCallback _MediaPlayerEndedDelegate = null;
@@ -1453,6 +1462,7 @@ namespace LitDev
                         richTextBox.PreviewDragOver += new DragEventHandler(_DragOver);
                         richTextBox.DragEnter += new DragEventHandler(_DragEnter);
                         richTextBox.Drop += new DragEventHandler(_DragDrop);
+                        richTextBox.TextChanged += new TextChangedEventHandler(_RichTextBoxTextTypedEvent);
                         richTextBox.Name = shapeName;
                         richTextBox.IsReadOnly = readOnly;
                         richTextBox.Width = width;
@@ -2136,6 +2146,29 @@ namespace LitDev
         {
             get { return caseSensitive ? "True" : "False"; }
             set { caseSensitive = value; }
+        }
+
+        /// <summary>
+        /// Event when text is typed into a rich text box.
+        /// </summary>
+        public static event SmallBasicCallback RichTextBoxTextTyped
+        {
+            add
+            {
+                _RichTextBoxTextTypedDelegate = value;
+            }
+            remove
+            {
+                _RichTextBoxTextTypedDelegate = null;
+            }
+        }
+
+        /// <summary>
+        /// The rich text box for which an event occurred.
+        /// </summary>
+        public static Primitive LastRichTextBox
+        {
+            get { return _LastRichTextBox; }
         }
 
         /// <summary>
