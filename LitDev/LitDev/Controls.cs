@@ -484,13 +484,33 @@ namespace LitDev
             }
         }
         private static string _LastRichTextBox = "";
+        private static bool bIndentToTab = true;
         private static SmallBasicCallback _RichTextBoxTextTypedDelegate = null;
         private static void _RichTextBoxTextTypedEvent(object sender, TextChangedEventArgs e)
         {
             RichTextBox richTextBox = (RichTextBox)sender;
             _LastRichTextBox = richTextBox.Name;
+            if (bIndentToTab) IndentToTab(richTextBox);
             if (null == _RichTextBoxTextTypedDelegate) return;
             _RichTextBoxTextTypedDelegate();
+        }
+        private static void IndentToTab(RichTextBox richTextBox)
+        {
+            richTextBox.TextChanged -= _RichTextBoxTextTypedEvent;
+            Paragraph paragraph = (Paragraph)richTextBox.Document.Blocks.FirstBlock;
+            while (null != paragraph)
+            {
+                if (paragraph.TextIndent > 0)
+                {
+                    if (paragraph.Inlines.Count > 0 && paragraph.Inlines.FirstInline.GetType() == typeof(Run))
+                    {
+                        paragraph.TextIndent = 0;
+                        ((Run)paragraph.Inlines.FirstInline).Text = "\t" + ((Run)paragraph.Inlines.FirstInline).Text;
+                    }
+                }
+                paragraph = (Paragraph)paragraph.NextBlock;
+            }
+            richTextBox.TextChanged += _RichTextBoxTextTypedEvent;
         }
 
         private static string _LastMediaPlayer = "";
@@ -1607,6 +1627,16 @@ namespace LitDev
         public static Primitive LastContextItem
         {
             get { return _LastContextItem; }
+        }
+
+        /// <summary>
+        /// Convert first charcter indents to tabs "True" (default) or "False".
+        /// A tab typed as a first character on a line in a RichTextBox creates an indent unless this is set to "True".
+        /// </summary>
+        public static Primitive RichTextBoxIndentToTab
+        {
+            get { return bIndentToTab; }
+            set { bIndentToTab = value; }
         }
 
         /// <summary>
