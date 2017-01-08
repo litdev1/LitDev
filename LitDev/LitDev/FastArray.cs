@@ -764,7 +764,7 @@ namespace LitDev
 
         /// <summary>
         /// Read a CSV (comma separated values) file into a 2D FastArray array.
-        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// The deliminator may be changed from a comma using Utilities.CSVDeliminator
         /// </summary>
         /// <param name="fileName">The full path of the CSV file.</param>
         /// <returns>A 2D FastArray with CSV file imported or "".</returns>
@@ -785,7 +785,7 @@ namespace LitDev
 
         /// <summary>
         /// Write a 2D FastArray array to a CSV (comma separated values) file.
-        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// The deliminator may be changed from a comma using Utilities.CSVDeliminator
         /// </summary>
         /// <param name="arrayName">The 2D array name.</param>
         /// <param name="fileName">The full path of the CSV file.</param>

@@ -4001,7 +4001,7 @@ namespace LitDev
         }
         /// <summary>
         /// Moves the shape with the specified name to a new position.
-        /// This method is maximally optimsed for speed.
+        /// This method is maximally optimised for speed.
         /// </summary>
         /// <param name="shapeName">
         /// The name of the shape to move.

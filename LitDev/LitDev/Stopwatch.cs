@@ -111,7 +111,7 @@ namespace LitDev
         /// Gets the total elapsed time measured in milliseconds.
         /// </summary>
         /// <param name="stopwatch">The stopwatch name.</param>
-        /// <returns></returns>
+        /// <returns>Elapsed milliseconds.</returns>
         public static Primitive ElapsedMilliseconds(Primitive stopwatch)
         {
             lock (lockWatch)
@@ -125,7 +125,7 @@ namespace LitDev
         /// Gets the total elapsed time measured in timer ticks for very short intervals.
         /// </summary>
         /// <param name="stopwatch">The stopwatch name.</param>
-        /// <returns></returns>
+        /// <returns>Elapsed ticks.</returns>
         public static Primitive ElapsedTicks(Primitive stopwatch)
         {
             lock (lockWatch)

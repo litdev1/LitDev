@@ -141,7 +141,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Create a new timer.  All timers created with this method call the event subroutine defned by Tick.
+        /// Create a new timer.  All timers created with this method call the event subroutine defined by Tick.
         /// </summary>
         /// <returns>The timer name.</returns>
         public static Primitive Add()

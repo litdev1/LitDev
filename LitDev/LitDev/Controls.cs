@@ -1630,7 +1630,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Convert first charcter indents to tabs "True" (default) or "False".
+        /// Convert first character indents to tabs "True" (default) or "False".
         /// A tab typed as a first character on a line in a RichTextBox creates an indent unless this is set to "True".
         /// </summary>
         public static Primitive RichTextBoxIndentToTab

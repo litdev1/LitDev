@@ -271,7 +271,7 @@ namespace LitDev
 
         /// <summary>
         /// Read a CSV (comma separated values) file into an array.
-        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// The deliminator may be changed from a comma using Utilities.CSVDeliminator
         /// </summary>
         /// <param name="fileName">
         /// The full path of the CSV file.
@@ -291,7 +291,7 @@ namespace LitDev
 
         /// <summary>
         /// Read a CSV (comma separated values) file into an array. and transpose (swap rows and columns).
-        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// The deliminator may be changed from a comma using Utilities.CSVDeliminator
         /// </summary>
         /// <param name="fileName">
         /// The full path of the CSV file.
@@ -311,7 +311,7 @@ namespace LitDev
 
         /// <summary>
         /// Write a 2D array to a CSV (comma separated values) file.
-        /// The deliminator may be changed from a comma using Utilities.CSVdeliminator
+        /// The deliminator may be changed from a comma using Utilities.CSVDeliminator
         /// </summary>
         /// <param name="fileName">
         /// The full path of the CSV file.
