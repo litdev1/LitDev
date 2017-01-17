@@ -35,7 +35,7 @@ namespace LitDev
         {
             try
             {
-                string uriFileName = fileToAdd.Replace(" ", "_");
+                string uriFileName = fileToAdd.Replace(" ", "_").Replace('\\', '/');
                 FileAttributes attr = System.IO.File.GetAttributes(fileToAdd);
                 if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
                 {
@@ -73,6 +73,7 @@ namespace LitDev
         {
             try
             {
+                fileToRemove = fileToRemove.Replace('\\', '/');
                 if (zip.ContainsEntry(fileToRemove))
                 {
                     zip.RemoveEntry(fileToRemove);

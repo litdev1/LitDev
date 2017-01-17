@@ -173,32 +173,13 @@ namespace LitDev
         {
             try
             {
-                if (IntPtr.Size == 8)
+                string filename = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\SQLite.Interop.dll";
+                if (!System.IO.File.Exists(filename))
                 {
-                    string filePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\x64";
-                    string fileName = filePath + "\\SQLite.Interop.dll";
-                    if (!System.IO.File.Exists(fileName))
+                    Byte[] dll = (IntPtr.Size == 8) ? global::LitDev.Properties.Resources.SQLite_Interop64 : global::LitDev.Properties.Resources.SQLite_Interop32;
+                    using (System.IO.FileStream fs = new System.IO.FileStream(filename, System.IO.FileMode.Create))
                     {
-                        Byte[] dll = global::LitDev.Properties.Resources.SQLite_Interop64;
-                        Directory.CreateDirectory(filePath);
-                        using (System.IO.FileStream fs = new System.IO.FileStream(fileName, System.IO.FileMode.Create))
-                        {
-                            fs.Write(dll, 0, dll.Length);
-                        }
-                    }
-                }
-                else
-                {
-                    string filePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\x86";
-                    string fileName = filePath + "\\SQLite.Interop.dll";
-                    if (!System.IO.File.Exists(fileName))
-                    {
-                        Byte[] dll = global::LitDev.Properties.Resources.SQLite_Interop32;
-                        Directory.CreateDirectory(filePath);
-                        using (System.IO.FileStream fs = new System.IO.FileStream(fileName, System.IO.FileMode.Create))
-                        {
-                            fs.Write(dll, 0, dll.Length);
-                        }
+                        fs.Write(dll, 0, dll.Length);
                     }
                 }
             }

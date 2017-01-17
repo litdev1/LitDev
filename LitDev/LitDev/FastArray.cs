@@ -345,24 +345,40 @@ namespace LitDev
                             {
                                 string line = sr.ReadLine();
                                 string[] split = line.Split(' ');
-                                listGen = listGenMain;
+                                if (split.Length == 0) continue;
+                                List<int> indices = new List<int>();
+                                int index;
+                                string value = "";
                                 for (int i = 0; i < split.Length; i++)
                                 {
-                                    if (split[i] == ":")
+                                    if (split[i] == ":" && indices.Count > 0)
                                     {
-                                        for (int j = i+1; j < split.Length; j++) listGen.Value += split[j];
+                                        for (int j = i + 1; j < split.Length; j++) value += split[j];
                                         break;
+                                    }
+                                    else if (int.TryParse(split[i], out index))
+                                    {
+                                        indices.Add(index);
                                     }
                                     else
                                     {
-                                        int ind = int.Parse(split[i]);
-                                        for (int j = listGen.Count; j < ind; j++)
-                                        {
-                                            listGen.Add(new ListGen());
-                                        }
-                                        listGen = listGen[ind - 1];
+                                        value = line;
+                                        indices.Clear();
+                                        indices.Add(listGenMain.Count + 1);
+                                        break;
                                     }
                                 }
+                                listGen = listGenMain;
+                                for (int i = 0; i < indices.Count; i++)
+                                {
+                                    index = indices[i];
+                                    for (int j = listGen.Count; j < index; j++)
+                                    {
+                                        listGen.Add(new ListGen());
+                                    }
+                                    listGen = listGen[index - 1];
+                                }
+                                listGen.Value = value;
                             }
                         }
                     }
@@ -851,6 +867,7 @@ namespace LitDev
 
         /// <summary>
         /// Create a new array and initialise it from a file.
+        /// If the file is text based and doesn't have the same idexed format as Write, then a 1D array with each line is created.
         /// </summary>
         /// <param name="fileName">The full path of the file.</param>
         /// <param name="binary">Binary ("True") or text ("False") formatted file.</param>
