@@ -34,6 +34,7 @@ using Media = System.Windows.Media;
 using System.Drawing.Text;
 using System.Runtime.InteropServices;
 using LitDev.Engines;
+using System.Windows.Media.Animation;
 
 namespace LitDev
 {
@@ -43,6 +44,8 @@ namespace LitDev
     [SmallBasicType]
     public static class LDGraphicsWindow
     {
+        private static object[] data;
+
         private static bool exitOnClose = true;
         private static bool cancelClose = false;
 
@@ -1154,6 +1157,35 @@ namespace LitDev
             }
         }
 
+        private static void Reposition_Delegate()
+        {
+            int i = 0;
+            Canvas _mainCanvas = (Canvas)data[i++];
+            double scaleX = (double)data[i++];
+            double scaleY = (double)data[i++];
+            double panX = (double)data[i++];
+            double panY = (double)data[i++];
+            double angle = (double)data[i++];
+
+            GetTransforms(_mainCanvas);
+
+            translateTransform.X = panX;
+            translateTransform.Y = panY;
+
+            scaleTransform.ScaleX = scaleX;
+            scaleTransform.ScaleY = scaleY;
+
+            rotateTransform.Angle = angle;
+
+            //Grid grid = (Grid)_mainCanvas.Parent;
+            //System.Windows.Point pointView = new System.Windows.Point(GraphicsWindow.Width / 2, GraphicsWindow.Height / 2);
+            //System.Windows.Point pointGW = grid.PointFromScreen(_mainCanvas.PointToScreen(pointView));
+            //TextWindow.WriteLine(rotateTransform.CenterX + " , " + pointGW.X);
+            //rotateTransform.CenterX = pointGW.X;
+            //rotateTransform.CenterY = pointGW.Y;
+
+            _mainCanvas.InvalidateVisual();
+        }
         /// <summary>
         /// Scale and move all Shapes and Contols within the GraphicsWindow.
         /// This method resizes and moves the view rather than the shapes, so their positions and other properties remain unchanged but appear scaled within the repositioned region.
@@ -1177,35 +1209,99 @@ namespace LitDev
             try
             {
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                InvokeHelper ret = new InvokeHelper(delegate
+                data = new object[] { _mainCanvas, (double)scaleX, (double)scaleY, (double)panX, (double)panY, (double)angle };
+                FastThread.Invoke(Reposition_Delegate);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private static void Animate_Delegate()
+        {
+            int i = 0;
+            Canvas _mainCanvas = (Canvas)data[i++];
+            double scaleX = (double)data[i++];
+            double scaleY = (double)data[i++];
+            double panX = (double)data[i++];
+            double panY = (double)data[i++];
+            double angle = (double)data[i++];
+            double duration = (double)data[i++];
+
+            Duration _duration = new Duration(TimeSpan.FromMilliseconds(duration));
+            GetTransforms(_mainCanvas);
+
+            if (translateTransform.X != panX)
+            {
+                DoubleAnimation animatePosX = new DoubleAnimation(translateTransform.X, panX, _duration)
                 {
-                    try
-                    {
-                        GetTransforms(_mainCanvas);
+                    FillBehavior = FillBehavior.HoldEnd,
+                    DecelerationRatio = 0.0
+                };
+                translateTransform.BeginAnimation(TranslateTransform.XProperty, animatePosX);
+            }
 
-                        translateTransform.X = panX;
-                        translateTransform.Y = panY;
+            if (translateTransform.Y != panY)
+            {
+                DoubleAnimation animatePosY = new DoubleAnimation(translateTransform.Y, panY, _duration)
+                {
+                    FillBehavior = FillBehavior.HoldEnd,
+                    DecelerationRatio = 0.0
+                };
+                translateTransform.BeginAnimation(TranslateTransform.YProperty, animatePosY);
+            }
 
-                        scaleTransform.ScaleX = scaleX;
-                        scaleTransform.ScaleY = scaleY;
+            if (scaleTransform.ScaleX != scaleX)
+            {
+                DoubleAnimation animateScaleX = new DoubleAnimation(scaleTransform.ScaleX, scaleX, _duration)
+                {
+                    FillBehavior = FillBehavior.HoldEnd,
+                    DecelerationRatio = 0.0
+                };
+                scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, animateScaleX);
+            }
 
-                        rotateTransform.Angle = angle;
+            if (scaleTransform.ScaleY != scaleY)
+            {
+                DoubleAnimation animateScaleY = new DoubleAnimation(scaleTransform.ScaleY, scaleY, _duration)
+                {
+                    FillBehavior = FillBehavior.HoldEnd,
+                    DecelerationRatio = 0.0
+                };
+                scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, animateScaleY);
+            }
 
-                        //Grid grid = (Grid)_mainCanvas.Parent;
-                        //System.Windows.Point pointView = new System.Windows.Point(GraphicsWindow.Width / 2, GraphicsWindow.Height / 2);
-                        //System.Windows.Point pointGW = grid.PointFromScreen(_mainCanvas.PointToScreen(pointView));
-                        //TextWindow.WriteLine(rotateTransform.CenterX + " , " + pointGW.X);
-                        //rotateTransform.CenterX = pointGW.X;
-                        //rotateTransform.CenterY = pointGW.Y;
+            if (rotateTransform.Angle != angle)
+            {
+                DoubleAnimation animateRotate = new DoubleAnimation(rotateTransform.Angle, angle, _duration)
+                {
+                    FillBehavior = FillBehavior.HoldEnd,
+                    DecelerationRatio = 0.0
+                };
+                rotateTransform.BeginAnimation(RotateTransform.AngleProperty, animateRotate);
+            }
+        }
+        /// <summary>
+        /// Scale and move all Shapes and Contols within the GraphicsWindow, by smooth animation.
+        /// This is the same as the Reposition method except that the movement is animated.
+        /// </summary>
+        /// <param name="scaleX">The X direction scaling of the view.</param>
+        /// <param name="scaleY">The Y direction scaling of the view.</param>
+        /// <param name="panX">Pan the view in the X direction in the view scaling, 0 is centered in the GraphicsWindow.</param>
+        /// <param name="panY">Pan the view in the Y direction in the view scaling, 0 is centered in the GraphicsWindow.</param>
+        /// <param name="angle">An angle to rotate the view.</param>
+        /// <param name="duration">The time for the animation, in milliseconds.</param>
+        public static void Animate(Primitive scaleX, Primitive scaleY, Primitive panX, Primitive panY, Primitive angle, Primitive duration)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Canvas _mainCanvas;
 
-                        _mainCanvas.InvalidateVisual();
-                    }
-                    catch (Exception ex)
-                    {
-                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                    }
-                });
-                FastThread.Invoke(ret);
+            try
+            {
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                data = new object[] { _mainCanvas, (double)scaleX, (double)scaleY, (double)panX, (double)panY, (double)angle, (double)duration };
+                FastThread.Invoke(Animate_Delegate);
             }
             catch (Exception ex)
             {

@@ -497,18 +497,20 @@ namespace LitDev
         private static void IndentToTab(RichTextBox richTextBox)
         {
             richTextBox.TextChanged -= _RichTextBoxTextTypedEvent;
-            Paragraph paragraph = (Paragraph)richTextBox.Document.Blocks.FirstBlock;
-            while (null != paragraph)
+            foreach (Block block in richTextBox.Document.Blocks)
             {
-                if (paragraph.TextIndent > 0)
+                if (block.GetType() == typeof(Paragraph))
                 {
-                    if (paragraph.Inlines.Count > 0 && paragraph.Inlines.FirstInline.GetType() == typeof(Run))
+                    Paragraph paragraph = (Paragraph)block;
+                    if (paragraph.TextIndent > 0)
                     {
-                        paragraph.TextIndent = 0;
-                        ((Run)paragraph.Inlines.FirstInline).Text = "\t" + ((Run)paragraph.Inlines.FirstInline).Text;
+                        if (paragraph.Inlines.Count > 0 && paragraph.Inlines.FirstInline.GetType() == typeof(Run))
+                        {
+                            paragraph.TextIndent = 0;
+                            ((Run)paragraph.Inlines.FirstInline).Text = "\t" + ((Run)paragraph.Inlines.FirstInline).Text;
+                        }
                     }
                 }
-                paragraph = (Paragraph)paragraph.NextBlock;
             }
             richTextBox.TextChanged += _RichTextBoxTextTypedEvent;
         }

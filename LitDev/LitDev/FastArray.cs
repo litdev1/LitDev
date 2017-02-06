@@ -294,8 +294,18 @@ namespace LitDev
                     {
                         using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
                         {
-                            string line = "";
-                            WriteRecursion(listGenMain, sw, line);
+                            if (Dimension() == 1)
+                            {
+                                for (int i = 0; i < listGenMain.Count; i++)
+                                {
+                                    sw.WriteLine((string)listGenMain[i].Value);
+                                }
+                            }
+                            else
+                            {
+                                string line = "";
+                                WriteRecursion(listGenMain, sw, line);
+                            }
                         }
                     }
                 }
@@ -867,7 +877,7 @@ namespace LitDev
 
         /// <summary>
         /// Create a new array and initialise it from a file.
-        /// If the file is text based and doesn't have the same idexed format as Write, then a 1D array with each line is created.
+        /// If the file is text based and doesn't have the same indexing format as Write, then a 1D array with each line is created.
         /// </summary>
         /// <param name="fileName">The full path of the file.</param>
         /// <param name="binary">Binary ("True") or text ("False") formatted file.</param>
@@ -888,6 +898,7 @@ namespace LitDev
 
         /// <summary>
         /// Save an array to a file.
+        /// If the array is 1D and written as a text, then each entry is just written to a line with no indexing.
         /// </summary>
         /// <param name="arrayName">The array name.</param>
         /// <param name="fileName">The full path of the file.</param>
