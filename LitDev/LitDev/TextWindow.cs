@@ -342,7 +342,7 @@ namespace LitDev
         /// <summary>
         /// Set extended encoding for the TextWindow.
         /// Allowed values are:
-        /// "ASCII" (default), "Unicode", "BigEndianUnicode", "UTF32", "UTF7", "UTF8"
+        /// "ASCII" (default), "Unicode", "UTF7", "UTF8"
         /// </summary>
         public static Primitive Encoding
         {
