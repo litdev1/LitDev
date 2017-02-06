@@ -360,12 +360,12 @@ namespace LitDev
                     case "unicode":
                         Console.OutputEncoding = System.Text.Encoding.Unicode;
                         break;
-                    case "bigendianunicode":
-                        Console.OutputEncoding = System.Text.Encoding.BigEndianUnicode;
-                        break;
-                    case "utf32":
-                        Console.OutputEncoding = System.Text.Encoding.UTF32;
-                        break;
+                    //case "bigendianunicode":
+                    //    Console.OutputEncoding = System.Text.Encoding.BigEndianUnicode;
+                    //    break;
+                    //case "utf32":
+                    //    Console.OutputEncoding = System.Text.Encoding.UTF32;
+                    //    break;
                     case "utf7":
                         Console.OutputEncoding = System.Text.Encoding.UTF7;
                         break;
