@@ -3187,7 +3187,7 @@ namespace LitDev
 
         /// <summary>
         /// Get the bounding box extent of a geometry.
-        /// This is the coordinates on creation (before any transformation).
+        /// This is the current position (after any transformations).
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
@@ -3227,6 +3227,143 @@ namespace LitDev
                                 return result;
                             }
                             return "FAILED";
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "FAILED";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Reset the material for an existing geometry.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
+        public static void ResetMateral(Primitive shapeName, Primitive geometryName, Primitive colour, Primitive materialType)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return;
+                                GeometryModel3D geometry = geom.geometryModel3D;
+
+                                MaterialGroup material = new MaterialGroup();
+                                Brush brush = null;
+                                foreach (GradientBrush i in LDShapes.brushes)
+                                {
+                                    if (i.name == colour)
+                                    {
+                                        brush = i.getBrush();
+                                    }
+                                }
+                                if (null == brush) brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
+                                switch (materialType.ToString().ToLower())
+                                {
+                                    case "e":
+                                        material.Children.Add(new DiffuseMaterial(brush));
+                                        material.Children.Add(new EmissiveMaterial(brush));
+                                        geometry.Material = material;
+                                        break;
+                                    case "d":
+                                        material.Children.Add(new DiffuseMaterial(brush));
+                                        geometry.Material = material;
+                                        break;
+                                    case "s":
+                                        material.Children.Add(new SpecularMaterial(brush, specular));
+                                        geometry.Material = material;
+                                        break;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    FastThread.Invoke(ret);
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Get the transformed (current) center position of an existing geometry.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <returns> An array of the transformed position or "FAILED".
+        /// array[1] = X (Xmin)
+        /// array[2] = Y (Ymin)
+        /// array[3] = Z (Zmin)
+        /// </returns>
+        public static Primitive GetPosition(Primitive shapeName, Primitive geometryName)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        Primitive result = "";
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return "FAILED";
+                                GeometryModel3D geometry = geom.geometryModel3D;
+
+                                Point3D center = geometry.Bounds.Location;
+                                center.X += geometry.Bounds.SizeX / 2.0;
+                                center.Y += geometry.Bounds.SizeY / 2.0;
+                                center.Z += geometry.Bounds.SizeZ / 2.0;
+                                result[1] = center.X;
+                                result[2] = center.Y;
+                                result[3] = center.Z;
+                            }
+                            return result;
                         }
                         catch (Exception ex)
                         {
