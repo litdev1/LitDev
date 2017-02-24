@@ -210,11 +210,11 @@ namespace LitDev
 
                 MaterialGroup material = new MaterialGroup();
                 Brush brush = null;
-                foreach (GradientBrush i in LDShapes.brushes)
+                foreach (GradientBrush iBrush in LDShapes.brushes)
                 {
-                    if (i.name == colour)
+                    if (iBrush.name == colour)
                     {
-                        brush = i.getBrush();
+                        brush = iBrush.getBrush();
                     }
                 }
                 if (null == brush) brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
@@ -933,6 +933,194 @@ namespace LitDev
                         }
 
                         geometry.Transform = transform3DGroup;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void ResetMaterial_Delegate()
+            {
+                int i = 0;
+                string shapeName = (string)data[i++];
+                string geometryName = (string)data[i++];
+                Primitive colour = (Primitive)data[i++];
+                Primitive materialType = (Primitive)data[i++];
+                UIElement obj = (UIElement)data[i++];
+
+                try
+                {
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+
+                        MaterialGroup material = new MaterialGroup();
+                        Brush brush = null;
+                        foreach (GradientBrush iBrush in LDShapes.brushes)
+                        {
+                            if (iBrush.name == colour)
+                            {
+                                brush = iBrush.getBrush();
+                            }
+                        }
+                        if (null == brush) brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
+                        switch (materialType.ToString().ToLower())
+                        {
+                            case "e":
+                                material.Children.Add(new DiffuseMaterial(brush));
+                                material.Children.Add(new EmissiveMaterial(brush));
+                                geometry.Material = material;
+                                break;
+                            case "d":
+                                material.Children.Add(new DiffuseMaterial(brush));
+                                geometry.Material = material;
+                                break;
+                            case "s":
+                                material.Children.Add(new SpecularMaterial(brush, specular));
+                                geometry.Material = material;
+                                break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void AnimateRotation_Delegate()
+            {
+                int i = 0;
+                string shapeName = (string)data[i++];
+                string geometryName = (string)data[i++];
+                Primitive xDir = (Primitive)data[i++];
+                Primitive yDir = (Primitive)data[i++];
+                Primitive zDir = (Primitive)data[i++];
+                Primitive startAngle = (Primitive)data[i++];
+                Primitive endAngle = (Primitive)data[i++];
+                Primitive duration = (Primitive)data[i++];
+                Primitive repeats = (Primitive)data[i++];
+                UIElement obj = (UIElement)data[i++];
+
+                try
+                {
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
+                        AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
+
+                        DoubleAnimation doubleAnimaton = new DoubleAnimation();
+                        doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimaton.RepeatBehavior = repeats < 0 ? RepeatBehavior.Forever : new RepeatBehavior(repeats);
+                        doubleAnimaton.From = startAngle;
+                        doubleAnimaton.To = endAngle;
+                        doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
+                        axisAngleRotation3D.Axis = new Vector3D(xDir, yDir, zDir);
+                        axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void AnimateRotation2_Delegate()
+            {
+                int i = 0;
+                string shapeName = (string)data[i++];
+                string geometryName = (string)data[i++];
+                Primitive xDir = (Primitive)data[i++];
+                Primitive yDir = (Primitive)data[i++];
+                Primitive zDir = (Primitive)data[i++];
+                Primitive startAngle = (Primitive)data[i++];
+                Primitive endAngle = (Primitive)data[i++];
+                Primitive duration = (Primitive)data[i++];
+                Primitive repeats = (Primitive)data[i++];
+                UIElement obj = (UIElement)data[i++];
+
+                try
+                {
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
+                        AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
+
+                        DoubleAnimation doubleAnimaton = new DoubleAnimation();
+                        doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimaton.RepeatBehavior = repeats < 0 ? RepeatBehavior.Forever : new RepeatBehavior(repeats);
+                        doubleAnimaton.From = startAngle;
+                        doubleAnimaton.To = endAngle;
+                        doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
+                        axisAngleRotation3D.Axis = new Vector3D(xDir, yDir, zDir);
+                        axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            public void AnimateTranslation_Delegate()
+            {
+                int i = 0;
+                string shapeName = (string)data[i++];
+                string geometryName = (string)data[i++];
+                Primitive x = (Primitive)data[i++];
+                Primitive y = (Primitive)data[i++];
+                Primitive z = (Primitive)data[i++];
+                Primitive duration = (Primitive)data[i++];
+                UIElement obj = (UIElement)data[i++];
+
+                try
+                {
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+
+                        TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
+
+                        DoubleAnimation doubleAnimationX = new DoubleAnimation();
+                        doubleAnimationX.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimationX.From = translateTransform3D.OffsetX;
+                        doubleAnimationX.To = x;
+
+                        DoubleAnimation doubleAnimationY = new DoubleAnimation();
+                        doubleAnimationY.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimationY.From = translateTransform3D.OffsetY;
+                        doubleAnimationY.To = y;
+
+                        DoubleAnimation doubleAnimationZ = new DoubleAnimation();
+                        doubleAnimationZ.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimationZ.From = translateTransform3D.OffsetZ;
+                        doubleAnimationZ.To = z;
+
+                        doubleAnimationX.Completed += (s, _) => _TranslationCompletedEvent(geom);
+
+                        translateTransform3D.BeginAnimation(TranslateTransform3D.OffsetXProperty, doubleAnimationX);
+                        translateTransform3D.BeginAnimation(TranslateTransform3D.OffsetYProperty, doubleAnimationY);
+                        translateTransform3D.BeginAnimation(TranslateTransform3D.OffsetZProperty, doubleAnimationZ);
                     }
                 }
                 catch (Exception ex)
@@ -2165,37 +2353,8 @@ namespace LitDev
             {
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate2];
-                                AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
-
-                                DoubleAnimation doubleAnimaton = new DoubleAnimation();
-                                doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
-                                doubleAnimaton.RepeatBehavior = repeats < 0 ? RepeatBehavior.Forever : new RepeatBehavior(repeats);
-                                doubleAnimaton.From = startAngle;
-                                doubleAnimaton.To = endAngle;
-                                doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
-                                axisAngleRotation3D.Axis = new Vector3D(xDir, yDir, zDir);
-                                axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, xDir, yDir, zDir, startAngle, endAngle, duration, repeats, obj });
+                    FastThread.BeginInvoke(delegates.AnimateRotation_Delegate);
                 }
                 else
                 {
@@ -2214,14 +2373,14 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object to animate.</param>
-        /// <param name="x">X direction of vector to rotate about.</param>
-        /// <param name="y">Y direction of vector to rotate about.</param>
-        /// <param name="z">Z direction of vector to rotate about.</param>
+        /// <param name="xDir">X direction of vector to rotate about.</param>
+        /// <param name="yDir">Y direction of vector to rotate about.</param>
+        /// <param name="zDir">Z direction of vector to rotate about.</param>
         /// <param name="startAngle">The starting angle in degrees (e.g. 0).</param>
         /// <param name="endAngle">The final angle in degrees (e.g. 360).</param>
         /// <param name="duration">The animation duration (time in sec).</param>
         /// <param name="repeats">The number of times to repeat the animation (-1 is for ever).</param>
-        public static void AnimateRotation2(Primitive shapeName, Primitive geometryName, Primitive x, Primitive y, Primitive z, Primitive startAngle, Primitive endAngle, Primitive duration, Primitive repeats)
+        public static void AnimateRotation2(Primitive shapeName, Primitive geometryName, Primitive xDir, Primitive yDir, Primitive zDir, Primitive startAngle, Primitive endAngle, Primitive duration, Primitive repeats)
         {
             UIElement obj;
 
@@ -2229,37 +2388,8 @@ namespace LitDev
             {
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
-                                AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
-
-                                DoubleAnimation doubleAnimaton = new DoubleAnimation();
-                                doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
-                                doubleAnimaton.RepeatBehavior = repeats < 0 ? RepeatBehavior.Forever : new RepeatBehavior(repeats);
-                                doubleAnimaton.From = startAngle;
-                                doubleAnimaton.To = endAngle;
-                                doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
-                                axisAngleRotation3D.Axis = new Vector3D(x, y, z);
-                                axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, doubleAnimaton);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, xDir, yDir, zDir, startAngle, endAngle, duration, repeats, obj });
+                    FastThread.BeginInvoke(delegates.AnimateRotation2_Delegate);
                 }
                 else
                 {
@@ -2316,48 +2446,8 @@ namespace LitDev
             {
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-
-                                TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
-
-                                DoubleAnimation doubleAnimationX = new DoubleAnimation();
-                                doubleAnimationX.Duration = new Duration(new TimeSpan(duration * 10000000));
-                                doubleAnimationX.From = translateTransform3D.OffsetX;
-                                doubleAnimationX.To = x;
-
-                                DoubleAnimation doubleAnimationY = new DoubleAnimation();
-                                doubleAnimationY.Duration = new Duration(new TimeSpan(duration * 10000000));
-                                doubleAnimationY.From = translateTransform3D.OffsetY;
-                                doubleAnimationY.To = y;
-
-                                DoubleAnimation doubleAnimationZ = new DoubleAnimation();
-                                doubleAnimationZ.Duration = new Duration(new TimeSpan(duration * 10000000));
-                                doubleAnimationZ.From = translateTransform3D.OffsetZ;
-                                doubleAnimationZ.To = z;
-
-                                doubleAnimationX.Completed += (s, _) => _TranslationCompletedEvent(geom);
-
-                                translateTransform3D.BeginAnimation(TranslateTransform3D.OffsetXProperty, doubleAnimationX);
-                                translateTransform3D.BeginAnimation(TranslateTransform3D.OffsetYProperty, doubleAnimationY);
-                                translateTransform3D.BeginAnimation(TranslateTransform3D.OffsetZProperty, doubleAnimationZ);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.BeginInvoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, x, y, z, duration, obj });
+                    FastThread.BeginInvoke(delegates.AnimateTranslation_Delegate);
                 }
                 else
                 {
@@ -3269,50 +3359,8 @@ namespace LitDev
             {
                 if (_objectsMap.TryGetValue((string)shapeName, out obj))
                 {
-                    InvokeHelper ret = new InvokeHelper(delegate
-                    {
-                        try
-                        {
-                            if (obj.GetType() == typeof(Viewport3D))
-                            {
-                                Geometry geom = getGeometry(geometryName);
-                                if (null == geom) return;
-                                GeometryModel3D geometry = geom.geometryModel3D;
-
-                                MaterialGroup material = new MaterialGroup();
-                                Brush brush = null;
-                                foreach (GradientBrush i in LDShapes.brushes)
-                                {
-                                    if (i.name == colour)
-                                    {
-                                        brush = i.getBrush();
-                                    }
-                                }
-                                if (null == brush) brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
-                                switch (materialType.ToString().ToLower())
-                                {
-                                    case "e":
-                                        material.Children.Add(new DiffuseMaterial(brush));
-                                        material.Children.Add(new EmissiveMaterial(brush));
-                                        geometry.Material = material;
-                                        break;
-                                    case "d":
-                                        material.Children.Add(new DiffuseMaterial(brush));
-                                        geometry.Material = material;
-                                        break;
-                                    case "s":
-                                        material.Children.Add(new SpecularMaterial(brush, specular));
-                                        geometry.Material = material;
-                                        break;
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                        }
-                    });
-                    FastThread.Invoke(ret);
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, colour, materialType, obj });
+                    FastThread.BeginInvoke(delegates.ResetMaterial_Delegate);
                 }
                 else
                 {
@@ -3324,7 +3372,6 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
-
 
         /// <summary>
         /// Get the transformed (current) center position of an existing geometry.
