@@ -183,7 +183,90 @@ namespace LitDev
     [SmallBasicType]
     public static class LDEncryption
     {
+        private static UTF8Encoding ByteConverter = new UTF8Encoding();
+        private static RSACryptoServiceProvider _RSA = new RSACryptoServiceProvider();
+        private static byte[] plaintext;
+        private static byte[] encryptedtext;
+
         /// <summary>
+        /// Enctypt an RSA message.  
+        /// Requires a Private or Public key to be set.
+        /// If no key is set then one created for this session is used.
+        /// </summary>
+        /// <param name="source">The message to encrypt.</param>
+        /// <returns>The encrypted message.</returns>
+        public static Primitive RSAEncrypt(Primitive source)
+        {
+            try
+            {
+                plaintext = ByteConverter.GetBytes(source);
+                using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
+                {
+                    RSA.ImportParameters(_RSA.ExportParameters(false));
+                    encryptedtext = RSA.Encrypt(plaintext, false);
+                }
+                return Convert.ToBase64String(encryptedtext);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Decrpyt an RSA message.  
+        /// Requires a Private key to be set.
+        /// If no key is set then one created for this session is used.
+        /// </summary>
+        /// <param name="source">The encypted message.</param>
+        /// <returns>The unencrypted message.</returns>
+        public static Primitive RSADecrypt(Primitive source)
+        {
+            try
+            {
+                encryptedtext = Convert.FromBase64String(source);
+                using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
+                {
+                    RSA.ImportParameters(_RSA.ExportParameters(true));
+                    plaintext = RSA.Decrypt(encryptedtext, false);
+                }
+                return ByteConverter.GetString(plaintext);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// <summary>
+        /// Randomly reset the private and public keys
+        /// </summary>
+        public static void RSAReset()
+        {
+            _RSA = new RSACryptoServiceProvider();
+        }
+
+        /// <summary>
+        /// Get or set a public RSA key.
+        /// </summary>
+        public static Primitive RSAPublicKey
+        {
+            get { return _RSA.ToXmlString(false); }
+            set { _RSA.FromXmlString(value); }
+        }
+
+        /// <summary>
+        /// Get or set a private (includes public key) RSA key.
+        /// </summary>
+        public static Primitive RSAPrivateKey
+        {
+            get { return _RSA.ToXmlString(true); }
+            set { _RSA.FromXmlString(value); }
+        }
+
         /// Encrypt some text using AES encryption and a password key.
         /// The encrypted test can be saved to a file.
         /// Note that if you forget the password there is NO WAY to decrypt!
