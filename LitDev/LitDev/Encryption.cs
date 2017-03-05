@@ -184,27 +184,21 @@ namespace LitDev
     public static class LDEncryption
     {
         private static UTF8Encoding ByteConverter = new UTF8Encoding();
-        private static RSACryptoServiceProvider _RSA = new RSACryptoServiceProvider();
-        private static byte[] plaintext;
-        private static byte[] encryptedtext;
+        private static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
 
         /// <summary>
-        /// Enctypt an RSA message.  
-        /// Requires a Private or Public key to be set.
+        /// Encrypt an RSA message.  
+        /// Requires a Public key to be set (Anyone can encrypt with public key).
         /// If no key is set then one created for this session is used.
         /// </summary>
-        /// <param name="source">The message to encrypt.</param>
+        /// <param name="unencrypted">The message to encrypt.</param>
         /// <returns>The encrypted message.</returns>
-        public static Primitive RSAEncrypt(Primitive source)
+        public static Primitive RSAEncrypt(Primitive unencrypted)
         {
             try
             {
-                plaintext = ByteConverter.GetBytes(source);
-                using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
-                {
-                    RSA.ImportParameters(_RSA.ExportParameters(false));
-                    encryptedtext = RSA.Encrypt(plaintext, false);
-                }
+                byte[] plaintext = ByteConverter.GetBytes(unencrypted);
+                byte[] encryptedtext = RSA.Encrypt(plaintext, false);
                 return Convert.ToBase64String(encryptedtext);
             }
             catch (Exception ex)
@@ -216,21 +210,17 @@ namespace LitDev
 
         /// <summary>
         /// Decrpyt an RSA message.  
-        /// Requires a Private key to be set.
+        /// Requires a Private key to be set (Only originator can decrypt with private key).
         /// If no key is set then one created for this session is used.
         /// </summary>
-        /// <param name="source">The encypted message.</param>
+        /// <param name="encrypted">The encypted message.</param>
         /// <returns>The unencrypted message.</returns>
-        public static Primitive RSADecrypt(Primitive source)
+        public static Primitive RSADecrypt(Primitive encrypted)
         {
             try
             {
-                encryptedtext = Convert.FromBase64String(source);
-                using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
-                {
-                    RSA.ImportParameters(_RSA.ExportParameters(true));
-                    plaintext = RSA.Decrypt(encryptedtext, false);
-                }
+                byte[] encryptedtext = Convert.FromBase64String(encrypted);
+                byte[] plaintext = RSA.Decrypt(encryptedtext, false);
                 return ByteConverter.GetString(plaintext);
             }
             catch (Exception ex)
@@ -241,12 +231,56 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Sign an RSA message.  
+        /// Requires a Private key to be set (Only originator can sign with private key).
+        /// If no key is set then one created for this session is used.
+        /// </summary>
+        /// <param name="data">The message to sign.</param>
+        /// <returns>The signing for the message.</returns>
+        public static Primitive RSASign(Primitive data)
+        {
+            try
+            {
+                byte[] plaindata = ByteConverter.GetBytes(data);
+                byte[] signdata = RSA.SignData(plaindata, new SHA1CryptoServiceProvider());
+                return Convert.ToBase64String(signdata);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Verify a signed RSA message.  
+        /// Requires a Public key to be set (Anyone can verify with public key).
+        /// If no key is set then one created for this session is used.
+        /// </summary>
+        /// <param name="data">The message that was signed.</param>
+        /// <param name="sign">The signing for the message.</param>
+        /// <returns>"True" or "False".</returns>
+        public static Primitive RSAVerify(Primitive data, Primitive sign)
+        {
+            try
+            {
+                byte[] plaindata = ByteConverter.GetBytes(data);
+                byte[] signdata = Convert.FromBase64String(sign);
+                return RSA.VerifyData(plaindata, new SHA1CryptoServiceProvider(), signdata);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
         /// <summary>
         /// Randomly reset the private and public keys
         /// </summary>
         public static void RSAReset()
         {
-            _RSA = new RSACryptoServiceProvider();
+            RSA = new RSACryptoServiceProvider();
         }
 
         /// <summary>
@@ -254,17 +288,17 @@ namespace LitDev
         /// </summary>
         public static Primitive RSAPublicKey
         {
-            get { return _RSA.ToXmlString(false); }
-            set { _RSA.FromXmlString(value); }
+            get { return RSA.ToXmlString(false); }
+            set { RSA.FromXmlString(value); }
         }
 
         /// <summary>
-        /// Get or set a private (includes public key) RSA key.
+        /// Get or set a private RSA key.
         /// </summary>
         public static Primitive RSAPrivateKey
         {
-            get { return _RSA.ToXmlString(true); }
-            set { _RSA.FromXmlString(value); }
+            get { return RSA.ToXmlString(true); }
+            set { RSA.FromXmlString(value); }
         }
 
         /// Encrypt some text using AES encryption and a password key.
