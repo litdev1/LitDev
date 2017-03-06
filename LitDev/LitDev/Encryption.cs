@@ -185,6 +185,7 @@ namespace LitDev
     {
         private static UTF8Encoding ByteConverter = new UTF8Encoding();
         private static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+        private static SHA512CryptoServiceProvider sha512 = new SHA512CryptoServiceProvider();
 
         /// <summary>
         /// Encrypt an RSA message.  
@@ -242,7 +243,7 @@ namespace LitDev
             try
             {
                 byte[] plaindata = ByteConverter.GetBytes(data);
-                byte[] signdata = RSA.SignData(plaindata, new SHA1CryptoServiceProvider());
+                byte[] signdata = RSA.SignData(plaindata, sha512);
                 return Convert.ToBase64String(signdata);
             }
             catch (Exception ex)
@@ -266,7 +267,7 @@ namespace LitDev
             {
                 byte[] plaindata = ByteConverter.GetBytes(data);
                 byte[] signdata = Convert.FromBase64String(sign);
-                return RSA.VerifyData(plaindata, new SHA1CryptoServiceProvider(), signdata);
+                return RSA.VerifyData(plaindata, sha512, signdata);
             }
             catch (Exception ex)
             {
@@ -301,8 +302,9 @@ namespace LitDev
             set { RSA.FromXmlString(value); }
         }
 
+        /// <summary>
         /// Encrypt some text using AES encryption and a password key.
-        /// The encrypted test can be saved to a file.
+        /// The encrypted text can be saved to a file.
         /// Note that if you forget the password there is NO WAY to decrypt!
         /// </summary>
         /// <param name="source">The text to encrypt.</param>
