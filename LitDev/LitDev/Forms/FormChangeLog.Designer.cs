@@ -29,7 +29,7 @@
             System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Encoding: \"BigEndianUnicode\" and \"UTF32\" depreciated");
             System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("LDTextWindow", new System.Windows.Forms.TreeNode[] {
             treeNode7});
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("ResetMateral method added");
+            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("ResetMaterial method added");
             System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("GetPosition method added");
             System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("LD3DView", new System.Windows.Forms.TreeNode[] {
             treeNode9,
@@ -1815,7 +1815,7 @@
             treeNode8.Name = "Node2";
             treeNode8.Text = "LDTextWindow";
             treeNode9.Name = "Node1";
-            treeNode9.Text = "ResetMateral method added";
+            treeNode9.Text = "ResetMaterial method added";
             treeNode10.Name = "Node2";
             treeNode10.Text = "GetPosition method added";
             treeNode11.Name = "Node0";

@@ -3351,7 +3351,7 @@ namespace LitDev
         /// "D" Diffusive - affected by lights.
         /// "S" Specular  - specular highlights.
         /// </param>
-        public static void ResetMateral(Primitive shapeName, Primitive geometryName, Primitive colour, Primitive materialType)
+        public static void ResetMaterial(Primitive shapeName, Primitive geometryName, Primitive colour, Primitive materialType)
         {
             UIElement obj;
 
