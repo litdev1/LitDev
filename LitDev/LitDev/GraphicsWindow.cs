@@ -1187,7 +1187,7 @@ namespace LitDev
             _mainCanvas.InvalidateVisual();
         }
         /// <summary>
-        /// Scale and move all Shapes and Contols within the GraphicsWindow.
+        /// Scale and move all Shapes and Controls within the GraphicsWindow.
         /// This method resizes and moves the view rather than the shapes, so their positions and other properties remain unchanged but appear scaled within the repositioned region.
         /// For example Shapes.GetLeft remains unchanged although the view has been repositioned and GraphicsWindow.MouseX reports the coordinates relative to the repositioned view.
         /// Imagine the entire view is repositioned as if it were a shape inside the GrapicsWindow.
@@ -1283,7 +1283,7 @@ namespace LitDev
             }
         }
         /// <summary>
-        /// Scale and move all Shapes and Contols within the GraphicsWindow, by smooth animation.
+        /// Scale and move all Shapes and Controls within the GraphicsWindow, by smooth animation.
         /// This is the same as the Reposition method except that the movement is animated.
         /// </summary>
         /// <param name="scaleX">The X direction scaling of the view.</param>

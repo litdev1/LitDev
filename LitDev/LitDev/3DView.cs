@@ -3379,9 +3379,9 @@ namespace LitDev
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
         /// <returns> An array of the transformed position or "FAILED".
-        /// array[1] = X (Xmin)
-        /// array[2] = Y (Ymin)
-        /// array[3] = Z (Zmin)
+        /// array[1] = X (Xcen)
+        /// array[2] = Y (Ycen)
+        /// array[3] = Z (Zcen)
         /// </returns>
         public static Primitive GetPosition(Primitive shapeName, Primitive geometryName)
         {
