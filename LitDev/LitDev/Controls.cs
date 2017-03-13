@@ -401,7 +401,8 @@ namespace LitDev
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                if (sender.GetType() == typeof(TextBox) || sender.GetType() == typeof(RichTextBox) || sender.GetType() == typeof(DocumentViewer) || sender.GetType() == typeof(Image) || sender.GetType() == typeof(Window) || sender.GetType() == typeof(MediaElement) || sender.GetType() == typeof(Viewport3D))
+                if (sender.GetType() == typeof(TextBox) || sender.GetType() == typeof(RichTextBox) || sender.GetType() == typeof(DocumentViewer) || 
+                    sender.GetType() == typeof(Image) || sender.GetType() == typeof(Window) || sender.GetType() == typeof(MediaElement))
                 {
                     e.Effects = DragDropEffects.Copy;
                 }
@@ -467,11 +468,6 @@ namespace LitDev
                     {
                         MediaElement mediaElement = (MediaElement)sender;
                         MediaPlayerLoad(mediaElement.Name, fileNames[0]);
-                    }
-                    else if (sender.GetType() == typeof(Viewport3D))
-                    {
-                        Viewport3D viewport3D = (Viewport3D)sender;
-                        LD3DView.LoadModel(viewport3D.Name, fileNames[0]);
                     }
                     _LastDropFiles = "";
                     for (int i = 0; i < fileNames.Length; i++)
@@ -3379,7 +3375,6 @@ namespace LitDev
         /// XPS file opened in DocumentViewer.
         /// Image set in Image or Background.
         /// Media for MediaPlayer (only works if valid media is already loaded).
-        /// 3DView.LoadModel file.
         /// </summary>
         /// <param name="shapeName">The shape to allow drop or "Background".</param>
         public static void AllowDrop(Primitive shapeName)
