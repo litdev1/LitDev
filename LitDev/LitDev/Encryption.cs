@@ -149,6 +149,22 @@ namespace LitDev
             return "";
         }
 
+		public static string CalculateSHA512HashFile(string fileName)
+		{
+			try
+			{
+				SHA512 sha512 = SHA512.Create();
+				byte[] inputBytes = System.IO.File.ReadAllBytes(fileName);
+				byte[] hash = sha512.ComputeHash(inputBytes);
+				return HexString(hash);
+			}
+			catch (Exception ex)
+			{
+				Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+			}
+			return "";
+		}
+
         public static string CalculateSHA512Hash(string input)
         {
             try
