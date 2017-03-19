@@ -200,7 +200,7 @@ namespace LitDev
                         if (autoMessages) TextWindow.WriteLine(client.name + " Connected");
                         if (serverData != "") SendMessage(client.name, "SERVER:" + serverData);
                     }
-                    for (int i = 0; i < clients.Count; i++)
+                    for (int i = 0; i < clients.Count; i++) //Possible use case for Brodcast()
                     {
                         SendMessage(clients[i].name, client.name + ":CONNECTED");
                     }
@@ -360,6 +360,22 @@ namespace LitDev
             }
         }
 
+		/// <summary>
+		/// Send a message to all clients.
+		/// </summary>
+		/// <param name="message">The message may be any variable including an array.</param>
+		/// <returns>A array of values "SUCCESS", "NOT_CONNECTED", "NO_CLIENT" or "FAILED" with the Client Name being the index</returns>
+		public static Primitive Brodcast(Primitive message)
+		{
+			StringBuilder result = new StringBuilder(); //Used for performance reasons. Immutable vs mutable and all that.
+			for (int i = 0;i < clients.Count; i++)
+			{
+				string status = SendMessage(clients[i].name, message);
+				result.Append( Utilities.ArrayParse(clients[i].name) + "=" + status + ";" );
+			}
+			return Utilities.CreateArrayMap(result.ToString());
+		}
+
         /// <summary>
         /// Start the server.
         /// </summary>
@@ -461,7 +477,7 @@ namespace LitDev
                     {
                         serverData[client] = "";
                         if (autoMessages) TextWindow.WriteLine(client + " Disconnected");
-                        for (int i = 0; i < clients.Count; i++)
+						for (int i = 0; i < clients.Count; i++) //Possible use case for Brodcast()
                         {
                             SendMessage(clients[i].name, client + ":DISCONNECTED");
                         }
@@ -481,7 +497,7 @@ namespace LitDev
                         }
                         else
                         {
-                            for (int i = 0; i < clients.Count; i++)
+                            for (int i = 0; i < clients.Count; i++) //Possible use case for Brodcast()
                             {
                                 if (client != clients[i].name) SendMessage(clients[i].name, client + ":" + message);
                             }
