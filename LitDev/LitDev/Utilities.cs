@@ -121,7 +121,7 @@ namespace LitDev
         public static void saveImage(DrawingImage img, string fileName)
         {
             string _fileName = fileName.ToLower();
-
+			//Could a Switch be used here instead of else if statements ?
             if (_fileName.EndsWith(".png"))
             {
                 img.Save(fileName, ImageFormat.Png);
