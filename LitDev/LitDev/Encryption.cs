@@ -379,5 +379,21 @@ namespace LitDev
         {
             return StringEncryption.CalculateSHA512Hash(password);
         }
+
+        /// <summary>
+        /// Create an SHA512 hash of a file.
+        /// This 128 character hash is for file data integrity checks (e.g. a file contents is unchanged).
+        /// </summary>
+        /// <param name="fileName">The full path to a file to get the hash.</param>
+        /// <returns>The 128 character hex SHA512 Hash.</returns>
+        public static Primitive SHA512HashFile(Primitive fileName)
+        {
+            if (!System.IO.File.Exists(fileName))
+            {
+                Utilities.OnFileError(Utilities.GetCurrentMethod(), fileName);
+                return "";
+            }
+            return StringEncryption.CalculateSHA512HashFile(fileName);
+        }
     }
 }
