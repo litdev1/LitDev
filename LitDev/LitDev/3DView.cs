@@ -301,6 +301,7 @@ namespace LitDev
 
         private static Point lastPos = new Point(-1, -1);
         private static string centerGeom = "";
+        private static int autoMode = 0;
         private static bool bPitchRoll = false;
         private static bool bShift = false;
         private static double keyDist = 0;
@@ -313,7 +314,7 @@ namespace LitDev
                 Window window = (Window)sender;
                 Point pos = e.GetPosition(window);
 
-                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
+                if (autoMode == 1 || e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
                 {
                     foreach (Viewport3D viewport3D in views)
                     {
@@ -326,7 +327,7 @@ namespace LitDev
                         {
                             double yaw = -(pos.X - lastPos.X) * 180 / viewport3D.ActualWidth;
                             double pitch = bPitchRoll ? (pos.Y - lastPos.Y) * 180 / viewport3D.ActualHeight : 0;
-                            if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
+                            if (autoMode == 1 || (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))))
                             {
                                 if (centerGeom == "") return;
                                 Geometry geom = getGeometry(centerGeom);
@@ -486,7 +487,7 @@ namespace LitDev
         {
             lock (lockObj)
             {
-                if (keyDist < 0) return;
+                if (autoMode != 0 || keyDist < 0) return;
 
                 double move = 0;
                 if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down)) move -= 0.1;
@@ -1216,7 +1217,8 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Set auto Control of the camera.
+        /// Set auto control of the camera.
+        /// This mode is a general purpose camera control, mainly for moving within a scene (a flyby mode).
         /// Move forwards and backwards with mouse wheel (faster with Shift down, slower with Control down).
         /// Yaw and Pitch camera moving with left mouse button.
         /// Yaw with A,D or Left,Right keys, move forwards and backwards with W,S or Up,Down keys.
@@ -1243,8 +1245,64 @@ namespace LitDev
                 {
                     try
                     {
+                        autoMode = 0;
                         bPitchRoll = pitchRoll;
                         bShift = shift;
+                        keyDist = keyDistance;
+                        speedMult = speed;
+                        if (lastPos == new Point(-1, -1))
+                        {
+                            _window.MouseMove += new MouseEventHandler(_MouseMove);
+                            _window.MouseWheel += new MouseWheelEventHandler(_MouseWheel);
+                            _window.MouseDoubleClick += new MouseButtonEventHandler(_MouseDoubleClick);
+                            _window.KeyDown += new KeyEventHandler(_KeyDown);
+
+                            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+                            timer.Enabled = true;
+                            timer.Interval = 20;
+                            timer.Tick += new EventHandler(timer_Tick);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                FastThread.Invoke(ret);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Set auto control of the camera.
+        /// This mode is mainly to rotate and view a 3D scene rather than move through the scene (an inspection mode).
+        /// Zoom in or out with mouse wheel (faster with Shift down, slower with Control down).
+        /// Double left click an object to center it.
+        /// Double right click to reset the up direction to Y.
+        /// Yaw and Pitch scene moving with left mouse button after selecting an object to rotate scene about.
+        /// X, Y, Z keys change the view direction and up direction to face in these directions towards (0,0,0), with Shift then the negative direction.
+        /// </summary>
+        /// <param name="keyDistance">The distance to view the scene from using keys, (0 prevents the X,Y,Z key shortcuts).</param>
+        /// <param name="speed">Forwards and backwards speed multiplier (default 1).</param>
+        public static void AutoControl2(Primitive keyDistance, Primitive speed)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Window _window;
+
+            try
+            {
+                _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        autoMode = 1;
+                        bPitchRoll = true;
+                        bShift = true;
                         keyDist = keyDistance;
                         speedMult = speed;
                         if (lastPos == new Point(-1, -1))
