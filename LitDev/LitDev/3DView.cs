@@ -306,6 +306,8 @@ namespace LitDev
         private static bool bShift = false;
         private static double keyDist = 0;
         private static double speedMult = 1;
+        private static double panRight = 0;
+        private static double panUp = 0;
 
         private static void _MouseMove(object sender, MouseEventArgs e)
         {
@@ -335,19 +337,20 @@ namespace LitDev
                                 Transform3D transform3D = (Transform3D)geometry.Transform;
                                 Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
                                 TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
-                                Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
 
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
                                 Vector3D lookDirection = camera.LookDirection;
                                 Vector3D upDirection = camera.UpDirection;
-                                Point3D position = camera.Position;
                                 Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                Vector3D move = panRight * screenDirection + panUp * camera.UpDirection;
+                                Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0) + move);
+                                Point3D position = camera.Position + move;
 
                                 RotateTransform3D yawTransform = new RotateTransform3D(new AxisAngleRotation3D(upDirection, yaw), center);
                                 position = yawTransform.Transform(position);
-
                                 RotateTransform3D pitchTransform = new RotateTransform3D(new AxisAngleRotation3D(screenDirection, -pitch), center);
                                 position = pitchTransform.Transform(position);
+                                position -= move;
 
                                 lookDirection = center - position;
                                 lookDirection.Normalize();
@@ -465,6 +468,8 @@ namespace LitDev
                         Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
                         TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
                         Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
+                        panRight = 0;
+                        panUp = 0;
 
                         lookDirection = center - position;
                         lookDirection.Normalize();
@@ -487,27 +492,60 @@ namespace LitDev
         {
             lock (lockObj)
             {
-                if (autoMode != 0 || keyDist < 0) return;
+                if (keyDist < 0) return;
 
-                double move = 0;
-                if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down)) move -= 0.1;
-                if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up)) move += 0.1;
-                double yaw = 0;
-                if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left)) yaw -= 3;
-                if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right)) yaw += 3;
-
-                if (move == 0 && yaw == 0) return;
-
-                foreach (Viewport3D viewport3D in views)
+                if (autoMode == 0)
                 {
-                    if (!_objectsMap.ContainsKey(viewport3D.Name))
+                    double move = 0;
+                    if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down)) move -= 0.1 * speedMult;
+                    if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up)) move += 0.1 * speedMult;
+                    double yaw = 0;
+                    if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left)) yaw -= 3;
+                    if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right)) yaw += 3;
+
+                    if (move == 0 && yaw == 0) return;
+
+                    foreach (Viewport3D viewport3D in views)
                     {
-                        views.Remove(viewport3D);
-                        continue;
+                        if (!_objectsMap.ContainsKey(viewport3D.Name))
+                        {
+                            views.Remove(viewport3D);
+                            continue;
+                        }
+                        if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) move *= 5;
+                        if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) move /= 5;
+                        MoveCamera(viewport3D.Name, yaw, 0, 0, move);
                     }
-                    if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) move *= 5;
-                    if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) move /= 5;
-                    MoveCamera(viewport3D.Name, yaw, 0, 0, move);
+                }
+                else if (autoMode == 1)
+                {
+                    double scale = 1;
+                    if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) scale = 5.0;
+                    else if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) scale = 1.0/5.0;
+
+                    double right = 0;
+                    if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left)) right += 0.1 * speedMult * scale;
+                    if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right)) right -= 0.1 * speedMult * scale;
+                    double up = 0;
+                    if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down)) up += 0.1 * speedMult * scale;
+                    if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up)) up -= 0.1 * speedMult * scale;
+
+                    if (right == 0 && up == 0) return;
+                    panRight += right;
+                    panUp += up;
+
+                    foreach (Viewport3D viewport3D in views)
+                    {
+                        if (!_objectsMap.ContainsKey(viewport3D.Name))
+                        {
+                            views.Remove(viewport3D);
+                            continue;
+                        }
+                        ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
+                        Vector3D screenDirection = Vector3D.CrossProduct(camera.LookDirection, camera.UpDirection);
+                        Vector3D move = right * screenDirection + up * camera.UpDirection;
+                        camera.Position += move;
+                    }
                 }
             }
         }
@@ -1280,10 +1318,12 @@ namespace LitDev
         /// Set auto control of the camera.
         /// This mode is mainly to rotate and view a 3D scene rather than move through the scene (an inspection mode).
         /// Zoom in or out with mouse wheel (faster with Shift down, slower with Control down).
+        /// Pan left/right with A,D or Left,Right keys, pan up/down with W,S or Up,Down keys.
         /// Double left click an object to center it.
         /// Double right click to reset the up direction to Y.
         /// Yaw and Pitch scene moving with left mouse button after selecting an object to rotate scene about.
-        /// X, Y, Z keys change the view direction and up direction to face in these directions towards (0,0,0), with Shift then the negative direction.
+        /// Roll scene moving with right mouse button.
+        /// X, Y, Z keys change the view direction and up direction to face in these directions towards selected center, with Shift then the negative direction.
         /// </summary>
         /// <param name="keyDistance">The distance to view the scene from using keys, (0 prevents the X,Y,Z key shortcuts).</param>
         /// <param name="speed">Forwards and backwards speed multiplier (default 1).</param>
@@ -2319,7 +2359,9 @@ namespace LitDev
                                 Model3DGroup model3DGroup = (Model3DGroup)modelVisual3D.Content;
 
                                 if (x < 0) x = viewport3D.Width / 2;
+                                else x -= LDShapes.GetLeft(shapeName);
                                 if (y < 0) y = viewport3D.Height / 2;
+                                else y -= LDShapes.GetTop(shapeName);
 
                                 PointHitTestParameters hitParams = new PointHitTestParameters(new Point(x, y));
                                 rayResult = null;
