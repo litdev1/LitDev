@@ -446,23 +446,35 @@ namespace LitDev
                     Vector3D upDirection = camera.UpDirection;
                     Point3D position = camera.Position;
                     double mult = (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) ? 1 : -1;
+
+                    Point3D center = new Point3D(0, 0, 0);
+                    if (centerGeom != "")
+                    {
+                        Geometry geom = getGeometry(centerGeom);
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        center = transform3D.Transform(Centroid(geometry));
+                    }
+                    panRight = 0;
+                    panUp = 0;
+
                     switch (e.Key)
                     {
                         case Key.X:
                             lookDirection = new Vector3D(mult, 0, 0);
-                            position = new Point3D(-keyDist * mult, 0, 0);
+                            position = new Point3D(center.X - keyDist * mult, center.Y, center.Z);
                             upDirection = new Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
                         case Key.Y:
                             lookDirection = new Vector3D(0, mult, 0);
-                            position = new Point3D(0, -keyDist * mult, 0);
+                            position = new Point3D(center.X, center.Y - keyDist * mult, center.Z);
                             upDirection = new Vector3D(0, 0, 1);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
                         case Key.Z:
                             lookDirection = new Vector3D(0, 0, mult);
-                            position = new Point3D(0, 0, -keyDist * mult);
+                            position = new Point3D(center.X, center.Y, center.Z - keyDist * mult);
                             upDirection = new Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
                             break;
@@ -628,6 +640,7 @@ namespace LitDev
                         quaterion = new Quaternion(lookDirection, roll);
                         rotateMatrix.Rotate(quaterion);
                         upDirection = rotateMatrix.Transform(upDirection);
+                        upDirection.Normalize();
 
                         camera.LookDirection = lookDirection;
                         camera.UpDirection = upDirection;
@@ -676,6 +689,11 @@ namespace LitDev
                         {
                             camera.UpDirection = new Vector3D(xUp, yUp, zUp);
                         }
+
+                        camera.LookDirection.Normalize();
+                        camera.UpDirection.Normalize();
+                        Vector3D screenDirection = Vector3D.CrossProduct(camera.LookDirection, camera.UpDirection);
+                        camera.UpDirection = Vector3D.CrossProduct(screenDirection, camera.LookDirection);
 
                         UpdateBillBoards(viewport3D, shapeName);
                     }
