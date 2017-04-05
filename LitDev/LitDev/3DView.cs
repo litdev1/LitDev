@@ -309,6 +309,16 @@ namespace LitDev
         private static double panRight = 0;
         private static double panUp = 0;
 
+        private static Point3D Centroid(GeometryModel3D geometry)
+        {
+            Point3D centroid = geometry.Bounds.Location;
+            centroid.X += geometry.Bounds.SizeX / 2.0;
+            centroid.Y += geometry.Bounds.SizeY / 2.0;
+            centroid.Z += geometry.Bounds.SizeZ / 2.0;
+            Transform3D transform3D = (Transform3D)geometry.Transform;
+            return transform3D.Inverse.Transform(centroid);
+        }
+
         private static void _MouseMove(object sender, MouseEventArgs e)
         {
             lock (lockObj)
@@ -331,20 +341,42 @@ namespace LitDev
                             double pitch = bPitchRoll ? (pos.Y - lastPos.Y) * 180 / viewport3D.ActualHeight : 0;
                             if (autoMode == 1 || (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))))
                             {
-                                if (centerGeom == "") return;
-                                Geometry geom = getGeometry(centerGeom);
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-                                TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
-
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
                                 Vector3D lookDirection = camera.LookDirection;
                                 Vector3D upDirection = camera.UpDirection;
                                 Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
-                                Vector3D move = panRight * screenDirection + panUp * camera.UpDirection;
-                                Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0) + move);
-                                Point3D position = camera.Position + move;
+                                Point3D position = camera.Position;
+                                lookDirection.Normalize();
+                                screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                screenDirection.Normalize();
+                                upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
+
+                                bool reset = false;
+                                if (centerGeom == "")
+                                {
+                                    if (Geometries.Count == 0) return;
+                                    Primitive hit = HitTest(viewport3D.Name, -1, -1);
+                                    if (hit == "") centerGeom = Geometries[0].name;
+                                    else centerGeom = hit[1];
+                                    reset = true;
+                                }
+                                Geometry geom = getGeometry(centerGeom);
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                Transform3D transform3D = (Transform3D)geometry.Transform;
+
+                                if (reset)
+                                {
+                                    Point3D centerMove = transform3D.Transform(Centroid(geometry));
+                                    panRight = Vector3D.DotProduct(screenDirection, position - centerMove);
+                                    panUp = Vector3D.DotProduct(upDirection, position - centerMove);
+                                }
+                                //TextWindow.WriteLine(panRight + " : " + panUp);
+                                //TextWindow.WriteLine("SCREEN " + screenDirection.X + "," + screenDirection.Y + "," + screenDirection.Z);
+                                //TextWindow.WriteLine("UP " + upDirection.X + "," + upDirection.Y + "," + upDirection.Z);
+                                //TextWindow.WriteLine("LOOK " + lookDirection.X + "," + lookDirection.Y + "," + lookDirection.Z);
+                                Vector3D move = panRight * screenDirection + panUp * upDirection;
+                                Point3D center = transform3D.Transform(Centroid(geometry) + move);
+                                position += move;
 
                                 RotateTransform3D yawTransform = new RotateTransform3D(new AxisAngleRotation3D(upDirection, yaw), center);
                                 position = yawTransform.Transform(position);
@@ -465,9 +497,7 @@ namespace LitDev
                         Geometry geom = getGeometry(centerGeom);
                         GeometryModel3D geometry = geom.geometryModel3D;
                         Transform3D transform3D = (Transform3D)geometry.Transform;
-                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-                        TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
-                        Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
+                        Point3D center = transform3D.Transform(Centroid(geometry));
                         panRight = 0;
                         panUp = 0;
 
