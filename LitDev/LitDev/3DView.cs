@@ -339,6 +339,7 @@ namespace LitDev
                         {
                             double yaw = -(pos.X - lastPos.X) * 180 / viewport3D.ActualWidth;
                             double pitch = bPitchRoll ? (pos.Y - lastPos.Y) * 180 / viewport3D.ActualHeight : 0;
+
                             if (autoMode == 1 || (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))))
                             {
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
@@ -375,7 +376,7 @@ namespace LitDev
                                 //TextWindow.WriteLine("UP " + upDirection.X + "," + upDirection.Y + "," + upDirection.Z);
                                 //TextWindow.WriteLine("LOOK " + lookDirection.X + "," + lookDirection.Y + "," + lookDirection.Z);
                                 Vector3D move = panRight * screenDirection + panUp * upDirection;
-                                Point3D center = transform3D.Transform(Centroid(geometry) + move);
+                                Point3D center = transform3D.Transform(Centroid(geometry)) + move;
                                 position += move;
 
                                 RotateTransform3D yawTransform = new RotateTransform3D(new AxisAngleRotation3D(upDirection, yaw), center);
@@ -395,7 +396,33 @@ namespace LitDev
                             else
                             {
                                 MoveCamera(viewport3D.Name, yaw, pitch, 0, 0);
-                                centerGeom = "";
+
+                                if (centerGeom != "")
+                                {
+                                    Geometry geom = getGeometry(centerGeom);
+                                    GeometryModel3D geometry = geom.geometryModel3D;
+                                    Transform3D transform3D = (Transform3D)geometry.Transform;
+                                    Point3D centerMove = transform3D.Transform(Centroid(geometry));
+
+                                    ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
+                                    Vector3D lookDirection = camera.LookDirection;
+                                    Vector3D upDirection = camera.UpDirection;
+                                    Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                    Point3D position = camera.Position;
+                                    lookDirection.Normalize();
+                                    screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                    screenDirection.Normalize();
+                                    upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
+
+                                    panRight = Vector3D.DotProduct(screenDirection, position - centerMove);
+                                    panUp = Vector3D.DotProduct(upDirection, position - centerMove);
+                                }
+                                else
+                                {
+                                    panRight = 0;
+                                    panUp = 0;
+                                }
+                                //centerGeom = "";
                             }
                         }
                         if (bPitchRoll && e.RightButton == MouseButtonState.Pressed)
@@ -455,8 +482,6 @@ namespace LitDev
                         Transform3D transform3D = (Transform3D)geometry.Transform;
                         center = transform3D.Transform(Centroid(geometry));
                     }
-                    panRight = 0;
-                    panUp = 0;
 
                     switch (e.Key)
                     {
@@ -465,18 +490,24 @@ namespace LitDev
                             position = new Point3D(center.X - keyDist * mult, center.Y, center.Z);
                             upDirection = new Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            panRight = 0;
+                            panUp = 0;
                             break;
                         case Key.Y:
                             lookDirection = new Vector3D(0, mult, 0);
                             position = new Point3D(center.X, center.Y - keyDist * mult, center.Z);
                             upDirection = new Vector3D(0, 0, 1);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            panRight = 0;
+                            panUp = 0;
                             break;
                         case Key.Z:
                             lookDirection = new Vector3D(0, 0, mult);
                             position = new Point3D(center.X, center.Y, center.Z - keyDist * mult);
                             upDirection = new Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            panRight = 0;
+                            panUp = 0;
                             break;
                     }
                 }
@@ -641,6 +672,11 @@ namespace LitDev
                         rotateMatrix.Rotate(quaterion);
                         upDirection = rotateMatrix.Transform(upDirection);
                         upDirection.Normalize();
+
+                        lookDirection.Normalize();
+                        Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                        screenDirection.Normalize();
+                        upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
 
                         camera.LookDirection = lookDirection;
                         camera.UpDirection = upDirection;
