@@ -309,14 +309,12 @@ namespace LitDev
         private static double panRight = 0;
         private static double panUp = 0;
 
-        private static Point3D Centroid(GeometryModel3D geometry)
+        private static Point3D GetCentre(GeometryModel3D geometry)
         {
-            Point3D centroid = geometry.Bounds.Location;
-            centroid.X += geometry.Bounds.SizeX / 2.0;
-            centroid.Y += geometry.Bounds.SizeY / 2.0;
-            centroid.Z += geometry.Bounds.SizeZ / 2.0;
             Transform3D transform3D = (Transform3D)geometry.Transform;
-            return transform3D.Inverse.Transform(centroid);
+            Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+            RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
+            return new Point3D(rotateTransform3D.CenterX, rotateTransform3D.CenterY, rotateTransform3D.CenterZ);
         }
 
         private static void _MouseMove(object sender, MouseEventArgs e)
@@ -367,7 +365,7 @@ namespace LitDev
 
                                 if (reset)
                                 {
-                                    Point3D centerMove = transform3D.Transform(Centroid(geometry));
+                                    Point3D centerMove = transform3D.Transform(GetCentre(geometry));
                                     panRight = Vector3D.DotProduct(screenDirection, position - centerMove);
                                     panUp = Vector3D.DotProduct(upDirection, position - centerMove);
                                 }
@@ -376,7 +374,7 @@ namespace LitDev
                                 //TextWindow.WriteLine("UP " + upDirection.X + "," + upDirection.Y + "," + upDirection.Z);
                                 //TextWindow.WriteLine("LOOK " + lookDirection.X + "," + lookDirection.Y + "," + lookDirection.Z);
                                 Vector3D move = panRight * screenDirection + panUp * upDirection;
-                                Point3D center = transform3D.Transform(Centroid(geometry)) + move;
+                                Point3D center = transform3D.Transform(GetCentre(geometry)) + move;
                                 position += move;
 
                                 RotateTransform3D yawTransform = new RotateTransform3D(new AxisAngleRotation3D(upDirection, yaw), center);
@@ -396,33 +394,6 @@ namespace LitDev
                             else
                             {
                                 MoveCamera(viewport3D.Name, yaw, pitch, 0, 0);
-
-                                if (centerGeom != "")
-                                {
-                                    Geometry geom = getGeometry(centerGeom);
-                                    GeometryModel3D geometry = geom.geometryModel3D;
-                                    Transform3D transform3D = (Transform3D)geometry.Transform;
-                                    Point3D centerMove = transform3D.Transform(Centroid(geometry));
-
-                                    ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
-                                    Vector3D lookDirection = camera.LookDirection;
-                                    Vector3D upDirection = camera.UpDirection;
-                                    Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
-                                    Point3D position = camera.Position;
-                                    lookDirection.Normalize();
-                                    screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
-                                    screenDirection.Normalize();
-                                    upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
-
-                                    panRight = Vector3D.DotProduct(screenDirection, position - centerMove);
-                                    panUp = Vector3D.DotProduct(upDirection, position - centerMove);
-                                }
-                                else
-                                {
-                                    panRight = 0;
-                                    panUp = 0;
-                                }
-                                //centerGeom = "";
                             }
                         }
                         if (bPitchRoll && e.RightButton == MouseButtonState.Pressed)
@@ -480,7 +451,7 @@ namespace LitDev
                         Geometry geom = getGeometry(centerGeom);
                         GeometryModel3D geometry = geom.geometryModel3D;
                         Transform3D transform3D = (Transform3D)geometry.Transform;
-                        center = transform3D.Transform(Centroid(geometry));
+                        center = transform3D.Transform(GetCentre(geometry));
                     }
 
                     switch (e.Key)
@@ -540,7 +511,7 @@ namespace LitDev
                         Geometry geom = getGeometry(centerGeom);
                         GeometryModel3D geometry = geom.geometryModel3D;
                         Transform3D transform3D = (Transform3D)geometry.Transform;
-                        Point3D center = transform3D.Transform(Centroid(geometry));
+                        Point3D center = transform3D.Transform(GetCentre(geometry));
                         panRight = 0;
                         panUp = 0;
 
@@ -683,6 +654,22 @@ namespace LitDev
                         camera.Position = position;
 
                         UpdateBillBoards(viewport3D, shapeName);
+
+                        if (centerGeom != "")
+                        {
+                            Geometry geom = getGeometry(centerGeom);
+                            GeometryModel3D geometry = geom.geometryModel3D;
+                            Transform3D transform3D = (Transform3D)geometry.Transform;
+                            Point3D centerMove = transform3D.Transform(GetCentre(geometry));
+
+                            panRight = Vector3D.DotProduct(screenDirection, position - centerMove);
+                            panUp = Vector3D.DotProduct(upDirection, position - centerMove);
+                        }
+                        else
+                        {
+                            panRight = 0;
+                            panUp = 0;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -1025,10 +1012,16 @@ namespace LitDev
                         RotateTransform3D rotateTransform3D3 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
                         ScaleTransform3D scaleTransform3D = (ScaleTransform3D)transform3DGroup.Children[(int)transform.Scale];
 
+                        Point3D centroid = geometry.Bounds.Location;
+                        centroid.X += geometry.Bounds.SizeX / 2.0;
+                        centroid.Y += geometry.Bounds.SizeY / 2.0;
+                        centroid.Z += geometry.Bounds.SizeZ / 2.0;
+                        centroid = transform3D.Inverse.Transform(centroid);
+
                         string opt = options.ToLower();
-                        double X = x == "" ? geometry.Bounds.X + geometry.Bounds.SizeX / 2.0 : (double)x;
-                        double Y = y == "" ? geometry.Bounds.Y + geometry.Bounds.SizeY / 2.0 : (double)y;
-                        double Z = z == "" ? geometry.Bounds.Z + geometry.Bounds.SizeZ / 2.0 : (double)z;
+                        double X = x == "" ? centroid.X : (double)x;
+                        double Y = y == "" ? centroid.Y : (double)y;
+                        double Z = z == "" ? centroid.Z : (double)z;
 
                         if (opt.Contains("r1"))
                         {
@@ -1345,7 +1338,7 @@ namespace LitDev
         /// Yaw and Pitch camera moving with left mouse button.
         /// Yaw with A,D or Left,Right keys, move forwards and backwards with W,S or Up,Down keys.
         /// Roll camera moving with right mouse button.
-        /// Double left click an object to center it.
+        /// Double left click an object to center it (Centre of rotation 1).
         /// Double right click to reset the up direction to Y.
         /// Yaw and Pitch scene moving with Shift and left mouse button after selecting an object to rotate scene about.
         /// X, Y, Z keys change the view direction and up direction to face in these directions towards (0,0,0), with Shift then the negative direction.
@@ -1403,7 +1396,7 @@ namespace LitDev
         /// This mode is mainly to rotate and view a 3D scene rather than move through the scene (an inspection mode).
         /// Zoom in or out with mouse wheel (faster with Shift down, slower with Control down).
         /// Pan left/right with A,D or Left,Right keys, pan up/down with W,S or Up,Down keys.
-        /// Double left click an object to center it.
+        /// Double left click an object to center it (Centre of rotation 1).
         /// Double right click to reset the up direction to Y.
         /// Yaw and Pitch scene moving with left mouse button after selecting an object to rotate scene about.
         /// Roll scene moving with right mouse button.
