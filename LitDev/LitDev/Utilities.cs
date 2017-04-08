@@ -1070,6 +1070,8 @@ namespace LitDev
         public static extern bool DestroyIcon(IntPtr hIcon);
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int y, int cx, int cy, int wFlags);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool LockWindowUpdate(IntPtr hWnd);
     }
 
     /// <summary>
@@ -1273,6 +1275,21 @@ namespace LitDev
         public static Primitive RegexReplace(Primitive input, Primitive pattern, Primitive replacement, Primitive caseSensitive)
         {
             return LDRegex.Replace(input, pattern, replacement, caseSensitive);
+        }
+
+        [HideFromIntellisense]
+        public static Primitive Command
+        {
+            set
+            {
+                string[] commands = ((string)value).ToLower().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                switch (commands[0])
+                {
+                    case "pauseupdates":
+                        LDGraphicsWindow.bNewPause = commands[1] == "new";
+                        break;
+                }
+            }
         }
 
         /// <summary>
