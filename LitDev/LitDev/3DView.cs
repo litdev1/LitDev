@@ -43,6 +43,8 @@ namespace LitDev
     /// 
     /// For more details on the underlying methods see http://msdn.microsoft.com/en-us/library/ms747437%28v=vs.90%29.aspx
     /// Several of the AddShape methods use HelixToolkit (recompiled and slightly modified for SmallBasic) http://helixToolkit.codeplex.com
+    /// 
+    /// Also see LDVector for vector algebra methods.
     /// </summary>
     [SmallBasicType]
     public static class LD3DView
@@ -308,6 +310,8 @@ namespace LitDev
         private static double speedMult = 1;
         private static double panRight = 0;
         private static double panUp = 0;
+        private static Vector3D swapDirection = new Vector3D(1,0,0);
+        private static double swapAngle = -90;
 
         private static Point3D GetCentre(GeometryModel3D geometry)
         {
@@ -3607,6 +3611,65 @@ namespace LitDev
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Rotate (swap) the Y and Z direction of a geometry.
+        /// This can be useful for geometries created with a Z up convention, coverting it to a Y up direction used by this extension.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        public static void SwapUpDirection(Primitive shapeName, Primitive geometryName)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return;
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                MeshGeometry3D mesh = (MeshGeometry3D)geometry.Geometry;
+
+                                Matrix3D rotateMatrix = Matrix3D.Identity;
+                                Quaternion quaterion = new Quaternion(swapDirection, swapAngle);
+                                rotateMatrix.Rotate(quaterion);
+
+                                for (int i = 0; i < mesh.Positions.Count; i++)
+                                {
+                                    mesh.Positions[i] = rotateMatrix.Transform(mesh.Positions[i]);
+                                }
+                                for (int i = 0; i < mesh.Normals.Count; i++)
+                                {
+                                    mesh.Normals[i] = rotateMatrix.Transform(mesh.Normals[i]);
+                                }
+
+                                AddTransforms(geometry);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    FastThread.Invoke(ret);
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
     }

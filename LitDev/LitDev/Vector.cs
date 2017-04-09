@@ -16,25 +16,20 @@
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using Microsoft.SmallBasic.Library;
-using System.Numerics;
-using MathNet.Numerics.IntegralTransforms;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Globalization;
 using System.Windows.Media.Media3D;
 
 namespace LitDev
 {
     /// <summary>
-    /// 3D vector algebra methods.
-    /// All vectors are a 3 element array indexed by 1,2,3.
+    /// 3D vector algebra methods, useful for LD3DView manipulations.
+    /// All vectors or points are a 3 element array indexed by 1,2,3.
     /// </summary>
     [SmallBasicType]
     public static class LDVector
     {
         /// <summary>
-        /// Rotate one vector about another.
+        /// Rotate one vector about a direction defined by a second vector.
         /// </summary>
         /// <param name="vector">The vector to rotate.</param>
         /// <param name="about">The vector axis direction to rotate about.</param>
@@ -51,6 +46,40 @@ namespace LitDev
                 Quaternion quaterion = new Quaternion(_about, angle);
                 rotateMatrix.Rotate(quaterion);
                 _vector = rotateMatrix.Transform(_vector);
+
+                Primitive result = "";
+                result[1] = _vector.X;
+                result[2] = _vector.Y;
+                result[3] = _vector.Z;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Rotate a point about a specified center point and direction.
+        /// </summary>
+        /// <param name="point">The point to rotate.</param>
+        /// <param name="center">The point to rotate about.</param>
+        /// <param name="about">The vector axis direction to rotate about.</param>
+        /// <param name="angle">The angle (in degrees) to rotate the point by.</param>
+        /// <returns>The rotated point or "" on failure.</returns>
+        public static Primitive RotatePoint(Primitive point, Primitive center, Primitive about, Primitive angle)
+        {
+            try
+            {
+                Vector3D _center = new Vector3D(center[1], center[2], center[3]);
+                Vector3D _vector = new Vector3D(point[1], point[2] , point[3]) - _center;
+                Vector3D _about = new Vector3D(about[1], about[2], about[3]);
+
+                Matrix3D rotateMatrix = Matrix3D.Identity;
+                Quaternion quaterion = new Quaternion(_about, angle);
+                rotateMatrix.Rotate(quaterion);
+                _vector = rotateMatrix.Transform(_vector) + _center;
 
                 Primitive result = "";
                 result[1] = _vector.X;
@@ -206,7 +235,7 @@ namespace LitDev
         /// </summary>
         /// <param name="vector1">The first vector.</param>
         /// <param name="vector2">The second vector.</param>
-        /// <returns>The resulting vector sum or "" on failure.</returns>
+        /// <returns>The resulting vector or "" on failure.</returns>
         public static Primitive Add(Primitive vector1, Primitive vector2)
         {
             try
@@ -215,6 +244,29 @@ namespace LitDev
                 result[1] = vector1[1] + vector2[1];
                 result[2] = vector1[2] + vector2[2];
                 result[3] = vector1[3] + vector2[3];
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Subtract one vector from another.
+        /// </summary>
+        /// <param name="vector1">The first vector.</param>
+        /// <param name="vector2">The second vector (to subtract from the first).</param>
+        /// <returns>The resulting vector or "" on failure.</returns>
+        public static Primitive Subtract(Primitive vector1, Primitive vector2)
+        {
+            try
+            {
+                Primitive result = "";
+                result[1] = vector1[1] - vector2[1];
+                result[2] = vector1[2] - vector2[2];
+                result[3] = vector1[3] - vector2[3];
                 return result;
             }
             catch (Exception ex)
