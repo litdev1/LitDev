@@ -208,7 +208,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Multiple a vector by a scalar.
+        /// Multiply a vector by a scalar.
         /// </summary>
         /// <param name="vector">The vector.</param>
         /// <param name="scalar">A scalar number to resize the vector.</param>

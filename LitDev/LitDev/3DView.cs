@@ -49,6 +49,9 @@ namespace LitDev
     [SmallBasicType]
     public static class LD3DView
     {
+        public static Vector3D swapDirection = new Vector3D(1, 0, 0);
+        public static double swapAngle = -90;
+
         private static Dictionary<string, UIElement> _objectsMap = (Dictionary<string, UIElement>)typeof(GraphicsWindow).GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
         private static int iLight = 0;
@@ -310,8 +313,6 @@ namespace LitDev
         private static double speedMult = 1;
         private static double panRight = 0;
         private static double panUp = 0;
-        private static Vector3D swapDirection = new Vector3D(1,0,0);
-        private static double swapAngle = -90;
 
         private static Point3D GetCentre(GeometryModel3D geometry)
         {
