@@ -1467,10 +1467,7 @@ namespace LitDev
             {
                 return value.ToString(CultureInfo.CurrentCulture);
             }
-            else
-            {
                 return input;
-            }
         }
 
         /// <summary>
@@ -1490,10 +1487,7 @@ namespace LitDev
             {
                 return value.ToString(CultureInfo.InvariantCulture);
             }
-            else
-            {
                 return input;
-            }
         }
 
         /// <summary>
