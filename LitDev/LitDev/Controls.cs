@@ -687,14 +687,37 @@ namespace LitDev
             public string[] col { get; set; }
         }
         private static string _LastListView = "";
-        private static string _LastListViewRow = "";
+        private static int _LastListViewRow = 0;
+        private static int _LastListViewColumn = 0;
         private static SmallBasicCallback _ListViewSelectionChangedDelegate = null;
         private static void _ListViewSelectionChangedEvent(Object sender, SelectionChangedEventArgs e)
         {
             _LastListView = ((ListView)sender).Name;
-            _LastListViewRow = (1 + ((ListView)sender).SelectedIndex).ToString();
-            if (null == _ListViewSelectionChangedDelegate) return;
+            _LastListViewRow = (1 + ((ListView)sender).SelectedIndex);
+            if (_LastListViewRow < 1 || _LastListViewColumn < 1 || null == _ListViewSelectionChangedDelegate) return;
             _ListViewSelectionChangedDelegate();
+        }
+        private static void _ListViewMouseButtonEvent(Object sender, MouseButtonEventArgs e)
+        {
+            Point pos = e.GetPosition(((ListView)sender));
+            GridView gridView = (GridView)((ListView)sender).View;
+            double dist = 0;
+            int iCol = 0;
+            int lastCol = _LastListViewColumn;
+            _LastListViewColumn = 0;
+            foreach (GridViewColumn col in gridView.Columns)
+            {
+                dist += col.ActualWidth;
+                iCol++;
+                if (pos.X <= dist)
+                {
+                    _LastListViewColumn = iCol;
+                    break;
+                }
+            }
+
+            if (lastCol == _LastListViewColumn) return;
+            _ListViewSelectionChangedEvent(sender, null);
         }
 
         private static SmallBasicCallback _DataViewSelectionChangedDelegate = null;
@@ -4895,6 +4918,7 @@ namespace LitDev
                         listView.Width = width;
                         listView.Height = height;
                         listView.SelectionChanged += new SelectionChangedEventHandler(_ListViewSelectionChangedEvent);
+                        listView.PreviewMouseDown += new MouseButtonEventHandler(_ListViewMouseButtonEvent);
 
                         GridView gridView = new GridView();
                         listView.View = gridView;
@@ -5319,6 +5343,14 @@ namespace LitDev
         public static Primitive LastListViewRow
         {
             get { return _LastListViewRow; }
+        }
+
+        /// <summary>
+        /// The last listview selected column number.
+        /// </summary>
+        public static Primitive LastListViewColumn
+        {
+            get { return _LastListViewColumn; }
         }
 
         /// <summary>
