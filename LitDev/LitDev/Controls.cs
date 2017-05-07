@@ -701,9 +701,28 @@ namespace LitDev
         {
             Point pos = e.GetPosition(((ListView)sender));
             GridView gridView = (GridView)((ListView)sender).View;
+            int lastCol = _LastListViewColumn;
+            GetColumn(gridView, pos);
+
+            if (lastCol == _LastListViewColumn) return;
+            _ListViewSelectionChangedEvent(sender, null);
+        }
+        private static void _ListViewHeaderMouseButtonEvent(Object sender, MouseButtonEventArgs e)
+        {
+            GridViewColumnHeader header = (GridViewColumnHeader)sender;
+            ListView listView = (ListView)header.Tag;
+            Point pos = e.GetPosition(listView);
+            GridView gridView = (GridView)listView.View;
+            GetColumn(gridView, pos);
+
+            _LastListViewRow = 0;
+            if (_LastListViewColumn < 1 || null == _ListViewSelectionChangedDelegate) return;
+            _ListViewSelectionChangedDelegate();
+        }
+        private static void GetColumn(GridView gridView, Point pos)
+        {
             double dist = 0;
             int iCol = 0;
-            int lastCol = _LastListViewColumn;
             _LastListViewColumn = 0;
             foreach (GridViewColumn col in gridView.Columns)
             {
@@ -715,9 +734,6 @@ namespace LitDev
                     break;
                 }
             }
-
-            if (lastCol == _LastListViewColumn) return;
-            _ListViewSelectionChangedEvent(sender, null);
         }
 
         private static SmallBasicCallback _DataViewSelectionChangedDelegate = null;
@@ -4933,7 +4949,11 @@ namespace LitDev
                         for (int i = 1; i <= SBArray.GetItemCount(indices); i++)
                         {
                             GridViewColumn Col = new GridViewColumn();
-                            Col.Header = headings[indices[i]];
+                            GridViewColumnHeader header = new GridViewColumnHeader();
+                            header.Content = headings[indices[i]];
+                            header.Tag = listView;
+                            header.MouseDown += new MouseButtonEventHandler(_ListViewHeaderMouseButtonEvent);
+                            Col.Header = header;
                             Col.Width = Double.NaN;
                             //Col.DisplayMemberBinding = new Binding("col[" + (i-1).ToString() + "]");
                             DataTemplate dt = new DataTemplate();
