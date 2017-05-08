@@ -26,6 +26,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -695,6 +696,7 @@ namespace LitDev
             _LastListView = ((ListView)sender).Name;
             _LastListViewRow = (1 + ((ListView)sender).SelectedIndex);
             if (_LastListViewRow < 1 || _LastListViewColumn < 1 || null == _ListViewSelectionChangedDelegate) return;
+            //TextWindow.WriteLine("_ListViewSelectionChangedEvent");
             _ListViewSelectionChangedDelegate();
         }
         public static void _ListViewMouseButtonEvent(Object sender, MouseButtonEventArgs e)
@@ -705,7 +707,8 @@ namespace LitDev
             GetColumn(gridView, pos);
 
             if (lastCol == _LastListViewColumn) return;
-            _ListViewSelectionChangedEvent(sender, null);
+            //TextWindow.WriteLine("_ListViewMouseButtonEvent");
+            _ListViewSelectionChangedEvent(sender, null); //Only really want to do this if row doesn't change
         }
         public static void _ListViewHeaderMouseButtonEvent(Object sender, MouseButtonEventArgs e)
         {
@@ -715,8 +718,10 @@ namespace LitDev
             GridView gridView = (GridView)listView.View;
             GetColumn(gridView, pos);
 
+            _LastListView = listView.Name;
             _LastListViewRow = 0;
             if (_LastListViewColumn < 1 || null == _ListViewSelectionChangedDelegate) return;
+            //TextWindow.WriteLine("_ListViewHeaderMouseButtonEvent");
             _ListViewSelectionChangedDelegate();
         }
         private static void GetColumn(GridView gridView, Point pos)
