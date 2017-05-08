@@ -690,14 +690,14 @@ namespace LitDev
         private static int _LastListViewRow = 0;
         private static int _LastListViewColumn = 0;
         private static SmallBasicCallback _ListViewSelectionChangedDelegate = null;
-        private static void _ListViewSelectionChangedEvent(Object sender, SelectionChangedEventArgs e)
+        public static void _ListViewSelectionChangedEvent(Object sender, SelectionChangedEventArgs e)
         {
             _LastListView = ((ListView)sender).Name;
             _LastListViewRow = (1 + ((ListView)sender).SelectedIndex);
             if (_LastListViewRow < 1 || _LastListViewColumn < 1 || null == _ListViewSelectionChangedDelegate) return;
             _ListViewSelectionChangedDelegate();
         }
-        private static void _ListViewMouseButtonEvent(Object sender, MouseButtonEventArgs e)
+        public static void _ListViewMouseButtonEvent(Object sender, MouseButtonEventArgs e)
         {
             Point pos = e.GetPosition(((ListView)sender));
             GridView gridView = (GridView)((ListView)sender).View;
@@ -707,7 +707,7 @@ namespace LitDev
             if (lastCol == _LastListViewColumn) return;
             _ListViewSelectionChangedEvent(sender, null);
         }
-        private static void _ListViewHeaderMouseButtonEvent(Object sender, MouseButtonEventArgs e)
+        public static void _ListViewHeaderMouseButtonEvent(Object sender, MouseButtonEventArgs e)
         {
             GridViewColumnHeader header = (GridViewColumnHeader)sender;
             ListView listView = (ListView)header.Tag;

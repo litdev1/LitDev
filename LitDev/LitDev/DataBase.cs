@@ -374,7 +374,11 @@ namespace LitDev
                             foreach (DataColumn column in dataTable.Columns)
                             {
                                 GridViewColumn Col = new GridViewColumn();
-                                Col.Header = column.Caption;
+                                GridViewColumnHeader header = new GridViewColumnHeader();
+                                header.Content = column.Caption;
+                                header.Tag = shape;
+                                header.MouseDown += new MouseButtonEventHandler(LDControls._ListViewHeaderMouseButtonEvent);
+                                Col.Header = header;
                                 Col.Width = Double.NaN;
                                 Col.DisplayMemberBinding = new System.Windows.Data.Binding("col[" + i + "]");
                                 i++;
@@ -627,6 +631,8 @@ namespace LitDev
                     try
                     {
                         System.Windows.Controls.ListView shape = new System.Windows.Controls.ListView();
+                        shape.SelectionChanged += new SelectionChangedEventHandler(LDControls._ListViewSelectionChangedEvent);
+                        shape.PreviewMouseDown += new MouseButtonEventHandler(LDControls._ListViewMouseButtonEvent);
                         shape.Name = shapeName;
                         shape.Width = width;
                         shape.Height = height;
