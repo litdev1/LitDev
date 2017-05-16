@@ -278,7 +278,6 @@ namespace LitDev
 
                 StringBuilder command = new StringBuilder();
                 command.Append("BEGIN TRANSACTION;");
-                command.Append("DELETE FROM "+table+";");
                 command.Append("DELETE FROM " + table + ";");
                 foreach (DataGridViewRow row in dataView.Rows)
                 {
