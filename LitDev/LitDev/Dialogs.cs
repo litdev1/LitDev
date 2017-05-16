@@ -519,7 +519,7 @@ namespace LitDev
 
                     if (dlg.ShowDialog(Utilities.ForegroundHandle()) == System.Windows.Forms.DialogResult.OK)
                     {
-                        result = ColorTranslator.ToHtml(dlg.Color).ToString();
+                        result = ColorTranslator.ToHtml(dlg.Color);
                     }
                 };
                 Thread thread = new Thread(start);

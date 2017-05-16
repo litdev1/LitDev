@@ -19,6 +19,7 @@ using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
+using System.Text;
 using System.Globalization;
 using System.Reflection;
 using System.Windows;
@@ -34,6 +35,7 @@ namespace LitDev
     [SmallBasicType]
     public static class LDText
     {
+        static StringBuilder sb = new StringBuilder();
         /// <summary>
         /// Split a variable into an array delimiated by a separator.
         /// </summary>
@@ -57,11 +59,11 @@ namespace LitDev
                 }
                 else
                 {
-                    separators = new string[] {separator};
+                    separators = new string[] { separator };
                 }
                 string[] splitText = ((string)text).Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
                 string result = "";
-                for (int i = 0; i < splitText.Length; i++ )
+                for (int i = 0; i < splitText.Length; i++)
                 {
                     result += (i + 1).ToString() + "=" + Utilities.ArrayParse(splitText[i]) + ";";
                 }
@@ -255,6 +257,23 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return 0;
             }
+            
+        }
+
+        public static void StringBuilderAppend(string Text)
+        {
+            sb.Append(Text);
+        }
+
+        public static void StringBuilderClear()
+        {
+            sb.Clear();
+        }
+
+
+        public static string StringBuilderToString()
+        {
+            return sb.ToString();
         }
     }
 }
