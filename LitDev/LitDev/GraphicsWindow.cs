@@ -48,6 +48,7 @@ namespace LitDev
 
         private static bool exitOnClose = true;
         private static bool cancelClose = false;
+        public static bool bNewPause = true;
 
         public static SmallBasicCallback _ClosingDelegate = null;
         private static void _ClosingEvent(Object sender, CancelEventArgs e)
@@ -225,7 +226,10 @@ namespace LitDev
             Utilities.doUpdates();
             IntPtr _hWnd = User32.FindWindow(null, GraphicsWindow.Title);
             User32.InvalidateRect(_hWnd, IntPtr.Zero, false); //Forces a redraw
-            User32.SendMessage(_hWnd, User32.WM_SETREDRAW, false, 0);
+            if (bNewPause)
+                User32.LockWindowUpdate(_hWnd);
+            else
+                User32.SendMessage(_hWnd, User32.WM_SETREDRAW, false, 0);
         }
 
         /// <summary>
@@ -238,7 +242,10 @@ namespace LitDev
         {
             Utilities.doUpdates();
             IntPtr _hWnd = User32.FindWindow(null, GraphicsWindow.Title);
-            User32.SendMessage(_hWnd, User32.WM_SETREDRAW, true, 0);
+            if (bNewPause)
+                User32.LockWindowUpdate(IntPtr.Zero);
+            else
+                User32.SendMessage(_hWnd, User32.WM_SETREDRAW, true, 0);
             User32.InvalidateRect(_hWnd, IntPtr.Zero, false); //Forces a redraw
         }
 

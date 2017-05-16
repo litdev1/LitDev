@@ -43,10 +43,15 @@ namespace LitDev
     /// 
     /// For more details on the underlying methods see http://msdn.microsoft.com/en-us/library/ms747437%28v=vs.90%29.aspx
     /// Several of the AddShape methods use HelixToolkit (recompiled and slightly modified for SmallBasic) http://helixToolkit.codeplex.com
+    /// 
+    /// Also see LDVector for vector algebra methods.
     /// </summary>
     [SmallBasicType]
     public static class LD3DView
     {
+        public static Vector3D swapDirection = new Vector3D(1, 0, 0);
+        public static double swapAngle = -90;
+
         private static Dictionary<string, UIElement> _objectsMap = (Dictionary<string, UIElement>)typeof(GraphicsWindow).GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
         private static int iLight = 0;
@@ -301,10 +306,21 @@ namespace LitDev
 
         private static Point lastPos = new Point(-1, -1);
         private static string centerGeom = "";
+        private static int autoMode = 0;
         private static bool bPitchRoll = false;
         private static bool bShift = false;
         private static double keyDist = 0;
         private static double speedMult = 1;
+        private static double panRight = 0;
+        private static double panUp = 0;
+
+        private static Point3D GetCentre(GeometryModel3D geometry)
+        {
+            Transform3D transform3D = (Transform3D)geometry.Transform;
+            Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+            RotateTransform3D rotateTransform3D = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate1];
+            return new Point3D(rotateTransform3D.CenterX, rotateTransform3D.CenterY, rotateTransform3D.CenterZ);
+        }
 
         private static void _MouseMove(object sender, MouseEventArgs e)
         {
@@ -313,7 +329,7 @@ namespace LitDev
                 Window window = (Window)sender;
                 Point pos = e.GetPosition(window);
 
-                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
+                if (autoMode == 1 || e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
                 {
                     foreach (Viewport3D viewport3D in views)
                     {
@@ -326,27 +342,51 @@ namespace LitDev
                         {
                             double yaw = -(pos.X - lastPos.X) * 180 / viewport3D.ActualWidth;
                             double pitch = bPitchRoll ? (pos.Y - lastPos.Y) * 180 / viewport3D.ActualHeight : 0;
-                            if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
-                            {
-                                if (centerGeom == "") return;
-                                Geometry geom = getGeometry(centerGeom);
-                                GeometryModel3D geometry = geom.geometryModel3D;
-                                Transform3D transform3D = (Transform3D)geometry.Transform;
-                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-                                TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
-                                Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
 
+                            if (autoMode == 1 || (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))))
+                            {
                                 ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
                                 Vector3D lookDirection = camera.LookDirection;
                                 Vector3D upDirection = camera.UpDirection;
-                                Point3D position = camera.Position;
                                 Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                Point3D position = camera.Position;
+                                lookDirection.Normalize();
+                                screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                                screenDirection.Normalize();
+                                upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
+
+                                bool reset = false;
+                                if (centerGeom == "")
+                                {
+                                    if (Geometries.Count == 0) return;
+                                    Primitive hit = HitTest(viewport3D.Name, -1, -1);
+                                    if (hit == "") centerGeom = Geometries[0].name;
+                                    else centerGeom = hit[1];
+                                    reset = true;
+                                }
+                                Geometry geom = getGeometry(centerGeom);
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                Transform3D transform3D = (Transform3D)geometry.Transform;
+
+                                if (reset)
+                                {
+                                    Point3D centerMove = transform3D.Transform(GetCentre(geometry));
+                                    panRight = Vector3D.DotProduct(screenDirection, position - centerMove);
+                                    panUp = Vector3D.DotProduct(upDirection, position - centerMove);
+                                }
+                                //TextWindow.WriteLine(panRight + " : " + panUp);
+                                //TextWindow.WriteLine("SCREEN " + screenDirection.X + "," + screenDirection.Y + "," + screenDirection.Z);
+                                //TextWindow.WriteLine("UP " + upDirection.X + "," + upDirection.Y + "," + upDirection.Z);
+                                //TextWindow.WriteLine("LOOK " + lookDirection.X + "," + lookDirection.Y + "," + lookDirection.Z);
+                                Vector3D move = panRight * screenDirection + panUp * upDirection;
+                                Point3D center = transform3D.Transform(GetCentre(geometry)) + move;
+                                position += move;
 
                                 RotateTransform3D yawTransform = new RotateTransform3D(new AxisAngleRotation3D(upDirection, yaw), center);
                                 position = yawTransform.Transform(position);
-
                                 RotateTransform3D pitchTransform = new RotateTransform3D(new AxisAngleRotation3D(screenDirection, -pitch), center);
                                 position = pitchTransform.Transform(position);
+                                position -= move;
 
                                 lookDirection = center - position;
                                 lookDirection.Normalize();
@@ -359,7 +399,6 @@ namespace LitDev
                             else
                             {
                                 MoveCamera(viewport3D.Name, yaw, pitch, 0, 0);
-                                centerGeom = "";
                             }
                         }
                         if (bPitchRoll && e.RightButton == MouseButtonState.Pressed)
@@ -410,25 +449,41 @@ namespace LitDev
                     Vector3D upDirection = camera.UpDirection;
                     Point3D position = camera.Position;
                     double mult = (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) ? 1 : -1;
+
+                    Point3D center = new Point3D(0, 0, 0);
+                    if (centerGeom != "")
+                    {
+                        Geometry geom = getGeometry(centerGeom);
+                        GeometryModel3D geometry = geom.geometryModel3D;
+                        Transform3D transform3D = (Transform3D)geometry.Transform;
+                        center = transform3D.Transform(GetCentre(geometry));
+                    }
+
                     switch (e.Key)
                     {
                         case Key.X:
                             lookDirection = new Vector3D(mult, 0, 0);
-                            position = new Point3D(-keyDist * mult, 0, 0);
+                            position = new Point3D(center.X - keyDist * mult, center.Y, center.Z);
                             upDirection = new Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            panRight = 0;
+                            panUp = 0;
                             break;
                         case Key.Y:
                             lookDirection = new Vector3D(0, mult, 0);
-                            position = new Point3D(0, -keyDist * mult, 0);
+                            position = new Point3D(center.X, center.Y - keyDist * mult, center.Z);
                             upDirection = new Vector3D(0, 0, 1);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            panRight = 0;
+                            panUp = 0;
                             break;
                         case Key.Z:
                             lookDirection = new Vector3D(0, 0, mult);
-                            position = new Point3D(0, 0, -keyDist * mult);
+                            position = new Point3D(center.X, center.Y, center.Z - keyDist * mult);
                             upDirection = new Vector3D(0, 1, 0);
                             ResetCamera(viewport3D.Name, position.X, position.Y, position.Z, lookDirection.X, lookDirection.Y, lookDirection.Z, upDirection.X, upDirection.Y, upDirection.Z);
+                            panRight = 0;
+                            panUp = 0;
                             break;
                     }
                 }
@@ -461,9 +516,9 @@ namespace LitDev
                         Geometry geom = getGeometry(centerGeom);
                         GeometryModel3D geometry = geom.geometryModel3D;
                         Transform3D transform3D = (Transform3D)geometry.Transform;
-                        Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
-                        TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
-                        Point3D center = translateTransform3D.Transform(new Point3D(0, 0, 0));
+                        Point3D center = transform3D.Transform(GetCentre(geometry));
+                        panRight = 0;
+                        panUp = 0;
 
                         lookDirection = center - position;
                         lookDirection.Normalize();
@@ -488,25 +543,58 @@ namespace LitDev
             {
                 if (keyDist < 0) return;
 
-                double move = 0;
-                if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down)) move -= 0.1;
-                if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up)) move += 0.1;
-                double yaw = 0;
-                if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left)) yaw -= 3;
-                if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right)) yaw += 3;
-
-                if (move == 0 && yaw == 0) return;
-
-                foreach (Viewport3D viewport3D in views)
+                if (autoMode == 0)
                 {
-                    if (!_objectsMap.ContainsKey(viewport3D.Name))
+                    double move = 0;
+                    if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down)) move -= 0.1 * speedMult;
+                    if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up)) move += 0.1 * speedMult;
+                    double yaw = 0;
+                    if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left)) yaw -= 3;
+                    if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right)) yaw += 3;
+
+                    if (move == 0 && yaw == 0) return;
+
+                    foreach (Viewport3D viewport3D in views)
                     {
-                        views.Remove(viewport3D);
-                        continue;
+                        if (!_objectsMap.ContainsKey(viewport3D.Name))
+                        {
+                            views.Remove(viewport3D);
+                            continue;
+                        }
+                        if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) move *= 5;
+                        if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) move /= 5;
+                        MoveCamera(viewport3D.Name, yaw, 0, 0, move);
                     }
-                    if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) move *= 5;
-                    if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) move /= 5;
-                    MoveCamera(viewport3D.Name, yaw, 0, 0, move);
+                }
+                else if (autoMode == 1)
+                {
+                    double scale = 1;
+                    if (bShift && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) scale = 5.0;
+                    else if (bShift && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) scale = 1.0/5.0;
+
+                    double right = 0;
+                    if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left)) right += 0.1 * speedMult * scale;
+                    if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right)) right -= 0.1 * speedMult * scale;
+                    double up = 0;
+                    if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down)) up += 0.1 * speedMult * scale;
+                    if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up)) up -= 0.1 * speedMult * scale;
+
+                    if (right == 0 && up == 0) return;
+                    panRight += right;
+                    panUp += up;
+
+                    foreach (Viewport3D viewport3D in views)
+                    {
+                        if (!_objectsMap.ContainsKey(viewport3D.Name))
+                        {
+                            views.Remove(viewport3D);
+                            continue;
+                        }
+                        ProjectionCamera camera = (ProjectionCamera)viewport3D.Camera;
+                        Vector3D screenDirection = Vector3D.CrossProduct(camera.LookDirection, camera.UpDirection);
+                        Vector3D move = right * screenDirection + up * camera.UpDirection;
+                        camera.Position += move;
+                    }
                 }
             }
         }
@@ -559,12 +647,34 @@ namespace LitDev
                         quaterion = new Quaternion(lookDirection, roll);
                         rotateMatrix.Rotate(quaterion);
                         upDirection = rotateMatrix.Transform(upDirection);
+                        upDirection.Normalize();
+
+                        lookDirection.Normalize();
+                        Vector3D screenDirection = Vector3D.CrossProduct(lookDirection, upDirection);
+                        screenDirection.Normalize();
+                        upDirection = Vector3D.CrossProduct(screenDirection, lookDirection);
 
                         camera.LookDirection = lookDirection;
                         camera.UpDirection = upDirection;
                         camera.Position = position;
 
                         UpdateBillBoards(viewport3D, shapeName);
+
+                        if (centerGeom != "")
+                        {
+                            Geometry geom = getGeometry(centerGeom);
+                            GeometryModel3D geometry = geom.geometryModel3D;
+                            Transform3D transform3D = (Transform3D)geometry.Transform;
+                            Point3D centerMove = transform3D.Transform(GetCentre(geometry));
+
+                            panRight = Vector3D.DotProduct(screenDirection, position - centerMove);
+                            panUp = Vector3D.DotProduct(upDirection, position - centerMove);
+                        }
+                        else
+                        {
+                            panRight = 0;
+                            panUp = 0;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -607,6 +717,11 @@ namespace LitDev
                         {
                             camera.UpDirection = new Vector3D(xUp, yUp, zUp);
                         }
+
+                        camera.LookDirection.Normalize();
+                        camera.UpDirection.Normalize();
+                        Vector3D screenDirection = Vector3D.CrossProduct(camera.LookDirection, camera.UpDirection);
+                        camera.UpDirection = Vector3D.CrossProduct(screenDirection, camera.LookDirection);
 
                         UpdateBillBoards(viewport3D, shapeName);
                     }
@@ -902,10 +1017,16 @@ namespace LitDev
                         RotateTransform3D rotateTransform3D3 = (RotateTransform3D)transform3DGroup.Children[(int)transform.Rotate3];
                         ScaleTransform3D scaleTransform3D = (ScaleTransform3D)transform3DGroup.Children[(int)transform.Scale];
 
+                        Point3D centroid = geometry.Bounds.Location;
+                        centroid.X += geometry.Bounds.SizeX / 2.0;
+                        centroid.Y += geometry.Bounds.SizeY / 2.0;
+                        centroid.Z += geometry.Bounds.SizeZ / 2.0;
+                        centroid = transform3D.Inverse.Transform(centroid);
+
                         string opt = options.ToLower();
-                        double X = x == "" ? geometry.Bounds.X + geometry.Bounds.SizeX / 2.0 : (double)x;
-                        double Y = y == "" ? geometry.Bounds.Y + geometry.Bounds.SizeY / 2.0 : (double)y;
-                        double Z = z == "" ? geometry.Bounds.Z + geometry.Bounds.SizeZ / 2.0 : (double)z;
+                        double X = x == "" ? centroid.X : (double)x;
+                        double Y = y == "" ? centroid.Y : (double)y;
+                        double Z = z == "" ? centroid.Z : (double)z;
 
                         if (opt.Contains("r1"))
                         {
@@ -1216,12 +1337,13 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Set auto Control of the camera.
+        /// Set auto control of the camera.
+        /// This mode is a general purpose camera control, mainly for moving within a scene (a flyby mode).
         /// Move forwards and backwards with mouse wheel (faster with Shift down, slower with Control down).
         /// Yaw and Pitch camera moving with left mouse button.
         /// Yaw with A,D or Left,Right keys, move forwards and backwards with W,S or Up,Down keys.
         /// Roll camera moving with right mouse button.
-        /// Double left click an object to center it.
+        /// Double left click an object to center it (Centre of rotation 1).
         /// Double right click to reset the up direction to Y.
         /// Yaw and Pitch scene moving with Shift and left mouse button after selecting an object to rotate scene about.
         /// X, Y, Z keys change the view direction and up direction to face in these directions towards (0,0,0), with Shift then the negative direction.
@@ -1243,8 +1365,66 @@ namespace LitDev
                 {
                     try
                     {
+                        autoMode = 0;
                         bPitchRoll = pitchRoll;
                         bShift = shift;
+                        keyDist = keyDistance;
+                        speedMult = speed;
+                        if (lastPos == new Point(-1, -1))
+                        {
+                            _window.MouseMove += new MouseEventHandler(_MouseMove);
+                            _window.MouseWheel += new MouseWheelEventHandler(_MouseWheel);
+                            _window.MouseDoubleClick += new MouseButtonEventHandler(_MouseDoubleClick);
+                            _window.KeyDown += new KeyEventHandler(_KeyDown);
+
+                            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+                            timer.Enabled = true;
+                            timer.Interval = 20;
+                            timer.Tick += new EventHandler(timer_Tick);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                FastThread.Invoke(ret);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Set auto control of the camera.
+        /// This mode is mainly to rotate and view a 3D scene rather than move through the scene (an inspection mode).
+        /// Zoom in or out with mouse wheel (faster with Shift down, slower with Control down).
+        /// Pan left/right with A,D or Left,Right keys, pan up/down with W,S or Up,Down keys.
+        /// Double left click an object to center it (Centre of rotation 1).
+        /// Double right click to reset the up direction to Y.
+        /// Yaw and Pitch scene moving with left mouse button after selecting an object to rotate scene about.
+        /// Roll scene moving with right mouse button.
+        /// X, Y, Z keys change the view direction and up direction to face in these directions towards selected center, with Shift then the negative direction.
+        /// </summary>
+        /// <param name="keyDistance">The distance to view the scene from using keys, (0 prevents the X,Y,Z key shortcuts).</param>
+        /// <param name="speed">Forwards and backwards speed multiplier (default 1).</param>
+        public static void AutoControl2(Primitive keyDistance, Primitive speed)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Window _window;
+
+            try
+            {
+                _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        autoMode = 1;
+                        bPitchRoll = true;
+                        bShift = true;
                         keyDist = keyDistance;
                         speedMult = speed;
                         if (lastPos == new Point(-1, -1))
@@ -2261,7 +2441,9 @@ namespace LitDev
                                 Model3DGroup model3DGroup = (Model3DGroup)modelVisual3D.Content;
 
                                 if (x < 0) x = viewport3D.Width / 2;
+                                else x -= LDShapes.GetLeft(shapeName);
                                 if (y < 0) y = viewport3D.Height / 2;
+                                else y -= LDShapes.GetTop(shapeName);
 
                                 PointHitTestParameters hitParams = new PointHitTestParameters(new Point(x, y));
                                 rayResult = null;
@@ -3430,6 +3612,65 @@ namespace LitDev
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Rotate (swap) the Y and Z direction of a geometry.
+        /// This can be useful for geometries created with a Z up convention, coverting it to a Y up direction used by this extension.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        public static void SwapUpDirection(Primitive shapeName, Primitive geometryName)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return;
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                MeshGeometry3D mesh = (MeshGeometry3D)geometry.Geometry;
+
+                                Matrix3D rotateMatrix = Matrix3D.Identity;
+                                Quaternion quaterion = new Quaternion(swapDirection, swapAngle);
+                                rotateMatrix.Rotate(quaterion);
+
+                                for (int i = 0; i < mesh.Positions.Count; i++)
+                                {
+                                    mesh.Positions[i] = rotateMatrix.Transform(mesh.Positions[i]);
+                                }
+                                for (int i = 0; i < mesh.Normals.Count; i++)
+                                {
+                                    mesh.Normals[i] = rotateMatrix.Transform(mesh.Normals[i]);
+                                }
+
+                                AddTransforms(geometry);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    FastThread.Invoke(ret);
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
     }

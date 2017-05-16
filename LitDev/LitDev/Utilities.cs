@@ -1070,6 +1070,8 @@ namespace LitDev
         public static extern bool DestroyIcon(IntPtr hIcon);
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int y, int cx, int cy, int wFlags);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool LockWindowUpdate(IntPtr hWnd);
     }
 
     /// <summary>
@@ -1273,6 +1275,57 @@ namespace LitDev
         public static Primitive RegexReplace(Primitive input, Primitive pattern, Primitive replacement, Primitive caseSensitive)
         {
             return LDRegex.Replace(input, pattern, replacement, caseSensitive);
+        }
+
+        [HideFromIntellisense]
+        public static Primitive Command
+        {
+            set
+            {
+                try
+                {
+                    //string[] commands = ((string)value).Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    //Type typeClass = Type.GetType(commands[0]);
+                    //Type typeField = Type.GetType(commands[1]);
+                    //Convert.ChangeType(commands[2], typeField);
+                    //FieldInfo fieldinfo = typeClass.GetField(commands[2], BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                    //fieldinfo.SetValue(null, Convert.ChangeType(commands[2], typeField));
+
+                    string[] commands = ((string)value).ToLower().Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    switch (commands[0])
+                    {
+                        case "ldgraphicswindow":
+                            {
+                                switch (commands[1])
+                                {
+                                    case "pauseupdates":
+                                        LDGraphicsWindow.bNewPause = commands[2] == "new";
+                                        break;
+                                }
+                            }
+                            break;
+                        case "ld3dview":
+                            {
+                                switch (commands[1])
+                                {
+                                    case "swapdirection":
+                                        LD3DView.swapDirection.X = double.Parse(commands[2]);
+                                        LD3DView.swapDirection.Y = double.Parse(commands[3]);
+                                        LD3DView.swapDirection.Z = double.Parse(commands[4]);
+                                        break;
+                                    case "swapangle":
+                                        LD3DView.swapAngle = double.Parse(commands[2]);
+                                        break;
+                                }
+                            }
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
         }
 
         /// <summary>
