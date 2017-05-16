@@ -17,6 +17,7 @@
 
 using Microsoft.SmallBasic.Library;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -275,8 +276,9 @@ namespace LitDev
                 }
                 columns += ")";
 
-                string command = "BEGIN TRANSACTION;";
-                command += "DELETE FROM "+table+";";
+                StringBuilder command = new StringBuilder();
+                command.Append("BEGIN TRANSACTION;");
+                command.Append("DELETE FROM " + table + ";");
                 foreach (DataGridViewRow row in dataView.Rows)
                 {
                     string rowCommand = "INSERT INTO " + table + columns + "VALUES(";
@@ -292,11 +294,11 @@ namespace LitDev
                         if (i < row.Cells.Count - 1) rowCommand += ",";
                     }
                     rowCommand += ");";
-                    if (validRow) command += rowCommand;
+                    if (validRow) command.Append(rowCommand);
                 }
-                command += "COMMIT;";
+                command.Append("COMMIT;");
 
-                Command(dataBase.name, command);
+                Command(dataBase.name, command.ToString());
             }
             catch (Exception ex)
             {
