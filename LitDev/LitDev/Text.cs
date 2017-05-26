@@ -35,7 +35,6 @@ namespace LitDev
     [SmallBasicType]
     public static class LDText
     {
-        static StringBuilder sb = new StringBuilder();
         /// <summary>
         /// Split a variable into an array delimiated by a separator.
         /// </summary>
@@ -258,22 +257,6 @@ namespace LitDev
                 return 0;
             }
             
-        }
-
-        public static void StringBuilderAppend(string Text)
-        {
-            sb.Append(Text);
-        }
-
-        public static void StringBuilderClear()
-        {
-            sb.Clear();
-        }
-
-
-        public static string StringBuilderToString()
-        {
-            return sb.ToString();
         }
     }
 }
