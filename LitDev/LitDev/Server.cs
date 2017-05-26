@@ -200,7 +200,10 @@ namespace LitDev
                         if (autoMessages) TextWindow.WriteLine(client.name + " Connected");
                         if (serverData != "") SendMessage(client.name, "SERVER:" + serverData);
                     }
-					Brodcast(client.name + ":CONNECTED");
+			for (int i = 0; i < clients.Count; i++) //Possible use case for Broadcast()
+-                    {
+-                        SendMessage(clients[i].name, client.name + ":CONNECTED");
+-                    }
                 }
                 catch
                 {
@@ -474,7 +477,10 @@ namespace LitDev
                     {
                         serverData[client] = "";
                         if (autoMessages) TextWindow.WriteLine(client + " Disconnected");
-						Brodcast(client + ":DISCONNECTED");
+						for (int i = 0; i < clients.Count; i++) //Possible use case for Broadcast()
+-                        {
+-                            SendMessage(clients[i].name, client + ":DISCONNECTED");
+-                        }
                     }
                 }
                 else
