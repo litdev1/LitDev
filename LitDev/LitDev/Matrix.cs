@@ -17,6 +17,7 @@
 
 using Microsoft.SmallBasic.Library;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -619,17 +620,17 @@ namespace LitDev
             {
                 Matrix _matrix = getMatrix(matrix);
                 if (null == _matrix) return "FAILED";
-                string _SBarray = "";
+                StringBuilder _SBarray = new StringBuilder();
                 for (int i = 0; i < _matrix.rows; i++)
                 {
-                    _SBarray += (i + 1).ToString() + "=";
+                    _SBarray.Append((i + 1).ToString() + "=");
                     for (int j = 0; j < _matrix.cols; j++)
                     {
-                        _SBarray += (j + 1).ToString() + "\\=" + _matrix.matrix[i, j].ToString(CultureInfo.InvariantCulture) + "\\;"; // Faster than Primitive _SBarray[i][j] = _matrix.matrix[i, j]
+                        _SBarray.Append((j + 1).ToString() + "\\=" + _matrix.matrix[i, j].ToString(CultureInfo.InvariantCulture) + "\\;"); // Faster than Primitive _SBarray[i][j] = _matrix.matrix[i, j]
                     }
-                    _SBarray += ";";
+                    _SBarray.Append(";");
                 }
-                return Utilities.CreateArrayMap(_SBarray);
+                return Utilities.CreateArrayMap(_SBarray.ToString());
             }
             catch (Exception ex)
             {

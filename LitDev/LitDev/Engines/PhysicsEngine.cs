@@ -41,6 +41,7 @@ using Box2DX.Dynamics;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -2294,8 +2295,10 @@ namespace LitDev.Engines
                         if (angles.Length > 1) maxCount = 2;
                         Shape[] shapes = new Shape[maxCount];
                         Shape userData = i.body.GetShapeList();
-                        Primitive result = "";
+
+                        StringBuilder result = new StringBuilder();
                         Primitive details = "";
+
                         List<Ray> rays = new List<Ray>();
 
                         foreach (float angle in angles)
@@ -2327,9 +2330,9 @@ namespace LitDev.Engines
                         bool bOneRay = angles.Length == 1;
                         foreach (Ray ray in rays)
                         {
-                            result += Utilities.ArrayParse(ray.name) + "=" + (bOneRay ? distance * ray.lambda : ray.angle).ToString(CultureInfo.InvariantCulture) + ";";
+                            result.Append(Utilities.ArrayParse(ray.name) + "=" + (bOneRay ? distance * ray.lambda : ray.angle).ToString(CultureInfo.InvariantCulture) + ";");
                         }
-                        return Utilities.CreateArrayMap(result);
+                        return Utilities.CreateArrayMap(result.ToString());
                     }
                 }
             }

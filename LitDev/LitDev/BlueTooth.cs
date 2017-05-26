@@ -275,15 +275,7 @@ namespace LitDev
         /// <returns>An array of encodings or "" on failure.</returns>
         public static Primitive GetEncodings()
         {
-            string result = "";
-            int i = 1;
-            result += i++ + "=ASCII;";
-            result += i++ + "=BigEndianUnicode;";
-            result += i++ + "=Default;";
-            result += i++ + "=Unicode;";
-            result += i++ + "=UTF32;";
-            result += i++ + "=UTF7;";
-            result += i++ + "=UTF8;";
+            string result = "1=ASCII;2=BigEndianUnicode;3=Default;4=Unicode;5=UTF32;6=UTF7;7=UTF8;";
             return Utilities.CreateArrayMap(result);
         }
 

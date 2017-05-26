@@ -62,12 +62,12 @@ namespace LitDev
                     separators = new string[] { separator };
                 }
                 string[] splitText = ((string)text).Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
-                string result = "";
+                StringBuilder result = new StringBuilder();
                 for (int i = 0; i < splitText.Length; i++)
                 {
-                    result += (i + 1).ToString() + "=" + Utilities.ArrayParse(splitText[i]) + ";";
+                    result.Append((i + 1).ToString() + "=" + Utilities.ArrayParse(splitText[i]) + ";");
                 }
-                return Utilities.CreateArrayMap(result);
+                return Utilities.CreateArrayMap(result.ToString());
             }
             catch (Exception ex)
             {
@@ -147,16 +147,16 @@ namespace LitDev
             try
             {
                 string input = (string)text;
-                string result = "";
+                StringBuilder result = new StringBuilder();
                 int pos = input.IndexOf(find, 0);
                 if (pos < 0) return 0;
                 int i = 0;
                 while (pos >= 0)
                 {
-                    result += (++i).ToString() + "=" + (pos + 1) + ";";
+                    result.Append((++i).ToString() + "=" + (pos + 1) + ";");
                     pos = input.IndexOf(find, pos + 1);
                 }
-                return Utilities.CreateArrayMap(result);
+                return Utilities.CreateArrayMap(result.ToString());
             }
             catch (Exception ex)
             {

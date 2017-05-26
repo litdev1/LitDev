@@ -767,12 +767,12 @@ namespace LitDev
                     int iRow = 1;
                     foreach (DataRow row in dataTable.Rows)
                     {
-                        string result = "";
+                        StringBuilder result = new StringBuilder();
                         for (int i = 0; i < columns; i++)
-                        {
-                            result += Utilities.ArrayParse(dataTable.Columns[i].Caption) + "=" + Utilities.ArrayParse(row.ItemArray[i].ToString()) + ";";
+                        { 
+                            result.Append(Utilities.ArrayParse(dataTable.Columns[i].Caption) + "=" + Utilities.ArrayParse(row.ItemArray[i].ToString()) + ";");
                         }
-                        results[iRow++] = Utilities.CreateArrayMap(result);
+                        results[iRow++] = Utilities.CreateArrayMap(result.ToString());
                     }
                 }
             }

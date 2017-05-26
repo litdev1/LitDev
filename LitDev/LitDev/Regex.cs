@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Text;
 using Microsoft.SmallBasic.Library;
 using System.Text.RegularExpressions;
 
@@ -35,22 +36,22 @@ namespace LitDev
         /// <returns>An array of match values, indexed by the location index in the input (position).</returns>
         public static Primitive Match(Primitive input, Primitive pattern, Primitive caseSensitive)
         {
-            string result = "";
+            StringBuilder result = new StringBuilder();
             if (caseSensitive)
             {
                 foreach (Match match in Regex.Matches((string)input, (string)pattern))
                 {
-                    result += (match.Index + 1) + "=" + Utilities.ArrayParse(match.Value) + ";";
+                    result.AppendFormat("{0}={1};", (match.Index + 1), Utilities.ArrayParse(match.Value));
                 }
             }
             else
             {
                 foreach (Match match in Regex.Matches((string)input, (string)pattern, RegexOptions.IgnoreCase))
                 {
-                    result += (match.Index + 1) + "=" + Utilities.ArrayParse(match.Value) + ";";
+                    result.AppendFormat("{0}={1};", (match.Index + 1), Utilities.ArrayParse(match.Value));
                 }
             }
-            return Utilities.CreateArrayMap(result);
+            return Utilities.CreateArrayMap(result.ToString());
         }
 
         /// <summary>

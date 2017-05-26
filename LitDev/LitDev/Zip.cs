@@ -17,6 +17,7 @@
 
 using Microsoft.SmallBasic.Library;
 using System;
+using System.Text;
 using System.IO;
 using System.IO.Packaging;
 using SBArray = Microsoft.SmallBasic.Library.Array;
@@ -236,17 +237,17 @@ namespace LitDev
         {
             try
             {
-                string result = "";
+                StringBuilder result = new StringBuilder();
                 using (ZipFile zip = ZipFile.Read(zipFile))
                 {
                     int i = 1;
 
                     foreach (ZipEntry entry in zip)
                     {
-                        result += (i++).ToString() + "=" + Utilities.ArrayParse(entry.FileName) + ";";
+                        result.AppendFormat("{0}={1};",i++, Utilities.ArrayParse(entry.FileName));
                     }
                 }
-                return Utilities.CreateArrayMap(result);
+                return Utilities.CreateArrayMap(result.ToString());
             }
             catch (Exception ex)
             {

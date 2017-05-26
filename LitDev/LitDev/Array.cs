@@ -17,6 +17,7 @@
 
 using Microsoft.SmallBasic.Library;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -424,12 +425,12 @@ namespace LitDev
             {
                 Array _array = getArray(array);
                 if (null == _array) return "FAILED";
-                string _SBarray = "";
+                StringBuilder _SBarray = new StringBuilder();
                 for (int i = 0; i < _array.maxNumber; i++)
                 {
-                    _SBarray += (i + 1).ToString() + "=" + Utilities.ArrayParse(_array.array[i]) + ";"; // Faster than Primitive _SBarray[i] = _array.array[i]
+                    _SBarray.AppendFormat("{0}={1};", (i + 1), Utilities.ArrayParse(_array.array[i]));// Faster than Primitive _SBarray[i] = _array.array[i]
                 }
-                return Utilities.CreateArrayMap(_SBarray);
+                return Utilities.CreateArrayMap(_SBarray.ToString());
             }
             catch (Exception ex)
             {
