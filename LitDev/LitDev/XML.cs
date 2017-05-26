@@ -414,14 +414,14 @@ namespace LitDev
                 try
                 {
                     if (null == xmlDoc) return "";
-                    string result = "";
+                    StringBuilder result = new StringBuilder();
                     if (null != xmlDoc.node.Attributes)
                     {
                         foreach (XmlAttribute atribute in xmlDoc.node.Attributes)
                         {
-                            result += Utilities.ArrayParse(atribute.Name) + "=" + Utilities.ArrayParse(atribute.InnerText) + ";";
+                            result.AppendFormat("{0}={1};", Utilities.ArrayParse(atribute.Name), Utilities.ArrayParse(atribute.InnerText));
                         }
-                        return Utilities.CreateArrayMap(result);
+                        return Utilities.CreateArrayMap(result.ToString());
                     }
                 }
                 catch (Exception ex)

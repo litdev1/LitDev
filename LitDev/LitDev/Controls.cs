@@ -20,6 +20,7 @@ using LitDev.Themes;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -2434,13 +2435,13 @@ namespace LitDev
         /// <returns>The array of urls in the history.</returns>
         public static Primitive BrowserHistory(Primitive shapeName)
         {
-            string history = "";
+            StringBuilder history = new StringBuilder();
             int i = 1;
             foreach (string url in browserHistory)
             {
-                history += (i++).ToString() + "=" + Utilities.ArrayParse(url) + ";";
+                history.AppendFormat("{0}={1};", i++, Utilities.ArrayParse(url));
             }
-            return Utilities.CreateArrayMap(history);
+            return Utilities.CreateArrayMap(history.ToString());
         }
 
         /// <summary>

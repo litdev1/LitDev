@@ -91,12 +91,12 @@ namespace LitDev
                 System.IO.File.Copy(newPath, newPath.Replace(SourcePath, DestinationPath));
         }
 
-        private static void getDirectories(string dirPath, ref string result, ref int i)
+        private static void getDirectories(string dirPath, ref StringBuilder result, ref int i)
         {
             try
             {
                 dirPath = Environment.ExpandEnvironmentVariables(dirPath);
-                result += (i++).ToString() + "=" + Utilities.ArrayParse(dirPath) + ";";
+                result.Append((i++).ToString() + "=" + Utilities.ArrayParse(dirPath) + ";");
 
                 if ((System.IO.File.GetAttributes(dirPath) & FileAttributes.ReparsePoint) != FileAttributes.ReparsePoint)
                 {
@@ -138,7 +138,7 @@ namespace LitDev
             try
             {
                 StreamReader streamReader = new StreamReader(fileName);
-                Primitive file = "";
+                StringBuilder file = new StringBuilder();
                 string line;
                 int iLine = 1;
 
@@ -146,13 +146,12 @@ namespace LitDev
                 {
                     line = streamReader.ReadLine();
                     if (line == "") line = " ";
-                    //file[iLine] = line;
-                    file += iLine.ToString() + "=" + Utilities.ArrayParse(line) + ";"; //Much faster
+                    file.AppendFormat("{0}={1};", iLine, Utilities.ArrayParse(line));
                     iLine++;
                 }
 
                 streamReader.Close();
-                return Utilities.CreateArrayMap(file);
+                return Utilities.CreateArrayMap(file.ToString());
             }
             catch (Exception ex)
             {
@@ -581,14 +580,14 @@ namespace LitDev
                 string content =  ReadEncodedFile(fileName);
                 string[] lines = content.Split(new string[] {Environment.NewLine}, StringSplitOptions.None);
                 int iLine = 1;
-                string result = "";
+                StringBuilder result = new StringBuilder();
 
                 foreach (string line in lines)
                 {
-                    result += (iLine++).ToString() + "=" + Utilities.ArrayParse(line == "" ? " " : line) + ";";
+                    result.AppendFormat("{0}={1};", iLine++, Utilities.ArrayParse(line == "" ? " " : line));
                 }
 
-                return Utilities.CreateArrayMap(result);
+                return Utilities.CreateArrayMap(result.ToString());
             }
             catch (Exception ex)
             {
@@ -779,23 +778,23 @@ namespace LitDev
             {
                 path = Environment.ExpandEnvironmentVariables(path);
                 if (!Directory.Exists(path)) return "FAILED";
-                string result = "";
+                StringBuilder result = new StringBuilder();
                 int i = 1;
                 foreach (string dirPath in Directory.GetDirectories(path, "*", SearchOption.AllDirectories))
                 {
-                    result += (i++).ToString() + "=" + Utilities.ArrayParse(dirPath) + ";";
+                    result.AppendFormat("{0}={1};", i++, Utilities.ArrayParse(dirPath));
                 }
-                return Utilities.CreateArrayMap(result);
+                return Utilities.CreateArrayMap(result.ToString());
             }
             catch (UnauthorizedAccessException)
             {
                 //Try to do it recursively
                 try
                 {
-                    string result = "";
+                    StringBuilder result = new StringBuilder();
                     int i = 1;
                     getDirectories(path, ref result, ref i);
-                    return Utilities.CreateArrayMap(result);
+                    return Utilities.CreateArrayMap(result.ToString());
                 }
                 catch (Exception ex)
                 {
