@@ -1142,7 +1142,7 @@ namespace LitDev
 
                         DoubleAnimation doubleAnimaton = new DoubleAnimation();
                         doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
-                        doubleAnimaton.RepeatBehavior = repeats < 0 ? RepeatBehavior.Forever : new RepeatBehavior(repeats);
+                        doubleAnimaton.RepeatBehavior = (repeats > 0) ? new RepeatBehavior(repeats) : RepeatBehavior.Forever;
                         doubleAnimaton.From = startAngle;
                         doubleAnimaton.To = endAngle;
                         doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);
@@ -1185,7 +1185,7 @@ namespace LitDev
 
                         DoubleAnimation doubleAnimaton = new DoubleAnimation();
                         doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
-                        doubleAnimaton.RepeatBehavior = repeats < 0 ? RepeatBehavior.Forever : new RepeatBehavior(repeats);
+                        doubleAnimaton.RepeatBehavior = (repeats > 0) ? new RepeatBehavior(repeats) : RepeatBehavior.Forever;
                         doubleAnimaton.From = startAngle;
                         doubleAnimaton.To = endAngle;
                         doubleAnimaton.Completed += (s, _) => _RotationCompletedEvent(geom);

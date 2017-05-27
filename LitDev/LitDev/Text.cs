@@ -19,8 +19,10 @@ using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -255,6 +257,51 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return 0;
             }
+        }
+
+        private static int iFastString = 0;
+        private static StringBuilder sb;
+        private static Dictionary<string, StringBuilder> FastStrings = new Dictionary<string, StringBuilder>();
+
+        /// <summary>
+        /// Create a new fast string appending object.
+        /// </summary>
+        /// <returns>The fast string append object.</returns>
+        public static Primitive FastStringNew()
+        {
+            string fastString = "FastString" + (++iFastString).ToString();
+            FastStrings.Add(fastString, new StringBuilder());
+            return fastString;
+        }
+
+        /// <summary>
+        /// Reset a fast string object to "".
+        /// </summary>
+        /// <param name="fastString">A fast string object.</param>
+        public static void FastStringClear(Primitive fastString)
+        {
+            if (FastStrings.TryGetValue(fastString, out sb)) sb.Clear();
+        }
+
+        /// <summary>
+        /// Append a string value to a fast string object.
+        /// </summary>
+        /// <param name="fastString">A fast string object.</param>
+        /// <param name="text">The test to append.</param>
+        public static void FastStringAppend(Primitive fastString, Primitive text)
+        {
+            if (FastStrings.TryGetValue(fastString, out sb)) sb.Append(text.ToString());
+        }
+
+        /// <summary>
+        /// Get the current text in a fast string.
+        /// </summary>
+        /// <param name="fastString">A fast string object.</param>
+        /// <returns>The current fast string text.</returns>
+        public static Primitive FastStringGet(Primitive fastString)
+        {
+            if (FastStrings.TryGetValue(fastString, out sb)) return sb.ToString();
+            return "";
         }
     }
 }
