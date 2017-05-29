@@ -167,7 +167,7 @@ namespace LitDev
         /// Normalise a vector to unit length.
         /// </summary>
         /// <param name="vector">The vector.</param>
-        /// <returns>A rescaled vetor of unit length or "" on failure.</returns>
+        /// <returns>A rescaled vector of unit length or "" on failure.</returns>
         public static Primitive Normalise(Primitive vector)
         {
             try

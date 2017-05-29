@@ -3154,7 +3154,7 @@ namespace LitDev
                         TextBox textbox = (TextBox)obj;
                         textbox.ScrollToEnd();
                     }
-                    if (obj.GetType() == typeof(RichTextBox))
+                    else if (obj.GetType() == typeof(RichTextBox))
                     {
                         RichTextBox textbox = (RichTextBox)obj;
                         textbox.ScrollToEnd();
