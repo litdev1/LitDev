@@ -181,5 +181,36 @@ namespace LitDev
 
             return 0;
         }
+
+        /// <summary>
+        /// Change the volume of sounds.
+        /// </summary>
+        /// <param name="command">One of the following options to change the sound volume level.
+        /// "Up" increase volume level.
+        /// "Down" decrease volume level.
+        /// "Mute" toggle between mute and un-mute volume level.</param>
+        public static void Volume(Primitive command)
+        {
+            try
+            {
+                IntPtr _hWnd = User32.FindWindow(null, GraphicsWindow.Title);
+                switch (command.ToString().ToLower())
+                {
+                    case "up":
+                        User32.SendMessageW(_hWnd, User32.WM_APPCOMMAND, _hWnd, (IntPtr)User32.APPCOMMAND_VOLUME_UP);
+                        break;
+                    case "down":
+                        User32.SendMessageW(_hWnd, User32.WM_APPCOMMAND, _hWnd, (IntPtr)User32.APPCOMMAND_VOLUME_DOWN);
+                        break;
+                    case "mute":
+                        User32.SendMessageW(_hWnd, User32.WM_APPCOMMAND, _hWnd, (IntPtr)User32.APPCOMMAND_VOLUME_MUTE);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
     }
 }

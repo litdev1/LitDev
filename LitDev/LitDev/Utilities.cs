@@ -982,6 +982,10 @@ namespace LitDev
         public const UInt32 MF_DISABLED = 0x00000002;
         public const UInt32 MF_ENABLED = 0x00000000;
         public const UInt32 MF_GRAYED = 0x00000001;
+        public const int APPCOMMAND_VOLUME_MUTE = 0x80000;
+        public const int APPCOMMAND_VOLUME_UP = 0xA0000;
+        public const int APPCOMMAND_VOLUME_DOWN = 0x90000;
+        public const int WM_APPCOMMAND = 0x319;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -1052,7 +1056,6 @@ namespace LitDev
         public static extern bool ShowWindow(IntPtr hWnd, ShowWindowCommands nCmdShow);
         [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
         public static extern IntPtr FindWindowByCaption(IntPtr ZeroOnly, string lpWindowName);
-
         public struct IconInfo
         {
             public bool fIcon;
@@ -1072,6 +1075,8 @@ namespace LitDev
         public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int y, int cx, int cy, int wFlags);
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool LockWindowUpdate(IntPtr hWnd);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
     }
 
     /// <summary>
