@@ -18,6 +18,7 @@
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Imaging;
@@ -525,7 +526,7 @@ namespace LitDev
             try
             {
                 string[] input = System.IO.File.ReadAllLines(fileName);
-                string output = "";
+                StringBuilder Output = new StringBuilder();
 
                 string[] row;
                 List<string[]> rowOrdered = new List<string[]>();
@@ -543,7 +544,7 @@ namespace LitDev
                 {
                     for (int iCol = 0; iCol < numCol; iCol++)
                     {
-                        output += (iCol + 1).ToString() + "=";
+                        Output.AppendFormat("{0}=", (iCol + 1).ToString());
                         string rowOutput = "";
                         for (int iRow = 0; iRow < numRow; iRow++)
                         {
@@ -561,14 +562,14 @@ namespace LitDev
                                 }
                             }
                         }
-                        output += rowOutput + ";";
+                        Output.Append(rowOutput + ";");
                     }
                 }
                 else
                 {
                     for (int iRow = 0; iRow < numRow; iRow++)
                     {
-                        output += (iRow + 1).ToString() + "=";
+                        Output.AppendFormat("{0}=", (iRow + 1).ToString());
                         row = rowOrdered[iRow];
                         string rowOutput = "";
                         for (int iCol = 0; iCol < row.Length; iCol++)
@@ -583,11 +584,11 @@ namespace LitDev
                                 rowOutput += (iCol + 1).ToString() + "\\=" + ArrayParse(value) + "\\;";
                             }
                         }
-                        output += rowOutput + ";";
+                        Output.Append(rowOutput + ";");
                     }
                 }
 
-                return CreateArrayMap(output);
+                return CreateArrayMap(Output.ToString());
             }
             catch (Exception ex)
             {

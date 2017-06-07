@@ -91,26 +91,6 @@ namespace LitDev
                 System.IO.File.Copy(newPath, newPath.Replace(SourcePath, DestinationPath));
         }
 
-        private static void getDirectories(string dirPath, ref StringBuilder result, ref int i)
-        {
-            try
-            {
-                dirPath = Environment.ExpandEnvironmentVariables(dirPath);
-                result.Append((i++).ToString() + "=" + Utilities.ArrayParse(dirPath) + ";");
-
-                if ((System.IO.File.GetAttributes(dirPath) & FileAttributes.ReparsePoint) != FileAttributes.ReparsePoint)
-                {
-                    foreach (string path in Directory.GetDirectories(dirPath))
-                    {
-                        getDirectories(path, ref result, ref i);
-                    }
-                }
-            }
-            catch (UnauthorizedAccessException)
-            {
-            }
-        }
-
         [HideFromIntellisense]
         public static Primitive MusicPlayTime(Primitive fileName)
         {
@@ -137,21 +117,24 @@ namespace LitDev
             }
             try
             {
-                StreamReader streamReader = new StreamReader(fileName);
-                StringBuilder file = new StringBuilder();
-                string line;
-                int iLine = 1;
-
-                while (!streamReader.EndOfStream)
+                using (StreamReader streamReader = new StreamReader(fileName))
                 {
-                    line = streamReader.ReadLine();
-                    if (line == "") line = " ";
-                    file.AppendFormat("{0}={1};", iLine, Utilities.ArrayParse(line));
-                    iLine++;
-                }
+                    StringBuilder file = new StringBuilder();
+                    string line;
+                    int iLine = 1;
 
-                streamReader.Close();
-                return Utilities.CreateArrayMap(file.ToString());
+                    while (!streamReader.EndOfStream)
+                    {
+                        line = streamReader.ReadLine();
+                        if (line == "") line = " ";
+                        file.AppendFormat("{0}={1};", iLine, Utilities.ArrayParse(line));
+                        iLine++;
+                    }
+
+                    streamReader.Close();
+
+                    return Utilities.CreateArrayMap(file.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -774,40 +757,26 @@ namespace LitDev
         /// <returns>An array of all sub-directories or "FAILED".</returns>
         public static Primitive GetAllDirectories(Primitive path)
         {
-            try
+            List<string> DirectoryFind = new List<string> { path };
+            for (int i = 0; i < DirectoryFind.Count; i++)
             {
-                path = Environment.ExpandEnvironmentVariables(path);
-                if (!Directory.Exists(path)) return "FAILED";
-                StringBuilder result = new StringBuilder();
-                int i = 1;
-                foreach (string dirPath in Directory.GetDirectories(path, "*", SearchOption.AllDirectories))
-                {
-                    result.AppendFormat("{0}={1};", i++, Utilities.ArrayParse(dirPath));
-                }
-                return Utilities.CreateArrayMap(result.ToString());
-            }
-            catch (UnauthorizedAccessException)
-            {
-                //Try to do it recursively
+                string CurrentPath = DirectoryFind[i];
                 try
                 {
-                    StringBuilder result = new StringBuilder();
-                    int i = 1;
-                    getDirectories(path, ref result, ref i);
-                    return Utilities.CreateArrayMap(result.ToString());
+                    DirectoryFind.AddRange(Directory.EnumerateDirectories(CurrentPath, "*", SearchOption.TopDirectoryOnly));
                 }
-                catch (Exception ex)
+                catch (UnauthorizedAccessException)
                 {
-
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                    return "FAILED";
+                   //Appropriate Error Message.
                 }
             }
-            catch (Exception ex)
+
+            StringBuilder result = new StringBuilder();
+            for (int i = 0; i < DirectoryFind.Count; i++)
             {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "FAILED";
+                result.AppendFormat("{0}={1};", i, Utilities.ArrayParse(DirectoryFind[i]));
             }
+            return result.ToString();
         }
     }
 }
