@@ -39,6 +39,7 @@ namespace LitDev
 
     /// <summary>
     /// Language translation methods.
+    /// This method is currently depreciated as MS has remove translation API.
     /// </summary>
     [SmallBasicType]
     public static class LDTranslate
@@ -125,6 +126,7 @@ namespace LitDev
         /// The array indices are the required language codes for the Translate method.
         /// </summary>
         /// <returns>The 1D array of language codes and names.</returns>
+        [HideFromIntellisense]
         public static Primitive Languages()
         {
             try
@@ -152,6 +154,7 @@ namespace LitDev
         /// <param name="languageFrom">The language code to translate from.</param>
         /// <param name="languageTo">The language code to translate to.</param>
         /// <returns>The translated text.</returns>
+        [HideFromIntellisense]
         public static Primitive Translate(Primitive input, Primitive languageFrom, Primitive languageTo)
         {
             try
