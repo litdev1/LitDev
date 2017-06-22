@@ -32,7 +32,7 @@
             System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Volume method added");
             System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("LDSound", new System.Windows.Forms.TreeNode[] {
             treeNode9});
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("This method is currently depreciated as MS has remove translation API");
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Modified to use Google API since MS has remove translation API");
             System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("LDTranslate", new System.Windows.Forms.TreeNode[] {
             treeNode11});
             System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Version 1.2.17.0", new System.Windows.Forms.TreeNode[] {
@@ -1877,7 +1877,7 @@
             treeNode10.Name = "Node0";
             treeNode10.Text = "LDSound";
             treeNode11.Name = "Node1";
-            treeNode11.Text = "This method is currently depreciated as MS has remove translation API";
+            treeNode11.Text = "Modified to use Google API since MS has remove translation API";
             treeNode12.Name = "Node0";
             treeNode12.Text = "LDTranslate";
             treeNode13.Name = "Node0";
