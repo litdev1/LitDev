@@ -202,6 +202,42 @@ namespace LitDev.Engines
             }
         }
 
+        public double GetVariance(int x, int y, Color colOld, Color colNew)
+        {
+            double dA = 0, dR = 0, dG = 0, dB = 0;
+            if (indexed)
+            {
+                Color c = _bitmap.GetPixel(x, y);
+                if (c == colNew) return double.MaxValue;
+                dA = c.A - colOld.A;
+                dR = c.R - colOld.R;
+                dG = c.G - colOld.G;
+                dB = c.B - colOld.B;
+            }
+            else if (locked)
+            {
+                if (_isAlpha)
+                {
+                    int index = y * stride + x * 4;
+                    if (rgbValues[index] == colNew.B && rgbValues[index + 1] == colNew.G && rgbValues[index + 2] == colNew.R && rgbValues[index + 3] == colNew.A) return double.MaxValue;
+                    dB = rgbValues[index] - colOld.B;
+                    dG = rgbValues[index + 1] - colOld.G;
+                    dR = rgbValues[index + 2] - colOld.R;
+                    dA = rgbValues[index + 3] - colOld.A;
+                }
+                else
+                {
+                    int index = y * stride + x * 3;
+                    if (rgbValues[index] == colNew.B && rgbValues[index + 1] == colNew.G && rgbValues[index + 2] == colNew.R) return double.MaxValue;
+                    dB = rgbValues[index] - colOld.B;
+                    dG = rgbValues[index + 1] - colOld.G;
+                    dR = rgbValues[index + 2] - colOld.R;
+                }
+            }
+            if (dA == 0) return (dR * dR + dG * dG + dB * dB) / 3.0;
+            else return (dA * dA + dR * dR + dG * dG + dB * dB) / 4.0;
+        }
+
         public static Stopwatch swGetBitmap = new Stopwatch();
         public static Stopwatch swGetBitmapImage = new Stopwatch();
 

@@ -48,6 +48,7 @@ namespace LitDev
 
         private static bool exitOnClose = true;
         private static bool cancelClose = false;
+        private static double floodFillTolerance = 0;
         public static bool bNewPause = true;
 
         public static SmallBasicCallback _ClosingDelegate = null;
@@ -829,6 +830,16 @@ namespace LitDev
         }
 
         /// <summary>
+        /// A tolerance for FloodFill method (0 to 100).
+        /// 0 is default and only pixels of exactly the same colour are changed, 100 changes all pixels apart from new fill colour.
+        /// </summary>
+        public static Primitive FloodFillTolerance
+        {
+            get { return floodFillTolerance; }
+            set { floodFillTolerance = value; }
+        }
+
+        /// <summary>
         /// Fill a region surrounding a specified pixel.
         /// All neighbour pixels of the same colour are changed.
         /// This only applies to the drawing layer of the GraphicsWindow.
@@ -847,6 +858,8 @@ namespace LitDev
             Type GraphicsWindowType = typeof(GraphicsWindow);
             x = (int)x;
             y = (int)y;
+            double tolerance = (floodFillTolerance * 255.0 / 100.0);
+            tolerance *= tolerance;
 
             try
             {
@@ -873,10 +886,10 @@ namespace LitDev
                             _x = point % nx;
                             _y = point / nx;
                             fp.SetPixel(_x, _y, colNew);
-                            if (_x > 0 && colOld == fp.GetPixel(_x - 1, _y)) points.Push(_y * nx + _x - 1);
-                            if (_x < nx - 1 && colOld == fp.GetPixel(_x + 1, _y)) points.Push(_y * nx + _x + 1);
-                            if (_y > 0 && colOld == fp.GetPixel(_x, _y - 1)) points.Push((_y - 1) * nx + _x);
-                            if (_y < ny - 1 && colOld == fp.GetPixel(_x, _y + 1)) points.Push((_y + 1) * nx + _x);
+                            if (_x > 0 && fp.GetVariance(_x - 1, _y, colOld, colNew) <= tolerance) points.Push(_y * nx + _x - 1);
+                            if (_x < nx - 1 && fp.GetVariance(_x + 1, _y, colOld, colNew) <= tolerance) points.Push(_y * nx + _x + 1);
+                            if (_y > 0 && fp.GetVariance(_x, _y - 1, colOld, colNew) <= tolerance) points.Push((_y - 1) * nx + _x);
+                            if (_y < ny - 1 && fp.GetVariance(_x, _y + 1, colOld, colNew) <= tolerance) points.Push((_y + 1) * nx + _x);
                         }
                         fp.Unlock(true);
 
