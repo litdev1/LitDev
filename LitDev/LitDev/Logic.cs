@@ -34,7 +34,7 @@ namespace LitDev
         private static StringComparison stringComparison = StringComparison.Ordinal;
 
         /// <summary>
-        /// Set if string comparisons are case sensitive ("true", default) or not ("False").
+        /// Set if string comparisons are case sensitive ("True", default) or not ("False").
         /// </summary>
         public static Primitive CaseSensitive
         {
@@ -55,31 +55,31 @@ namespace LitDev
         }
 
         /// <summary>
-        /// The Or operator.
-        /// Or("True","True") = "True"
-        /// Or("False","False") = "False"
-        /// Or("True","False") = "True"
-        /// Or("False","True") = "True"
+        /// The Or operator.  The trailing underscore is to keep SB parser happy not using reserved keyword OR.
+        /// Or_("True","True") = "True"
+        /// Or_("False","False") = "False"
+        /// Or_("True","False") = "True"
+        /// Or_("False","True") = "True"
         /// </summary>
         /// <param name="value1">The first value ("True" or "False").</param>
         /// <param name="value2">The second value ("True" or "False").</param>
         /// <returns>"True" or "False".</returns>
-        public static Primitive Or(Primitive value1, Primitive value2)
+        public static Primitive Or_(Primitive value1, Primitive value2)
         {
             return value1 || value2;
         }
 
         /// <summary>
-        /// The And operator.
-        /// And("True","True") = "True"
-        /// And("False","False") = "False"
-        /// And("True","False") = "False"
-        /// And("False","True") = "False"
+        /// The And operator.  The trailing underscore is to keep SB parser happy not using reserved keyword AND.
+        /// And_("True","True") = "True"
+        /// And_("False","False") = "False"
+        /// And_("True","False") = "False"
+        /// And_("False","True") = "False"
         /// </summary>
         /// <param name="value1">The first value ("True" or "False").</param>
         /// <param name="value2">The second value ("True" or "False").</param>
         /// <returns>"True" or "False".</returns>
-        public static Primitive And(Primitive value1, Primitive value2)
+        public static Primitive And_(Primitive value1, Primitive value2)
         {
             return value1 && value2;
         }
