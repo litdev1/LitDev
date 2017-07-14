@@ -82,8 +82,10 @@ namespace LitDev
             if (LDDataBase.Connection != "") dbConnection = LDDataBase.Connection;
             cnnSQLite = new SQLiteConnection(dbConnection);
             cnnSQLite.Open();
-            commandSQLite = new SQLiteCommand();
-            commandSQLite.Connection = cnnSQLite;
+            commandSQLite = new SQLiteCommand()
+            {
+                Connection = cnnSQLite
+            };
         }
 
         public void ConnectMySql(string server, string user, string password)
@@ -376,9 +378,11 @@ namespace LitDev
                             foreach (DataColumn column in dataTable.Columns)
                             {
                                 GridViewColumn Col = new GridViewColumn();
-                                GridViewColumnHeader header = new GridViewColumnHeader();
-                                header.Content = column.Caption;
-                                header.Tag = shape;
+                                GridViewColumnHeader header = new GridViewColumnHeader()
+                                {
+                                    Content = column.Caption,
+                                    Tag = shape
+                                };
                                 header.MouseDown += new MouseButtonEventHandler(LDControls._ListViewHeaderMouseButtonEvent);
                                 Col.Header = header;
                                 Col.Width = Double.NaN;
@@ -760,19 +764,19 @@ namespace LitDev
                 DataBase dataBase = GetDataBase(database);
                 if (null == dataBase) return "";
                 DataTable dataTable = GetDataTable(dataBase, query, null);
-                if (listview != "") Data2Grid(listview, dataTable);
+                if (!string.IsNullOrWhiteSpace(listview)) Data2Grid(listview, dataTable);
                 if (getRecords)
                 {
                     int columns = dataTable.Columns.Count;
                     int iRow = 1;
                     foreach (DataRow row in dataTable.Rows)
                     {
-                        string result = "";
+                        StringBuilder result = new StringBuilder();
                         for (int i = 0; i < columns; i++)
                         {
-                            result += Utilities.ArrayParse(dataTable.Columns[i].Caption) + "=" + Utilities.ArrayParse(row.ItemArray[i].ToString()) + ";";
+                            result.AppendFormat("{0}={1};", Utilities.ArrayParse(dataTable.Columns[i].Caption) , Utilities.ArrayParse(row.ItemArray[i].ToString()));
                         }
-                        results[iRow++] = Utilities.CreateArrayMap(result);
+                        results[iRow++] = Utilities.CreateArrayMap(result.ToString());
                     }
                 }
             }

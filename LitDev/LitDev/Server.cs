@@ -375,6 +375,16 @@ namespace LitDev
 			}
 			return Utilities.CreateArrayMap(result.ToString());
 		}
+        /// <summary>
+        /// Send a message to all clients but does not generate an array. Faster than Broadcast
+        /// </summary>
+        public static void BrodcastNoReturn(Primitive message)
+        {
+            for (int i = 0; i < clients.Count; i++)
+            {
+                SendMessage(clients[i].name, message);
+            }
+        }
 
         /// <summary>
         /// Start the server.
