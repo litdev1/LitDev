@@ -1079,7 +1079,7 @@ namespace LitDev
         public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern void Mouse_Event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
+        public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
         //Mouse actions
         public const int MOUSEEVENTF_LEFTDOWN = 0x02;
         public const int MOUSEEVENTF_LEFTUP = 0x04;
@@ -1772,13 +1772,13 @@ namespace LitDev
             switch (((string)button).ToLower())
             {
                 case "left":
-                    User32.Mouse_Event(User32.MOUSEEVENTF_LEFTDOWN | User32.MOUSEEVENTF_LEFTUP, (uint)x, (uint)y, 0, 0);
+                    User32.mouse_event(User32.MOUSEEVENTF_LEFTDOWN | User32.MOUSEEVENTF_LEFTUP, (uint)x, (uint)y, 0, 0);
                     break;
                 case "right":
-                    User32.Mouse_Event(User32.MOUSEEVENTF_RIGHTDOWN | User32.MOUSEEVENTF_RIGHTUP, (uint)x, (uint)y, 0, 0);
+                    User32.mouse_event(User32.MOUSEEVENTF_RIGHTDOWN | User32.MOUSEEVENTF_RIGHTUP, (uint)x, (uint)y, 0, 0);
                     break;
                 case "middle":
-                    User32.Mouse_Event(User32.MOUSEEVENTF_MIDDLEDOWN | User32.MOUSEEVENTF_MIDDLEUP, (uint)x, (uint)y, 0, 0);
+                    User32.mouse_event(User32.MOUSEEVENTF_MIDDLEDOWN | User32.MOUSEEVENTF_MIDDLEUP, (uint)x, (uint)y, 0, 0);
                     break;
             }
         }
