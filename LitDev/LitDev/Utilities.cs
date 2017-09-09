@@ -1077,6 +1077,16 @@ namespace LitDev
         public static extern bool LockWindowUpdate(IntPtr hWnd);
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern void Mouse_Event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
+        //Mouse actions
+        public const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        public const int MOUSEEVENTF_LEFTUP = 0x04;
+        public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
+        public const int MOUSEEVENTF_RIGHTUP = 0x10;
+        public const int MOUSEEVENTF_MIDDLEDOWN = 0x20;
+        public const int MOUSEEVENTF_MIDDLEUP = 0x40;
     }
 
     /// <summary>
@@ -1744,6 +1754,33 @@ namespace LitDev
         {
             get { return (int)FastThread.priority; }
             set { FastThread.priority = (DispatcherPriority)(int)value; }
+        }
+
+        /// <summary>
+        /// Send a mouse click at the specified screen location.  Note this is Mouse.MouseX/Y, not GraphicsWindow.MouseX/Y.
+        /// </summary>
+        /// <param name="x">The screen x position to click, -1 uses current mouse position.</param>
+        /// <param name="y">The screen y position to click, -1 uses current mouse position.</param>
+        /// <param name="button">The button to press ("Left", "Right" or "Middle")</param>
+        public static void SendClick(Primitive x, Primitive y, Primitive button)
+        {
+            if (x < 0 || y < 0)
+            {
+                x = System.Windows.Forms.Cursor.Position.X;
+                y = System.Windows.Forms.Cursor.Position.Y;
+            }
+            switch (((string)button).ToLower())
+            {
+                case "left":
+                    User32.Mouse_Event(User32.MOUSEEVENTF_LEFTDOWN | User32.MOUSEEVENTF_LEFTUP, (uint)x, (uint)y, 0, 0);
+                    break;
+                case "right":
+                    User32.Mouse_Event(User32.MOUSEEVENTF_RIGHTDOWN | User32.MOUSEEVENTF_RIGHTUP, (uint)x, (uint)y, 0, 0);
+                    break;
+                case "middle":
+                    User32.Mouse_Event(User32.MOUSEEVENTF_MIDDLEDOWN | User32.MOUSEEVENTF_MIDDLEUP, (uint)x, (uint)y, 0, 0);
+                    break;
+            }
         }
     }
 }

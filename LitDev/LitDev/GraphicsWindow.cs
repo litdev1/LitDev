@@ -1140,11 +1140,13 @@ namespace LitDev
         /// <summary>
         /// Set the GraphicsWindow as active (has focus).
         /// </summary>
-        public static void SetActive()
+        public static Primitive SetActive()
         {
             GraphicsWindow.Show();
             IntPtr hWnd = User32.FindWindow(null, GraphicsWindow.Title);
-            User32.SetForegroundWindow(hWnd);
+            if (hWnd == IntPtr.Zero) return "GraphicsWindow not found";
+            if (!User32.SetForegroundWindow(hWnd)) return "Cannot set GraphicsWindow as active";
+            return "SUCCESS";
         }
 
         private static ScaleTransform scaleTransform;

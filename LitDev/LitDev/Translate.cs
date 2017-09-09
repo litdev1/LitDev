@@ -40,7 +40,6 @@ namespace LitDev
 
     /// <summary>
     /// Language translation methods.
-    /// This method is currently depreciated as MS has remove translation API.
     /// </summary>
     [SmallBasicType]
     public static class LDTranslate
@@ -59,18 +58,18 @@ namespace LitDev
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("BASQUE".ToLower()), "eu");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("BELARUSIAN".ToLower()), "be");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("BENGALI".ToLower()), "bn");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("BIHARI".ToLower()), "bh");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("BIHARI".ToLower()), "bh");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("BULGARIAN".ToLower()), "bg");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("BURMESE".ToLower()), "my");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("CATALAN".ToLower()), "ca");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("CHEROKEE".ToLower()), "chr");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("CHEROKEE".ToLower()), "chr");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("CHINESE".ToLower()), "zh");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("CHINESE_SIMPLIFIED".ToLower()), "zh-CN");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("CHINESE_TRADITIONAL".ToLower()), "zh-TW");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("CROATIAN".ToLower()), "hr");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("CZECH".ToLower()), "cs");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("DANISH".ToLower()), "da");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("DHIVEHI".ToLower()), "dv");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("DHIVEHI".ToLower()), "dv");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("DUTCH".ToLower()), "nl");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("ENGLISH".ToLower()), "en");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("ESPERANTO".ToLower()), "eo");
@@ -82,7 +81,7 @@ namespace LitDev
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("GEORGIAN".ToLower()), "ka");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("GERMAN".ToLower()), "de");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("GREEK".ToLower()), "el");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("GUARANI".ToLower()), "gn");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("GUARANI".ToLower()), "gn");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("GUJARATI".ToLower()), "gu");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("HEBREW".ToLower()), "iw");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("HINDI".ToLower()), "hi");
@@ -90,7 +89,7 @@ namespace LitDev
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("ICELANDIC".ToLower()), "is");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("IRISH".ToLower()), "ga");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("INDONESIAN".ToLower()), "id");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("INUKTITUT".ToLower()), "iu");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("INUKTITUT".ToLower()), "iu");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("ITALIAN".ToLower()), "it");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("JAPANESE".ToLower()), "ja");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("KANNADA".ToLower()), "kn");
@@ -110,7 +109,7 @@ namespace LitDev
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("MONGOLIAN".ToLower()), "mn");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("NEPALI".ToLower()), "ne");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("NORWEGIAN".ToLower()), "no");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("ORIYA".ToLower()), "or");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("ORIYA".ToLower()), "or");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("PASHTO".ToLower()), "ps");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("PERSIAN".ToLower()), "fa");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("POLISH".ToLower()), "pl");
@@ -118,7 +117,7 @@ namespace LitDev
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("PUNJABI".ToLower()), "pa");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("ROMANIAN".ToLower()), "ro");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("RUSSIAN".ToLower()), "ru");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("SANSKRIT".ToLower()), "sa");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("SANSKRIT".ToLower()), "sa");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("SERBIAN".ToLower()), "sr");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("SINDHI".ToLower()), "sd");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("SINHALESE".ToLower()), "si");
@@ -132,12 +131,12 @@ namespace LitDev
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("TAGALOG".ToLower()), "tl");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("TELUGU".ToLower()), "te");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("THAI".ToLower()), "th");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("TIBETAN".ToLower()), "bo");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("TIBETAN".ToLower()), "bo");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("TURKISH".ToLower()), "tr");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("UKRAINIAN".ToLower()), "uk");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("URDU".ToLower()), "ur");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("UZBEK".ToLower()), "uz");
-            languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("UIGHUR".ToLower()), "ug");
+            //languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("UIGHUR".ToLower()), "ug");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("VIETNAMESE".ToLower()), "vi");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("WELSH".ToLower()), "cy");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("YIDDISH".ToLower()), "yi");

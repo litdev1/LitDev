@@ -15,13 +15,13 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.SmallBasic.Library;
-using System.Numerics;
 using MathNet.Numerics.IntegralTransforms;
+using Microsoft.SmallBasic.Library;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Globalization;
+using System.Numerics;
+using System.Reflection;
 
 namespace LitDev
 {

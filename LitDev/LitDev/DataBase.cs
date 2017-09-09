@@ -37,7 +37,7 @@ using LitDev.Engines;
 
 namespace LitDev
 {
-    class DataBase : IDisposable
+    public class DataBase : IDisposable
     {
         public enum DBType
         {
@@ -154,7 +154,7 @@ namespace LitDev
                 commandOleDb.Dispose();
             }
             // free native resources if there are any.
-        }
+       }
     }
 
     /// <summary>
@@ -168,7 +168,18 @@ namespace LitDev
     [SmallBasicType]
     public static class LDDataBase
     {
-        private static List<DataBase> dataBases = new List<DataBase>();
+        public static List<DataBase> dataBases = new List<DataBase>();
+
+        /// <summary>
+        /// Get a read only list of databases for use outside Small Basic.
+        /// </summary>
+        /// <returns>
+        /// IReadOnlyList/<DataBase/>
+        /// </returns>
+        public static IReadOnlyList<DataBase> GetDB()
+        {
+            return dataBases.AsReadOnly();
+        }
 
         private static void ExtractDll()
         {
