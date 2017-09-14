@@ -138,7 +138,7 @@ namespace LitDev
                 compilerParams.GenerateInMemory = false;
                 if (!dllName.EndsWith(".dll")) dllName += ".dll";
                 compilerParams.OutputAssembly = dllName;
-                if (!bJS) compilerParams.CompilerOptions += " /doc:" + Path.ChangeExtension(dllName, ".xml");
+                if (!bJS) compilerParams.CompilerOptions += " /doc:" + '"'+Path.ChangeExtension(dllName, ".xml") + '"';
             }
 
             loadedAssemblies.Clear();

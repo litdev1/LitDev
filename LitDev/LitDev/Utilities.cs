@@ -557,7 +557,7 @@ namespace LitDev
                                 }
                                 else
                                 {
-                                    rowOutput += (iRow + 1).ToString() + "\\=" + ArrayParse(value) + "\\;";
+                                    rowOutput += (iRow + 1).ToString() + "\\=" + ArrayParse(ArrayParse(value)) + "\\;";
                                 }
                             }
                         }
@@ -580,7 +580,7 @@ namespace LitDev
                             }
                             else
                             {
-                                rowOutput += (iCol + 1).ToString() + "\\=" + ArrayParse(value) + "\\;";
+                                rowOutput += (iCol + 1).ToString() + "\\=" + ArrayParse(ArrayParse(value)) + "\\;";
                             }
                         }
                         output += rowOutput + ";";
@@ -1764,10 +1764,11 @@ namespace LitDev
         /// <param name="button">The button to press ("Left", "Right" or "Middle")</param>
         public static void SendClick(Primitive x, Primitive y, Primitive button)
         {
-            if (x < 0 || y < 0)
+            int xCur = System.Windows.Forms.Cursor.Position.X;
+            int yCur = System.Windows.Forms.Cursor.Position.Y;
+            if (x >= 0 && y >= 0)
             {
-                x = System.Windows.Forms.Cursor.Position.X;
-                y = System.Windows.Forms.Cursor.Position.Y;
+                System.Windows.Forms.Cursor.Position = new System.Drawing.Point(x, y);
             }
             switch (((string)button).ToLower())
             {
@@ -1780,6 +1781,10 @@ namespace LitDev
                 case "middle":
                     User32.mouse_event(User32.MOUSEEVENTF_MIDDLEDOWN | User32.MOUSEEVENTF_MIDDLEUP, (uint)x, (uint)y, 0, 0);
                     break;
+            }
+            if (x >= 0 && y >= 0)
+            {
+                System.Windows.Forms.Cursor.Position = new System.Drawing.Point(xCur, yCur);
             }
         }
     }

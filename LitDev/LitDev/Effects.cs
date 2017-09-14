@@ -228,8 +228,14 @@ namespace LitDev
             SetEffect(shapeName, eEffect.NONE, "");
         }
 
+        [HideFromIntellisense]
+        public static void DropShaddow(Primitive shapeName, Primitive properties)
+        {
+            DropShadow(shapeName, properties);
+        }
+
         /// <summary>
-        /// Apply a drop shaddow effect.
+        /// Apply a drop shadow effect.
         /// </summary>
         /// <param name="shapeName">The shape to apply the effect to.</param>
         /// <param name="properties">An array of optional ("" for none) properties, indexed by the property name:
@@ -239,7 +245,7 @@ namespace LitDev
         /// Opacity (default 1)
         /// ShadowDepth (default 5)
         /// </param>
-        public static void DropShaddow(Primitive shapeName, Primitive properties)
+        public static void DropShadow(Primitive shapeName, Primitive properties)
         {
             SetEffect(shapeName, eEffect.DROPSHADOW, properties);
         }
