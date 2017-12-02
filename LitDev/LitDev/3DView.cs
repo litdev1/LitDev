@@ -1113,6 +1113,57 @@ namespace LitDev
                 }
             }
 
+            public void SetBackMaterial_Delegate()
+            {
+                int i = 0;
+                string shapeName = (string)data[i++];
+                string geometryName = (string)data[i++];
+                Primitive colour = (Primitive)data[i++];
+                Primitive materialType = (Primitive)data[i++];
+                UIElement obj = (UIElement)data[i++];
+
+                try
+                {
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+
+                        MaterialGroup material = new MaterialGroup();
+                        Brush brush = null;
+                        foreach (GradientBrush iBrush in LDShapes.brushes)
+                        {
+                            if (iBrush.name == colour)
+                            {
+                                brush = iBrush.getBrush();
+                            }
+                        }
+                        if (null == brush) brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
+                        switch (materialType.ToString().ToLower())
+                        {
+                            case "e":
+                                material.Children.Add(new DiffuseMaterial(brush));
+                                material.Children.Add(new EmissiveMaterial(brush));
+                                geometry.BackMaterial = material;
+                                break;
+                            case "d":
+                                material.Children.Add(new DiffuseMaterial(brush));
+                                geometry.BackMaterial = material;
+                                break;
+                            case "s":
+                                material.Children.Add(new SpecularMaterial(brush, specular));
+                                geometry.BackMaterial = material;
+                                break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
             public void AnimateRotation_Delegate()
             {
                 int i = 0;
@@ -1582,6 +1633,123 @@ namespace LitDev
                                 GeometryModel3D geometry = geom.geometryModel3D;
                                 MeshGeometry3D mesh = (MeshGeometry3D)geometry.Geometry;
                                 MaterialGroup material = (MaterialGroup)geometry.Material;
+
+                                string[] s;
+                                int i;
+
+                                // Create a collection of texture coordinates for the MeshGeometry3D.
+                                PointCollection textureCollection = new PointCollection();
+                                s = Utilities.getString(textures).Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
+                                for (i = 0; i < s.Length; i += 2)
+                                {
+                                    textureCollection.Add(new Point(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1])));
+                                }
+                                if (textureCollection.Count == mesh.Positions.Count) mesh.TextureCoordinates = textureCollection;
+
+                                Brush brush = null;
+                                foreach (GradientBrush iBrush in LDShapes.brushes)
+                                {
+                                    if (iBrush.name == imageName)
+                                    {
+                                        brush = iBrush.getBrush();
+                                    }
+                                }
+                                if (null == brush)
+                                {
+                                    try
+                                    {
+                                        brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(imageName));
+                                    }
+                                    catch
+                                    {
+                                        _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                                        if (!_savedImages.TryGetValue((string)imageName, out img))
+                                        {
+                                            imageName = ImageList.LoadImage(imageName);
+                                            if (!_savedImages.TryGetValue((string)imageName, out img))
+                                            {
+                                                return;
+                                            }
+                                        }
+                                        brush = new ImageBrush(img);
+                                    }
+                                }
+
+                                switch (materialType.ToString().ToLower())
+                                {
+                                    case "e":
+                                        material.Children.Add(new EmissiveMaterial(brush));
+                                        break;
+                                    case "d":
+                                        material.Children.Add(new DiffuseMaterial(brush));
+                                        break;
+                                    case "s":
+                                        material.Children.Add(new SpecularMaterial(brush, specular));
+                                        break;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return;
+                    });
+                    FastThread.Invoke(ret);
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Add an image to a back surface of geometry object.
+        /// A geometry 'skin' may contain several segment images in one image.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <param name="textures">A space or colon deliminated list of the texture coordinates for each node.
+        /// Each node has 2 values between 0 and 1 indicating the x,y image mapping to the node.
+        /// The may be defaulted to "" if the texture has previously been set.</param>
+        /// <param name="imageName">
+        /// The image to load to the geometry.
+        /// Value returned from ImageList.LoadImage or local or network image file.
+        /// A colour or gradient brush can also be used here.
+        /// </param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular - additional specular highlights.</param>
+        public static void AddBackImage(Primitive shapeName, Primitive geometryName, Primitive textures, Primitive imageName, Primitive materialType)
+        {
+            UIElement obj;
+            Type ImageListType = typeof(ImageList);
+            Dictionary<string, BitmapSource> _savedImages;
+            BitmapSource img;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return;
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                MeshGeometry3D mesh = (MeshGeometry3D)geometry.Geometry;
+                                MaterialGroup material = (MaterialGroup)geometry.BackMaterial;
+                                if (null == material) material = new MaterialGroup();
 
                                 string[] s;
                                 int i;
@@ -3543,6 +3711,40 @@ namespace LitDev
                 {
                     Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, colour, materialType, obj });
                     FastThread.BeginInvoke(delegates.ResetMaterial_Delegate);
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Set the back face material for an existing geometry.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
+        public static void SetBackMaterial(Primitive shapeName, Primitive geometryName, Primitive colour, Primitive materialType)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, colour, materialType, obj });
+                    FastThread.BeginInvoke(delegates.SetBackMaterial_Delegate);
                 }
                 else
                 {
