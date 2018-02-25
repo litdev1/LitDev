@@ -28,7 +28,7 @@ using System.Windows.Media.Imaging;
 namespace LitDev
 {
     /// <summary>
-    /// Create icon (*.ico) files from an ImageList image.
+    /// Create an icon (*.ico) file from an image.
     /// </summary>
     [SmallBasicType]
     public static class LDIcon
@@ -38,7 +38,7 @@ namespace LitDev
         /// </summary>
         /// <param name="imageName">The file path or ImageList image to create icon from.  Best results will be obtained from a square image.</param>
         /// <param name="iconPath">The full path to save the icon file (using extension *.ico).</param>
-        /// <returns>"SUCCESS", "FAILED"</returns>
+        /// <returns>"SUCCESS" or "FAILED"</returns>
         public static Primitive CreateIcon(Primitive imageName, Primitive iconPath)
         {
             try
@@ -68,16 +68,14 @@ namespace LitDev
                     bw.Write((short)1);                 // 2-3 image type, 1=Icon, 2=Cursor	// bw.Write(icoType);
                     bw.Write((short)size.Length);                 // 4-5 number of images
 
-                    List<Bitmap> bmpIcon = new List<Bitmap>();
                     List<byte[]> data = new List<byte[]>();
                     for (int i = 0; i < size.Length; i++)
                     {
-                        Bitmap bmpTemp = new Bitmap(bmp, new Size(size[i], size[i]));
-                        bmpIcon.Add(bmpTemp);
-                        using (MemoryStream memStream = new MemoryStream())
+                        Bitmap bmpIcon = new Bitmap(bmp, new Size(size[i], size[i]));
+                        using (MemoryStream ms = new MemoryStream())
                         {
-                            bmpTemp.Save(memStream, ImageFormat.Png);
-                            data.Add(memStream.ToArray());
+                            bmpIcon.Save(ms, ImageFormat.Png);
+                            data.Add(ms.ToArray());
                         }
                     }
 
