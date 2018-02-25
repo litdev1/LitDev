@@ -24,6 +24,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using System.Windows.Media.Imaging;
+using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {
@@ -33,8 +34,11 @@ namespace LitDev
     [SmallBasicType]
     public static class LDIcon
     {
+        private static int[] size = { 16, 24, 32, 64, 128, 256 };
+
         /// <summary>
         /// Create an icon file with 16*16, 24*24, 32*32, 64*64, 128*128 and 256*256 embedded images.
+        /// To change these defaults use SetSizes method.
         /// </summary>
         /// <param name="imageName">The file path or ImageList image to create icon from.  Best results will be obtained from a square image.</param>
         /// <param name="iconPath">The full path to save the icon file (using extension *.ico).</param>
@@ -60,8 +64,6 @@ namespace LitDev
 
                 using (FileStream outStream = new FileStream(iconPath, FileMode.Create))
                 {
-                    int[] size = { 16, 24, 32, 64, 128, 256 };
-
                     BinaryWriter bw = new BinaryWriter(outStream);
                     bw.Write((byte)0);                  // 0-1 reserved (0)
                     bw.Write((byte)0);
@@ -106,6 +108,31 @@ namespace LitDev
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Set the default icon sizes.  This should be called before CreateIcon.
+        /// </summary>
+        /// <param name="sizes">An array of integer icon sizes, default is 16,24,32,64,128,256.
+        /// A single icon size may also be set using a single size value.
+        /// The maximum size is 256.</param>
+        public static void SetSizes(Primitive sizes)
+        {
+            int count = sizes.GetItemCount();
+            if (count == 0)
+            {
+                System.Array.Resize(ref size, 1);
+                size[0] = sizes;
+            }
+            else
+            {
+                Primitive indices = SBArray.GetAllIndices(sizes);
+                System.Array.Resize(ref size, count);
+                for (int i = 0; i < count; i++)
+                {
+                    size[i] = sizes[indices[i + 1]];
+                }
             }
         }
     }
