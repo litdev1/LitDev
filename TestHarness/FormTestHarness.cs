@@ -708,6 +708,10 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive shp = Microsoft.SmallBasic.Library.Controls.AddButton("Button", 10, 10);
+            LDShapes.ReSize(shp, 100, 100);
+            LDShapes.ReSize(shp, 200, 200);
+
             Primitive xx = LDFastArray.Add();
             LDFastArray.Set(xx,"1 2 3",24);
             FieldInfo _primitive = typeof(Primitive).GetField("_primitive", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance);

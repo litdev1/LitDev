@@ -2812,8 +2812,16 @@ namespace LitDev
                             }
                             if (frameworkElement != null)
                             {
-                                scaleTransform.ScaleX = width / frameworkElement.Width;
-                                scaleTransform.ScaleY = height / frameworkElement.Height;
+                                if (double.IsNaN(frameworkElement.Width) || double.IsNaN(frameworkElement.Height))
+                                {
+                                    frameworkElement.Width = width;
+                                    frameworkElement.Height = height;
+                                }
+                                else
+                                {
+                                    scaleTransform.ScaleX = width / frameworkElement.Width;
+                                    scaleTransform.ScaleY = height / frameworkElement.Width;
+                                }
                             }
                         }
                         catch (Exception ex)
