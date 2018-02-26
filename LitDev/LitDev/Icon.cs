@@ -114,16 +114,21 @@ namespace LitDev
         /// <summary>
         /// Set the default icon sizes.  This should be called before CreateIcon.
         /// </summary>
-        /// <param name="sizes">An array of integer icon sizes, default is 16,24,32,64,128,256.
-        /// A single icon size may also be set using a single size value.
+        /// <param name="sizes">A space separated list of integer icon sizes, default is "16 24 32 64 128 256".
+        /// An array of integer icon sizes may also be used.
         /// The maximum size is 256.</param>
         public static void SetSizes(Primitive sizes)
         {
+            sizes = sizes.ToString(); //To ensure a single value can be treated as a string
             int count = sizes.GetItemCount();
             if (count == 0)
             {
-                System.Array.Resize(ref size, 1);
-                size[0] = sizes;
+                string[] data = sizes.ToString().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                System.Array.Resize(ref size, data.Length);
+                for (int i = 0; i < data.Length; i++)
+                {
+                    int.TryParse(data[i], out size[i]);
+                }
             }
             else
             {
