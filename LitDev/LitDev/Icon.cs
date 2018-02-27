@@ -46,6 +46,7 @@ namespace LitDev
             get { return bSquare; }
             set { bSquare = value; }
         }
+
         /// <summary>
         /// Create an icon file with 16*16, 24*24, 32*32, 64*64, 128*128 and 256*256 embedded images.
         /// To change these defaults use SetSizes method.
@@ -128,7 +129,8 @@ namespace LitDev
         /// <param name="imageName">The file path or ImageList image to create cursor from.  Best results will be obtained from a square image.</param>
         /// <param name="cursorPath">The full path to save the cursor file (using extension *.cur).</param>
         /// <param name="size">The pixel size of cursor.</param>
-        /// <param name="xHotSpot">Pixel from left of cursor hot spot, indexed from 0.</param>
+        /// <param name="xHotSpot">Pixel from left of cursor hot spot, indexed from 0.
+        /// For images where the aspect ratio is maintained, the xHotSpot is also scaled.</param>
         /// <param name="yHotSpot">Pixel from top of cursor hot spot, indexed from 0.</param>
         /// <returns></returns>
         public static Primitive CreateCursor(Primitive imageName, Primitive cursorPath, Primitive size, Primitive xHotSpot, Primitive yHotSpot)
@@ -168,11 +170,11 @@ namespace LitDev
                     }
 
                     int offset = 6 + 16;
-                    bw.Write((byte)(size* scaleWidth));                  //	0 image width	(entry Image#1)
+                    bw.Write((byte)(size * scaleWidth));                  //	0 image width	(entry Image#1)
                     bw.Write((byte)size);                  //	1 image height
                     bw.Write((byte)0);                  //	2 number of colors (0 if the image does not use a color palette)
                     bw.Write((byte)0);                  //	3 reserved (0)
-                    bw.Write((short)xHotSpot);                 //	4-5 color planes (Ico: 0 or 1; Cur: horiz. coord. of xHotspot, # of pxl from left)
+                    bw.Write((short)(xHotSpot * scaleWidth));                 //	4-5 color planes (Ico: 0 or 1; Cur: horiz. coord. of xHotspot, # of pxl from left)
                     bw.Write((short)yHotSpot);                //	6-7 bits per pixel (Ico: bpPxl; Cur: vert. coord. of yHotspot, # of pxl from top)
                     bw.Write((int)data.Length);    //	8-11 size [Bytes] of image data
                     bw.Write((int)offset);                //	12-15 offset [Bytes] of Bmp/Png image data from beginning (6 + 16)
