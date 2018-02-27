@@ -29,13 +29,23 @@ using SBArray = Microsoft.SmallBasic.Library.Array;
 namespace LitDev
 {
     /// <summary>
-    /// Create an icon (*.ico) file from an image.
+    /// Create an icon (*.ico) or cursor (*.cur) file from an image.
     /// </summary>
     [SmallBasicType]
     public static class LDIcon
     {
         private static int[] size = { 16, 24, 32, 64, 128, 256 };
+        private static bool bSquare = true;
 
+        /// <summary>
+        /// Scale images to keep the aspect ratio of images square (width = height), "True" (default) or "False".
+        /// If set to "False" then the width of the icon or cursor will be scaled to maintain the image aspect ratio, while maintaining the set height.
+        /// </summary>
+        public static Primitive SquareImage
+        {
+            get { return bSquare; }
+            set { bSquare = value; }
+        }
         /// <summary>
         /// Create an icon file with 16*16, 24*24, 32*32, 64*64, 128*128 and 256*256 embedded images.
         /// To change these defaults use SetSizes method.
@@ -61,6 +71,7 @@ namespace LitDev
                     }
                 }
                 Bitmap bmp = FastPixel.GetBitmap(img);
+                double scaleWidth = bSquare ? 1 : (double)bmp.Width / (double)bmp.Height;
 
                 using (FileStream outStream = new FileStream(iconPath, FileMode.Create))
                 {
@@ -73,7 +84,7 @@ namespace LitDev
                     List<byte[]> data = new List<byte[]>();
                     for (int i = 0; i < size.Length; i++)
                     {
-                        Bitmap bmpIcon = new Bitmap(bmp, new Size(size[i], size[i]));
+                        Bitmap bmpIcon = new Bitmap(bmp, new Size((int)(size[i] * scaleWidth), size[i]));
                         using (MemoryStream ms = new MemoryStream())
                         {
                             bmpIcon.Save(ms, ImageFormat.Png);
@@ -84,7 +95,7 @@ namespace LitDev
                     int offset = 6 + 16 * size.Length;
                     for (int i = 0; i < size.Length; i++)
                     {
-                        bw.Write((byte)size[i]);                  //	0 image width	(entry Image#1)
+                        bw.Write((byte)(size[i] * scaleWidth));                  //	0 image width	(entry Image#1)
                         bw.Write((byte)size[i]);                  //	1 image height
                         bw.Write((byte)0);                  //	2 number of colors (0 if the image does not use a color palette)
                         bw.Write((byte)0);                  //	3 reserved (0)
@@ -99,6 +110,73 @@ namespace LitDev
                     {
                         bw.Write(data[i]);      // write image data (must contain the whole png data file)
                     }
+
+                    bw.Flush();
+                }
+                return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Create a cursor file.
+        /// </summary>
+        /// <param name="imageName">The file path or ImageList image to create cursor from.  Best results will be obtained from a square image.</param>
+        /// <param name="cursorPath">The full path to save the cursor file (using extension *.cur).</param>
+        /// <param name="size">The pixel size of cursor.</param>
+        /// <param name="xHotSpot">Pixel from left of cursor hot spot, indexed from 0.</param>
+        /// <param name="yHotSpot">Pixel from top of cursor hot spot, indexed from 0.</param>
+        /// <returns></returns>
+        public static Primitive CreateCursor(Primitive imageName, Primitive cursorPath, Primitive size, Primitive xHotSpot, Primitive yHotSpot)
+        {
+            try
+            {
+                Type ImageListType = typeof(ImageList);
+                Dictionary<string, BitmapSource> _savedImages;
+                BitmapSource img;
+
+                _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_savedImages.TryGetValue((string)imageName, out img))
+                {
+                    imageName = ImageList.LoadImage(imageName);
+                    if (!_savedImages.TryGetValue((string)imageName, out img))
+                    {
+                        return "FAILED";
+                    }
+                }
+                Bitmap bmp = FastPixel.GetBitmap(img);
+                double scaleWidth = bSquare ? 1 : (double)bmp.Width / (double)bmp.Height;
+
+                using (FileStream outStream = new FileStream(cursorPath, FileMode.Create))
+                {
+                    BinaryWriter bw = new BinaryWriter(outStream);
+                    bw.Write((byte)0);                  // 0-1 reserved (0)
+                    bw.Write((byte)0);
+                    bw.Write((short)2);                 // 2-3 image type, 1=Icon, 2=Cursor	// bw.Write(icoType);
+                    bw.Write((short)1);                 // 4-5 number of images
+
+                    Bitmap bmpIcon = new Bitmap(bmp, new Size((int)(size * scaleWidth), size));
+                    byte[] data;
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        bmpIcon.Save(ms, ImageFormat.Png);
+                        data = ms.ToArray();
+                    }
+
+                    int offset = 6 + 16;
+                    bw.Write((byte)(size* scaleWidth));                  //	0 image width	(entry Image#1)
+                    bw.Write((byte)size);                  //	1 image height
+                    bw.Write((byte)0);                  //	2 number of colors (0 if the image does not use a color palette)
+                    bw.Write((byte)0);                  //	3 reserved (0)
+                    bw.Write((short)xHotSpot);                 //	4-5 color planes (Ico: 0 or 1; Cur: horiz. coord. of xHotspot, # of pxl from left)
+                    bw.Write((short)yHotSpot);                //	6-7 bits per pixel (Ico: bpPxl; Cur: vert. coord. of yHotspot, # of pxl from top)
+                    bw.Write((int)data.Length);    //	8-11 size [Bytes] of image data
+                    bw.Write((int)offset);                //	12-15 offset [Bytes] of Bmp/Png image data from beginning (6 + 16)
+                    bw.Write(data);      // write image data (must contain the whole png data file)
 
                     bw.Flush();
                 }

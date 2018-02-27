@@ -172,8 +172,8 @@ namespace LitDev
         /// An ImageList image can be resized with LDImage.Resize.
         /// </summary>
         /// <param name="imageName">The file path or ImageList image.</param>
-        /// <param name="xHotSpot">The x pixel to use as the hot spot.</param>
-        /// <param name="yHotSpot">The y pixel to use as the hot spot.</param>
+        /// <param name="xHotSpot">The x pixel to use as the hot spot, indexed from 0.</param>
+        /// <param name="yHotSpot">The y pixel to use as the hot spot, indexed from 0.</param>
         /// <returns>A cursor.</returns>
         public static Primitive CreateCursor(Primitive imageName, Primitive xHotSpot, Primitive yHotSpot)
         {
