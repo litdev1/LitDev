@@ -17,7 +17,7 @@
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Object to create icon files added");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Object to create icon and cursor files added");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDIcon", new System.Windows.Forms.TreeNode[] {
             treeNode1});
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Version 1.2.19.0", new System.Windows.Forms.TreeNode[] {
@@ -1883,7 +1883,7 @@
             this.treeView1.Margin = new System.Windows.Forms.Padding(4);
             this.treeView1.Name = "treeView1";
             treeNode1.Name = "Node2";
-            treeNode1.Text = "Object to create icon files added";
+            treeNode1.Text = "Object to create icon and cursor files added";
             treeNode2.Name = "Node1";
             treeNode2.Text = "LDIcon";
             treeNode3.Name = "Node0";

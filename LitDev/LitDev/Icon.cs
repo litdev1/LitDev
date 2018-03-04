@@ -36,6 +36,7 @@ namespace LitDev
     {
         private static int[] size = { 16, 24, 32, 64, 128, 256 };
         private static bool bSquare = true;
+        private static ImageFormat imageFormat = ImageFormat.Png;
 
         /// <summary>
         /// Scale images to keep the aspect ratio of images square (width = height), "True" (default) or "False".
@@ -88,7 +89,7 @@ namespace LitDev
                         Bitmap bmpIcon = new Bitmap(bmp, new Size((int)(size[i] * scaleWidth), size[i]));
                         using (MemoryStream ms = new MemoryStream())
                         {
-                            bmpIcon.Save(ms, ImageFormat.Png);
+                            bmpIcon.Save(ms, imageFormat);
                             data.Add(ms.ToArray());
                         }
                     }
@@ -165,7 +166,7 @@ namespace LitDev
                     byte[] data;
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        bmpIcon.Save(ms, ImageFormat.Png);
+                        bmpIcon.Save(ms, imageFormat);
                         data = ms.ToArray();
                     }
 
