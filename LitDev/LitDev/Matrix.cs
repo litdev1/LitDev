@@ -575,7 +575,8 @@ namespace LitDev
         /// View a matrix for dubugging purposes.
         /// </summary>
         /// <param name="matrix">The matrix to display.</param>
-        /// <param name="modal">The matrix display will pause all other actions until it is closed. ("True" or "False").</param>
+        /// <param name="modal">The matrix display will pause all other actions until it is closed. ("True" or "False").
+        /// If the modal value is set to "False" then this method requires to be called from a GraphicsWindow event, such as a button click.</param>
         /// <returns>
         /// None.
         /// </returns>

@@ -685,12 +685,13 @@ namespace LitDev
 
             try
             {
-                _penField = GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-                _pen = (Pen)_penField.GetValue(null);
                 InvokeHelper ret = new InvokeHelper(delegate
                 {
                     try
                     {
+                        _penField = GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                        _pen = (Pen)_penField.GetValue(null);
+
                         Pen pen = new Pen();
                         Line line;
                         List<string> shapes = new List<string>();
@@ -1061,14 +1062,14 @@ namespace LitDev
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
 
-                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
                     try
                     {
+                        _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                        _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                        _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
                         PointCollection _points = getPoints(points);
                         if (_points.Count < 3) return "";
 
@@ -1127,14 +1128,14 @@ namespace LitDev
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
 
-                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
                     try
                     {
+                        _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                        _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                        _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
                         PointCollection _points = new PointCollection();
                         double angle;
                         Point _point;
@@ -1216,14 +1217,14 @@ namespace LitDev
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
 
-                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
                     try
                     {
+                        _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                        _pen = (Pen)GraphicsWindowType.GetField("_pen", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                        _brush = (Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
                         PointCollection _points = new PointCollection();
                         double angle;
                         Point _point;
@@ -2990,7 +2991,9 @@ namespace LitDev
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                     {
-                        return Canvas.GetLeft(obj).ToString(CultureInfo.InvariantCulture);
+                        double result = Canvas.GetLeft(obj);
+                        if (double.IsNaN(result)) result = 0;
+                        return result.ToString(CultureInfo.InvariantCulture);
                     });
                     return FastThread.InvokeWithReturn(ret).ToString();
                 }
@@ -3024,7 +3027,9 @@ namespace LitDev
                 {
                     InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                     {
-                        return Canvas.GetTop(obj).ToString(CultureInfo.InvariantCulture);
+                        double result = Canvas.GetTop(obj);
+                        if (double.IsNaN(result)) result = 0;
+                        return result.ToString(CultureInfo.InvariantCulture);
                     });
                     return FastThread.InvokeWithReturn(ret).ToString();
                 }

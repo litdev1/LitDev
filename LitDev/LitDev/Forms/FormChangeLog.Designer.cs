@@ -17,18 +17,19 @@
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Object to create icon and cursor files added");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDIcon", new System.Windows.Forms.TreeNode[] {
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("SetBackMaterial and AddBackImage methods added");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LD3DView", new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Version 1.2.19.0", new System.Windows.Forms.TreeNode[] {
-            treeNode2});
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("SetBackMaterial and AddBackImage methods added");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("LD3DView", new System.Windows.Forms.TreeNode[] {
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Fix for ReSize for some controls");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Fix for GetLeft and GetTop for shapes that have not been positioned yet");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("LDShapes", new System.Windows.Forms.TreeNode[] {
+            treeNode3,
             treeNode4});
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Fix for ReSize for some controls");
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("LDShapes", new System.Windows.Forms.TreeNode[] {
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("AddPyramid shape fixed");
+            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("LD3DView", new System.Windows.Forms.TreeNode[] {
             treeNode6});
             System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Version 1.2.18.0", new System.Windows.Forms.TreeNode[] {
+            treeNode2,
             treeNode5,
             treeNode7});
             System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Fast text appending method added");
@@ -1882,20 +1883,20 @@
             this.treeView1.Location = new System.Drawing.Point(16, 15);
             this.treeView1.Margin = new System.Windows.Forms.Padding(4);
             this.treeView1.Name = "treeView1";
-            treeNode1.Name = "Node2";
-            treeNode1.Text = "Object to create icon and cursor files added";
-            treeNode2.Name = "Node1";
-            treeNode2.Text = "LDIcon";
-            treeNode3.Name = "Node0";
-            treeNode3.Text = "Version 1.2.19.0";
-            treeNode4.Name = "Node1";
-            treeNode4.Text = "SetBackMaterial and AddBackImage methods added";
+            treeNode1.Name = "Node1";
+            treeNode1.Text = "SetBackMaterial and AddBackImage methods added";
+            treeNode2.Name = "Node0";
+            treeNode2.Text = "LD3DView";
+            treeNode3.Name = "Node1";
+            treeNode3.Text = "Fix for ReSize for some controls";
+            treeNode4.Name = "Node2";
+            treeNode4.Text = "Fix for GetLeft and GetTop for shapes that have not been positioned yet";
             treeNode5.Name = "Node0";
-            treeNode5.Text = "LD3DView";
-            treeNode6.Name = "Node1";
-            treeNode6.Text = "Fix for ReSize for some controls";
-            treeNode7.Name = "Node0";
-            treeNode7.Text = "LDShapes";
+            treeNode5.Text = "LDShapes";
+            treeNode6.Name = "Node4";
+            treeNode6.Text = "AddPyramid shape fixed";
+            treeNode7.Name = "Node3";
+            treeNode7.Text = "LD3DView";
             treeNode8.Name = "Node0";
             treeNode8.Text = "Version 1.2.18.0";
             treeNode9.Name = "Node2";
@@ -3884,7 +3885,6 @@
             treeNode991.Name = "Node9";
             treeNode991.Text = "Version 1.0.0.11";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode3,
             treeNode8,
             treeNode27,
             treeNode44,

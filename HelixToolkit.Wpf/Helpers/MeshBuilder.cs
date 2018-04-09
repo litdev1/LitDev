@@ -914,15 +914,17 @@ namespace HelixToolkit.Wpf
         /// </remarks>
         public void AddPyramid(Point3D center, double sideLength, double height)
         {
-            var p1 = new Point3D(center.X - (sideLength * 0.5), center.Y, center.Z - (sideLength * 0.5));
-            var p2 = new Point3D(center.X + (sideLength * 0.5), center.Y, center.Z - (sideLength * 0.5));
-            var p3 = new Point3D(center.X + (sideLength * 0.5), center.Y, center.Z + (sideLength * 0.5));
-            var p4 = new Point3D(center.X - (sideLength * 0.5), center.Y, center.Z + (sideLength * 0.5));
+            var p1 = new Point3D(center.X - (sideLength * 0.5), center.Y, center.Z + (sideLength * 0.5));
+            var p2 = new Point3D(center.X + (sideLength * 0.5), center.Y, center.Z + (sideLength * 0.5));
+            var p3 = new Point3D(center.X + (sideLength * 0.5), center.Y, center.Z - (sideLength * 0.5));
+            var p4 = new Point3D(center.X - (sideLength * 0.5), center.Y, center.Z - (sideLength * 0.5));
             var p5 = new Point3D(center.X, center.Y + height, center.Z);
             this.AddTriangle(p1, p2, p5);
             this.AddTriangle(p2, p3, p5);
             this.AddTriangle(p3, p4, p5);
             this.AddTriangle(p4, p1, p5);
+            this.AddTriangle(p1, p3, p2);
+            this.AddTriangle(p1, p4, p3);
         }
 
         /// <summary>
