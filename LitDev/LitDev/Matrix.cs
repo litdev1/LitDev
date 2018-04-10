@@ -15,7 +15,9 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -575,8 +577,7 @@ namespace LitDev
         /// View a matrix for dubugging purposes.
         /// </summary>
         /// <param name="matrix">The matrix to display.</param>
-        /// <param name="modal">The matrix display will pause all other actions until it is closed. ("True" or "False").
-        /// If the modal value is set to "False" then this method requires to be called from a GraphicsWindow event, such as a button click.</param>
+        /// <param name="modal">The matrix display will pause all other actions until it is closed. ("True" or "False").</param>
         /// <returns>
         /// None.
         /// </returns>
@@ -584,18 +585,29 @@ namespace LitDev
         {
             try
             {
-                Matrix _matrix = getMatrix(matrix);
-                if (null == _matrix) return;
-                FormMatrix _form = new FormMatrix(_matrix);
-                _form.TopMost = true;
-                if (modal)
+                InvokeHelper ret = new InvokeHelper(delegate
                 {
-                    _form.ShowDialog(Utilities.ForegroundHandle());
-                }
-                else
-                {
-                    _form.Show();
-                }
+                    try
+                    {
+                        Matrix _matrix = getMatrix(matrix);
+                        if (null == _matrix) return;
+                        FormMatrix _form = new FormMatrix(_matrix);
+                        _form.TopMost = true;
+                        if (modal)
+                        {
+                            _form.ShowDialog(Utilities.ForegroundHandle());
+                        }
+                        else
+                        {
+                            _form.Show();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                FastThread.Invoke(ret);
             }
             catch (Exception ex)
             {
