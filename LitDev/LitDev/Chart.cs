@@ -188,6 +188,7 @@ namespace LitDev
                 angle += 2 * System.Math.PI * Values[i] / Total;
                 x2 = rad + rad * System.Math.Sin(angle);
                 y2 = rad - rad * System.Math.Cos(angle);
+                bool bLargeArc = (Values[i] / Total) > 0.5;
 
                 switch (eStyle)
                 {
@@ -196,7 +197,7 @@ namespace LitDev
                         {
                             PathSegmentCollection pathSegments = new PathSegmentCollection();
                             pathSegments.Add(new LineSegment(new Point(x1, y1), false));
-                            pathSegments.Add(new ArcSegment(new Point(x2, y2), new Size(rad, rad), angle, false, SweepDirection.Clockwise, false));
+                            pathSegments.Add(new ArcSegment(new Point(x2, y2), new Size(rad, rad), angle, bLargeArc, SweepDirection.Clockwise, false));
                             PathFigureCollection pathFigures = new PathFigureCollection();
                             pathFigures.Add(new PathFigure(new Point(rad, rad), pathSegments, true));
                             PathFigureCollection figCollection = new PathFigureCollection(pathFigures);
