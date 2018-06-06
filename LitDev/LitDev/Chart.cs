@@ -79,6 +79,7 @@ namespace LitDev
         public string centralColour;
 
         public double xc, yc, rad;
+        public bool bDualDoughnut = false;
 
         public Chart(double width, double height)
         {
@@ -193,7 +194,6 @@ namespace LitDev
                 switch (eStyle)
                 {
                     case Styles.PIE:
-                    case Styles.DOUGHNUT:
                         {
                             PathSegmentCollection pathSegments = new PathSegmentCollection();
                             pathSegments.Add(new LineSegment(new Point(x1, y1), false));
@@ -201,6 +201,43 @@ namespace LitDev
                             PathFigureCollection pathFigures = new PathFigureCollection();
                             pathFigures.Add(new PathFigure(new Point(rad, rad), pathSegments, true));
                             PathFigureCollection figCollection = new PathFigureCollection(pathFigures);
+
+                            ellipse = new Ellipse { Width = 2 * rad, Height = 2 * rad, Fill = brush };
+                            ellipse.Clip = new PathGeometry(figCollection);
+                            ellipse.Tag = new Segment(xc, yc, rad, rad, Name, Labels[i]);
+                            ellipse.MouseDown += new MouseButtonEventHandler(_ValueClickedEvent);
+                            Children.Add(ellipse);
+                            Chart.SetLeft(ellipse, xc - rad);
+                            Chart.SetTop(ellipse, yc - rad);
+                        }
+                        break;
+                    case Styles.DOUGHNUT:
+                        {
+                            PathFigureCollection figCollection;
+                            if (bDualDoughnut)
+                            { 
+                                double x1inner = x1 + (1 - LDChart.DoughnutFraction) * (rad - x1);
+                                double y1inner = y1 + (1 - LDChart.DoughnutFraction) * (rad - y1);
+                                double x2inner = x2 + (1 - LDChart.DoughnutFraction) * (rad - x2);
+                                double y2inner = y2 + (1 - LDChart.DoughnutFraction) * (rad - y2);
+                                PathSegmentCollection pathSegments = new PathSegmentCollection();
+                                pathSegments.Add(new LineSegment(new Point(x1, y1), false));
+                                pathSegments.Add(new ArcSegment(new Point(x2, y2), new Size(rad, rad), angle, bLargeArc, SweepDirection.Clockwise, false));
+                                pathSegments.Add(new LineSegment(new Point(x2inner, y2inner), false));
+                                pathSegments.Add(new ArcSegment(new Point(x1inner, y1inner), new Size(rad * LDChart.DoughnutFraction, rad * LDChart.DoughnutFraction), angle, bLargeArc, SweepDirection.Counterclockwise, false));
+                                PathFigureCollection pathFigures = new PathFigureCollection();
+                                pathFigures.Add(new PathFigure(new Point(x1inner, y1inner), pathSegments, true));
+                                figCollection = new PathFigureCollection(pathFigures);
+                            }
+                            else
+                            {
+                                PathSegmentCollection pathSegments = new PathSegmentCollection();
+                                pathSegments.Add(new LineSegment(new Point(x1, y1), false));
+                                pathSegments.Add(new ArcSegment(new Point(x2, y2), new Size(rad, rad), angle, bLargeArc, SweepDirection.Clockwise, false));
+                                PathFigureCollection pathFigures = new PathFigureCollection();
+                                pathFigures.Add(new PathFigure(new Point(rad, rad), pathSegments, true));
+                                figCollection = new PathFigureCollection(pathFigures);
+                            }
 
                             ellipse = new Ellipse { Width = 2 * rad, Height = 2 * rad, Fill = brush };
                             ellipse.Clip = new PathGeometry(figCollection);
@@ -352,7 +389,7 @@ namespace LitDev
                 }
             }
 
-            if (eStyle == Styles.DOUGHNUT)
+            if (eStyle == Styles.DOUGHNUT && !bDualDoughnut)
             {
                 ellipse = new Ellipse { Width = 2 * LDChart.DoughnutFraction * rad, Height = 2 * LDChart.DoughnutFraction * rad, Fill = Background };
                 Children.Add(ellipse);
