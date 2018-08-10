@@ -1394,7 +1394,7 @@ namespace LitDev
         /// Yaw and Pitch camera moving with left mouse button.
         /// Yaw with A,D or Left,Right keys, move forwards and backwards with W,S or Up,Down keys.
         /// Roll camera moving with right mouse button.
-        /// Double left click an object to center it (Centre of rotation 1).
+        /// Double left click an object to center it (Centre of rotation).
         /// Double right click to reset the up direction to Y.
         /// Yaw and Pitch scene moving with Shift and left mouse button after selecting an object to rotate scene about.
         /// X, Y, Z keys change the view direction and up direction to face in these directions towards (0,0,0), with Shift then the negative direction.
@@ -1452,7 +1452,7 @@ namespace LitDev
         /// This mode is mainly to rotate and view a 3D scene rather than move through the scene (an inspection mode).
         /// Zoom in or out with mouse wheel (faster with Shift down, slower with Control down).
         /// Pan left/right with A,D or Left,Right keys, pan up/down with W,S or Up,Down keys.
-        /// Double left click an object to center it (Centre of rotation 1).
+        /// Double left click an object to center it (Centre of rotation).
         /// Double right click to reset the up direction to Y.
         /// Yaw and Pitch scene moving with left mouse button after selecting an object to rotate scene about.
         /// Roll scene moving with right mouse button.

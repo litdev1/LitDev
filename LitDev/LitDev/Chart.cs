@@ -28,6 +28,7 @@ using System.Windows.Shapes;
 using SBArray = Microsoft.SmallBasic.Library.Array;
 using System.Windows.Media.Animation;
 using LitDev.Engines;
+using System.Windows.Media.Effects;
 
 namespace LitDev
 {
@@ -361,7 +362,7 @@ namespace LitDev
 
                 if (eLegend == Legends.LEGEND || eLegend == Legends.LEGEND_PERCENT)
                 {
-                    rectangle = new Rectangle { Width = 10 * legendScale, Height = 10 * legendScale, Fill = brush };
+                    rectangle = new Rectangle { Width = 10 * legendScale, Height = 10 * legendScale, Fill = brush, Stroke = Background };
                     Children.Add(rectangle);
                     x2 = 2 * xc;
                     y2 = (Width - 15 * Count * legendScale) / 2 + 15 * i * legendScale;
@@ -853,10 +854,51 @@ namespace LitDev
                                                 dx = fraction * chart.rad * System.Math.Sin(angle);
                                                 dy = -fraction * chart.rad * System.Math.Cos(angle);
                                             }
-                                            DoubleAnimateProperty(elt, Canvas.LeftProperty, seg.x - seg.w + dx, highlightDuration);
-                                            DoubleAnimateProperty(elt, Canvas.TopProperty, seg.y - seg.h + dy, highlightDuration);
-                                            //Chart.SetLeft(elt, seg.x - seg.w + dx);
-                                            //Chart.SetTop(elt, seg.y - seg.h + dy);
+
+                                            if (elt is Ellipse && chart.eStyle == Chart.Styles.DOUGHNUT)
+                                            {
+                                                ScaleTransform scaleTransform;
+                                                if (elt.RenderTransform is ScaleTransform)
+                                                {
+                                                    scaleTransform = (ScaleTransform)elt.RenderTransform;
+                                                }
+                                                else
+                                                {
+                                                    scaleTransform = new ScaleTransform();
+                                                    scaleTransform.CenterX = elt.ActualWidth / 2.0;
+                                                    scaleTransform.CenterY = elt.ActualHeight / 2.0;
+                                                    elt.RenderTransform = scaleTransform;
+                                                }
+                                                DoubleAnimateProperty(scaleTransform, ScaleTransform.ScaleXProperty, 1 + fraction, highlightDuration);
+                                                DoubleAnimateProperty(scaleTransform, ScaleTransform.ScaleYProperty, 1 + fraction, highlightDuration);
+
+                                                //Ellipse ellipse = (Ellipse)elt;
+                                                //PathGeometry clip = (PathGeometry)ellipse.Clip;
+                                                //PathFigureCollection pathFigures = clip.Figures;
+                                                //ArcSegment arcSegment = (ArcSegment)pathFigures[0].Segments[1];
+                                                //SizeAnimation sizeAnimation = new SizeAnimation
+                                                //{
+                                                //    Duration = new Duration(TimeSpan.FromMilliseconds(highlightDuration)),
+                                                //    From = (Size)arcSegment.GetValue(ArcSegment.SizeProperty),
+                                                //    To = new Size((1 + fraction) * chart.rad, (1 + fraction) * chart.rad),
+                                                //    FillBehavior = FillBehavior.HoldEnd,
+                                                //    DecelerationRatio = 0.2
+                                                //};
+                                                //arcSegment.BeginAnimation(ArcSegment.SizeProperty, sizeAnimation);
+
+                                                //DoubleAnimateProperty(elt, Canvas.LeftProperty, seg.x - seg.w + dx, highlightDuration);
+                                                //DoubleAnimateProperty(elt, Canvas.TopProperty, seg.y - seg.h + dy, highlightDuration);
+                                            }
+                                            else if (elt is TextBlock)
+                                            {
+                                                DoubleAnimateProperty(elt, Canvas.LeftProperty, seg.x - seg.w + dx, highlightDuration);
+                                                DoubleAnimateProperty(elt, Canvas.TopProperty, seg.y - seg.h + dy, highlightDuration);
+                                            }
+                                            else
+                                            {
+                                                DoubleAnimateProperty(elt, Canvas.LeftProperty, seg.x - seg.w + dx, highlightDuration);
+                                                DoubleAnimateProperty(elt, Canvas.TopProperty, seg.y - seg.h + dy, highlightDuration);
+                                            }
                                         }
                                     }
                                 }

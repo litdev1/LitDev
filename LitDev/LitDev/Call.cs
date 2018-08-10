@@ -148,7 +148,7 @@ namespace LitDev
         /// 
         /// See Function for more details.
         /// </summary>
-        /// <param name="funcName"></param>
+        /// <param name="funcName">The Small Basic Sub name.</param>
         /// <param name="arg1">1st input value (may be an array).</param>
         /// <param name="arg2">2nd input value (may be an array).</param>
         /// <returns>The result of the function held in variable "return" or an error message.</returns>
@@ -165,7 +165,7 @@ namespace LitDev
         /// 
         /// See Function for more details.
         /// </summary>
-        /// <param name="funcName"></param>
+        /// <param name="funcName">The Small Basic Sub name.</param>
         /// <param name="arg1">1st input value (may be an array).</param>
         /// <param name="arg2">2nd input value (may be an array).</param>
         /// <param name="arg3">3rd input value (may be an array).</param>
@@ -184,7 +184,7 @@ namespace LitDev
         /// 
         /// See Function for more details.
         /// </summary>
-        /// <param name="funcName"></param>
+        /// <param name="funcName">The Small Basic Sub name.</param>
         /// <param name="arg1">1st input value (may be an array).</param>
         /// <param name="arg2">2nd input value (may be an array).</param>
         /// <param name="arg3">3rd input value (may be an array).</param>
@@ -205,7 +205,7 @@ namespace LitDev
         /// 
         /// See Function for more details.
         /// </summary>
-        /// <param name="funcName"></param>
+        /// <param name="funcName">The Small Basic Sub name.</param>
         /// <param name="arg1">1st input value (may be an array).</param>
         /// <param name="arg2">2nd input value (may be an array).</param>
         /// <param name="arg3">3rd input value (may be an array).</param>

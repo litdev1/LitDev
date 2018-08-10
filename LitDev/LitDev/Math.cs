@@ -288,6 +288,7 @@ namespace LitDev
             {
                 int iNumber = (int)number;
                 int iBase = (int)Base;
+                if (iNumber == 0) return 0;
                 if (iNumber < 0) return "FAILED";
                 if (iBase < 2 || iBase > 36) return "FAILED";
 
