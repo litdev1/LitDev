@@ -281,7 +281,7 @@ namespace LitDev.Engines
         {
             try
             {
-                WebRequest webRequest = WebRequest.Create("http://api.fixer.io/latest");
+                WebRequest webRequest = WebRequest.Create("http://data.fixer.io/api/latest?access_key=d78ec300520b7c9b69292b9caf85f343");
                 WebResponse webResponse = webRequest.GetResponse();
                 StreamReader stream = new StreamReader(webResponse.GetResponseStream());
                 string[] data = stream.ReadLine().Split(new char[] { '"', ',', ':', '{', '}' }, StringSplitOptions.RemoveEmptyEntries);
@@ -301,7 +301,14 @@ namespace LitDev.Engines
                     }
                     else if (bRates)
                     {
-                        DerivedUnits.Add(new DerivedUnit("Currency", data[i], "(" + (1 / double.Parse(data[++i])) + ")" + baseCurrency));
+                        if (data[i] == baseCurrency)
+                        {
+                            i += 1;
+                        }
+                        else
+                        {
+                            DerivedUnits.Add(new DerivedUnit("Currency", data[i], "(" + (1 / double.Parse(data[++i])) + ")" + baseCurrency));
+                        }
                     }
                 }
             }

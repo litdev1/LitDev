@@ -1512,5 +1512,53 @@ namespace LitDev
                 }
             }
         }
+
+        /// <summary>
+        /// Draws a line of text on the screen at the specified location.
+        /// </summary>
+        /// <param name="x">
+        /// The x co-ordinate of the text start point.
+        /// </param>
+        /// <param name="y">
+        /// The y co-ordinate of the text start point.
+        /// </param>
+        /// <param name="width">
+        /// The maximum available width.  This parameter helps define when the text should wrap.
+        /// </param>
+        /// <param name="text">
+        /// The text to draw.
+        /// </param>
+        //public static void DrawBoundText(Primitive x, Primitive y, Primitive width, Primitive text)
+        //{
+        //    if (text == "") return;
+        //    Type GraphicsWindowType = typeof(GraphicsWindow);
+        //    InvokeHelper ret = delegate
+        //    {
+        //        try
+        //        {
+        //            GraphicsWindowType.GetMethod("VerifyAccess", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { });
+        //            DrawingGroup _mainDrawing = (DrawingGroup)GraphicsWindowType.GetField("_mainDrawing", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        //            DrawingContext drawingContext = _mainDrawing.Append();
+
+        //            Media.FontFamily _fontFamily = (Media.FontFamily)GraphicsWindowType.GetField("_fontFamily", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        //            double _fontSize = (double)GraphicsWindowType.GetField("_fontSize", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        //            FontWeight _fontWeight = (FontWeight)GraphicsWindowType.GetField("_fontWeight", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        //            System.Windows.FontStyle _fontStyle = (System.Windows.FontStyle)GraphicsWindowType.GetField("_fontStyle", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        //            Media.Brush _fillBrush = (Media.Brush)GraphicsWindowType.GetField("_fillBrush", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+
+        //            drawingContext.DrawText(new FormattedText(text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, new Typeface(_fontFamily, _fontStyle, _fontWeight, FontStretches.Normal), _fontSize, _fillBrush)
+        //            {
+        //                MaxTextWidth = width
+        //            }, new System.Windows.Point((double)x, (double)y));
+        //            drawingContext.Close();
+        //            GraphicsWindowType.GetMethod("AddRasterizeOperationToQueue", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { });
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+        //        }
+        //    };
+        //    FastThread.Invoke(ret);
+        //}
     }
 }

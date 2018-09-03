@@ -875,6 +875,8 @@ namespace TestHarness
 
         private void buttonUnits_Click(object sender, EventArgs e)
         {
+            LDUnits.GetBaseUnits();
+
             Primitive aa = LDMath.Rotate(0, 0, 0, -100, 180);
 
             Primitive view = LD3DView.AddView(500, 500, "True");
