@@ -708,6 +708,9 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive img1 = LDClipboard.GetImage();
+            LDImage.SaveAs(img1, "C:\\Temp\\DemoImg.jpg");
+
             Primitive shp = Microsoft.SmallBasic.Library.Controls.AddButton("Button", 10, 10);
             LDShapes.ReSize(shp, 100, 100);
             LDShapes.ReSize(shp, 200, 200);
@@ -729,8 +732,8 @@ namespace TestHarness
             Primitive b = LDFastArray.ToArray(a);
 
             Primitive img = Microsoft.SmallBasic.Library.ImageList.LoadImage("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/STS120LaunchHiRes-edit1.jpg/153px-STS120LaunchHiRes-edit1.jpg");
-            Primitive x1 = LDImage.Copy(img);
-            LDImage.EffectCharcoal(x1);
+            //Primitive x1 = LDImage.Copy(img);
+            //LDImage.EffectCharcoal(x1);
 
 
 

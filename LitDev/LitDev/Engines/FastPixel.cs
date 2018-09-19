@@ -18,6 +18,7 @@
 //Based on http://www.codeproject.com/Articles/15192/FastPixel-A-much-faster-alternative-to-Bitmap-SetP
 //With corrections for stride
 
+using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -243,27 +244,35 @@ namespace LitDev.Engines
 
         public static Bitmap GetBitmap(BitmapSource bmSource)
         {
-            swGetBitmap.Start();
-            MemoryStream ms = new MemoryStream();
-            BitmapEncoder enc = new PngBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(bmSource));
-            enc.Save(ms);
-            Bitmap bm = new Bitmap(ms);
-            swGetBitmap.Stop();
-            return bm;
+            //InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+            //{
+                swGetBitmap.Start();
+                MemoryStream ms = new MemoryStream();
+                BitmapEncoder enc = new PngBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bmSource));
+                enc.Save(ms);
+                Bitmap bm = new Bitmap(ms);
+                swGetBitmap.Stop();
+                return bm;
+            //});
+            //return (Bitmap)FastThread.InvokeWithReturn(ret);
         }
 
         public static BitmapImage GetBitmapImage(Bitmap bm)
         {
-            swGetBitmapImage.Start();
-            MemoryStream ms = new MemoryStream();
-            bm.Save(ms, ImageFormat.Png);
-            BitmapImage bmImage = new BitmapImage();
-            bmImage.BeginInit();
-            bmImage.StreamSource = ms;
-            bmImage.EndInit();
-            swGetBitmapImage.Stop();
-            return bmImage;
+            //InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+            //{
+                swGetBitmapImage.Start();
+                MemoryStream ms = new MemoryStream();
+                bm.Save(ms, ImageFormat.Png);
+                BitmapImage bmImage = new BitmapImage();
+                bmImage.BeginInit();
+                bmImage.StreamSource = ms;
+                bmImage.EndInit();
+                swGetBitmapImage.Stop();
+                return bmImage;
+            //});
+            //return (BitmapImage)FastThread.InvokeWithReturn(ret);
         }
     }
 }

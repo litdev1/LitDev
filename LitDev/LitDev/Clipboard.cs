@@ -21,6 +21,7 @@ using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -74,7 +75,8 @@ namespace LitDev
 
                         if (Clipboard.ContainsImage())
                         {
-                            _savedImages[imageName] = Clipboard.GetImage();
+                            Bitmap bm = FastPixel.GetBitmap(Clipboard.GetImage());
+                            _savedImages[imageName] = FastPixel.GetBitmapImage(bm);
                             return imageName;
                         }
                         else
