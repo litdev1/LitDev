@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LitDev
 {
@@ -801,6 +802,110 @@ namespace LitDev
 
                     Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                     return "FAILED";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>Writes an Array of bytes to an (existing) file.</summary>
+        /// <param name="filePath">The full path of the file. A non existing file will be created.</param>
+        /// <param name="byteArray">The 1D Array (from 1, continously) with byte values [0,255].
+        /// A single comma or sapce separated variable may also be used using hex notation, eg 3D,1F,00.</param>
+        /// <param name="startPos">The byte position (incl., from 1) in an existing file to start writing (ignored for non existing file, will be written from beginning).
+        /// &lt;=1, from file start
+        /// &gt;file length, append after file end</param>
+        /// <returns>The number of written bytes on success, else "FAILED".</returns>
+        /// <example>'(over)writes from file start
+        /// WriteByteArray(path, arr, 1)
+        /// 'SB&#169; after 4th byte
+        /// WriteByteArray(path, "1=83;2=66;3=169;",5)</example>
+        public static Primitive WriteByteArray(Primitive filePath, Primitive byteArray, Primitive startPos)
+        {
+            try
+            {
+                int len = byteArray.GetItemCount();
+                byte[] bytes;
+                if (len > 0)
+                {
+                    Primitive indices = byteArray.GetAllIndices();
+                    bytes = new byte[len];
+                    for (int i = 0; i < len; i++)
+                    {
+                        bytes[i] = (byte)byteArray[indices[i + 1]];
+                    }
+                }
+                else
+                {
+                    bytes = ((string)byteArray).Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => Convert.ToByte(s, 16)).ToArray();
+                    len = bytes.Length;
+                }
+                if (len < 1) return "FAILED";
+
+                string path = Environment.ExpandEnvironmentVariables(filePath);
+
+                if (!System.IO.File.Exists(path))
+                {
+                    System.IO.File.WriteAllBytes(path, bytes);
+                    return len;
+                }
+                else
+                {
+                    long pos = startPos-1;
+                    if (pos < 0) pos = 0;
+                    using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Write))
+                    {
+                        long fsLen = fs.Length;
+                        if (pos > fsLen) pos = fsLen;
+
+                        fs.Seek(pos, SeekOrigin.Begin);
+                        for (int i = 0; i < len; i++)
+                        {
+                            fs.WriteByte(bytes[i]);
+                        }
+                        fs.Close();
+                        return len;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Read a file into an array of bytes [0,255].
+        /// </summary>
+        /// <param name="filePath">The full path of the file.</param>
+        /// <param name="hexMode">If this varaible is set to "True", then a single comma deliminated variable of hex values is returned in place of an anrray..</param>
+        /// <returns>An array of byte values indexed from 1, or single array of hex values, or "FAILED".</returns>
+        public static Primitive ReadByteArray(Primitive filePath, Primitive hexMode)
+        {
+            try
+            {
+                string path = Environment.ExpandEnvironmentVariables(filePath);
+
+                byte[] bytes = System.IO.File.ReadAllBytes(path);
+
+                string result = "";
+                if (hexMode)
+                {
+                    result = BitConverter.ToString(bytes).Replace("-", ",");
+                    return result;
+                }
+                else
+                {
+                    int i = 1;
+                    foreach (byte value in bytes)
+                    {
+                        result += (i++).ToString() + "=" + value + ";";
+                    }
+                    return Utilities.CreateArrayMap(result);
                 }
             }
             catch (Exception ex)
