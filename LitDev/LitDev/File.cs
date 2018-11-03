@@ -883,7 +883,7 @@ namespace LitDev
         /// </summary>
         /// <param name="filePath">The full path of the file.</param>
         /// <param name="hexMode">If this varaible is set to "True", then a single comma deliminated variable of hex values is returned in place of an anrray..</param>
-        /// <returns>An array of byte values indexed from 1, or single array of hex values, or "FAILED".</returns>
+        /// <returns>An array of byte values indexed from 1, or single string variable of hex values, or "FAILED".</returns>
         public static Primitive ReadByteArray(Primitive filePath, Primitive hexMode)
         {
             try
