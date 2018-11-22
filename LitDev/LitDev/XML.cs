@@ -15,10 +15,13 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
@@ -26,7 +29,7 @@ using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {
-    class XmlDoc
+    public class XmlDoc
     {
         public XmlDocument doc;
         public XmlNode node;
@@ -45,6 +48,7 @@ namespace LitDev
     {
         private static Dictionary<string, XmlDoc> documents = new Dictionary<string, XmlDoc>();
         private static XmlDoc xmlDoc = null;
+        private static FormXML formXML = new FormXML();
 
         private static Primitive toArray(XmlNode node)
         {
@@ -459,7 +463,7 @@ namespace LitDev
                     attrib.Value = attributes[index];
                     newNode.Attributes.Append(attrib);
                 }
-                newNode.InnerText = text;
+                if (text != "") newNode.InnerText = text;
                 switch (((string)location).ToLower())
                 {
                     case "append":
@@ -476,6 +480,37 @@ namespace LitDev
                         break;
                 }
                 return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "FAILED";
+        }
+
+        /// <summary>
+        /// Rename the root element (default is "root").
+        /// </summary>
+        /// <param name="name">
+        /// The name of the root element.
+        /// </param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive RenameRoot(Primitive name)
+        {
+            try
+            {
+                if (null == xmlDoc) return "FAILED";
+                string docName = documents.FirstOrDefault(x => x.Value == xmlDoc).Key;
+                string innerXml = xmlDoc.doc.DocumentElement.InnerXml;
+
+                XmlDocument docNew = new XmlDocument();
+                XmlElement newRoot = docNew.CreateElement(name);
+                newRoot.InnerXml = innerXml;
+                docNew.AppendChild(newRoot);
+                XmlDeclaration xmldecl = docNew.CreateXmlDeclaration("1.0", "UTF-8", null);
+                docNew.InsertBefore(xmldecl, docNew.DocumentElement);
+                xmlDoc = new XmlDoc(docNew);
+                documents[docName] = xmlDoc;
             }
             catch (Exception ex)
             {
@@ -580,6 +615,47 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
             return "FAILED";
+        }
+
+        /// <summary>
+        /// View XML for dubugging purposes.
+        /// </summary>
+        /// <returns>
+        /// None.
+        /// </returns>
+        public static void View()
+        {
+            try
+            {
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        if (formXML.IsDisposed) formXML = new FormXML();
+                        formXML.TopMost = true;
+                        formXML.Show();
+                        formXML.Update(xmlDoc);
+                        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+                        timer.Enabled = true;
+                        timer.Interval = 100;
+                        timer.Tick += new EventHandler(timer_Tick);
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                FastThread.Invoke(ret);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        private static void timer_Tick(object sender, EventArgs e)
+        {
+            formXML.Update(xmlDoc);
         }
     }
 }

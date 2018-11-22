@@ -174,7 +174,7 @@ namespace LitDev
         /// Get a read only list of databases for use outside Small Basic.
         /// </summary>
         /// <returns>
-        /// IReadOnlyList/<DataBase/>
+        /// IReadOnlyList&lt;DataBase&gt;
         /// </returns>
         public static IReadOnlyList<DataBase> GetDB()
         {
