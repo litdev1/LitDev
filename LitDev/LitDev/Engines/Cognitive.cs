@@ -28,8 +28,8 @@ namespace LitDev.Engines
 
         public Cognitive()
         {
-            clientSearch.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "7689c5090e5d425e979e7edb9d8feb64");
-            clientSpell.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "dc2179923b7a4e3380fe73f5f2866cf3");
+            clientSearch.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "52b0b43437c7406b90f5b3db0097306c");
+            clientSpell.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "ef01ee4bc41e4cf1af361d4246b6ce9e");
         }
 
         public JsonWeb SearchRequest(string search)
@@ -41,7 +41,7 @@ namespace LitDev.Engines
             queryString["offset"] = "0";
             queryString["mkt"] = mkt;
             queryString["safesearch"] = "Moderate";
-            string uri = "https://api.cognitive.microsoft.com/bing/v5.0/search?" + queryString;
+            string uri = "https://api.cognitive.microsoft.com/bing/v7.0/search?" + queryString;
 
             HttpResponseMessage response = clientSearch.GetAsync(uri).Result;
             Stream stream = response.Content.ReadAsStreamAsync().Result;
@@ -55,7 +55,7 @@ namespace LitDev.Engines
             queryString["mkt"] = mkt;
             //queryString["preContextText"] = "";
             //queryString["postContextText"] = "";
-            var uri = "https://api.cognitive.microsoft.com/bing/v5.0/spellcheck/?" + queryString;
+            var uri = "https://api.cognitive.microsoft.com/bing/v7.0/spellcheck/?" + queryString;
 
             string temp = Regex.Replace(checkText, @"[^A-Za-z0-9 _\-]", " ");
             if (temp.Length == checkText.Length) checkText = temp;

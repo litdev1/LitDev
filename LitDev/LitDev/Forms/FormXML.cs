@@ -80,7 +80,7 @@ namespace LitDev
             EndUpdate();
         }
 
-        public int ParseXML(XmlNode node, int start)
+        private int ParseXML(XmlNode node, int start)
         {
             Text = "Parsing ... " + (100.0 * start / richTextBox1.TextLength).ToString("F2") + "%";
             int length = 0;
@@ -127,7 +127,7 @@ namespace LitDev
             }
             catch (Exception ex)
             {
-                TextWindow.WriteLine(node.Name+" "+node.NodeType+" "+ex.Message);
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
     }
