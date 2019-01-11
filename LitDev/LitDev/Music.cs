@@ -26,6 +26,8 @@ namespace LitDev
     /// <summary>
     /// Extends the Sound.PlayMusic method to include a variety of instrument sounds.
     /// Also, multi-channel music can be created.
+    /// Due to the large number of instrument names, it is easy to miss the following properties:
+    /// Instrument, Velocity, Volume, Pan and Channel.
     /// </summary>
     [SmallBasicType]
     public static class LDMusic
@@ -37,6 +39,8 @@ namespace LitDev
         private static int[] _defaultLength = new int[NUMCHANNEL];
         private static int[] _velocity = new int[NUMCHANNEL];
         private static int[] _instrument = new int[NUMCHANNEL];
+        private static int[] _volume = new int[NUMCHANNEL];
+        private static int[] _pan = new int[NUMCHANNEL];
 
         [DllImport("winmm.dll")]
         private static extern int midiOutShortMsg(IntPtr midiOut, uint dwMsg);
@@ -290,6 +294,7 @@ namespace LitDev
 
         private static void ChangePan(int number, int channel)
         {
+            number = (int)System.Math.Min(127, System.Math.Max(0, (100 + number) / 200.0 * 127.0));
             uint dwMsg = BitConverter.ToUInt32(new byte[]
             {
                 (byte)(128+32+16 + channel),
@@ -302,6 +307,7 @@ namespace LitDev
 
         private static void ChangeVolume(int number, int channel)
         {
+            number = (int)System.Math.Min(127, System.Math.Max(0, number / 100.0 * 127.0));
             uint dwMsg = BitConverter.ToUInt32(new byte[]
             {
                 (byte)(128+32+16 + channel),
@@ -323,6 +329,8 @@ namespace LitDev
                     if (_defaultLength[i] == 0) _defaultLength[i] = 4;
                     if (_velocity[i] == 0) _velocity[i] = 100;
                     if (_instrument[i] == 0) _instrument[i] = 0;
+                    if (_volume[i] == 0) _volume[i] = 50;
+                    if (_pan[i] == 0) _pan[i] = 0;
                 }
             }
         }
@@ -344,6 +352,8 @@ namespace LitDev
                 _defaultLength[i] = 4;
                 _velocity[i] = 100;
                 _instrument[i] = 0;
+                _volume[i] = 50;
+                _pan[i] = 0;
             }
         }
 
@@ -364,6 +374,8 @@ namespace LitDev
             EnsureDeviceInit();
             int channel = _channel;
             ChangeInstrument(_instrument[channel], channel);
+            ChangeVolume(_volume[channel], channel);
+            ChangePan(_pan[channel], channel);
             PlayNotes(notes, channel);
         }
 
@@ -383,8 +395,6 @@ namespace LitDev
         {
             EnsureDeviceInit();
             channel = System.Math.Min(NUMCHANNEL - 1, System.Math.Max(0, channel - 1));
-            volume = System.Math.Min(127, System.Math.Max(0, volume / 100.0 * 127.0));
-            pan = System.Math.Min(127, System.Math.Max(0, (100+pan) / 200.0 * 127.0));
             _instrument[channel] = instrument - 1;
             _velocity[channel] = velocity - 1;
             ChangeInstrument(_instrument[channel], channel);
@@ -541,8 +551,26 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Set the key volume (0 to 100, default 50).
+        /// </summary>
+        public static Primitive Volume
+        {
+            get { return _volume[_channel]; }
+            set { _volume[_channel] = value; }
+        }
+
+        /// <summary>
+        /// Set the key pan balance left (-100) or right (100) (default 0).
+        /// </summary>
+        public static Primitive Pan
+        {
+            get { return _pan[_channel]; }
+            set { _pan[_channel] = value; }
+        }
+
+        /// <summary>
         /// Set the MIDI channel (1 to 16, default 1).
-        /// Used by PlayMusic, Instrument and Velocity.
+        /// Used by PlayMusic, Instrument, Velocity, Volume and Pan.
         /// </summary>
         public static Primitive Channel
         {
@@ -562,6 +590,8 @@ namespace LitDev
             EnsureDeviceInit();
             channel = System.Math.Min(NUMCHANNEL - 1, System.Math.Max(0, channel - 1));
             ChangeInstrument(_instrument[channel], channel);
+            ChangeVolume(_volume[channel], channel);
+            ChangePan(_pan[channel], channel);
             _octave[channel] = System.Math.Min(8, System.Math.Max(0, octave));
             int value;
             if (!_notes.TryGetValue(note, out value)) value = 0;
