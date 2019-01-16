@@ -249,6 +249,7 @@
     <Compile Include="LitDev\Forms\FormXML.Designer.cs">
       <DependentUpon>FormXML.cs</DependentUpon>
     </Compile>
+    <Compile Include="LitDev\HashTable.cs" />
     <Compile Include="LitDev\Icon.cs" />
     <Compile Include="LitDev\Engines\Cognitive.cs" />
     <Compile Include="LitDev\Engines\FastPixel.cs" />
