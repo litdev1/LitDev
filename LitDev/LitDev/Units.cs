@@ -69,13 +69,8 @@ namespace LitDev
         {
             List<string> errors = unitSystem.GetErrors();
             if (errors.Count == 0) return "";
-            string result = "";
-            int i = 1;
-            foreach (string error in errors)
-            {
-                result += (i++).ToString() + "=" + Utilities.ArrayParse(error) + ";";
-            }
-            return Utilities.CreateArrayMap(result);
+
+            return Utilities.CreateArrayMap(errors.ToPrimitiveArray());
         }
 
         /// <summary>
