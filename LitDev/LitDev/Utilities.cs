@@ -543,59 +543,54 @@ namespace LitDev
                 }
                 int numRow = input.Count;
 
-                string output = "";
-
+                //string output = "";
+                StringBuilder output = new StringBuilder();
                 string[] row;
                
                 if (bTranspose)
                 {
                     for (int iCol = 0; iCol < numCol; iCol++)
                     {
-                        output += (iCol + 1).ToString() + "=";
-                        string rowOutput = "";
+                        output.Append( (iCol + 1) + "=");
                         for (int iRow = 0; iRow < numRow; iRow++)
                         {
                             row = input[iRow];
                             if (iCol < row.Length)
                             {
                                 string value = CSVParse(row[iCol], false);
-                                if (value == "")
+                                if (value == "" && CSVplaceHolder != "")
                                 {
-                                    if (CSVplaceHolder != "") rowOutput += (iRow + 1).ToString() + "\\=" + CSVplaceHolder + "\\;";
+                                    value = CSVplaceHolder;
                                 }
-                                else
-                                {
-                                    rowOutput += (iRow + 1).ToString() + "\\=" + ArrayParse(ArrayParse(value)) + "\\;";
-                                }
+                                
+                                output.Append( (iRow + 1) + "\\=" + ArrayParse(ArrayParse(value)) + "\\;" );
                             }
                         }
-                        output += rowOutput + ";";
+                        output.Append(";");
                     }
                 }
                 else
                 {
                     for (int iRow = 0; iRow < numRow; iRow++)
                     {
-                        output += (iRow + 1).ToString() + "=";
+                        output.Append( (iRow + 1) + "=");
                         row = input[iRow];
-                        string rowOutput = "";
                         for (int iCol = 0; iCol < row.Length; iCol++)
                         {
                             string value = CSVParse(row[iCol], false);
-                            if (value == "")
+                            if (value == "" && CSVplaceHolder != "")
                             {
-                                if (CSVplaceHolder != "") rowOutput += (iCol + 1).ToString() + "\\=" + CSVplaceHolder + "\\;";
+                                value = CSVplaceHolder;
                             }
-                            else
-                            {
-                                rowOutput += (iCol + 1).ToString() + "\\=" + ArrayParse(ArrayParse(value)) + "\\;";
-                            }
+                            
+                            output.Append( (iCol + 1) + "\\=" + ArrayParse(ArrayParse(value)) + "\\;" );
+                            
                         }
-                        output += rowOutput + ";";
+                        output.Append(";");
                     }
                 }
 
-                return CreateArrayMap(output);
+                return CreateArrayMap(output.ToString());
             }
             catch (Exception ex)
             {
@@ -613,6 +608,7 @@ namespace LitDev
 
                 using (StreamWriter sw = new StreamWriter(fileName) )
                 {
+                    int counter = 0;
                     foreach (string row in rows)
                     {
                         string rowCut = row.Replace("\\", ""); //Remove slashes
@@ -630,8 +626,14 @@ namespace LitDev
                         }
 
                         sw.WriteLine(output);
-                        sw.Flush();
+                        if (counter % 2 == 0 )
+                        {
+                            sw.Flush();
+                        }
+
+                        counter++;
                     }
+                    sw.Flush();
                 }
             }
             catch (Exception ex)
