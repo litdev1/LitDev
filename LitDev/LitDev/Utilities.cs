@@ -35,6 +35,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DrawingImage = System.Drawing.Image;
 using System.Security.Permissions;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 using System.Threading;
 using LitDev.Engines;
@@ -42,7 +43,7 @@ using System.Windows.Threading;
 
 namespace LitDev
 {
-    public class Utilities
+    public static class Utilities
     {
         public static string URL = "http://litdev.co.uk";
         public static bool bShowErrors = true;
@@ -746,6 +747,28 @@ namespace LitDev
             StackFrame sf = st.GetFrame(1);
 
             return sf.GetMethod().DeclaringType.Name + "." + sf.GetMethod().Name;
+        }
+
+        public static string ToPrimitiveArray<T>(this T[] array)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < array.Length; i++)
+            {
+                sb.Append($"{i + 1}={Utilities.ArrayParse( array[i].ToString() )};");
+            }
+
+            return sb.ToString();
+        }
+
+        public static string ToPrimitiveArray<T>(this List<T> list)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < list.Count; i++)
+            {
+                sb.Append($"{i + 1}={Utilities.ArrayParse( list[i].ToString() )};");
+            }
+
+            return sb.ToString();
         }
 
         public static double getDouble(string value)
