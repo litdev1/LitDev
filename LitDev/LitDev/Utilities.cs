@@ -525,21 +525,28 @@ namespace LitDev
         {
             try
             {
-                string[] input = System.IO.File.ReadAllLines(fileName);
+                List<string[]> input = new List<string[]>();
+                int numCol = 0;
+
+                //Reads the file and performs all the split operations as needed
+                using (StreamReader sr = new StreamReader(fileName))
+                {
+                    while (sr.Peek() >= 0)
+                    {
+                        var data = sr.ReadLine().Split(new string[] {CSV}, StringSplitOptions.None);
+                        input.Add(data);
+                        if (data.Length > numCol)
+                        {
+                            numCol = data.Length;
+                        }
+                    }
+                }
+                int numRow = input.Count;
+
                 string output = "";
 
                 string[] row;
-                List<string[]> rowOrdered = new List<string[]>();
-                int numRow = input.Length;
-                int numCol = 0;
-
-                foreach (string line in input)
-                {
-                    row = line.Split(new string[] { CSV }, StringSplitOptions.None);
-                    numCol = System.Math.Max(numCol, row.Length);
-                    rowOrdered.Add(row);
-                }
-
+               
                 if (bTranspose)
                 {
                     for (int iCol = 0; iCol < numCol; iCol++)
@@ -548,7 +555,7 @@ namespace LitDev
                         string rowOutput = "";
                         for (int iRow = 0; iRow < numRow; iRow++)
                         {
-                            row = rowOrdered[iRow];
+                            row = input[iRow];
                             if (iCol < row.Length)
                             {
                                 string value = CSVParse(row[iCol], false);
@@ -570,7 +577,7 @@ namespace LitDev
                     for (int iRow = 0; iRow < numRow; iRow++)
                     {
                         output += (iRow + 1).ToString() + "=";
-                        row = rowOrdered[iRow];
+                        row = input[iRow];
                         string rowOutput = "";
                         for (int iCol = 0; iCol < row.Length; iCol++)
                         {
@@ -603,24 +610,29 @@ namespace LitDev
             {
                 string[] stringSeparators = new string[] { ";;" };
                 string[] rows = array.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
-                string[] output = new string[rows.Length];
-                int iRow = 0;
 
-                foreach (string row in rows)
+                using (StreamWriter sw = new StreamWriter(fileName) )
                 {
-                    string rowCut = row.Replace("\\", ""); //Remove slashes
-                    rowCut = rowCut.Substring(rowCut.IndexOf('=') + 1); //Remove first row=
-                    string[] values = rowCut.Split(';');
-                    foreach (string value in values)
+                    foreach (string row in rows)
                     {
+                        string rowCut = row.Replace("\\", ""); //Remove slashes
+                        rowCut = rowCut.Substring(rowCut.IndexOf('=') + 1); //Remove first row=
+                        string[] values = rowCut.Split(';');
+                        string output = string.Empty;
+                        foreach (string value in values)
+                        {
+                            output += CSVParse(value.Substring(value.IndexOf('=') + 1), true) + CSV;
+                        }
 
-                        output[iRow] += CSVParse(value.Substring(value.IndexOf('=') + 1), true) + CSV;
+                        if (output.Length > 0)
+                        {
+                            output = output.Substring(0, output.Length - 1);
+                        }
+
+                        sw.WriteLine(output);
+                        sw.Flush();
                     }
-                    if (output[iRow].Length > 0) output[iRow] = output[iRow].Substring(0, output[iRow].Length - 1);
-                    iRow++;
                 }
-
-                System.IO.File.WriteAllLines(fileName, output);
             }
             catch (Exception ex)
             {
