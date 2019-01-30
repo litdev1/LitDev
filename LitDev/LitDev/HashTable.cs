@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.SmallBasic.Library;
 
 namespace LitDev
@@ -147,6 +148,28 @@ namespace LitDev
             }
 
             return "";
+        }
+
+        /// <summary>
+        /// Converts a specified dictionary into an smallbasic array
+        /// </summary>
+        /// <param name="dictionary">The name of a dictionary</param>
+        /// <returns>"" on failure or an array</returns>
+        public static Primitive ToArray(Primitive dictionary)
+        {
+            Dictionary<Primitive, Primitive> data;
+            StringBuilder results = new StringBuilder();
+            if (!map.TryGetValue(dictionary, out data))
+            {
+                return "";
+            }
+
+            foreach (var kv in data)
+            {
+                results.AppendFormat($"{kv.Key}={kv.Value};");
+            }
+
+            return Utilities.CreateArrayMap( results.ToString()  );
         }
     }
 }

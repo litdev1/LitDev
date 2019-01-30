@@ -241,15 +241,12 @@ namespace LitDev
         /// <returns>An array of input data or "" for none.</returns>
         public static Primitive LastInput
         {
-            get 
+            get
             {
                 string result = "";
                 if (null != lastInput)
                 {
-                    for (int i = 0; i < lastInput.Length; i++)
-                    {
-                        result += (i + 1) + "=" + lastInput[i] + ";";
-                    }
+                    result = lastInput.ToPrimitiveArray();
                 }
                 return Utilities.CreateArrayMap(result);
             }

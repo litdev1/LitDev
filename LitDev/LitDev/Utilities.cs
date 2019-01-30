@@ -35,6 +35,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DrawingImage = System.Drawing.Image;
 using System.Security.Permissions;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 using System.Threading;
 using LitDev.Engines;
@@ -42,7 +43,7 @@ using System.Windows.Threading;
 
 namespace LitDev
 {
-    public class Utilities
+    public static class Utilities
     {
         public static string URL = "http://litdev.co.uk";
         public static bool bShowErrors = true;
@@ -524,70 +525,72 @@ namespace LitDev
         {
             try
             {
-                string[] input = System.IO.File.ReadAllLines(fileName);
-                string output = "";
-
-                string[] row;
-                List<string[]> rowOrdered = new List<string[]>();
-                int numRow = input.Length;
+                List<string[]> input = new List<string[]>();
                 int numCol = 0;
 
-                foreach (string line in input)
+                //Reads the file and performs all the split operations as needed
+                using (StreamReader sr = new StreamReader(fileName))
                 {
-                    row = line.Split(new string[] { CSV }, StringSplitOptions.None);
-                    numCol = System.Math.Max(numCol, row.Length);
-                    rowOrdered.Add(row);
+                    while (sr.Peek() >= 0)
+                    {
+                        var data = sr.ReadLine().Split(new string[] {CSV}, StringSplitOptions.None);
+                        input.Add(data);
+                        if (data.Length > numCol)
+                        {
+                            numCol = data.Length;
+                        }
+                    }
                 }
+                int numRow = input.Count;
 
+                //string output = "";
+                StringBuilder output = new StringBuilder();
+                string[] row;
+               
                 if (bTranspose)
                 {
                     for (int iCol = 0; iCol < numCol; iCol++)
                     {
-                        output += (iCol + 1).ToString() + "=";
-                        string rowOutput = "";
+                        output.Append( (iCol + 1) + "=");
                         for (int iRow = 0; iRow < numRow; iRow++)
                         {
-                            row = rowOrdered[iRow];
+                            row = input[iRow];
                             if (iCol < row.Length)
                             {
                                 string value = CSVParse(row[iCol], false);
-                                if (value == "")
+                                if (value == "" && CSVplaceHolder != "")
                                 {
-                                    if (CSVplaceHolder != "") rowOutput += (iRow + 1).ToString() + "\\=" + CSVplaceHolder + "\\;";
+                                    value = CSVplaceHolder;
                                 }
-                                else
-                                {
-                                    rowOutput += (iRow + 1).ToString() + "\\=" + ArrayParse(ArrayParse(value)) + "\\;";
-                                }
+                                
+                                output.Append( (iRow + 1) + "\\=" + ArrayParse(ArrayParse(value)) + "\\;" );
                             }
                         }
-                        output += rowOutput + ";";
+                        output.Append(";");
                     }
                 }
                 else
                 {
                     for (int iRow = 0; iRow < numRow; iRow++)
                     {
-                        output += (iRow + 1).ToString() + "=";
-                        row = rowOrdered[iRow];
-                        string rowOutput = "";
+                        output.Append( (iRow + 1) + "=");
+                        row = input[iRow];
                         for (int iCol = 0; iCol < row.Length; iCol++)
                         {
                             string value = CSVParse(row[iCol], false);
-                            if (value == "")
+                            if (value == "" && CSVplaceHolder != "")
                             {
-                                if (CSVplaceHolder != "") rowOutput += (iCol + 1).ToString() + "\\=" + CSVplaceHolder + "\\;";
+                                value = CSVplaceHolder;
                             }
-                            else
-                            {
-                                rowOutput += (iCol + 1).ToString() + "\\=" + ArrayParse(ArrayParse(value)) + "\\;";
-                            }
+                            
+                            output.Append( (iCol + 1) + "\\=" + ArrayParse(ArrayParse(value)) + "\\;" );
+                            
                         }
-                        output += rowOutput + ";";
+                        output.Append(";");
                     }
                 }
 
-                return CreateArrayMap(output);
+                return CreateArrayMap(output.ToString());
             }
             catch (Exception ex)
             {
@@ -602,24 +605,36 @@ namespace LitDev
             {
                 string[] stringSeparators = new string[] { ";;" };
                 string[] rows = array.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
-                string[] output = new string[rows.Length];
-                int iRow = 0;
 
-                foreach (string row in rows)
+                using (StreamWriter sw = new StreamWriter(fileName) )
                 {
-                    string rowCut = row.Replace("\\", ""); //Remove slashes
-                    rowCut = rowCut.Substring(rowCut.IndexOf('=') + 1); //Remove first row=
-                    string[] values = rowCut.Split(';');
-                    foreach (string value in values)
+                    int counter = 0;
+                    foreach (string row in rows)
                     {
+                        string rowCut = row.Replace("\\", ""); //Remove slashes
+                        rowCut = rowCut.Substring(rowCut.IndexOf('=') + 1); //Remove first row=
+                        string[] values = rowCut.Split(';');
+                        string output = string.Empty;
+                        foreach (string value in values)
+                        {
+                            output += CSVParse(value.Substring(value.IndexOf('=') + 1), true) + CSV;
+                        }
 
-                        output[iRow] += CSVParse(value.Substring(value.IndexOf('=') + 1), true) + CSV;
+                        if (output.Length > 0)
+                        {
+                            output = output.Substring(0, output.Length - 1);
+                        }
+
+                        sw.WriteLine(output);
+                        if (counter % 2 == 0 )
+                        {
+                            sw.Flush();
+                        }
+
+                        counter++;
                     }
-                    if (output[iRow].Length > 0) output[iRow] = output[iRow].Substring(0, output[iRow].Length - 1);
-                    iRow++;
+                    sw.Flush();
                 }
-
-                System.IO.File.WriteAllLines(fileName, output);
             }
             catch (Exception ex)
             {
@@ -746,6 +761,28 @@ namespace LitDev
             StackFrame sf = st.GetFrame(1);
 
             return sf.GetMethod().DeclaringType.Name + "." + sf.GetMethod().Name;
+        }
+
+        public static string ToPrimitiveArray<T>(this T[] array)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < array.Length; i++)
+            {
+                sb.Append($"{i + 1}={Utilities.ArrayParse( array[i].ToString() )};");
+            }
+
+            return sb.ToString();
+        }
+
+        public static string ToPrimitiveArray<T>(this List<T> list)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < list.Count; i++)
+            {
+                sb.Append($"{i + 1}={Utilities.ArrayParse( list[i].ToString() )};");
+            }
+
+            return sb.ToString();
         }
 
         public static double getDouble(string value)

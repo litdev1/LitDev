@@ -75,5 +75,15 @@ namespace LitDevUnitTests
             Assert.AreEqual("", LDHashTable.GetValue("fo334", "C").ToString());
             Assert.AreEqual(1, (int)LDHashTable.GetValue("test", "A"));
         }
+
+        [TestMethod]
+        public void ToArray()
+        {
+            LDHashTable.Clear("test");
+            LDHashTable.Add("test", "A", 1);
+            LDHashTable.Add("test", "B", 2);
+
+            Assert.AreEqual("A=1;B=2;" , LDHashTable.ToArray("test").ToString() );
+        }
     }
 }

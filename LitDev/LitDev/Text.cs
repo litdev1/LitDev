@@ -62,12 +62,7 @@ namespace LitDev
                     separators = new string[] {separator};
                 }
                 string[] splitText = ((string)text).Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
-                string result = "";
-                for (int i = 0; i < splitText.Length; i++ )
-                {
-                    result += (i + 1).ToString() + "=" + Utilities.ArrayParse(splitText[i]) + ";";
-                }
-                return Utilities.CreateArrayMap(result);
+                return Utilities.CreateArrayMap(splitText.ToPrimitiveArray());
             }
             catch (Exception ex)
             {

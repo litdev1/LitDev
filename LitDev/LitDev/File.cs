@@ -900,12 +900,7 @@ namespace LitDev
                 }
                 else
                 {
-                    int i = 1;
-                    foreach (byte value in bytes)
-                    {
-                        result += (i++).ToString() + "=" + value + ";";
-                    }
-                    return Utilities.CreateArrayMap(result);
+                    return Utilities.CreateArrayMap(bytes.ToPrimitiveArray());
                 }
             }
             catch (Exception ex)
