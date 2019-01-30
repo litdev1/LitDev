@@ -56,7 +56,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CSV.cs" />
     <Compile Include="LDHashTable.cs" />
+    <Compile Include="LDText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
