@@ -503,6 +503,10 @@ namespace LitDev
             return data;
         }
 
+        /// <summary>
+        /// Returns all countries on earth and
+        /// other territories in a Primitive array.
+        /// </summary>
         public static Primitive GetAllCountries()
         {
             try
@@ -515,6 +519,11 @@ namespace LitDev
             }
         }
 
+        /// <summary>
+        /// Returns a Primitive array of countries by name.
+        /// </summary>
+        /// <param name="name">Name of the country to search for</param>
+        /// <returns></returns>
         public static Primitive GetCountriesByName(Primitive name)
         {
             try
@@ -527,6 +536,9 @@ namespace LitDev
             }
         }
 
+        /// <summary>
+        /// Returns a Primitive array of countries by ISO country code.
+        /// </summary>
         public static Primitive GetCountriesByCode(Primitive code)
         {
             try
@@ -539,6 +551,9 @@ namespace LitDev
             }
         }
 
+        /// <summary>
+        /// Returns a Primitive array of countries by currency used.
+        /// </summary>
         public static Primitive GetCountriesByCurrency(Primitive currency)
         {
             try
@@ -551,6 +566,9 @@ namespace LitDev
             }
         }
 
+        /// <summary>
+        /// Returns a Primitive array of countries by country capital.
+        /// </summary>
         public static Primitive GetCountriesByCapital(Primitive capital)
         {
             try
@@ -563,6 +581,9 @@ namespace LitDev
             }
         }
 
+        /// <summary>
+        /// Returns a Primitive array of countries by telephone calling code.
+        /// </summary>
         public static Primitive GetCountriesByCallingCode(Primitive callingCode)
         {
             try
@@ -574,6 +595,9 @@ namespace LitDev
                 return "FAILED";
             }        }
 
+        /// <summary>
+        /// Returns a Primitive array of countries by geographical region.
+        /// </summary>
         public static Primitive GetCountriesByRegion(Primitive region)
         {
             try
@@ -586,6 +610,9 @@ namespace LitDev
             }
         }
 
+        /// <summary>
+        /// Returns a Primitive array of countries by regional bloc.
+        /// </summary>
         public static Primitive GetCountriesByRegionalBloc(Primitive regionalBloc)
         {
             try
