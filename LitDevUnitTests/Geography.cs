@@ -13,8 +13,14 @@ namespace LitDevUnitTests
     [TestClass]
     public class Geography
     {
+        /// <summary>
+        /// Ensures that the API query
+        /// generator generates a correct query
+        /// with the right information given
+        /// the search criteria.
+        /// </summary>
         [TestMethod]
-        public void APIGetCountriesByName()
+        public void GetCountriesByName()
         {
             List<Country> countries = LitDev.Geography.GetCountriesByName("India");
 
@@ -32,20 +38,34 @@ namespace LitDevUnitTests
             LitDev.Geography.Fields = new string[0];
         }
 
+        /// <summary>
+        /// Ensures that the Currency struct
+        /// generates correct Primitive array code.
+        /// </summary>
         [TestMethod]
-        public void ApiCurrenceyToString()
+        public void CurrenceyToString()
         {
             List<Country> countries = LitDev.Geography.GetCountriesByName("India");
             Currency currency = countries[1].Currencies[0];
 
             Assert.AreEqual("code=INR;name=Indian rupee;symbol=₹;", currency.ToString());
+            
+            //This ensures that the data is understandable by the Primitive data class
             Primitive currencyPrimitive = countries[1].ToString();
             Primitive data = currencyPrimitive["currencies"];
 
             Assert.AreEqual("INR", data[1]["code"].ToString() );
-
-
         }
 
+        [TestMethod]
+        public void CountriesToString()
+        {
+            List<Country> countries = LitDev.Geography.GetCountriesByName("col");
+            Primitive data = countries.ToPrimitiveArrayNative();
+
+            Assert.AreEqual("Pacific Alliance", data[1]["regionalBlocs"][1]["name"].ToString());
+            Assert.AreEqual("Union of South American Nations", data[1]["regionalBlocs"][2]["name"].ToString());
+            Assert.AreEqual("União de Nações Sul-Americanas", data[1]["regionalBlocs"][2]["otherNames"][2].ToString());
+        }
     }
 }

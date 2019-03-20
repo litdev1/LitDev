@@ -774,6 +774,25 @@ namespace LitDev
             return sb.ToString();
         }
 
+        /// <summary>
+        /// This method is much slower than the ToPrimitiveArray method but
+        /// will generate valid Primitives for more complex types of data
+        /// structures.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static string ToPrimitiveArrayNative<T>(this T[] array)
+        {
+            Primitive result = new Primitive();
+            for (int i = 0; i < array.Length; i++)
+            {
+                result[i + 1] = array[i].ToString();
+            }
+
+            return result;
+        }
+
         public static string ToPrimitiveArray<T>(this List<T> list)
         {
             StringBuilder sb = new StringBuilder();
@@ -783,6 +802,26 @@ namespace LitDev
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// This method is much slower than the ToPrimitiveArray method but
+        /// will generate valid Primitives for more complex types of data
+        /// structures.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static Primitive ToPrimitiveArrayNative<T>(this List<T> list)
+        {
+            Primitive result = new Primitive();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                result[i + 1] = list[i].ToString();
+            }
+
+            return result;
         }
 
         public static double getDouble(string value)

@@ -204,27 +204,36 @@ namespace LitDev
         public int NumericCode;
 
         public string CIOC;
+        public string Flag;
 
         public Currency[] Currencies;
         public Language[] Languages;
-
-        public string flag;
         public RegionalBloc[] RegionalBlocs;
 
         //TODO Replace Primitive methods with stringbuilder
         public override string ToString()
         {
             Primitive results = new Primitive();
-            Primitive temp;
-
-            temp = "";
-            for (int i = 0; i < Currencies.Length; i++)
-            {
-                temp[i + 1] = Currencies[i].ToString();
-            }
-
-            results["currencies"] = temp;
-
+            results["name"] = Name;
+            results["TLD"] = TopLevelDomain.ToPrimitiveArrayNative();
+            results["alpha2Code"] = Alpha2Code;
+            results["alpha3Code"] = Alpha3Code;
+            results["callingCodes"] = CallingCodes.ToPrimitiveArrayNative();
+            results["altSpellings"] = AltSpellings.ToPrimitiveArrayNative();
+            results["region"] = Region;
+            results["latitude"] = Latlng[0];
+            results["longitude"] = Latlng[1];
+            results["demonym"] = Demonym;
+            results["area"] = Area;
+            results["GINI"] = GINI;
+            results["timezones"] = Timezones.ToPrimitiveArrayNative();
+            results["borders"] = Borders.ToPrimitiveArrayNative();
+            results["numericCode"] = NumericCode;
+            results["CIOC"] = CIOC;
+            results["flag"] = Flag;
+            results["currencies"] = Currencies.ToPrimitiveArrayNative();
+            results["languages"] = Languages.ToPrimitiveArrayNative();
+            results["regionalBlocs"] = RegionalBlocs.ToPrimitiveArrayNative();
             return  results ;
         }
     }
@@ -269,7 +278,25 @@ namespace LitDev
         {
             string result = string.Empty;
 
+            if (!string.IsNullOrWhiteSpace(ISO639_1))
+            {
+                result += $"ISO639_1={ISO639_1};";
+            }
 
+            if (!string.IsNullOrWhiteSpace(ISO639_2))
+            {
+                result += $"ISO639_2={ISO639_2};";
+            }
+
+            if (!string.IsNullOrWhiteSpace(Name))
+            {
+                result += $"name={Name};";
+            }
+
+            if (!string.IsNullOrWhiteSpace(NativeName))
+            {
+                result += $"nativeName={NativeName};";
+            }
 
             return result;
         }
@@ -284,6 +311,48 @@ namespace LitDev
         public string IT;
         public string BR;
         public string PT;
+
+        public override string ToString()
+        {
+            string result = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(DE))
+            {
+                result += $"de={DE};";
+            }
+
+            if (!string.IsNullOrWhiteSpace(ES))
+            {
+                result += $"es={ES};";
+            }
+
+            if (!string.IsNullOrWhiteSpace(FR))
+            {
+                result += $"fr={FR};";
+            }
+
+            if (!string.IsNullOrWhiteSpace(JA))
+            {
+                result += $"ja={JA};";
+            }
+
+            if (!string.IsNullOrWhiteSpace(IT))
+            {
+                result += $"it={IT};";
+            }
+
+            if (!string.IsNullOrWhiteSpace(BR))
+            {
+                result += $"br={BR};";
+            }
+
+            if (!string.IsNullOrWhiteSpace(PT))
+            {
+                result += $"pt={PT};";
+            }
+
+            return result;
+        }
     }
 
     public class RegionalBloc
@@ -292,9 +361,20 @@ namespace LitDev
         public string Name;
         public string[] OtherAcronyms;
         public string[] OtherNames;
+
+        public override string ToString()
+        {
+            Primitive result = string.Empty;
+            Primitive temp = new Primitive();
+
+            result["otherAcronyms"] = OtherAcronyms.ToPrimitiveArrayNative();
+            result["otherNames"] = OtherNames.ToPrimitiveArrayNative();
+            result["name"] = Name;
+            result["acronym"] = Acronym;
+
+            return result;
+        }
     }
-
-
 
     /// <summary>
     /// Gets geographic information about countries and
@@ -306,6 +386,73 @@ namespace LitDev
     [HideFromIntellisense]
     public static class LDGeography
     {
-        
+        /// <summary>
+        /// Whenever possible make the search require an exact match
+        /// between the query and the results.
+        /// </summary>
+        public static Primitive StrictSearch => Geography.FullTextSearch;
+
+        /// <summary>
+        /// An array of fields that the results will
+        /// contain. Fields not specified will not be
+        /// returned.
+        /// </summary>
+        public static Primitive Fields
+        {
+            get { return Geography.Fields.ToPrimitiveArray(); }
+            set { Geography.Fields = LimitFields(value); }
+        }
+
+        private static string[] LimitFields(Primitive fields)
+        {
+            string[] data = new string[fields.GetItemCount()];
+            for (int i = 1; i <= fields.GetItemCount(); i++)
+            {
+                data[i - 1] = fields[i];
+            }
+
+            return data;
+        }
+
+        public static Primitive GetAllCountries()
+        {
+            return Geography.GetAllCountries().ToPrimitiveArrayNative();
+        }
+
+        public static Primitive GetCountriesByName(Primitive name)
+        {
+            return Geography.GetCountriesByName(name).ToPrimitiveArrayNative();
+        }
+
+        public static Primitive GetCountriesByCode(Primitive code)
+        {
+            return Geography.GetCountriesByCallingCode(code).ToPrimitiveArrayNative();
+        }
+
+        public static Primitive GetCountriesByCurrency(Primitive currency)
+        {
+            return Geography.GetCountriesByCurrency(currency).ToPrimitiveArrayNative();
+        }
+
+        public static Primitive GetCountriesByCapital(Primitive capital)
+        {
+            return Geography.GetCountriesByCapital(capital).ToPrimitiveArrayNative();
+        }
+
+        public static Primitive GetCountriesByCallingCode(Primitive callingCode)
+        {
+            return Geography.GetCountriesByCallingCode(callingCode).ToPrimitiveArrayNative();
+        }
+
+        public static Primitive GetCountriesByRegion(Primitive region)
+        {
+            return Geography.GetCountriesByRegion(region).ToPrimitiveArrayNative();
+        }
+
+        public static Primitive GetCountriesByRegionalBloc(Primitive regionalBloc)
+        {
+            return Geography.GetCountriesByRegionalBloc(regionalBloc).ToPrimitiveArrayNative();
+        }
+
     }
 }
