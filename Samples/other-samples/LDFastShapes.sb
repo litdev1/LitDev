@@ -1,0 +1,130 @@
+'======================================================
+'Setup
+'======================================================
+numBalls = 200
+simTime = 10000 'ms (10 sec)
+maxDelay = 10
+radius = 10
+gw = 600
+gh = 600
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+
+'======================================================
+'Test code
+'GW Title numbers are | Countdown in sec : Number of updates (ms for last update)
+'======================================================
+doShapes()
+doLDFastShapes()
+
+'======================================================
+'Doing it with Shapes
+'======================================================
+Sub doShapes
+  GraphicsWindow.Clear()
+  GraphicsWindow.Title = "Shapes"
+  For i = 1 To numBalls
+    ball[i] = Shapes.AddEllipse(2*radius,2*radius)
+    ballX[i] = radius +Math.GetRandomNumber(gw-2*radius)
+    ballY[i] = radius +Math.GetRandomNumber(gh-2*radius)
+    ballU[i] = (Math.GetRandomNumber(101)-51)/25
+    ballV[i] = (Math.GetRandomNumber(101)-51)/25
+  EndFor
+  
+  iStep = 0
+  begin = Clock.ElapsedMilliseconds
+  While (start-begin < simTime)
+    start = Clock.ElapsedMilliseconds
+    iStep = iStep+1
+    
+    For i = 1 To numBalls
+      ballX[i] = ballX[i]+ballU[i]
+      ballY[i] = ballY[i]+ballV[i]
+      If (ballX[i] < radius) Then
+        ballX[i] = radius
+        ballU[i] = -ballU[i]
+      ElseIf (ballX[i] > gw-radius) Then
+        ballX[i] = gw-radius
+        ballU[i] = -ballU[i]
+      EndIf
+      If (ballY[i] < radius) Then
+        ballY[i] = radius
+        ballV[i] = -ballV[i]
+      ElseIf (ballY[i] > gh-radius) Then
+        ballY[i] = gh-radius
+        ballV[i] = -ballV[i]
+      EndIf
+      
+      Shapes.Move(ball[i], ballX[i]-radius, ballY[i]-radius)
+    EndFor
+    
+    calcTime = Clock.ElapsedMilliseconds-start
+    delay = maxDelay - calcTime
+    GraphicsWindow.Title = "Shapes " + 0.1*Math.Round((simTime-start+begin)/100) + " : " + iStep + " ("+Math.Round(calcTime)+" ms)"   
+    If (delay > 0) Then
+      Program.Delay(delay)
+    EndIf
+  EndWhile
+EndSub
+
+'======================================================
+'Doing it with LDFastShapes and LDList
+'======================================================
+Sub doLDFastShapes
+  GraphicsWindow.Clear()
+  GraphicsWindow.Title = "LDFastShapes and LDList"
+  For i = 1 To numBalls
+    ball = Shapes.AddEllipse(2*radius,2*radius)
+    LDFastShapes.ShapeIndex(ball) 'Balls are indexed from 1 to numBalls OR we could store : LDList.Add("ball", LDFastShapes.ShapeIndex(ball))
+    LDList.Add("ballX", radius +Math.GetRandomNumber(gw-2*radius))
+    LDList.Add("ballY", radius +Math.GetRandomNumber(gh-2*radius))
+    LDList.Add("ballU", (Math.GetRandomNumber(101)-51)/25)
+    LDList.Add("ballV", (Math.GetRandomNumber(101)-51)/25)
+  EndFor
+  
+  iStep = 0
+  begin = Clock.ElapsedMilliseconds
+  While (start-begin < simTime)
+    start = Clock.ElapsedMilliseconds
+    iStep = iStep+1
+    
+    For i = 1 To numBalls
+      'Easiest to get the List values, work with them and reset them once finished
+      ballX = LDList.GetAt("ballX",i)
+      ballY = LDList.GetAt("ballY",i)
+      ballU = LDList.GetAt("ballU",i)
+      ballV = LDList.GetAt("ballV",i)
+      
+      ballX = ballX+ballU
+      ballY = ballY+ballV
+      If (ballX < radius) Then
+        ballX = radius
+        LDList.SetAt("ballU",i,-ballU)
+      ElseIf (ballX > gw-radius) Then
+        ballX = gw-radius
+        LDList.SetAt("ballU",i,-ballU)
+      EndIf
+      If (ballY < radius) Then
+        ballY = radius
+        LDList.SetAt("ballV",i,-ballV)
+      ElseIf (ballY > gh-radius) Then
+        ballY = gh-radius
+        LDList.SetAt("ballV",i,-ballV)
+      EndIf
+      
+      LDFastShapes.Move(i, ballX-radius, ballY-radius)
+      
+      LDList.SetAt("ballX",i,ballX)
+      LDList.SetAt("ballY",i,ballY)
+    EndFor
+    
+    LDFastShapes.Update() 'Do the visual updates
+    
+    calcTime = Clock.ElapsedMilliseconds-start
+    delay = maxDelay - calcTime
+    GraphicsWindow.Title = "LDFastShapes and LDList " + 0.1*Math.Round((simTime-start+begin)/100) + " : " + iStep + " ("+Math.Round(calcTime)+" ms)"   
+    If (delay > 0) Then
+      Program.Delay(delay)
+    EndIf
+  EndWhile
+EndSub

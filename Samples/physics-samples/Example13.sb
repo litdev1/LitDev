@@ -1,0 +1,41 @@
+gw = 600
+gh = 600
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+
+'Very heavy thin paddle, just smaller than the window
+GraphicsWindow.PenWidth = 0
+GraphicsWindow.BrushColor = "Black"
+rod = Shapes.AddRectangle(gw-2,2)
+LDPhysics.AddMovingShape(rod,0.3,0.5,1000000)
+LDPhysics.SetPosition(rod,gw/2,gh/2,0)
+
+'Some blocks
+GraphicsWindow.PenWidth = 1
+GraphicsWindow.BrushColor = "Yellow"
+For i = 1 To 20
+  block = Shapes.AddRectangle(20,20)
+  LDPhysics.AddMovingShape(block,0.3,0.9,1)
+  LDPhysics.SetPosition(block,gw/2,gh-i*20,0)
+  LDPhysics.SetBullet(block)
+EndFor
+
+LDPhysics.TimeStep = 0.01 '100 fps
+
+While ("True")
+  start = Clock.ElapsedMilliseconds
+  'Upwards force to counteract gravity
+  LDPhysics.SetForce(rod,0,-LDPhysics.GetMass(rod)*100)
+  'Reposition following any small movements using current angle
+  LDPhysics.SetPosition(rod,gw/2,gh/2,LDPhysics.GetAngle(rod))
+  'Apply rotation torque if we are rotating less than 45 deg/s
+  If (LDPhysics.GetRotation(rod) < 45) Then '1/8 turn per sec
+    LDPhysics.SetTorque(rod,1*LDPhysics.GetInertia(rod))
+  EndIf
+  LDPhysics.DoTimestep()
+  'Delay upto timestep time
+  delay = 1000*LDPhysics.TimeStep - (Clock.ElapsedMilliseconds - start)
+  If (delay > 0) Then
+    Program.Delay(delay)
+  EndIf
+EndWhile

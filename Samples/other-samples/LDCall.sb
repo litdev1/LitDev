@@ -1,0 +1,16 @@
+args = "" 'Required to keep compiler happy
+
+For x = 1 To 5
+  For y = 1 To 5
+    result = LDCall.Function2("AddNumbers",x,y)
+    TextWindow.WriteLine(x+" + "+y+" = "+result)
+  EndFor
+EndFor
+
+'Note that "return" is not initialised  (this is done each time the function exits)
+'It should be for good programming, but is omitted for demonstration
+Sub AddNumbers 
+  For i = 1 To Array.GetItemCount(args)
+    return = return+args[i]
+  EndFor
+EndSub

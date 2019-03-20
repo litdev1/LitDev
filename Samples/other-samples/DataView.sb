@@ -1,0 +1,69 @@
+GraphicsWindow.Left = 0
+TextWindow.Left = 810
+headings[1] = "Index"
+headings[2] = "Car"
+headings[3] = "Price"
+headings[4] = "Select"
+dataview = LDControls.AddDataView(GraphicsWindow.Width,GraphicsWindow.Height,headings)
+LDControls.DataViewSetColumnComboBox(dataview,2,"1=Mazda;2=Ford;3=Fiat;")
+LDControls.DataViewSetColumnButton(dataview,3)
+LDControls.DataViewSetColumnCheckBox(dataview,4)
+LDControls.DataViewSelectionChanged = OnDataViewSelectionChanged
+LDControls.DataViewButtonClicked = OnDataViewButtonClicked
+LDControls.DataViewCellValueChanged = OnDataViewCellValueChanged
+Program.Delay(1000)
+
+LDControls.DataViewSetRow(dataview,1,"1=1;2=Fiat;3=1000;4=True;")
+LDControls.DataViewSetRow(dataview,2,"1=2;2=Ford;3=2000;4=False;")
+LDControls.DataViewSetRow(dataview,10,"1=3;2=Mazda;3=1500;4=True;")
+LDControls.DataViewSaveAsCSV(dataview,Program.Directory+"\data.csv","False")
+Program.Delay(1000)
+LDControls.DataViewSetRow(dataview,3,"1=3;2=Mazda;3=1800;4=False;")
+Program.Delay(1000)
+data = LDControls.DataViewGetValue(dataview,1,2)
+LDControls.DataViewSetValue(dataview,2,2,data)
+Program.Delay(1000)
+LDControls.DataViewDeleteRow(dataview,1)
+Program.Delay(1000)
+focus = LDControls.DataViewGetFocus(dataview)
+TextWindow.WriteLine("DataViewGetFocus Row "+focus[1]+" Column "+focus[2])
+Program.Delay(1000)
+LDControls.DataViewSetFocus(dataview,2,1)
+Program.Delay(1000)
+row = LDControls.DataViewGetRow(dataview,2)
+TextWindow.Write("DataViewGetRow")
+For i  = 1 To Array.GetItemCount(row)
+  TextWindow.Write(" "+row[i])
+EndFor
+TextWindow.WriteLine("")
+Program.Delay(1000)
+LDControls.DataViewColumnSort(dataview,3,"True")
+'LDControls.DataViewAllowSort(dataview,"False")
+'LDControls.DataViewColumnVisible(dataview,1,"False")
+LDControls.DataViewColumnReadOnly(dataview,1,"True")
+
+Program.Delay(1000)
+TextWindow.WriteLine("DataViewRowCount "+LDControls.DataViewRowCount(dataview))
+Program.Delay(1000)
+LDControls.DataViewClear(dataview)
+Program.Delay(1000)
+LDControls.DataViewReadFromCSV(dataview,Program.Directory+"\data.csv","True")
+
+Sub OnDataViewSelectionChanged
+  TextWindow.WriteLine("LastDataView "+LDControls.LastDataView)
+  selected = LDControls.DataViewGetSelected(dataview)
+  For i = 1 To Array.GetItemCount(selected)
+    data = LDControls.DataViewGetValue(dataview,selected[i][1],selected[i][2])
+    TextWindow.WriteLine("DataViewGetSelected Row "+selected[i][1]+" Column "+selected[i][2]+" Value "+data)
+  EndFor
+EndSub
+
+Sub OnDataViewButtonClicked
+  clicked = LDControls.LastDataViewButtonClicked
+  TextWindow.WriteLine("DataViewButtonClicked for Row "+clicked[1]+" Column "+clicked[2]+" Value "+clicked[3])
+EndSub
+
+Sub OnDataViewCellValueChanged
+  changed = LDControls.LastDataViewCellValueChanged
+  TextWindow.WriteLine("DataViewCellValueChanged for Row "+changed[1]+" Column "+changed[2]+" Value "+changed[3])
+EndSub

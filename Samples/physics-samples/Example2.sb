@@ -1,0 +1,11 @@
+block = Shapes.AddRectangle(50,50)
+LDPhysics.AddMovingShape(block,0,1,1)
+LDPhysics.SetPosition(block,200,100,0)
+anchor = LDPhysics.AddFixedAnchor(400,100)
+
+LDPhysics.AddRope(anchor,block)
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile

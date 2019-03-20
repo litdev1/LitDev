@@ -1,0 +1,31 @@
+image = ImageList.LoadImage(Program.Directory+"/football.png")
+
+LDPhysics.LoadImagesAsCircles = "True"
+
+For i = 1 To 10
+  ball = Shapes.AddImage(image)
+  LDPhysics.AddMovingShape(ball,0.2,0.9,1)
+  LDPhysics.SetPosition(ball,Math.GetRandomNumber(500),Math.GetRandomNumber(300),0)
+  LDPhysics.SetVelocity(ball,Math.GetRandomNumber(51)-101,0)
+EndFor
+
+mouseDown = 0
+GraphicsWindow.MouseDown = OnMouseDown
+
+While ("True")
+  If (mouseDown = 1) Then
+    xM = GraphicsWindow.MouseX
+    yM = GraphicsWindow.MouseY
+    hit = LDPhysics.GetShapeAt(xM,Ym)
+    If (hit <> "") Then
+      LDPhysics.SetImpulse(hit,0,-1000*LDPhysics.GetMass(hit))
+    EndIf
+    mouseDown = 0
+  EndIf
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile
+
+Sub OnMouseDown
+  mouseDown = 1
+EndSub

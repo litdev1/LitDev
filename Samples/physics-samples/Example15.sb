@@ -1,0 +1,22 @@
+points[0]["X"] = 0
+points[0]["Y"] = 0
+points[1]["X"] = 40
+points[1]["Y"] = 0
+points[2]["X"] = 60
+points[2]["Y"] = 40
+points[3]["X"] = 40
+points[3]["Y"] = 80
+points[4]["X"] = 0
+points[4]["Y"] = 20
+
+For i = 1 To 10
+  polygon = LDShapes.AddPolygon(points)
+  LDPhysics.AddMovingShape(polygon,0.5,0.8,1)
+  LDPhysics.SetPosition(polygon,60*i,100,0)
+  LDPhysics.SetTorque(polygon,100*LDPhysics.GetInertia(polygon))
+EndFor
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile

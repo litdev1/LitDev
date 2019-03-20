@@ -1,0 +1,27 @@
+balloon = Shapes.AddEllipse(50,50)
+box = Shapes.AddRectangle(50,50)
+
+LDPhysics.AddMovingShape(balloon,0.3,0.5,1)
+LDPhysics.SetPosition(balloon,100,100,0)
+LDPhysics.AddMovingShape(box,0.3,0.5,1)
+LDPhysics.SetPosition(box,300,300,0)
+
+anchorBalloon = LDPhysics.AddMovingAnchor(100,125)
+LDPhysics.AttachShapesWithRotation(balloon,anchorBalloon)
+anchorBox = LDPhysics.AddMovingAnchor(300,275)
+LDPhysics.AttachShapesWithRotation(box,anchorBox)
+
+rope = LDPhysics.AddRope(anchorBalloon,anchorBox)
+boxMass = LDPhysics.GetMass(box)
+balloonMass = LDPhysics.GetMass(balloon)
+anchorBalloonMass = LDPhysics.GetMass(anchorBalloon)
+anchorBoxMass = LDPhysics.GetMass(anchorBox)
+ropeMass = LDPhysics.GetMass(rope)
+
+totalMass = balloonMass+boxMass+ropeMass+anchorBalloonMass+anchorBoxMass
+
+While ("True")
+  LDPhysics.SetForce(balloon,0,-100*totalMass)
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile

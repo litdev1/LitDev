@@ -1,0 +1,52 @@
+gw = 1200
+gh = 600
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+GraphicsWindow.BackgroundColor = LDColours.WhiteSmoke
+LDGraph.BorderColour = "#00000000"
+LDGraph.InteriorColour = "#00000000"
+
+For i = 0 To 200
+  x = i/5
+  y = x*Math.Sin(x)
+  data1[x] = y
+EndFor
+For i = -100 To 100
+  x = i/5
+  y = x*Math.Sin(x)*Math.Sin(x*x/7)
+  data2[x] = y
+EndFor
+
+LDGraph.ExportCSV(data1,Program.Directory+"\Graphing.csv")
+
+graph1 = LDGraph.AddGraph(10,10,gw/2-20,gh-20,"Modified Sine Wave","X (Radians)","X x Sin(X)")
+LDGraph.AddSeriesLine(graph1,"Series 1",data1,"Red")
+LDGraph.AddSeriesLine(graph1,"Series 2",data2,"Blue")
+LDGraph.DeleteSeries(graph1,"Series 1")
+LDGraph.AddSeriesLine(graph1,"Series 1",data1,"Red")
+Shapes.Zoom(graph1,0.7,0.7)
+Shapes.Rotate(graph1,30)
+Shapes.SetOpacity(graph1,80)
+LDShapes.ZIndex(graph1,1)
+
+graph2 = LDGraph.AddGraph(610,10,gw/2-20,gh-20,"Modified Sine Wave","X (Radians)","X x Sin(X)")
+LDGraph.AddSeriesHistogram(graph2,"Series 1",data1,"Green")
+
+LDGraph.StopEvents()
+LDGraph.RestartEvents()
+mouseDoubleClick = 0
+LDEvents.MouseDoubleClick = OnMouseDoubleClick
+
+While ("True")
+  If (mouseDoubleClick = 1) Then
+    x = GraphicsWindow.MouseX
+    y = GraphicsWindow.MouseY
+    Shapes.Move(graph1, x-(gw/2-20)/2, y - (gh-20)/2)
+    mouseDoubleClick = 0
+  EndIf
+  Program.Delay(20)
+EndWhile
+
+Sub OnMouseDoubleClick
+  mouseDoubleClick = 1
+EndSub

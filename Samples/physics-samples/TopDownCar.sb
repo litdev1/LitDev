@@ -1,0 +1,83 @@
+carImage = ImageList.LoadImage(Program.Directory+"\car.png")
+coneImage = ImageList.LoadImage(Program.Directory+"\cone.png")
+LDGraphicsWindow.State = 2
+GraphicsWindow.BackgroundColor = "LightBlue"
+
+LDPhysics.Scaling = 25 '100 pixel car is about 4m long
+LDPhysics.SetGravity(0,0)
+MakeCar()
+MakeObstacles()
+
+While ("True")
+  start = Clock.ElapsedMilliseconds
+  
+  UpdateUser()
+  LDPhysics.DoTimestep()
+  UpdateInfo()
+  
+  delay = 25-(Clock.ElapsedMilliseconds-start) '25ms is defaut timestep - see LDPhysics.TimeStep
+  If (delay > 0) Then
+    Program.Delay(delay)
+  EndIf
+EndWhile
+
+Sub UpdateUser
+  If (LDUtilities.KeyDown("Left")) Then
+    LDPhysics.TurnTire(car,-carInertia*5) 'torque
+  EndIf
+  If (LDUtilities.KeyDown("Right")) Then
+    LDPhysics.TurnTire(car,carInertia*5)
+  EndIf
+  If (LDUtilities.KeyDown("Up")) Then
+    LDPhysics.MoveTire(car,carMass*200) 'force 8m/s/s = 200 pixel/s/s
+  EndIf
+  If (LDUtilities.KeyDown("Down")) Then
+    LDPhysics.MoveTire(car,-carMass*80)
+  EndIf
+  If (LDUtilities.KeyDown("Space")) Then
+    LDPhysics.BrakeTire(car)
+  EndIf
+EndSub
+
+Sub UpdateInfo
+  If (Clock.ElapsedMilliseconds-startCrash > 1000) Then 'Keep crash info up for 1 sec
+    info = LDPhysics.GetTireInformation(car)
+    If (info["Crash"] > 0) Then
+      GraphicsWindow.Title = "***** CRASH ("+Math.Round(info["Crash"]/LDPhysics.Scaling)+" m/s) *****"
+      startCrash = Clock.ElapsedMilliseconds
+    ElseIf (info["Skid"] > properties["AntiSkid"]) Then
+      GraphicsWindow.Title = "***** SKID *****"
+    Else
+      vel = LDPhysics.GetVelocity(car)
+      speed = Math.SquareRoot(vel[1]*vel[1]+vel[2]*vel[2])/LDPhysics.Scaling
+      speed = Math.Round(speed)
+      GraphicsWindow.Title = speed+" m/s"
+    EndIf
+  EndIf
+EndSub
+
+Sub MakeCar
+  LDPhysics.LoadImagesAsCircles = "False"
+  car = Shapes.AddImage(carImage)  
+  LDPhysics.AddMovingShape(car,0.8,0.05,1)
+  LDPhysics.SetPosition(car,GraphicsWindow.Width/2,GraphicsWindow.Height/2,0)  
+  LDPhysics.SetTire(car)
+  carMass = LDPhysics.GetMass(car)
+  carInertia = LDPhysics.GetInertia(car)
+  
+  'Reduced skid from default (3) and reduced drag resistance from default (0.05)
+  properties = LDPhysics.GetTireProperties(car)
+  properties["AntiSkid"] = 8
+  properties["Drag"] = 0.01
+  LDPhysics.SetTireProperties(car,properties)
+EndSUb
+
+Sub MakeObstacles
+  LDPhysics.LoadImagesAsCircles = "True"
+  For i = 1 To 5
+    cone = Shapes.AddImage(coneImage)
+    LDPhysics.AddMovingShape(cone,1,0,10)
+    LDPhysics.SetPosition(cone,100+Math.GetRandomNumber(GraphicsWindow.Width-200),100+Math.GetRandomNumber(GraphicsWindow.Height-200),0)  
+    LDPhysics.SetDamping(cone,1,1) 'Sticky cones
+  EndFor
+EndSub

@@ -1,0 +1,66 @@
+connect = File.ReadContents(Program.Directory+"\ChatConnect.txt")
+LDClient.ServerMessage = OnServerMessage
+LDClient.Connect(connect,"True")
+GraphicsWindow.Width = 600
+GraphicsWindow.Height = 600
+GraphicsWindow.BackgroundColor = "LightGray"
+
+input = Controls.AddTextBox(20,20)
+send = Controls.AddButton("Send",20,60)
+clients = Controls.AddButton("Connected",70,60)
+setName = Controls.AddButton("Set Name",154,60)
+LDControls.RichTextBoxReadOnly = "True"
+LDControls.RichTextBoxFontBold = "True"
+chat = LDControls.AddRichTextBox(560,480)
+Controls.SetSize(input,560,30)
+Shapes.Move(chat,20,100)
+Controls.ButtonClicked = OnButtonClicked
+GraphicsWindow.Title = LDClient.Name
+
+While ("True")
+  If (message <> "") Then
+    LDControls.RichTextBoxSetText(chat,message,"True")
+    LDControls.RichTextBoxWord(chat,message,2)
+    LDControls.SetCursorToEnd(chat)
+    message = ""
+  EndIf
+  Program.Delay(10)
+EndWhile
+
+Sub OnServerMessage
+  message = LDClient.LastServerMessage
+  If (Text.EndsWith(message,"CONNECTED")) Then
+    LDControls.RichTextBoxFontForeground = "Blue"
+  Else
+    LDControls.RichTextBoxFontForeground = "Red"
+  EndIf
+EndSub
+
+Sub OnButtonClicked
+  button = Controls.LastClickedButton
+  If (button = send) Then
+    message = Controls.GetTextBoxText(input)
+    LDControls.RichTextBoxFontForeground = "Black"
+    LDClient.SendMessage(message)
+  ElseIf (button = clients) Then
+    allClients = LDClient.GetClients()
+    message = ""
+    For i = 1 To Array.GetItemCount(allClients)
+      message = message+allClients[i]
+      If (allClients[i] = LDClient.Name) Then
+        message = message+"(me)"
+        EndIf
+      If (i < Array.GetItemCount(allClients)) Then
+        message = message + " , "
+      EndIf
+    EndFor
+    LDControls.RichTextBoxFontForeground = "Green"
+  ElseIf (button = setName) Then
+    If (Controls.GetTextBoxText(input) = "") Then
+      GraphicsWindow.ShowMessage("Enter a name for your client","Error")
+      Else
+    LDClient.Name = Controls.GetTextBoxText(input)
+    GraphicsWindow.Title = LDClient.Name
+    EndIf
+  EndIf
+EndSub

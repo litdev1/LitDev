@@ -1,0 +1,24 @@
+'Auto control version
+
+'Assign events
+LDTextWindow.KeyDown = OnKeyDown
+
+'Start the server and output the connection string to a file
+server = LDServer.Start("True")
+File.WriteLine(Program.Directory+"\server.txt",1,server)
+
+'Keep server running and report messages
+TextWindow.Title = "Server"
+While ("True")
+  Program.Delay(100)
+EndWhile
+
+'==================================================
+'EVENT SUBROUTINES
+'==================================================
+Sub OnKeyDown
+  If (LDTextWindow.LastKey = "Escape") Then
+    LDServer.Stop()
+    Program.End()
+  EndIf
+EndSub

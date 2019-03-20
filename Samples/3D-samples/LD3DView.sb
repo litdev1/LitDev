@@ -1,0 +1,134 @@
+args = "" 'For use with LDCall
+
+GraphicsWindow.BackgroundColor = "LightBlue"
+gw = 500
+gh = 500
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+GraphicsWindow.DrawText(10,10,"KEYS: Keypad + W,S,A,D,H,J,C,Escape")
+'LDGraphicsWindow.State = 2 'Make full screen
+
+'Create a view and load an image
+view3D = LD3DView.AddView(gw,gh,"True") 'Will not clip to size if window rescaled
+img = ImageList.LoadImage(Flickr.GetPictureOfMoment())
+
+'CUBE 8 corner coordinates in groups of 3 (x,y,z)
+points = "0 0 0:1 0 0:1 1 0:0 1 0:   0 0 1:1 0 1:1 1 1:0 1 1"
+'12 triangles (2 per face) counter clockwise as viewed from outside
+'The coordinates are shared between the triangles so their normals and reflections are averaged between the shared traingles
+indices = "0 2 1  0 3 2  4 5 6  4 6 7  1 2 5  2 6 5  4 7 0  7 3 0  7 6 2  7 2 3  0 1 5  0 5 4"
+object[1] = LD3DView.AddGeometry(view3D,points,indices,"","White","D")
+
+'CONE A cone from MS sample http://msdn.microsoft.com/en-us/library/ms747437%28v=vs.90%29.aspx
+'The coordinates ARE NOT shared so each triangle  and its nodes have normals in the triangle normal direction
+points = "0.293893 -0.5 0.404509  0.475528 -0.5 0.154509  0 0.5 0  0.475528 -0.5 0.154509  0 0.5 0  0 0.5 0  0.475528 -0.5 0.154509  0.475528 -0.5 -0.154509  0 0.5 0  0.475528 -0.5 -0.154509  0 0.5 0  0 0.5 0  0.475528 -0.5 -0.154509  0.293893 -0.5 -0.404509  0 0.5 0  0.293893 -0.5 -0.404509  0 0.5 0  0 0.5 0  0.293893 -0.5 -0.404509  0 -0.5 -0.5  0 0.5 0  0 -0.5 -0.5  0 0.5 0  0 0.5 0  0 -0.5 -0.5  -0.293893 -0.5 -0.404509  0 0.5 0  -0.293893 -0.5 -0.404509  0 0.5 0  0 0.5 0  -0.293893 -0.5 -0.404509  -0.475528 -0.5 -0.154509  0 0.5 0  -0.475528 -0.5 -0.154509  0 0.5 0  0 0.5 0  -0.475528 -0.5 -0.154509  -0.475528 -0.5 0.154509  0 0.5 0  -0.475528 -0.5 0.154509  0 0.5 0  0 0.5 0  -0.475528 -0.5 0.154509  -0.293892 -0.5 0.404509  0 0.5 0  -0.293892 -0.5 0.404509  0 0.5 0  0 0.5 0  -0.293892 -0.5 0.404509  0 -0.5 0.5  0 0.5 0  0 -0.5 0.5  0 0.5 0  0 0.5 0  0 -0.5 0.5  0.293893 -0.5 0.404509  0 0.5 0  0.293893 -0.5 0.404509  0 0.5 0  0 0.5 0  " 
+indices = "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 "
+object[2] = LD3DView.AddGeometry(view3D,points,indices,"","White","D")
+
+'OCTAHEDRON - basis for sphere.  An octahedron from http://sol.gfxile.net/sphere/index.html
+points = "0.0: -1.0:  0.0:   1.0:  0.0:  0.0:   0.0:  0.0:  1.0:  -1.0:  0.0:  0.0:   0.0:  0.0: -1.0:   0.0:  1.0:  0.0"
+indices = "  0:    1:    2:  0:    2:    3:  0:    3:    4:  0:    4:    1:  1:    5:    2:  2:    5:    3:  3:    5:    4:  4:    5:    1"
+object[3] = LD3DView.AddGeometry(view3D,points,indices,"","White","D")
+LD3DView.TranslateGeometry(view3D,object[3],2,0,-5)
+
+'Add a floor image
+points = "-10 -1 10:10 -1 10:10 -1 -10 : -10 -1 10:10 -1 -10:-10 -1 -10"
+indices = "0 1 2 3 4 5"
+floor = LD3DView.AddGeometry(view3D,points,indices,"","White","D")
+textures = "0 1: 1 1: 1 0: 0 1: 1 0: 0 0"
+LD3DView.AddImage(view3D,floor,textures,img,"D")
+
+'Some different light types
+spot = LD3DView.AddSpotLight(view3D,"Green",0.75,0.75,2,0,0,-1,45,10)
+LD3DView.AddDirectionalLight(view3D,"Pink",-1,-1,-1)
+LD3DView.AddDirectionalLight(view3D,"DarkBlue",1,1,1)
+LD3DView.AddAmbientLight(view3D,"#50111111")
+
+'Initial camera position and direction and view angle
+LD3DView.ResetCamera(view3D,-0.5,10,10,0,-1,-1,"","","")
+
+While ("True")
+  'Use the keys to move the camera
+  yaw = 0
+  pitch = 0
+  roll = 0
+  move = 0
+  If (LDUtilities.KeyDown("Left")) Then
+    yaw = yaw-1
+  EndIf
+  If (LDUtilities.KeyDown("Right")) Then
+    yaw = yaw+1
+  EndIf
+  If (LDUtilities.KeyDown("Up")) Then
+    pitch = pitch-1
+  EndIf
+  If (LDUtilities.KeyDown("Down")) Then
+    pitch = pitch+1
+  EndIf
+  If (LDUtilities.KeyDown("A")) Then
+    roll = roll+1
+  EndIf
+  If (LDUtilities.KeyDown("D")) Then
+    roll = roll-1
+  EndIf
+  If (LDUtilities.KeyDown("W")) Then
+    move = move+0.1
+  EndIf
+  If (LDUtilities.KeyDown("S")) Then
+    move = move-0.1
+  EndIf
+  
+  'Prevent forward movement into an object
+  hit = LD3DView.HitTest(view3D,-1,-1)
+  If (hit <> "" And hit[2] < 2*move) Then
+    move = 0
+  EndIf
+  
+  LD3DView.MoveCamera(view3D,yaw,pitch,roll,move) 'These are relative changes wrt current view
+  
+  'Test to remove, hide and show an object
+  If (LDUtilities.KeyDown("H")) Then
+    LD3DView.ModifyObject(view3D,object[3],"X")
+    LD3DView.ModifyObject(view3D,spot,"H")
+  EndIf
+  If (LDUtilities.KeyDown("J")) Then
+    LD3DView.ModifyObject(view3D,object[2],"S")
+    LD3DView.ModifyObject(view3D,spot,"S")
+  EndIf
+  
+  'Test cloning the cube at its current position
+  If (LDUtilities.KeyDown("C")) Then
+    LD3DView.CloneObject(view3D,object[1])
+  EndIf
+  
+  'Exit
+  If (LDUtilities.KeyDown("Escape")) Then
+    Shapes.Remove(view3D)
+    Program.Delay(100)
+    Program.End()
+  EndIf
+  
+  'Rotate, move away and grow the cube (these are all absolute values)
+  angle = angle+1
+  LD3DView.RotateGeometry(view3D,object[1],0,1,0,angle)
+  LD3DView.TranslateGeometry(view3D,object[1],-0.5,-0.5,-2-angle/100)
+  LD3DView.ScaleGeometry(view3D,object[1],1+angle/1000,1+angle/1000,1+angle/1000)
+  
+  'Display the camera position and direction
+  pos = LDCall.Function2("truncate",LD3DView.GetCameraPosition(view3D),2)
+  dir = LDCall.Function2("truncate",LD3DView.GetCameraDirection(view3D),2)
+  GraphicsWindow.Title = "Position = ("+pos[1]+" , "+pos[2]+" , "+pos[3]+") Direction = "+dir[1]+" , "+dir[2]+" , "+dir[3]+")"
+  
+  Program.Delay(10)
+EndWhile
+
+'Change the input array of numbers to the required number of decimal places
+Sub truncate
+  return = args[1]
+  sigfig = args[2]
+  multiplier = Math.Power(10,sigfig)
+  For i = 1 To Array.GetItemCount(return)
+    return[i] = (1/multiplier)*Math.Round(multiplier*return[i])
+  EndFor
+EndSub
+    

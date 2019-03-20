@@ -1,0 +1,10 @@
+GraphicsWindow.Show()
+star = LDShapes.AddStar(5,19,50)
+Shapes.Move(star,0,0)
+pentagon = LDShapes.AddStar(5,40,50)
+Shapes.Move(pentagon,100,100)
+hexagon = LDShapes.AddStar(3,50,50)
+Shapes.Move(hexagon,200,200)
+septagon = LDShapes.AddRegularPolygon(7,50)
+Shapes.Move(septagon,300,300)
+

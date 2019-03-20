@@ -1,0 +1,80 @@
+'Window sized for 4 by 3 video aspect ratio
+gw = 720
+gh = 640
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+player = LDControls.AddMediaPlayer(gw,gh-100)
+volume = 0.5
+LDControls.MediaPlayerVolume(player,volume)
+
+play = Controls.AddButton("Play",4,gh-40)
+stop = Controls.AddButton("Stop",47,gh-40)
+pause = Controls.AddButton("Pause",90,gh-40)
+volumeDown = Controls.AddButton("Vol-",141,gh-40)
+volumeUp = Controls.AddButton("Vol+",180,gh-40)
+applySpeed = Controls.AddButton("Apply",650,gh-80)
+applyTime = Controls.AddButton("Apply",650,gh-40)
+
+speed = Controls.AddTextBox(485,gh-80)
+time = Controls.AddTextBox(485,gh-40)
+fileInfo = Shapes.AddText("Drop a media file HERE")
+speedInfo = Shapes.AddText("Playback Speed")
+timeInfo = Shapes.AddText("Time ("+")")
+Shapes.Move(fileInfo,10,gh-75)
+Shapes.Move(speedInfo,325,gh-75)
+Shapes.Move(timeInfo,325,gh-35)
+Controls.SetTextBoxText(speed,"1")
+Controls.SetTextBoxText(time,"0")
+LDControls.AllowDrop(fileInfo)
+LDShapes.AnimateOpacity(fileInfo,1000,0)
+
+Controls.ButtonClicked = OnButtonClicked
+LDControls.FileDropped = OnFileDropped
+LDControls.MediaPlayerEnded = OnMediaPlayerEnded
+Timer.Tick = OnTick
+Timer.Interval = 100
+
+Sub OnButtonClicked
+  button = Controls.LastClickedButton
+  If (button = play) Then
+    LDControls.MediaPlayerPlay(player)
+  ElseIf (button = stop) Then
+    LDControls.MediaPlayerStop(player)
+  ElseIf (button = pause) Then
+    LDControls.MediaPlayerPause(player)
+  ElseIf (button = applySpeed) Then
+    LDControls.MediaPlayerSpeed(player,Controls.GetTextBoxText(speed))
+  ElseIf (button = applyTime) Then
+    LDControls.MediaPlayerSeek(player,1000*Controls.GetTextBoxText(time))
+  ElseIf (button = volumeUp) Then
+    volume = volume + 0.1
+    If (volume > 1) Then
+      volume = 1
+    EndIf
+    LDControls.MediaPlayerVolume(player,volume)
+  ElseIf (button = volumeDown) Then
+    volume = volume - 0.1
+    If (volume < 0) Then
+      volume = 0
+    EndIf
+    LDControls.MediaPlayerVolume(player,volume)
+  EndIf
+EndSub 
+
+Sub OnMediaPlayerEnded
+  LDControls.MediaPlayerStop(player)
+EndSub
+
+Sub OnFileDropped
+  If (LDControls.LastDropShape = fileInfo) Then
+    files = LDControls.LastDropFiles
+    LDControls.MediaPlayerLoad(player,files[1])
+    LDControls.MediaPlayerPlay(player)
+  EndIf
+EndSub
+
+Sub OnTick
+  position = 0.1*Math.Round(LDControls.MediaPlayerPosition(player)/100)
+  playTime = 0.1*Math.Round(LDControls.MediaPlayerPlayTime(player)/100)
+  Shapes.SetText(timeInfo, "Time ("+position+" of "+playTime+" sec)")
+EndSub

@@ -1,0 +1,63 @@
+image = ImageList.LoadImage(Program.Directory+"/gear_wheel.png")
+
+wheel1 = Shapes.AddImage(image)
+wheel2 = Shapes.AddImage(image)
+car = Shapes.AddRectangle(200,20)
+
+LDPhysics.LoadImagesAsCircles = "True"
+
+LDPhysics.AddMovingShape(wheel1,10,0,1)
+LDPhysics.AddMovingShape(wheel2,10,0,1)
+LDPhysics.SetPosition(wheel1,180,400,0)
+LDPhysics.SetPosition(wheel2,320,400,0)
+
+LDPhysics.AddMovingShape(car,0.3,0.5,1)
+LDPhysics.SetPosition(car,250,380,0)
+
+LDPhysics.AttachShapesWithRotation(wheel1,car)
+LDPhysics.AttachShapesWithRotation(wheel2,car)
+
+LDPhysics.SetVelocity(car,100,0)
+
+left = 0
+right = 0
+GraphicsWindow.KeyDown = OnKeyDown
+GraphicsWindow.KeyUp = OnKeyUp
+
+mass = LDPhysics.GetMass(car)
+inerta = LDPhysics.GetInertia(wheel1)
+
+While ("True")
+  If (left = 1) Then
+    LDPhysics.SetTorque(wheel1,-50*inerta)
+    LDPhysics.SetTorque(wheel2,-50*inerta)
+    LDPhysics.SetImpulse(car,-mass,-0.1*mass)
+  EndIf
+  If (right = 1) Then
+    LDPhysics.SetTorque(wheel1,50*inerta)
+    LDPhysics.SetTorque(wheel2,50*inerta)
+    LDPhysics.SetImpulse(car,mass,-0.1*mass)
+  EndIf
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile
+
+Sub OnKeyDown
+  k = GraphicsWindow.LastKey
+  If (k = "Left") Then
+    left = 1
+  EndIf
+  If (k = "Right") Then
+    right = 1
+  EndIf
+EndSub
+
+Sub OnKeyUp
+  k = GraphicsWindow.LastKey
+  If (k = "Left") Then
+    left = 0
+  EndIf
+  If (k = "Right") Then
+    right = 0
+  EndIf
+EndSub

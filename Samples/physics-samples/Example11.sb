@@ -1,0 +1,27 @@
+GraphicsWindow.PenWidth = 1
+
+For i = 1 To 50
+  mode = Math.GetRandomNumber(3)
+  If (mode = 1) Then
+    GraphicsWindow.BrushColor = "Yellow"
+    temp = Shapes.AddRectangle(20+Math.GetRandomNumber(20),20+Math.GetRandomNumber(20))
+    LDPhysics.AddMovingShape(temp,0.5,0.8,1)
+    LDPhysics.SetPosition(temp,Math.GetRandomNumber(600),50,0)
+  ElseIf (mode = 2) Then
+    GraphicsWindow.BrushColor = "Red"
+    rad = 20+Math.GetRandomNumber(20)
+    temp = Shapes.AddEllipse(rad,rad)
+    LDPhysics.AddMovingShape(temp,0.5,0.8,1)
+    LDPhysics.SetPosition(temp,Math.GetRandomNumber(600),50,0)
+  Else
+    GraphicsWindow.BrushColor = "Green"
+    temp = Shapes.AddTriangle(0,0,20+Math.GetRandomNumber(20),0,0,2+Math.GetRandomNumber(20))
+    LDPhysics.AddMovingShape(temp,0.5,0.8,1)
+    LDPhysics.SetPosition(temp,Math.GetRandomNumber(600),50,0)
+  EndIf
+EndFor
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile

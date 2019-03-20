@@ -1,0 +1,48 @@
+GraphicsWindow.Width = 700
+GraphicsWindow.PenWidth = 0
+X = 200
+Y = 200
+torque = 100
+CreateCog()
+X = 435
+Y = 200
+torque = -100
+CreateCog()
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile
+
+Sub CreateCog
+  GraphicsWindow.BrushColor = "Silver"
+  cogRadius = 100
+  cogNumTeeth = 12
+  cogToothSize = 25
+  cog = Shapes.AddEllipse(2*cogRadius,2*cogRadius)
+  LDPhysics.AddMovingShape(cog,0.5,0.8,1)
+  
+  For i = 1 To cogNumTeeth
+    angle = (i-1)/cogNumTeeth*2*Math.Pi
+    innerSector = 0.6/cogNumTeeth*2*Math.Pi
+    outerSector = 0.4/cogNumTeeth*2*Math.Pi
+    points[1]["X"] = cogRadius+cogRadius*Math.Cos(angle)
+    points[1]["Y"] = cogRadius+cogRadius*Math.Sin(angle)
+    points[4]["X"] = cogRadius+(cogRadius+cogToothSize)*Math.Cos(angle+innerSector-outerSector)
+    points[4]["Y"] = cogRadius+(cogRadius+cogToothSize)*Math.Sin(angle+innerSector-outerSector)
+    points[3]["X"] = cogRadius+(cogRadius+cogToothSize)*Math.Cos(angle+outerSector)
+    points[3]["Y"] = cogRadius+(cogRadius+cogToothSize)*Math.Sin(angle+outerSector)
+    points[2]["X"] = cogRadius+cogRadius*Math.Cos(angle+innerSector)
+    points[2]["Y"] = cogRadius+cogRadius*Math.Sin(angle+innerSector)
+    tooth = LDShapes.AddPolygon(points)
+    LDPhysics.AddMovingShape(tooth,0.5,0.8,1)
+    LDPhysics.GroupShapes(tooth,cog)
+  EndFor
+  
+  LDPhysics.SetPosition(cog,X,Y,0)
+  spindle = LDPhysics.AddFixedAnchor(X,Y)
+  LDPhysics.AttachShapesWithRotation(spindle,cog)
+  LDPhysics.SetTorque(cog,torque*LDPhysics.GetInertia(cog))
+  GraphicsWindow.BrushColor = "Red"
+  Shapes.Move(Shapes.AddEllipse(6,6),X-3,Y-3)
+EndSub

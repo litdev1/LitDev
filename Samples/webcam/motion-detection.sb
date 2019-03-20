@@ -1,0 +1,48 @@
+GraphicsWindow.Width = 980
+GraphicsWindow.Height = 280
+GraphicsWindow.Title = "Motion Detection"
+movement = Controls.AddTextBox(360,260)
+sensitivity = 20
+img1 = ""
+img2 = ""
+working = 0
+
+graph = LDGraph.AddGraph(700,0,280,280,"Histogram","Value","Frequency")
+webcam = LDWebCam.Start(320,240)
+Shapes.Move(webcam,20,20)
+
+Timer.Interval = 1000
+Timer.Tick = OnTick
+
+Sub OnTick
+  If (working = 0) Then
+    working = 1
+    img1 = LDWebCam.SnapshotToImageList()
+    hist = LDImage.Histogram(img1)
+    LDUtilities.PauseUpdates()
+    LDGraph.DeleteSeries(graph,"Red")
+    LDGraph.AddSeriesLine(graph,"Red",hist[1],"Red")
+    LDGraph.DeleteSeries(graph,"Green")
+    LDGraph.AddSeriesLine(graph,"Green",hist[2],"Green")
+    LDGraph.DeleteSeries(graph,"Blue")
+    LDGraph.AddSeriesLine(graph,"Blue",hist[3],"Blue")
+    LDUtilities.ResumeUpdates()
+    If (img2 <> "") Then
+      img = LDImage.DifferenceImages(img1,img2)
+      stats = LDImage.Statistics(img)
+      'TextWindow.WriteLine(stats["STD"][1]+" , "+stats["STD"][2]+" , "+stats["STD"][3])
+      LDImage.Multiply(img,10,10,10)
+      GraphicsWindow.DrawResizedImage(img,360,20,320,240)
+      total = Math.Floor(stats["Mean"][1]+stats["Mean"][2]+stats["Mean"][3])
+      Controls.SetTextBoxText(movement,total)
+      If (total > sensitivity) Then
+        LDImage.Save(img1,Program.Directory+"\movement.jpg")
+        Sound.PlayClickAndWait()
+      EndIf
+    EndIf
+    LDImage.Remove(img2)
+    img2 = img1
+    LDImage.Remove(img)
+    working = 0
+  EndIf
+EndSub

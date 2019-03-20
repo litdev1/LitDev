@@ -1,0 +1,36 @@
+GraphicsWindow.BackgroundColor = "DarkGray"
+GraphicsWindow.DrawLine(0,GraphicsWindow.Height-30,GraphicsWindow.Width,GraphicsWindow.Height-30)
+GraphicsWindow.FontSize = 40
+GraphicsWindow.DrawText(75,100,"Click to do an explosion")
+
+LDShapes.AnimationInterval = 25 ' For explosion
+
+'man = LDShapes.AddAnimatedGif(Program.Directory+"\lilman.gif","True")
+man = LDShapes.AddAnimatedGif("http://madsenworld.dk/anigif/human/lilman.gif","True")
+LDShapes.AnimationPause(man)
+Shapes.Zoom(man,2,4)
+
+explosion = LDShapes.AddAnimatedImage(Program.Directory+"\anim.png","False",4,4)
+Shapes.HideShape(explosion)
+
+GraphicsWindow.MouseDown = OnMouseDown
+x = -60
+While ("True")
+  For i = 1 To LDShapes.AnimationCount(man)
+    LDShapes.AnimationSet(man,i)
+    Shapes.Move(man,x,GraphicsWindow.Height-100)
+    x = x+5
+    If (x > GraphicsWindow.Width) Then
+      x = -60
+    EndIf
+    Program.Delay(50)
+  EndFor
+EndWhile
+
+Sub OnMouseDown
+  Shapes.ShowShape(explosion)
+  LDShapes.Centre(explosion,GraphicsWindow.MouseX,GraphicsWindow.MouseY)
+  LDShapes.AnimationSet(explosion,1)
+  x = -60
+EndSub
+  

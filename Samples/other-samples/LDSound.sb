@@ -1,0 +1,56 @@
+start = Controls.AddButton("Start",10,10)
+pause = Controls.AddButton("Pause",10,40)
+resume = Controls.AddButton("Resume",10,70)
+stop = Controls.AddButton("Stop",10,100)
+play = Controls.AddButton("Play",10,130)
+Controls.ButtonClicked = OnButtonClicked
+
+GraphicsWindow.BrushColor = "Red"
+GraphicsWindow.PenWidth = 0
+recIcon = Shapes.AddEllipse(20,20)
+Shapes.HideShape(recIcon)
+Shapes.Move(recIcon,GraphicsWindow.Width-30,10)
+LDShapes.AnimateOpacity(recIcon,1000,0)
+
+GraphicsWindow.BrushColor = "Green"
+playIcon = Shapes.AddTriangle(0,0,0,20,20,10)
+Shapes.HideShape(playIcon)
+Shapes.Move(playIcon,GraphicsWindow.Width-30,10)
+LDShapes.AnimateOpacity(playIcon,1000,0)
+
+recording = 0
+paused = 0
+wavFile = Program.Directory+"\LDSound.wav"
+
+While ("True")
+  If (recording = 0 And clicked = start) Then
+    recording = 1
+    paused = 0
+    LDShapes.AnimateOpacity(recIcon,1000,0)
+    Shapes.ShowShape(recIcon)
+    LDSound.Start()
+  ElseIf (recording = 1 And paused = 0 And clicked = pause) Then
+    paused = 1
+    LDShapes.AnimateOpacity(recIcon,0,0)
+    LDSound.Pause()
+  ElseIf (recording = 1 And paused = 1 And clicked = resume) Then
+    paused = 0
+    LDShapes.AnimateOpacity(recIcon,1000,0)
+    LDSound.Resume()
+  ElseIf (recording = 1 And clicked = stop) Then
+    paused = 0
+    recording = 0
+    Shapes.HideShape(recIcon)
+    LDSound.Stop(wavFile)
+  ElseIf (recording = 0 And clicked = play) Then
+    Shapes.ShowShape(playIcon)
+    Sound.PlayAndWait(wavFile)
+    Shapes.HideShape(playIcon)
+  EndIf
+  clicked = ""
+  Program.Delay(20)
+EndWhile
+
+Sub OnButtonClicked
+  clicked = Controls.LastClickedButton
+EndSub

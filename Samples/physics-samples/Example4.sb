@@ -1,0 +1,15 @@
+For i = 1 To 20
+  block[i] = Shapes.AddRectangle(20,20)
+  LDPhysics.AddMovingShape(block[i],0.3,0.8,1)
+  LDPhysics.SetPosition(block[i],500,GraphicsWindow.Height-20*i+10,0)
+EndFor
+
+bullet = Shapes.AddEllipse(8,8)
+LDPhysics.AddMovingShape(bullet,0,1,1)
+LDPhysics.SetPosition(bullet,50,200,0)
+LDPhysics.SetVelocity(bullet,1000,0)
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile

@@ -1,0 +1,191 @@
+'Create a largish GrapicsWindow
+GraphicsWindow.Width = 900
+GraphicsWindow.Height = 700
+GraphicsWindow.Top = 0
+GraphicsWindow.Left = 0
+GraphicsWindow.PenWidth = 1
+GraphicsWindow.BackgroundColor = "lightBlue"
+
+LDPhysics.SetBoundaries(0,GraphicsWindow.Width,-1,GraphicsWindow.height) 'No top boundary
+
+'Creat a static anchor near the top to hang the text off
+anchor1 = LDPhysics.AddFixedAnchor(300,50)
+
+'Create the text and position it below the anchor
+GraphicsWindow.FontSize = 20
+textShape = Shapes.AddText("Hello World")
+LDPhysics.AddMovingShape(textShape,0.5,0.5,0.5) 'Reduced density for the large text shape
+LDPhysics.SetPosition(textShape,150,50,0)
+
+'Create an anchor just above the text and link it to the text and to the top static anchor using a rope
+anchor2 = LDPhysics.AddMovingAnchor(150,35)
+LDPhysics.AttachShapes(textShape,anchor2)
+LDPhysics.AddRope(anchor1,anchor2)
+
+'Dangle a chain off the bottom left of the text
+anchor1 = LDPhysics.AddMovingAnchor(100,60)
+LDPhysics.AttachShapes(textShape,anchor1)
+anchor2 = LDPhysics.AddMovingAnchor(100,280)
+LDPhysics.AddChain(anchor1,anchor2)
+
+'Dangle a chain off the bottom right of the text
+anchor1 = LDPhysics.AddMovingAnchor(200,60)
+LDPhysics.AttachShapes(textShape,anchor1)
+anchor2 = LDPhysics.AddMovingAnchor(200,250)
+LDPhysics.AddChain(anchor1,anchor2)
+
+'Create rope hanging near the top right
+anchor1 = LDPhysics.AddFixedAnchor(700,50)
+anchor2 = LDPhysics.AddMovingAnchor(700,300)
+LDPhysics.RopeColour = LDColours.Bisque
+LDPhysics.AddRope(anchor1,anchor2)
+
+'Create some slopes near the right edge
+slope = Shapes.AddRectangle(150,5)
+LDPhysics.AddFixedShape(slope,0.3,0.5)
+LDPhysics.SetPosition(slope,600,300,10)
+slope = Shapes.AddRectangle(150,5)
+LDPhysics.AddFixedShape(slope,0.3,0.5)
+LDPhysics.SetPosition(slope,750,400,-10)
+slope = Shapes.AddRectangle(150,5)
+LDPhysics.AddFixedShape(slope,0.3,0.5)
+LDPhysics.SetPosition(slope,600,500,10)
+slope = Shapes.AddRectangle(150,5)
+LDPhysics.AddFixedShape(slope,0.3,0.5)
+LDPhysics.SetPosition(slope,750,600,-10)
+
+'Add a fixed slope that we will rotate and move with the arrow keys
+slope = Shapes.AddRectangle(200,10)
+LDPhysics.AddFixedShape(slope,0.3,0.5)
+angle = 30
+posX = 300
+posY = 500
+LDPhysics.SetPosition(slope,posX,posY,angle)
+
+'Platform for boxes
+a = Shapes.AddRectangle(40,40)
+LDPhysics.AddFixedShape(a,0.3,0.5)
+LDPhysics.SetPosition(a,480,GraphicsWindow.Height-200+20,0)
+
+'Create some small balls and boxes to move (the shapes are indexed in an array so we can manually move them later)
+GraphicsWindow.BrushColor = "Violet"
+For i = 1 To 10
+  ball[i] = Shapes.AddEllipse(20,20)
+  Shapes.Move(ball[i],600,GraphicsWindow.Height-i*25-500)
+  LDPhysics.AddMovingShape(ball[i],0.5,0.8,1)
+EndFor
+ballMass = LDPhysics.GetMass(ball[1])
+GraphicsWindow.BrushColor = "Yellow"
+For i = 1 To 20
+  block[i] = Shapes.AddRectangle(15,15)
+  LDPhysics.AddMovingShape(block[i],0.5,0.5,1)
+  LDPhysics.SetPosition(block[i],480,GraphicsWindow.Height-200+7.5-i*15,0)
+EndFor
+
+'Do a step and pause - to see the setup
+LDPhysics.doTimestep()
+Program.Delay(1000)
+
+' Use the timer to reset the boxes and fire a new bullet
+Timer.Interval = 10000
+Timer.Tick = OnTimer
+tick = 1
+
+'Initialise varibles for the key controlled movement
+rotate = 0
+moveX = 0
+moveY = 0
+leftKey = 0
+rightKey = 0
+upKey = 0
+downKey = 0
+zKey = 0
+xKey = 0
+GraphicsWindow.KeyDown = OnKeyDown
+GraphicsWindow.KeyUp = OnKeyUp
+
+'The main game loop
+While ("True")
+  ' Rotate or move the slope
+  rotate = zKey+xKey
+  moveX = leftKey+rightKey
+  moveY = upKey+downKey
+  If (rotate <> 0 Or moveX <> 0 Or moveY <> 0) Then
+    angle = angle + 2*rotate
+    posX = posX + 2*moveX
+    posY = posY + 2*moveY
+    LDPhysics.SetPosition(slope,posX,posY,angle)
+  EndIf
+  '  Every timer tick, reset the boxes and create a new fast moving circle and fire it into the screen and impulse (kick) the circles or move then to their start position
+  If (tick = 1) Then
+    LDPhysics.SetBoundaries(0,GraphicsWindow.Width,-1,GraphicsWindow.height) ' If the screen is resised (e.g. full screen), then update the boundaries - no top boundary
+    For i = 1 To Array.GetItemCount(block)
+      LDPhysics.SetPosition(block[i],480,GraphicsWindow.Height-200+7.5-i*15,0)
+      LDPhysics.SetVelocity(block[i],0,0)
+      LDPhysics.SetRotation(block[i],0)
+    EndFor
+    For i = 1 To Array.GetItemCount(ball)
+      pos = LDPhysics.GetPosition(ball[i])
+      If (pos[2] > GraphicsWindow.Height-20) Then
+        If (Math.GetRandomNumber(2) = 1) Then
+          LDPhysics.SetPosition(ball[i],610,GraphicsWindow.Height-i*25-500,0)
+        Else
+          LDPhysics.SetImpulse(ball[i],ballMass*10*(101-Math.GetRandomNumber(201)),-ballMass*10*Math.GetRandomNumber(100))
+        EndIf
+      EndIf
+    EndFor
+    'A new bullet
+    GraphicsWindow.BrushColor = "Red"
+    LDPhysics.RemoveShape(bullet)
+    bullet = Shapes.AddEllipse(10,10)
+    Shapes.Move(bullet,GraphicsWindow.Width-10,0)
+    LDPhysics.AddMovingShape(bullet,0.1,0.8,10.0) 'The increased density gives the bullet more kick
+    LDPhysics.SetBullet(bullet)
+    LDPhysics.SetVelocity(bullet, -(200 + Math.GetRandomNumber(600)), 200 + Math.GetRandomNumber(800))
+    tick = 0
+  EndIf
+  ' Do the physics simulation
+  LDPhysics.doTimestep()
+  Program.Delay(20) ' A short delay in the game loop
+EndWhile
+
+'Set flag for timer tick
+Sub OnTimer
+  tick = 1
+EndSub
+
+'Set flag to rotate and move the slope
+Sub OnKeyDown
+  key = GraphicsWindow.LastKey
+  If (key = "Left") Then
+    leftKey = -1
+  ElseIf (key = "Right") Then
+    rightKey = 1
+  ElseIf (key = "Up") Then
+    upKey = -1
+  ElseIf (key = "Down") Then
+    downKey = 1
+  ElseIf (key = "Z") Then
+    zKey = -1
+  ElseIf (key = "X") Then
+    xKey = 1
+  EndIf
+EndSub
+
+'Rest the slope movement flags on key up
+Sub OnKeyUp
+  key = GraphicsWindow.LastKey
+  If (key = "Left") Then
+    leftKey = 0
+  ElseIf (key = "Right") Then
+    rightKey = 0
+  ElseIf (key = "Up") Then
+    upKey = 0
+  ElseIf (key = "Down") Then
+    downKey = 0
+  ElseIf (key = "Z") Then
+    zKey = 0
+  ElseIf (key = "X") Then
+    xKey = 0
+  EndIf
+EndSub

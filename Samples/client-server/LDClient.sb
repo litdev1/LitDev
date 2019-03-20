@@ -1,0 +1,167 @@
+'Manual control version
+
+'Assign events
+LDClient.ServerMessage = OnServerMessage
+GraphicsWindow.KeyDown = OnKeyDown
+GraphicsWindow.KeyUp = OnKeyUp
+LDGraphicsWindow.ExitOnClose = "False"
+LDGraphicsWindow.Closing = OnClosing
+
+'Read in the server connection string (may need to read it from a network file or enter manually)
+server = File.ReadLine(Program.Directory+"\server.txt",1)
+LDClient.Connect(server,"False")
+Program.Delay(100)
+
+Initialise()
+
+'==================================================
+'GAME LOOP
+'==================================================
+While ("True")
+  start = Clock.ElapsedMilliseconds
+  
+  ProcessCommands()
+  UpdateGame()
+  SendCommands()
+  
+  delay = 50-(Clock.ElapsedMilliseconds-start)
+  If (delay > 0) Then
+    GraphicsWindow.Title = thisClient + " "+delay
+    Program.Delay(delay)
+  EndIf
+EndWhile
+
+'==================================================
+'EVENT SUBROUTINES
+'==================================================
+Sub OnServerMessage
+  LDQueue.Enqueue("MSG",LDClient.LastServerMessage)
+EndSub
+
+Sub OnKeyDown
+  key = GraphicsWindow.LastKey
+  keys[key] = "True"
+EndSub
+
+Sub OnKeyUp
+  key = GraphicsWindow.LastKey
+  keys[key] = "False"
+EndSub
+
+Sub OnClosing
+  EndClient()
+EndSub
+
+'==================================================
+'SUBROUTINES
+'==================================================
+Sub Initialise
+  gw = 600
+  gh = 600
+  GraphicsWindow.Width = gw
+  GraphicsWindow.Height = gh
+  velX = 0
+  velY = 0
+  radius = 20
+EndSub
+
+Sub ProcessCommands
+  While (LDQueue.GetCount("MSG") > 0)
+    message = LDQueue.Dequeue("MSG")
+    'TextWindow.WriteLine(message)
+    pos = Text.GetIndexOf(message,":")
+    client = Text.GetSubText(message,1,pos-1)
+    message = Text.GetSubTextToEnd(message,pos+1)
+    If (message = "END") Then
+      EndClient()
+    ElseIf (message = "CONNECTED") Then
+      If (thisClient = "") Then
+        thisClient = client
+        GraphicsWindow.Title = thisClient
+        allClientData[client]["X"] = 100+Math.GetRandomNumber(gw-200)
+        allClientData[client]["Y"] = 100+Math.GetRandomNumber(gh-200)
+        allClientData[client]["Col"] = GraphicsWindow.GetRandomColor()
+      EndIf
+      update = "True" 'Send this client to existing or joinging clients
+    ElseIf (message = "DISCONNECTED") Then
+      Shapes.Remove(blocks[client])
+      allClientData[client] = ""
+    ElseIf (client <> thisClient) Then
+      allClientData[client] = message
+    EndIf
+  EndWhile
+EndSub
+
+Sub UpdateGame
+  'Check for end
+  If (keys["Escape"]) Then
+    EndClient()
+  EndIf
+  'Update this client
+  clientData = allClientData[thisClient]
+  If (keys["Left"]) Then
+    velX = velX-0.1
+  ElseIf (keys["Right"]) Then
+    velX = velX+0.1
+  EndIf
+  If (keys["Up"]) Then
+    velY = velY-0.1
+  ElseIf (keys["Down"]) Then
+    velY = velY+0.1
+  EndIf
+  If (keys["Space"]) Then
+    velX = 0
+    velY = 0
+  EndIf
+  clientData["X"] = clientData["X"]+velX
+  clientData["Y"] = clientData["Y"]+velY
+  If (clientData["X"] < radius) Then
+    velX = -velX
+    clientData["X"] = radius
+  EndIf
+  If (clientData["X"] > gw-radius) Then
+    velX = -velX
+    clientData["X"] = gw-radius
+  EndIf
+  If (clientData["Y"] < radius) Then
+    velY = -velY
+    clientData["Y"] = radius
+  EndIf
+  If (clientData["Y"] > gh-radius) Then
+    velY = -velY
+    clientData["Y"] = gh-radius
+  EndIf
+  'Update to other clients if anything changed
+  If (thisClient <> "" And allClientData[thisClient] <> clientData) Then
+    allClientData[thisClient] = clientData
+    update = "True"
+  EndIf
+  
+  'Move all clients
+  clients = Array.GetAllIndices(allClientData)
+  For i = 1 To Array.GetItemCount(clients)
+    client = clients[i]
+    clientData = allClientData[client]
+    If (blocks[client] = "") Then
+      GraphicsWindow.BrushColor = "Black"
+      blocks[client] = Shapes.AddText(Text.GetSubTextToEnd(client,7))
+      GraphicsWindow.BrushColor = clientData["Col"]
+      Shapes.SetOpacity(blocks[client],75)
+      Controls.SetSize(blocks[client],2*radius,2*radius)
+      LDShapes.BrushColour(blocks[client],clientData["Col"])
+    EndIf
+    Shapes.Move(blocks[client],clientData["X"]-radius,clientData["Y"]-radius)
+  EndFor
+EndSub
+
+Sub SendCommands
+  If (update) Then
+    LDClient.SendMessage(allClientData[thisClient])
+    update = "False"
+  EndIf
+EndSub
+
+Sub EndClient
+  LDClient.Disconnect()
+  Program.End()
+EndSub

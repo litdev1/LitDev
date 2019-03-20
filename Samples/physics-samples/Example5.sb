@@ -1,0 +1,40 @@
+For i = 1 To 20
+  block[i] = Shapes.AddRectangle(20,20)
+  LDPhysics.AddMovingShape(block[i],0.3,0.8,1)
+  LDPhysics.SetPosition(block[i],500,GraphicsWindow.Height-20*i+10,0)
+EndFor
+
+bullet = Shapes.AddEllipse(8,8)
+LDPhysics.AddMovingShape(bullet,0,1,1)
+LDPhysics.SetPosition(bullet,50,200,0)
+LDPhysics.SetVelocity(bullet,1000,0)
+
+leftMB = 0
+rightMB = 0
+GraphicsWindow.MouseDown = OnMouseDown
+
+While ("True")
+  If (leftMB = 1) Then
+    LDPhysics.SetPosition(bullet,50,200,0)
+    LDPhysics.SetVelocity(bullet,1000,Math.GetRandomNumber(101)-51)
+    leftMB = 0
+  EndIf
+  If (rightMB = 1) Then
+    For i = 1 To 20
+      LDPhysics.SetPosition(block[i],500,GraphicsWindow.Height-20*i+10,0)
+      LDPhysics.SetVelocity(block[i],0,0)
+      LDPhysics.SetRotation(block[i],0)
+    EndFor
+    rightMB = 0
+  EndIf
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile
+
+Sub OnMouseDown
+  If (Mouse.IsLeftButtonDown) Then
+    leftMB = 1
+  ElseIf (Mouse.IsRightButtonDown) Then
+    rightMB = 1
+  EndIf
+EndSub

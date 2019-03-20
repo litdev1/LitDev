@@ -1,0 +1,49 @@
+GraphicsWindow.Show()
+TextWindow.Show()
+GraphicsWindow.Left = 10
+TextWindow.Left = 50+GraphicsWindow.Width
+folder = Program.Directory
+
+'A complex(ish) C# source for testing
+source = File.ReadContents(folder+"\code1.cs")
+'Additional assemblies not required (these are auto-loaded), but might look like those below
+'assemblies[1] = "C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.Windows.Forms.dll"
+'assemblies[2] = "C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.Drawing.dll"
+'assemblies[3] = "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.0\WindowsBase.dll"
+'assemblies[4] = "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.0\PresentationCore.dll"
+'assemblies[5] = "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.0\PresentationFramework.dll"
+LDInline.IncludeCS(source,"",folder+"\codeCS.dll") 'Create the dll + xml
+'LDInline.LoadDLL(folder+"\codeCS.dll") 'Load the dll directly
+
+'A very simple VB source
+source = File.ReadContents(folder+"\code1.vb")
+LDInline.IncludeVB(source,"","") 'Create dll in memory
+'LDInline.IncludeVB(source,"",folder+"\codeVB.dll") 'Create the dll + xml
+
+'Test some basic properties and methods
+TextWindow.WriteLine(LDInline.Call("Add","1=12;2=15")) 
+TextWindow.WriteLine(LDInline.Call("Multiply","1=12;2=15"))
+TextWindow.WriteLine(LDInline.Call("TestExtensionCS.Subtract","1=12;2=15")) 'Fully qualified name
+TextWindow.WriteLine(LDInline.Get("Date"))
+LDInline.Call("TestBeep","")
+LDInline.Set("Store",3.14)
+TextWindow.WriteLine(LDInline.Get("Store"))
+
+'Test a more complex method
+args[1] = folder
+args[2] = "cs"
+result = LDInline.Call("GetFile",args)
+TextWindow.WriteLine(result)
+rtb = LDControls.AddRichTextBox(GraphicsWindow.Width,GraphicsWindow.Height)
+LDControls.RichTextBoxFontForeground = "Black"
+LDControls.RichTextBoxFontBold = "True"
+LDControls.RichTextBoxFontSize = 12
+LDControls.RichTextBoxDefault(rtb)
+LDControls.RichTextBoxSetText(rtb, File.ReadContents(result), "False")
+
+'Test event handling - Mouse Wheel in GW
+LDInline.Event("MouseWheel","OnMouseWheel")
+
+Sub OnMouseWheel
+  TextWindow.WriteLine("Delta = "+LDInline.Get("Delta"))
+EndSub

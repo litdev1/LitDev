@@ -1,0 +1,40 @@
+'Set the treeview data, the first index is the item number and the second is its parent (0 is top level)
+tree[1][0] = "Level 1"
+tree[2][1] = "Level 1 1"
+tree[3][1] = "Level 1 2"
+tree[4][3] = "Level 1 2 1"
+tree[5][0] = "Level 2"
+tree[6][5] = "Level 2 1"
+tree[7][5] = "Level 2 2"
+tree[8][0] = "Level 3"
+
+'Create the treeview
+GraphicsWindow.Show()
+treeView = LDControls.AddTreeView(tree,200,200)
+Shapes.Move(treeView,50,50)
+
+'Add a textBox to show the current selection
+item = Controls.AddTextBox(50,260)
+
+'Set up the initial view
+LDControls.TreeViewItemChanged = OnTreeViewItemChanged 'Register selection event
+LDControls.TreeViewSelect(treeView,5) 'Select the second top level item "Level 2' - Note the OnTreeViewItemChanged is also fired with this action
+
+'Add buttons to toggle expand
+expand = Controls.AddButton("Expand All",50,20)
+collapse = Controls.AddButton("Collapse All",150,20)
+Controls.ButtonClicked = OnButtonClicked
+
+Sub OnTreeViewItemChanged
+  index = Array.GetAllIndices(tree[LDControls.LastTreeViewIndex]) ' To get the second index (parent) for this item label
+  Controls.SetTextBoxText(item,tree[LDControls.LastTreeViewIndex][index[1]])
+EndSub
+
+Sub OnButtonClicked
+  If (Controls.LastClickedButton = expand) Then
+    LDControls.TreeViewExpand(treeview,0,"True","True")
+  ElseIf (Controls.LastClickedButton = collapse) Then
+    LDControls.TreeViewExpand(treeview,0,"False","True")
+  EndIf
+EndSub
+    

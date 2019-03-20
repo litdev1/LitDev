@@ -1,0 +1,33 @@
+GraphicsWindow.BrushColor = "Red"
+
+For i = 1 To 3
+  group1[i] = LDControls.AddRadioButton("Button "+i,"group1")
+  Shapes.Move(group1[i],50,50*i)
+EndFor
+
+For i = 1 To 5
+  group2[i] = LDControls.AddRadioButton("Button "+i,"group2")
+  Shapes.Move(group2[i],150,50*i)
+EndFor
+
+LDControls.RadioButtonSet(group1[2])
+LDControls.RadioButtonSet(group2[2])
+LDControls.RadioButtonClicked = OnRadioButtonClicked
+
+Sub OnRadioButtonClicked
+  radioButton = LDControls.LastRadioButton
+  radioButtonGroup = LDControls.LastRadioButtonGroup
+  If (radioButtonGroup = "group1") Then
+    For i = 1 To Array.GetItemCount(group1)
+      If (radioButton = group1[i]) Then
+        TextWindow.WriteLine("Radio Button "+i+" set in "+radioButtonGroup)
+      EndIf
+    EndFor
+  ElseIf (radioButtonGroup = "group2") Then
+    For i = 1 To Array.GetItemCount(group2)
+      If (radioButton = group2[i]) Then
+        TextWindow.WriteLine("Radio Button "+i+" set in "+radioButtonGroup)
+      EndIf
+    EndFor
+  EndIf
+EndSub

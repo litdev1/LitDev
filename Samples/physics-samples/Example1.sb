@@ -1,0 +1,8 @@
+ball = Shapes.AddEllipse(50,50)
+LDPhysics.AddMovingShape(ball,0,1,1)
+LDPhysics.SetPosition(ball,200,100,0)
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile

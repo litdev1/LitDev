@@ -1,0 +1,200 @@
+gw = 600
+gh = 600
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+GraphicsWindow.Title = "3D Rubic Cube"
+GraphicsWindow.BackgroundColor = "Gray"
+view = LD3DView.AddView(gw,gh,"True")
+LD3DView.ResetCamera(view,-5,-5,-5,1,1,1,0,1,0)
+LD3DView.AutoControl2(10,1)
+LD3DView.AddAmbientLight(view,"#FFFFFF")
+image = ImageList.LoadImage("http://litdev.co.uk/game_images/rubic.png")
+'image = ImageList.LoadImage(Program.Directory+"/rubic.png")
+col[1] = "Red"
+col[2] = "Green"
+col[3] = "Blue"
+col[4] = "Yellow"
+col[5] = "White"
+col[6] = "Cyan"
+
+numBit = 0
+'Outward faces
+For iFace = 1 To 6
+  For i = 1 To 3
+    For j = 1 To 3
+      i1 = i-2.5
+      i2 = i-1.5
+      j1 = j-2.5
+      j2 = j-1.5
+      k1 = -1.5
+      k2 = 1.5
+      If (iFace = 1) Then
+        p0 = k1+":"+i1+":"+j1
+        p1 = k1+":"+i2+":"+j1
+        p2 = k1+":"+i1+":"+j2
+        p3 = k1+":"+i2+":"+j2
+        x = 1
+        y = i
+        z = j
+      ElseIf (iFace = 2) Then
+        p0 = k2+":"+i1+":"+j2
+        p1 = k2+":"+i2+":"+j2
+        p2 = k2+":"+i1+":"+j1
+        p3 = k2+":"+i2+":"+j1
+        x = 3
+        y = i
+        z = j
+      ElseIf (iFace = 3) Then
+        p0 = j1+":"+k1+":"+i1
+        p1 = j1+":"+k1+":"+i2
+        p2 = j2+":"+k1+":"+i1
+        p3 = j2+":"+k1+":"+i2
+        x = j
+        y = 1
+        z = i
+      ElseIf (iFace = 4) Then
+        p0 = j2+":"+k2+":"+i1
+        p1 = j2+":"+k2+":"+i2
+        p2 = j1+":"+k2+":"+i1
+        p3 = j1+":"+k2+":"+i2
+        x = j
+        y = 3
+        z = i
+      ElseIf (iFace = 5) Then
+        p0 = i1+":"+j1+":"+k1
+        p1 = i2+":"+j1+":"+k1
+        p2 = i1+":"+j2+":"+k1
+        p3 = i2+":"+j2+":"+k1
+        x = i
+        y = j
+        z = 1
+      ElseIf (iFace = 6) Then
+        p0 = i1+":"+j2+":"+k2
+        p1 = i2+":"+j2+":"+k2
+        p2 = i1+":"+j1+":"+k2
+        p3 = i2+":"+j1+":"+k2
+        x = i
+        y = j
+        z = 3
+      EndIf
+      points = p0+" "+p1+" "+p2+" "+p3
+      
+      numBit = numBit+1
+      bitX[numBit] = x
+      bitY[numBit] = y
+      bitZ[numBit] = z
+      bitCol[numBit] = col[iFace]
+      bit[numBit] = LD3DView.AddGeometry(view,points,"0:2:1 1:2:3","",bitCol[numBit],"D")
+      LD3DView.AddImage(view,bit[numBit],"0:0 1:0 0:1 1:1",image,"D")
+      bitPos[numBit] = LD3DView.GetPosition(view,bit[numBit])
+      LD3DView.SetCentre(view,bit[numBit],0,0,0,"R1R2")
+    EndFor
+  EndFor
+EndFor
+
+'Interior colour cubes
+For x = 1 To 3
+  For y = 1 To 3
+    For z = 1 To 3
+      numBit = numBit+1
+      bitX[numBit] = x
+      bitY[numBit] = y
+      bitZ[numBit] = z
+      bit[numBit] = LD3DView.AddCube(view,1,"Black","E")
+      LD3DView.ReverseNormals(view,bit[numBit])
+      LD3DView.TranslateGeometry(view,bit[numBit],x-2,y-2,z-2)
+      bitPos[numBit] = LD3DView.GetPosition(view,bit[numBit])
+      LD3DView.SetCentre(view,bit[numBit],2-x,2-y,2-z,"R2")
+    EndFor
+  EndFor
+EndFor
+
+time = 0.2
+repeat = 1
+
+numTurn = 50
+For turn = 1 To numTurn
+  turnData[turn]["dir"] = Math.GetRandomNumber(3)
+  turnData[turn]["slice"] = Math.GetRandomNumber(3)
+  turnData[turn]["angle"] = 90*(Math.GetRandomNumber(7)-4)
+EndFor
+
+reverse = "False"
+DoTurns()
+Program.Delay(1000)
+reverse = "True"
+DoTurns()
+
+Sub DoTurns
+  For turn = 1 To numTurn
+    xVal = 0
+    yVal = 0
+    zVal = 0
+    If (reverse) Then
+      iTurn = numTurn+1-turn
+      angle = -turnData[iTurn]["angle"]
+    Else
+      iTurn = turn
+      angle = turnData[iTurn]["angle"]
+    EndIf
+    If (turnData[iTurn]["dir"] = 1) Then
+      xVal = turnData[iTurn]["slice"]
+    ElseIf (turnData[iTurn]["dir"] = 2) Then
+      yVal = turnData[iTurn]["slice"]
+    ElseIf (turnData[iTurn]["dir"] = 3) Then
+      zVal = turnData[iTurn]["slice"]
+    EndIf
+    Rotate()
+  EndFor
+EndSub
+
+Sub Rotate
+  LDList.Clear("setX") 'Use a list to be fast and start all rotations at the same time as much as possible
+  LDList.Clear("setY")
+  LDList.Clear("setZ")
+  For i = 1 To numBit
+    If (bitX[i] = xVal) Then
+      LDList.Add("setX",bit[i])
+    ElseIf (bitY[i] = yVal) Then
+      LDList.Add("setY",bit[i])
+    ElseIf (bitZ[i] = zVal) Then
+      LDList.Add("setZ",bit[i])
+    EndIf
+  EndFor
+  duration = time*Math.Abs(angle/90)
+  For i = 1 To LDList.Count("setX")
+    LD3DView.AnimateRotation(view,LDList.GetAt("setX",i),1,0,0,0,angle,duration,repeat)
+  EndFor
+  For i = 1 To LDList.Count("setY")
+    LD3DView.AnimateRotation(view,LDList.GetAt("setY",i),0,1,0,0,angle,duration,repeat)
+  EndFor
+  For i = 1 To LDList.Count("setZ")
+    LD3DView.AnimateRotation(view,LDList.GetAt("setZ",i),0,0,1,0,angle,duration,repeat)
+  EndFor
+  
+  Program.Delay(1010*duration)
+  
+  LDGraphicsWindow.PauseUpdates()
+  lastCol = bitCol
+  For i = 1 To numBit
+    If (bitCol[i] <> "" And (bitX[i] = xVal Or bitY[i] = yVal Or bitZ[i] = zVal)) Then
+      pos1 = bitPos[i]
+      For j = 1 To numBit
+        If (bitCol[j] <> "" And (bitX[j] = xVal Or bitY[j] = yVal Or bitZ[j] = zVal)) Then
+          pos2 = LD3DView.GetPosition(view,bit[j])
+          distSquared = (pos1[1]-pos2[1])*(pos1[1]-pos2[1]) + (pos1[2]-pos2[2])*(pos1[2]-pos2[2]) + (pos1[3]-pos2[3])*(pos1[3]-pos2[3])
+          If (distSquared < 0.1) Then 'bit j is now where i started
+            bitCol[i] = lastCol[j]
+            LD3DView.ResetMaterial(view,bit[i],bitCol[i],"D")
+            LD3DView.AddImage(view,bit[i],"0:0 1:0 0:1 1:1",image,"D")
+          EndIf
+        EndIf
+      EndFor
+    EndIf
+  EndFor
+  For i = 1 To numBit
+    LD3DView.RotateGeometry2(view,bit[i],1,0,0,0)
+  EndFor
+  Program.Delay(10)
+  LDGraphicsWindow.ResumeUpdates()
+EndSub

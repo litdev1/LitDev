@@ -1,0 +1,24 @@
+count = LDIOWarrior.Initialise()
+TextWindow.WriteLine(count+" Devices Found")
+
+If (count > 0) Then
+  TextWindow.WriteLine("Name "+LDIOWarrior.GetName(1))
+  TextWindow.WriteLine("PID "+LDIOWarrior.GetPID(1))
+  TextWindow.WriteLine("Report Size "+LDIOWarrior.GetReportSize(1))
+  TextWindow.WriteLine("Special Report Size "+LDIOWarrior.GetSpecialReportSize(1))
+  TextWindow.WriteLine("SerialNumber "+LDIOWarrior.GetSerialNumber(1))
+  TextWindow.WriteLine("Version "+LDIOWarrior.GetVersion(1))
+  
+  data = ""
+  For i = 1 To LDIOWarrior.GetReportSize(1)
+    data[i] = 0
+  EndFor
+  
+  For i = 0 To 255
+    data[2] = i
+    result = LDIOWarrior.Write(1,0,data)
+    Program.Delay(10)
+  EndFor
+EndIf
+
+LDIOWarrior.Detatch()

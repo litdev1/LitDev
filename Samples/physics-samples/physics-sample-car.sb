@@ -1,0 +1,154 @@
+'Load image for wheels and set GraphicsWindow - the ramps need a display around 1600 x 900
+image = ImageList.LoadImage(Program.Directory+"/gear_wheel.png")
+GraphicsWindow.PenWidth = 0
+LDGraphicsWindow.State = 2
+
+'No top bundary so all the balls can fall properly into car
+LDphysics.SetBoundaries(0,GraphicsWindow.Width,-1,GraphicsWindow.Height)
+
+'The wheel images will be circles in the physics engine
+LDPhysics.LoadImagesAsCircles = "True"
+
+'Create the car (high friction wheels)
+
+wheel1 = Shapes.AddImage(image)
+wheel2 = Shapes.AddImage(image)
+car = Shapes.AddRectangle(120,10)
+
+LDPhysics.AddMovingShape(wheel1,10,0,1)
+LDPhysics.AddMovingShape(wheel2,10,0,1)
+LDPhysics.SetPosition(wheel1,65,100,0)
+LDPhysics.SetPosition(wheel2,235,100,0)
+
+LDPhysics.AddMovingShape(car,0.2,0.3,1)
+LDPhysics.SetPosition(car,150,100,0)
+
+stop = Shapes.AddRectangle(10,20)
+LDPhysics.AddMovingShape(stop,0.2,0.3,1)
+LDPhysics.SetPosition(stop,205,85,0)
+LDPhysics.GroupShapes(car,stop)
+stop = Shapes.AddRectangle(10,20)
+LDPhysics.AddMovingShape(stop,0.2,0.3,1)
+LDPhysics.SetPosition(stop,95,85,0)
+LDPhysics.GroupShapes(car,stop)
+
+mudguard = Shapes.AddRectangle(40,10)
+LDPhysics.AddMovingShape(mudguard,0.2,0.3,1)
+LDPhysics.SetPosition(mudguard,220,70,0)
+LDPhysics.GroupShapes(car,mudguard)
+mudguard = Shapes.AddRectangle(40,10)
+LDPhysics.AddMovingShape(mudguard,0.2,0.3,1)
+LDPhysics.SetPosition(mudguard,80,70,0)
+LDPhysics.GroupShapes(car,mudguard)
+
+LDPhysics.AttachShapesWithRotation(wheel1,car)
+LDPhysics.AttachShapesWithRotation(wheel2,car)
+
+'Create the balls in the car
+
+GraphicsWindow.BrushColor = "Red"
+For i = 1 To 50
+  ball = Shapes.AddEllipse(6,6)
+  LDPhysics.AddMovingShape(ball,1,0,1)
+  LDPhysics.SetPosition(ball,150,75-i*2,0)
+EndFor
+
+'Some Slopes to roll down
+
+GraphicsWindow.BrushColor = "Black"
+slope1 = Shapes.AddRectangle(400,6)
+LDPhysics.AddFixedShape(slope1,0.3,0.5)
+LDPhysics.SetPosition(slope1,150,120,10)
+slope2 = Shapes.AddRectangle(400,6)
+LDPhysics.AddFixedShape(slope2,0.3,0.5)
+LDPhysics.SetPosition(slope2,550,195,-20)
+slope3 = Shapes.AddRectangle(400,6)
+LDPhysics.AddFixedShape(slope3,0.3,0.5)
+LDPhysics.SetPosition(slope3,150,310,10)
+slope4 = Shapes.AddRectangle(400,6)
+LDPhysics.AddFixedShape(slope4,0.3,0.5)
+LDPhysics.SetPosition(slope4,550,385,-20)
+slope5 = Shapes.AddRectangle(400,6)
+LDPhysics.AddFixedShape(slope5,0.3,0.5)
+LDPhysics.SetPosition(slope5,150,500,10)
+slope6 = Shapes.AddRectangle(400,6)
+LDPhysics.AddFixedShape(slope6,0.3,0.5)
+LDPhysics.SetPosition(slope6,550,575,-20)
+slope7 = Shapes.AddRectangle(400,6)
+LDPhysics.AddFixedShape(slope7,0.3,0.5)
+LDPhysics.SetPosition(slope7,150,690,10)
+
+'Some blocks
+
+GraphicsWindow.PenWidth = 2
+GraphicsWindow.BrushColor = "Yellow"
+For i = 1 To 10
+  For j = 1 To 5
+    block = Shapes.AddRectangle(10,10)
+    LDPhysics.AddMovingShape(block,0.5,0.5,1)
+    LDPhysics.SetPosition(block,900 + 50*j,GraphicsWindow.Height+5-10*i,0)
+  EndFor
+EndFor
+
+'Key Presses for 4 wheel drive
+
+left = 0
+right = 0
+GraphicsWindow.KeyDown = OnKeyDown
+GraphicsWindow.KeyUp = OnKeyUp
+
+' Mass of the car body and wheel inertia
+mass = LDPhysics.GetMass(car)
+inerta = LDPhysics.GetInertia(wheel1)
+
+'The run loop
+
+'LDPhysics.TimestepControl(0.01,20,10)
+
+While ("True")
+  start = Clock.ElapsedMilliseconds
+  
+  If (left = 1) Then
+    LDPhysics.SetTorque(wheel1,-50*inerta)
+    LDPhysics.SetTorque(wheel2,-50*inerta)
+    'LDPhysics.SetImpulse(car,-mass,-0.1*mass)
+  EndIf
+  If (right = 1) Then
+    LDPhysics.SetTorque(wheel1,50*inerta)
+    LDPhysics.SetTorque(wheel2,50*inerta)
+    'LDPhysics.SetImpulse(car,mass,-0.1*mass)
+  EndIf
+  LDPhysics.DoTimestep()
+  'Everything the car body touches turns green
+  hits = LDPhysics.GetCollisions(car)
+  For i = 1 To Array.GetItemCount(hits)
+    LDShapes.BrushColour(hits[i],"Green")
+  EndFor
+  
+  delay = 10-(Clock.ElapsedMilliseconds-start)
+  If (delay > 0) Then
+    Program.Delay(delay)
+  EndIf
+EndWhile
+
+'Event Subroutines
+
+Sub OnKeyDown
+  k = GraphicsWindow.LastKey
+  If (k = "Left") Then
+    left = 1
+  EndIf
+  If (k = "Right") Then
+    right = 1
+  EndIf
+EndSub
+
+Sub OnKeyUp
+  k = GraphicsWindow.LastKey
+  If (k = "Left") Then
+    left = 0
+  EndIf
+  If (k = "Right") Then
+    right = 0
+  EndIf
+EndSub

@@ -1,0 +1,63 @@
+'Create a player object that moves with the scrolling to appear stationary
+player = Shapes.AddRectangle(60,60)
+playerX = GraphicsWindow.Width/2
+playerY = GraphicsWindow.Height/2
+GraphicsWindow.CanResize = "False"
+
+'Create a test ellipse
+ellipse = Shapes.AddEllipse(40,40)
+Shapes.SetOpacity(ellipse,50)
+Shapes.Move(ellipse,600-20,700-20)
+
+'Draw some test lines for the display regions
+GraphicsWindow.DrawLine(0,700,1200,700)
+GraphicsWindow.DrawLine(600,0,600,700)
+
+'Add an image on 2 sections of the view
+image = ImageList.LoadImage(Flickr.GetPictureOfMoment())
+GraphicsWindow.DrawResizedImage(image,50,50,500,600)
+GraphicsWindow.DrawResizedImage(image,650,50,500,600)
+
+'Add the scollbars after using the GraphicsWindow.Width and GraphicsWindow.Height since these are modified as a by product of adding the scrollbars
+LDScrollBars.Add(1200,700)
+LDScrollBars.ScrollBarChanged = OnScrollBarChanged
+OnScrollBarChanged() 'Move player at start
+
+'Some simple test scrolling operations
+Program.Delay(1000)
+'Scroll down 100 in smooth steps
+For i = 1 To 100
+  LDScrollBars.VerticalScroll = LDScrollBars.VerticalScroll+1
+  Program.Delay(10)
+EndFor
+Program.Delay(1000)
+LDScrollBars.Modify("ScrollToEnd")
+Program.Delay(1000)
+LDScrollBars.Modify("ScrollToRightEnd")
+
+'Now control the scroll with arrow keys
+stepSize = 5
+LDScrollBars.Visibility = "False" 'Hide the scrollBars (still active though)
+While "True"
+  If (LDUtilities.KeyDown("Left")) Then
+    LDScrollBars.HorizontalScroll = LDScrollBars.HorizontalScroll-stepSize
+  EndIf
+  If (LDUtilities.KeyDown("Right")) Then
+    LDScrollBars.HorizontalScroll = LDScrollBars.HorizontalScroll+stepSize
+  EndIf
+  If (LDUtilities.KeyDown("Up")) Then
+    LDScrollBars.VerticalScroll = LDScrollBars.VerticalScroll-stepSize
+  EndIf
+  If (LDUtilities.KeyDown("Down")) Then
+    LDScrollBars.VerticalScroll = LDScrollBars.VerticalScroll+stepSize
+  EndIf
+  Program.Delay(20)
+EndWhile
+
+Sub OnScrollBarChanged
+  'Move player with scroll
+  LDGraphicsWindow.PauseUpdates() 'Smooth rendering
+  Shapes.Move(player,playerX+LDScrollBars.HorizontalScroll-30,playerY+LDScrollBars.VerticalScroll-30)
+  LDGraphicsWindow.ResumeUpdates() 'Redraw after all updating
+EndSub
+

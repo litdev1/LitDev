@@ -1,0 +1,45 @@
+args = ""
+LDUtilities.FixFlickr()
+GraphicsWindow.Show()
+LDCall.CallComplete = OnCallComplete
+LDCall.CallAsync("LitDev.dll","LitDev","LDCall","Function","1=DoWork;2=2000;")
+LDCall.CallAsync("SmallBasicLibrary.dll", "Microsoft.SmallBasic.Library", "Flickr", "GetRandomPicture", "Car")
+LDCall.CallAsync("", "", "", "DoWork2", "")
+GraphicsWindow.Title = "Started"
+
+'Keep progam running
+While ("True")
+  Program.Delay(100)
+EndWhile
+
+Sub OnCallComplete
+  call = LDCall.LastCall
+  result = LDCall.LastResult
+  If (Text.IsSubText(call,"LDCall")) Then
+    GraphicsWindow.Title = "Total = "+total
+  ElseIf (Text.IsSubText(call,"DoWork2")) Then
+    LDCall.CallAsync("", "", "", "DoWork2", "") 'Restart
+  ElseIf (Text.IsSubText(call,"Flickr")) Then
+    'Now load the image asynchronously
+    LDCall.CallAsync("SmallBasicLibrary.dll", "Microsoft.SmallBasic.Library", "ImageList", "LoadImage", result)
+  ElseIf (Text.IsSubText(call,"ImageList")) Then
+    'Draw the image when it is ready
+    GraphicsWindow.DrawResizedImage(result,50,50,GraphicsWindow.Width-100,GraphicsWindow.Height-100)
+  EndIf
+EndSub
+
+Sub DoWork
+  total = 0
+  For i = 1 To args[1]
+    For j = 1 To args[1]
+      total = total+i*j
+    EndFor
+  EndFor
+EndSub
+
+Sub DoWork2
+  For ii = 1 To 100
+    GraphicsWindow.BackgroundColor = GraphicsWindow.GetRandomColor()
+    Program.Delay(100)
+  EndFor
+EndSub

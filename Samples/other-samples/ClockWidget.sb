@@ -1,0 +1,93 @@
+'Simple LitDev Extension widget clock
+
+'Transparent Topmost GraphicsWindow
+LDGraphicsWindow.TransparentGW()
+LDGraphicsWindow.TopMost = "True"
+
+'Clock Face
+GraphicsWindow.Left = LDSettings.GetValue("clockX")
+GraphicsWindow.Top = LDSettings.GetValue("clockY")
+GraphicsWindow.Width = 100
+GraphicsWindow.Height = 100
+GraphicsWindow.BrushColor = "#40FFFFFF"
+GraphicsWindow.FillEllipse(0,0,100,100)
+GraphicsWindow.FontSize = 10
+date = Shapes.AddText(Clock.Date)
+Shapes.Move(date,18,60)
+If (LDSettings.GetValue("clockDate") <> 1) Then
+  Shapes.HideShape(date)
+EndIf
+
+For i = 1 To 12
+  angle = i*Math.PI/6 - Math.Pi/2
+  GraphicsWindow.DrawText(50+45*Math.Cos(angle)-3,50+45*Math.Sin(angle)-7,i)
+EndFor
+
+'Hands
+GraphicsWindow.PenColor = "Black"
+GraphicsWindow.PenWidth = 4
+hourHand = Shapes.AddLine(0,0,0,0)
+GraphicsWindow.PenWidth = 2
+minuteHand = Shapes.AddLine(0,0,0,0)
+GraphicsWindow.PenColor = "Red"
+GraphicsWindow.PenWidth = 1
+secondHand = Shapes.AddLine(0,0,0,0)
+
+'Register Events
+GraphicsWindow.MouseDown = OnMouseDown
+GraphicsWindow.MouseUp = OnMouseUp
+LDDialogs.AddRightClickMenu("1=Exit;2=Toggle Date;","")
+LDDialogs.RightClickMenu = OnRightClickMenu
+
+'MAIN LOOP
+
+While ("True")
+  'Get angles (ClockWise from top)
+  second = Clock.Second*Math.PI/30 - Math.Pi/2
+  minute = (Clock.Minute+Clock.Second/60)*Math.PI/30 - Math.Pi/2
+  hour = (Clock.Hour+Clock.Minute/60+Clock.Second/3600)*Math.PI/6 - Math.Pi/2
+  
+  'Move hands - extension used to move lines coz its easier
+  LDShapes.MoveLine(hourHand,50,50,50+35*Math.Cos(hour),50+35*Math.Sin(hour))
+  LDShapes.MoveLine(minuteHand,50,50,50+45*Math.Cos(minute),50+45*Math.Sin(minute))
+  LDShapes.MoveLine(secondHand,50,50,50+50*Math.Cos(second),50+50*Math.Sin(second))
+  
+  Shapes.SetText(date,Clock.Date)
+  
+  'Move the clock with mouse down
+  If (mouseDown) Then
+    GraphicsWindow.Left = offsetX+Mouse.MouseX
+    GraphicsWindow.Top = offsetY+Mouse.MouseY
+  EndIf
+  
+  Program.Delay(100) ' Delay 0.1 sec to prevent mashing cpu unneccessarily
+EndWhile
+
+'EVENT HANDLING SUBROUTINES
+
+Sub OnMouseDown
+  mouseDown = "True"
+  offsetX = GraphicsWindow.Left-Mouse.MouseX
+  offsetY = GraphicsWindow.Top-Mouse.MouseY
+EndSub
+
+Sub OnMouseUp
+  mouseDown = "False"
+  LDSettings.SetValue("clockX",GraphicsWindow.Left)
+  LDSettings.SetValue("clockY",GraphicsWindow.Top)
+EndSub
+
+Sub OnRightClickMenu
+  item = LDDialogs.LastRightClickMenuItem
+  If (item = 1) Then
+    Program.End()
+  ElseIf (item = 2) Then
+    clockDate = 1-LDSettings.GetValue("clockDate")
+    LDSettings.SetValue("clockDate",clockDate)
+    If (clockDate = 1) Then
+      Shapes.ShowShape(date)
+    Else
+      Shapes.HideShape(date)
+    EndIf
+  EndIf
+EndSub
