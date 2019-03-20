@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using LitDev;
 using Microsoft.SmallBasic.Library;
 using Newtonsoft.Json;
 
@@ -21,6 +22,7 @@ namespace LitDev
     {
         private const string baseURL = "https://restcountries.eu/rest/v2";
         public static string query;
+        public static string json;
 
         public static List<Country> GetAllCountries()
         {
@@ -63,28 +65,28 @@ namespace LitDev
 
         public static List<Country> GetCountriesByCode(string[] codes)
         {
-            query = $"{baseURL}/alpha/";
-
-            if (codes.Length == 1)
+            try
             {
-                query += codes[0];
-            }
-            else
-            {
+                query = $"{baseURL}/alpha";
                 query += $"?codes={ArrayToURL(codes)}";
-            }
 
-            if (Fields?.Length > 0)
-            {
-                if (codes.Length == 1)
+
+                if (Fields?.Length > 0)
                 {
-                    query += "?";
+                    if (codes.Length == 1)
+                    {
+                        query += "?";
+                    }
+
+                    query += $"fields={ArrayToURL(Fields)}";
                 }
 
-                query += $"fields={ArrayToURL(Fields)}";
+                return JsonConvert.DeserializeObject<List<Country>>(JSON(query));
             }
-
-            return JsonConvert.DeserializeObject<List<Country>>(JSON(query));
+            catch (Exception ex)
+            {
+                throw new Exception(query + "\n" + ex.ToString());
+            }
         }
 
         public static List<Country> GetCountriesByCurrency(string currency)
@@ -146,7 +148,8 @@ namespace LitDev
 
         private static string JSON(string URL)
         {
-            return Response(Request(URL));
+            json = Response(Request(URL));
+            return json;
         }
 
         private static WebRequest Request(string URL)
@@ -191,17 +194,17 @@ namespace LitDev
         public string[] TopLevelDomain;
         public string Alpha2Code;
         public string Alpha3Code;
-        public int[] CallingCodes;
+        public string[] CallingCodes;
         public string[] AltSpellings;
         public string Region;
         public decimal[] Latlng;
         public string Demonym;
-        public decimal Area;
+        public decimal? Area;
         public string GINI;
         public string[] Timezones;
         public string[] Borders;
         public string NativeName;
-        public int NumericCode;
+        public int? NumericCode;
 
         public string CIOC;
         public string Flag;
@@ -214,27 +217,102 @@ namespace LitDev
         public override string ToString()
         {
             Primitive results = new Primitive();
-            results["name"] = Name;
-            results["TLD"] = TopLevelDomain.ToPrimitiveArrayNative();
-            results["alpha2Code"] = Alpha2Code;
-            results["alpha3Code"] = Alpha3Code;
-            results["callingCodes"] = CallingCodes.ToPrimitiveArrayNative();
-            results["altSpellings"] = AltSpellings.ToPrimitiveArrayNative();
-            results["region"] = Region;
-            results["latitude"] = Latlng[0];
-            results["longitude"] = Latlng[1];
-            results["demonym"] = Demonym;
-            results["area"] = Area;
-            results["GINI"] = GINI;
-            results["timezones"] = Timezones.ToPrimitiveArrayNative();
-            results["borders"] = Borders.ToPrimitiveArrayNative();
-            results["numericCode"] = NumericCode;
-            results["CIOC"] = CIOC;
-            results["flag"] = Flag;
-            results["currencies"] = Currencies.ToPrimitiveArrayNative();
-            results["languages"] = Languages.ToPrimitiveArrayNative();
-            results["regionalBlocs"] = RegionalBlocs.ToPrimitiveArrayNative();
-            return  results ;
+            if (!string.IsNullOrWhiteSpace(Name))
+            {
+                results["name"] = Name;
+            }
+
+            if (TopLevelDomain?.Length > 0)
+            {
+                results["TLD"] = TopLevelDomain.ToPrimitiveArrayNative();
+            }
+
+            if (!string.IsNullOrWhiteSpace(Alpha2Code)) { 
+                results["alpha2Code"] = Alpha2Code;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Alpha3Code))
+            {
+                results["alpha3Code"] = Alpha3Code;
+            }
+
+            if (CallingCodes?.Length > 0)
+            {
+                results["callingCodes"] = CallingCodes.ToList().ToPrimitiveArrayNative();
+            }
+
+            if (AltSpellings?.Length > 0)
+            {
+                results["altSpellings"] = AltSpellings.ToPrimitiveArrayNative();
+            }
+
+            if (!string.IsNullOrEmpty(Region))
+            {
+                results["region"] = Region;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Demonym))
+            {
+                results["demonym"] = Demonym;
+            }
+
+            if (Latlng?.Length >= 1)
+            {
+                results["latitude"] = Latlng[0];
+                results["longitude"] = Latlng[1];
+            }
+
+            if (Area != null)
+            {
+                results["area"] = (decimal) Area;
+            }
+
+            if (NumericCode != null)
+            {
+                results["numericCode"] = (int)NumericCode;
+            }
+
+            if (!string.IsNullOrWhiteSpace(GINI))
+            {
+                results["GINI"] = GINI;
+            }
+
+            if (Timezones?.Length > 0)
+            {
+                results["timezones"] = Timezones.ToPrimitiveArrayNative();
+            }
+
+            if (Borders?.Length > 0)
+            {
+                results["borders"] = Borders.ToPrimitiveArrayNative();
+            }
+
+            if (!string.IsNullOrWhiteSpace(CIOC))
+            {
+                results["CIOC"] = CIOC;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Flag))
+            {
+                results["flag"] = Flag;
+            }
+
+            if (Currencies?.Length > 0)
+            {
+                results["currencies"] = Currencies.ToPrimitiveArrayNative();
+            }
+
+            if (Languages?.Length > 0)
+            {
+                results["languages"] = Languages.ToPrimitiveArrayNative();
+            }
+
+            if (RegionalBlocs?.Length > 0)
+            {
+                results["regionalBlocs"] = RegionalBlocs.ToPrimitiveArrayNative();
+            }
+
+            return results;
         }
     }
 
@@ -365,8 +443,6 @@ namespace LitDev
         public override string ToString()
         {
             Primitive result = string.Empty;
-            Primitive temp = new Primitive();
-
             result["otherAcronyms"] = OtherAcronyms.ToPrimitiveArrayNative();
             result["otherNames"] = OtherNames.ToPrimitiveArrayNative();
             result["name"] = Name;
@@ -380,6 +456,7 @@ namespace LitDev
     /// Gets geographic information about countries and
     /// regional blocks.
     /// API provided by https://restcountries.eu
+    /// Data provided by https://github.com/mledoze/countries
     /// Coded by Abhishek Sathiabalan
     /// </summary>
     [SmallBasicType]
@@ -390,7 +467,19 @@ namespace LitDev
         /// Whenever possible make the search require an exact match
         /// between the query and the results.
         /// </summary>
-        public static Primitive StrictSearch => Geography.FullTextSearch;
+        public static Primitive StrictSearch
+        {
+            get { return Geography.FullTextSearch.ToString(); }
+
+            set
+            {
+                bool result;
+                if (bool.TryParse(value, out result))
+                {
+                    Geography.FullTextSearch = result;
+                }
+            }
+        } 
 
         /// <summary>
         /// An array of fields that the results will
@@ -416,43 +505,97 @@ namespace LitDev
 
         public static Primitive GetAllCountries()
         {
-            return Geography.GetAllCountries().ToPrimitiveArrayNative();
+            try
+            {
+                return Geography.GetAllCountries().ToPrimitiveArrayNative();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }
         }
 
         public static Primitive GetCountriesByName(Primitive name)
         {
-            return Geography.GetCountriesByName(name).ToPrimitiveArrayNative();
+            try
+            {
+                return Geography.GetCountriesByName(name).ToPrimitiveArrayNative();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }
         }
 
         public static Primitive GetCountriesByCode(Primitive code)
         {
-            return Geography.GetCountriesByCallingCode(code).ToPrimitiveArrayNative();
+            try
+            {
+                return Geography.GetCountriesByCode(LimitFields(code)).ToPrimitiveArrayNative();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }
         }
 
         public static Primitive GetCountriesByCurrency(Primitive currency)
         {
-            return Geography.GetCountriesByCurrency(currency).ToPrimitiveArrayNative();
+            try
+            {
+                return Geography.GetCountriesByCurrency(currency).ToPrimitiveArrayNative();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }
         }
 
         public static Primitive GetCountriesByCapital(Primitive capital)
         {
-            return Geography.GetCountriesByCapital(capital).ToPrimitiveArrayNative();
+            try
+            {
+                return Geography.GetCountriesByCapital(capital).ToPrimitiveArrayNative();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }
         }
 
         public static Primitive GetCountriesByCallingCode(Primitive callingCode)
         {
-            return Geography.GetCountriesByCallingCode(callingCode).ToPrimitiveArrayNative();
-        }
+            try
+            {
+                return Geography.GetCountriesByCallingCode(callingCode).ToPrimitiveArrayNative();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }        }
 
         public static Primitive GetCountriesByRegion(Primitive region)
         {
-            return Geography.GetCountriesByRegion(region).ToPrimitiveArrayNative();
+            try
+            {
+                return Geography.GetCountriesByRegion(region).ToPrimitiveArrayNative();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }
         }
 
         public static Primitive GetCountriesByRegionalBloc(Primitive regionalBloc)
         {
-            return Geography.GetCountriesByRegionalBloc(regionalBloc).ToPrimitiveArrayNative();
+            try
+            {
+                return Geography.GetCountriesByRegionalBloc(regionalBloc).ToPrimitiveArrayNative();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }
         }
-
     }
 }

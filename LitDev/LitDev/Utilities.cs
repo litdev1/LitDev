@@ -785,12 +785,26 @@ namespace LitDev
         public static string ToPrimitiveArrayNative<T>(this T[] array)
         {
             Primitive result = new Primitive();
-            for (int i = 0; i < array.Length; i++)
+            if (array.Length == 0 )
             {
-                result[i + 1] = array[i].ToString();
+                return result;
             }
 
-            return result;
+            try
+            {
+
+                for (int i = 0; i < array.Length; i++)
+                {
+                    result[i + 1] = array[i].ToString();
+                }
+
+               
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(array.ToPrimitiveArray());
+            }
         }
 
         public static string ToPrimitiveArray<T>(this List<T> list)
@@ -815,6 +829,11 @@ namespace LitDev
         public static Primitive ToPrimitiveArrayNative<T>(this List<T> list)
         {
             Primitive result = new Primitive();
+
+            if (list.Count == 0)
+            {
+                return result;
+            }
 
             for (int i = 0; i < list.Count; i++)
             {

@@ -38,6 +38,22 @@ namespace LitDevUnitTests
             LitDev.Geography.Fields = new string[0];
         }
 
+        [TestMethod]
+        public void GetCountriesByCurrency()
+        {
+            LitDev.Geography.Fields = new[] { "name", };
+            List<Country> countries = LitDev.Geography.GetCountriesByCurrency("INR");
+
+            if (countries.Count <= 0)
+            {
+                Assert.Fail();
+            }
+
+            Assert.AreEqual(@"1=name\=Bhutan\;;2=name\=India\;;3=name\=Zimbabwe\;;", countries.ToPrimitiveArrayNative().ToString());
+
+            LitDev.Geography.Fields = new string[0];
+        }
+
         /// <summary>
         /// Ensures that the Currency struct
         /// generates correct Primitive array code.
@@ -66,6 +82,24 @@ namespace LitDevUnitTests
             Assert.AreEqual("Pacific Alliance", data[1]["regionalBlocs"][1]["name"].ToString());
             Assert.AreEqual("Union of South American Nations", data[1]["regionalBlocs"][2]["name"].ToString());
             Assert.AreEqual("União de Nações Sul-Americanas", data[1]["regionalBlocs"][2]["otherNames"][2].ToString());
+        }
+
+        [TestMethod]
+        public void GetCountriesByCountryCode()
+        {
+            LitDev.Geography.Fields = new string[0];
+            List<Country> countries = LitDev.Geography.GetCountriesByCode(new string[] {"USA", "DE"});
+
+        }
+
+        [TestMethod]
+        public void GetAll()
+        {
+            List<Country> countries = LitDev.Geography.GetAllCountries();
+            if (!(countries.Count > 0))
+            {
+                Assert.Fail();
+            }
         }
     }
 }
