@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LitDev;
+using Microsoft.SmallBasic.Library;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace LitDevUnitTests
@@ -40,6 +41,8 @@ namespace LitDevUnitTests
         [TestMethod]
         public void GetAll()
         {
+            //When a method fails it should return FAILED. 
+            //A lack of FAILED indicates that everything should be good.
             if (LitDev.LDGeography.GetAllCountries().ToString().Contains("FAILED"))
             {
                 Assert.Fail();
@@ -51,6 +54,7 @@ namespace LitDevUnitTests
         {
             Assert.AreEqual("United States Minor Outlying Islands", LitDev.LDGeography.GetCountriesByCode("1=UMI;")[1]["name"].ToString());
             Assert.AreEqual("United States of America" , LitDev.LDGeography.GetCountriesByCode("1=USA;")[1]["name"].ToString());
+            Assert.AreEqual("FAILED", LitDev.LDGeography.GetCountriesByCode("1=;").ToString());
         }
 
         [TestMethod]
@@ -58,7 +62,52 @@ namespace LitDevUnitTests
         {
             LitDev.LDGeography.Fields = "1=name;";
             Assert.AreEqual(@"1=name\=Bhutan\;;2=name\=India\;;3=name\=Zimbabwe\;;", LitDev.LDGeography.GetCountriesByCurrency("INR").ToString());
+            Assert.AreEqual("FAILED", LitDev.LDGeography.GetCountriesByCurrency("").ToString());
             LitDev.LDGeography.Fields = "";
+        }
+
+        [TestMethod]
+        public void GetCountriesByName()
+        {
+            LitDev.LDGeography.Fields = "1=name;";
+            LitDev.LDGeography.StrictSearch = "True";
+            Assert.AreEqual("India", LitDev.LDGeography.GetCountriesByName("India")[1]["name"].ToString());
+            Assert.AreEqual("FAILED", LitDev.LDGeography.GetCountriesByName("Ind").ToString());
+
+            LitDev.LDGeography.Fields = "";
+            LitDev.LDGeography.StrictSearch = "False";
+        }
+
+        [TestMethod]
+        public void GetCountriesByCapital()
+        {
+            Primitive data = LitDev.LDGeography.GetCountriesByCapital("New Delhi");
+            Assert.AreEqual("India", data[1]["name"].ToString());
+            Assert.AreEqual("FAILED", LitDev.LDGeography.GetCountriesByCapital("").ToString());
+        }
+
+        [TestMethod]
+        public void GetCountriesByCallingCode()
+        {
+            Primitive data = LitDev.LDGeography.GetCountriesByCallingCode("7");
+            Assert.AreEqual("Russian Federation", data[1]["name"].ToString());
+            Assert.AreEqual("FAILED", LitDev.LDGeography.GetCountriesByCallingCode("---").ToString() );
+        }
+
+        [TestMethod]
+        public void GetCountriesByRegion()
+        {
+            Primitive data = LitDev.LDGeography.GetCountriesByRegion("Europe");
+            Assert.AreEqual("Åland Islands", data[1]["name"].ToString());
+            Assert.AreEqual("FAILED", LitDev.LDGeography.GetCountriesByRegion("---").ToString());
+        }
+
+        [TestMethod]
+        public void GetCountriesByRegionalBloc()
+        {
+            Primitive data = LitDev.LDGeography.GetCountriesByRegionalBloc("EU");
+            Assert.AreEqual("Austria", data[2]["name"].ToString());
+            Assert.AreEqual("FAILED", LitDev.LDGeography.GetCountriesByRegionalBloc("---").ToString());
         }
     }
 }

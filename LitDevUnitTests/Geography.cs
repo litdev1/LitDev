@@ -89,7 +89,7 @@ namespace LitDevUnitTests
         {
             LitDev.Geography.Fields = new string[0];
             List<Country> countries = LitDev.Geography.GetCountriesByCode(new string[] {"USA", "DE"});
-
+            Assert.AreEqual("Germany",countries[1].Name);
         }
 
         [TestMethod]
@@ -100,6 +100,36 @@ namespace LitDevUnitTests
             {
                 Assert.Fail();
             }
+        }
+
+        [TestMethod]
+        public void GetCountriesByCapital()
+        {
+            List<Country> countries = LitDev.Geography.GetCountriesByCapital("New Delhi");
+            Assert.AreEqual("India", countries[0].Name);
+        }
+
+        [TestMethod]
+        public void GetCountriesByCallingCode()
+        {
+            List<Country> countries = LitDev.Geography.GetCountriesByCallingCode("7");
+            Assert.AreEqual("Russian Federation",countries[0].Name);
+        }
+
+        [TestMethod]
+        public void GetCountriesByRegion()
+        {
+            List<Country> countries = LitDev.Geography.GetCountriesByRegion("Europe");
+            Assert.AreEqual("Åland Islands", countries[0].Name);
+        }
+
+        [TestMethod]
+        public void GetCountriesByRegionalBloc()
+        {
+            List<Country> countries = LitDev.Geography.GetCountriesByRegionalBloc("NAFTA ");
+            Assert.AreEqual("Canada", countries[0].Name);
+            Assert.AreEqual("Mexico", countries[1].Name);
+            Assert.AreEqual("United States of America", countries[2].Name);
         }
     }
 }
