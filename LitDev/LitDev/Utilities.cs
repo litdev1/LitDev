@@ -40,6 +40,7 @@ using Microsoft.Win32.SafeHandles;
 using System.Threading;
 using LitDev.Engines;
 using System.Windows.Threading;
+using System.Collections.Specialized;
 
 namespace LitDev
 {
@@ -824,7 +825,7 @@ namespace LitDev
         /// structures.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="array"></param>
+        /// <param name="list"></param>
         /// <returns></returns>
         public static Primitive ToPrimitiveArrayNative<T>(this List<T> list)
         {
@@ -1809,6 +1810,26 @@ namespace LitDev
                 CultureInfo.DefaultThreadCurrentCulture = Thread.CurrentThread.CurrentCulture;
                 CultureInfo.DefaultThreadCurrentUICulture = Thread.CurrentThread.CurrentCulture;
             }
+        }
+
+        /// <summary>
+        /// Get an array of available cultures.
+        /// </summary>
+        /// <returns>An array indexed by culture names, with the value set to a description.</returns>
+        public static Primitive AvailableCultures()
+        {
+            // get culture names
+            SortedDictionary<string, string> list = new SortedDictionary<string, string>();
+            foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.AllCultures))
+            {
+                list[ci.Name] = ci.EnglishName;
+            }
+            StringBuilder result = new StringBuilder();
+            foreach (KeyValuePair<string, string> kvp in list)
+            {
+                result.Append($"{Utilities.ArrayParse(kvp.Key)}={Utilities.ArrayParse(kvp.Value)};");
+            }
+            return Utilities.CreateArrayMap(result.ToString());
         }
 
         /// <summary>
