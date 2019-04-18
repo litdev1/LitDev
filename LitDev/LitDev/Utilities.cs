@@ -1729,14 +1729,21 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Fix the Flickr object (Version 1.0).
+        /// Fix the Flickr object
         /// </summary>
         public static void FixFlickr()
         {
             Type FlickrType = typeof(Flickr);
-            FieldInfo fieledInfo = FlickrType.GetField("_urlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-            string _urlTemplate = (string)fieledInfo.GetValue(null);
-            fieledInfo.SetValue(null, _urlTemplate.Replace("http://", "https://"));
+            FieldInfo fieldInfo = FlickrType.GetField("_urlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+            string _urlTemplate = (string)fieldInfo.GetValue(null);
+            _urlTemplate = _urlTemplate.Replace("http://", "https://");
+            fieldInfo.SetValue(null, _urlTemplate);
+
+            fieldInfo = FlickrType.GetField("_picUrlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+            string _picUrlTemplate = (string)fieldInfo.GetValue(null);
+            _picUrlTemplate = _picUrlTemplate.Replace("http://", "https://");
+            _picUrlTemplate = _picUrlTemplate.Replace("static.flickr.com", "staticflickr.com");
+            fieldInfo.SetValue(null, _picUrlTemplate);
         }
 
         /// <summary>
