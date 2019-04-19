@@ -34,7 +34,6 @@ namespace LitDev
     /// If we change the API's source or change API
     /// providers LD Geography should not have to change.
     /// </summary>
-    [HideFromIntellisense]
     public static class Geography
     {
         private const string baseURL = "https://restcountries.eu/rest/v2";
@@ -477,7 +476,6 @@ namespace LitDev
     /// Coded by Abhishek Sathiabalan
     /// </summary>
     [SmallBasicType]
-    [HideFromIntellisense]
     public static class LDGeography
     {
         /// <summary>
