@@ -1731,12 +1731,13 @@ namespace LitDev
         /// <summary>
         /// Fix the Flickr object
         /// </summary>
-        public static void FixFlickr()
+        public static Primitive FixFlickr()
         {
             Type FlickrType = typeof(Flickr);
             FieldInfo fieldInfo = FlickrType.GetField("_urlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
             string _urlTemplate = (string)fieldInfo.GetValue(null);
             _urlTemplate = _urlTemplate.Replace("http://", "https://");
+            _urlTemplate = _urlTemplate.Replace("api.flickr.com", "www.flickr.com");
             fieldInfo.SetValue(null, _urlTemplate);
 
             fieldInfo = FlickrType.GetField("_picUrlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
@@ -1744,6 +1745,11 @@ namespace LitDev
             _picUrlTemplate = _picUrlTemplate.Replace("http://", "https://");
             _picUrlTemplate = _picUrlTemplate.Replace("static.flickr.com", "staticflickr.com");
             fieldInfo.SetValue(null, _picUrlTemplate);
+
+            Primitive result = new Primitive();
+            result["_urlTemplate"] = _urlTemplate;
+            result["_picUrlTemplate"] = _picUrlTemplate;
+            return result;
         }
 
         /// <summary>
