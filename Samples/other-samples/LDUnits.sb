@@ -1,0 +1,322 @@
+Initialise()
+
+'=========================================================
+' SUBROUTINES
+'=========================================================
+
+Sub Initialise
+  gw = 1200
+  gh = 590
+  GraphicsWindow.Width = gw
+  GraphicsWindow.Height = gh
+  GraphicsWindow.Title = "Units Converter"
+  GraphicsWindow.BrushColor = "Black"
+  GraphicsWindow.BackgroundColor = "Lavender"
+  GraphicsWindow.Top = 20
+  GraphicsWindow.Left = (Desktop.Width-gw)/2
+  LDGraphicsWindow.Icon = "SB"
+  LDGraphicsWindow.Resize = 0
+  LDGraphicsWindow.PauseUpdates()
+  GraphicsWindow.Clear()
+  
+  baseUnits = LDUnits.GetBaseUnits()
+  derivedUnits = LDUnits.GetDerivedUnits()
+  constants = LDUnits.GetConstants()
+  prefixes = LDUnits.GetPrefixes()
+  
+  baseUnitsIndices = Array.GetAllIndices(baseUnits)
+  derivedUnitsIndices = Array.GetAllIndices(derivedUnits)
+  constantsIndices = Array.GetAllIndices(constants)
+  prefixesIndices = Array.GetAllIndices(prefixes)
+  
+  Controls.ButtonClicked = OnButtonClicked
+  LDControls.ListBoxItemChanged = OnListBoxItemChanged
+  LDControls.ComboBoxItemChanged = OnComboBoxItemChanged
+  
+  staticColour = "#F6F6FA"
+  buttonColour = "#E6FAE6"
+  entryColour = "#FAE6E6"
+  NL = Text.GetCharacter(10)
+  result = ""
+  
+  left = 20
+  width = 200
+  titleBase = Shapes.AddText("Dimensions")
+  lbBase = LDControls.AddListBox(baseUnitsIndices,width,310)
+  tbBase = Controls.AddTextBox(left,360)
+  Shapes.Move(titleBase,left,20)
+  Shapes.Move(lbBase,left,40)
+  Controls.SetSize(tbBase,width,20)
+  LDControls.TextBoxReadOnly(tbBase,"True")
+  LDControls.ListBoxSelect(lbBase,1)  
+  LDShapes.BrushColour(tbBase,staticColour)
+  
+  left = left+width+20
+  width = 300
+  titleDerived = Shapes.AddText("Derived Units")
+  lbDerived = LDControls.AddListBox(derivedUnitsIndices,width,200)
+  lbDerivedDimensions = LDControls.AddListBox("",width,100)
+  tbDerived = Controls.AddTextBox(left,250)
+  Shapes.Move(titleDerived,left,20)
+  Shapes.Move(lbDerived,left,40)
+  Shapes.Move(lbDerivedDimensions,left,280)
+  Controls.SetSize(tbDerived,width,20)
+  LDControls.TextBoxReadOnly(tbDerived,"True")
+  LDControls.ListBoxSelect(lbDerived,1)  
+  LDShapes.BrushColour(lbDerivedDimensions,staticColour)
+  LDShapes.BrushColour(tbDerived,staticColour)
+  
+  left = left+width+20
+  width = 300
+  titleConstants = Shapes.AddText("Constants")
+  lbConstants = LDControls.AddListBox(constantsIndices,width,310)
+  tbConstants = Controls.AddTextBox(left,360)
+  Shapes.Move(titleConstants,left,20)
+  Shapes.Move(lbConstants,left,40)
+  Controls.SetSize(tbConstants,width,20)
+  LDControls.TextBoxReadOnly(tbConstants,"True")
+  LDControls.ListBoxSelect(lbConstants,1)  
+  LDShapes.BrushColour(tbConstants,staticColour)
+  
+  left = left+width+20
+  width = 300
+  titlePrefixes = Shapes.AddText("Prefixes")
+  lbPrefixes = LDControls.AddListBox(prefixesIndices,width,310)
+  tbPrefixes = Controls.AddTextBox(left,360)
+  Shapes.Move(titlePrefixes,left,20)
+  Shapes.Move(lbPrefixes,left,40)
+  Controls.SetSize(tbPrefixes,width,20)
+  LDControls.TextBoxReadOnly(tbPrefixes,"True")
+  LDControls.ListBoxSelect(lbPrefixes,1)  
+  LDShapes.BrushColour(tbPrefixes,staticColour)
+  
+  Shapes.Move(Shapes.AddText("Value"),20,400)
+  valueFrom = Controls.AddTextBox(20,420)
+  Controls.SetTextBoxText(valueFrom,1)
+  Shapes.Move(Shapes.AddText("Units From"),240,400)
+  unitsFrom = Controls.AddTextBox(240,420)
+  Shapes.Move(Shapes.AddText("Units To"),420,400)
+  unitsTo = Controls.AddTextBox(420,420)
+  Shapes.Move(Shapes.AddText("Result"),600,400)
+  valueTo = Controls.AddTextBox(600,420)
+  errors = Controls.AddMultiLineTextBox(600,450)
+  convert = Controls.AddButton("Convert",20,450)
+  Controls.SetSize(valueFrom,200,20)
+  Controls.SetSize(valueTo,160,20)
+  Controls.SetSize(errors,400,120)
+  Controls.SetSize(convert,200,24)
+  LDControls.TextBoxReadOnly(valueTo,"True")
+  LDControls.TextBoxReadOnly(errors,"True")
+  LDShapes.BrushColour(valueTo,staticColour)
+  LDShapes.BrushColour(errors,staticColour)
+  LDShapes.BrushColour(convert,buttonColour)
+  LDShapes.BrushColour(valueFrom,entryColour)
+  LDShapes.BrushColour(unitsFrom,entryColour)
+  LDShapes.BrushColour(unitsTo,entryColour)
+  
+  lbFromDimensions = LDControls.AddListBox("",160,120)
+  lbToDimensions = LDControls.AddListBox("",160,120)
+  Shapes.Move(lbFromDimensions,240,450)
+  Shapes.Move(lbToDimensions,420,450)
+  LDShapes.BrushColour(lbFromDimensions,staticColour)
+  LDShapes.BrushColour(lbToDimensions,staticColour)
+  
+  samples[1] = "min/mile TO min/Km"
+  samples[2] = "mC TO F"
+  samples[3] = "D.ft/cP.psi TO ft3/day"
+  samples[4] = "RC TO J/K/mol"
+  samples[5] = "e0.mu0 TO 1/c2"
+  samples[6] = "USD TO GBP"
+  samples[7] = "mm TO ft"
+  
+  titleSamples = Shapes.AddText("Examples")
+  Shapes.Move(titleSamples,20,530)
+  samplesCombo = LDControls.AddComboBox(samples,200,200)
+  Shapes.Move(samplesCombo,20,550)
+  
+  history = ""
+  titleHistory = Shapes.AddText("History")
+  Shapes.Move(titleHistory,20,480)
+  historyCombo = LDControls.AddComboBox(history,200,200)
+  Shapes.Move(historyCombo,20,500)
+  
+  precision = 7
+  precisionData[1] = "None"
+  precisionData[2] = "2 Sig Figs"
+  precisionData[3] = "3 Sig Figs"
+  precisionData[4] = "4 Sig Figs"
+  precisionData[5] = "5 Sig Figs"
+  precisionData[6] = "6 Sig Figs"
+  precisionData[7] = "9 Sig Figs"
+  titlePrecision = Shapes.AddText("Precision")
+  Shapes.Move(titlePrecision,780,400)
+  precisionCombo = LDControls.AddComboBox(precisionData,100,200)
+  Shapes.Move(precisionCombo,780,420)
+  LDControls.ComboBoxSelect(precisionCombo,precision)
+  
+  export = Controls.AddButton("Export Units",1020,396)
+  Controls.SetSize(export,160,24)
+  LDShapes.BrushColour(export,buttonColour)
+  import = Controls.AddButton("Import Units",1020,426)
+  Controls.SetSize(import,160,24)
+  LDShapes.BrushColour(import,buttonColour)
+  save = Controls.AddButton("Save History",1020,456)
+  Controls.SetSize(save,160,24)
+  LDShapes.BrushColour(save,buttonColour)
+  load = Controls.AddButton("Load History",1020,486)
+  Controls.SetSize(load,160,24)
+  LDShapes.BrushColour(load,buttonColour)
+  remove = Controls.AddButton("Remove from History",1020,516)
+  Controls.SetSize(remove,160,24)
+  LDShapes.BrushColour(remove,buttonColour)
+  help = Controls.AddButton("Help",1020,546)
+  Controls.SetSize(help,160,24)
+  LDShapes.BrushColour(help,buttonColour)
+  
+  LDFocus.SetFocus(unitsFrom)
+  
+  LDGraphicsWindow.ResumeUpdates()
+EndSub
+
+Sub GetDimensions
+  indices = Array.GetAllIndices(dimensions)
+  dim = ""
+  For i = 1 To Array.GetItemCount(indices)
+    index = indices[i]
+    dim[i] = index+" : "+dimensions[index]
+  EndFor
+EndSub
+
+Sub Convert
+  value = Controls.GetTextBoxText(valueFrom)
+  fromUnit = Controls.GetTextBoxText(unitsFrom)
+  toUnit = Controls.GetTextBoxText(unitsTo)
+  
+  dimensions = LDUnits.GetDimensions(fromUnit)
+  GetDimensions()
+  LDControls.ListBoxContent(lbFromDimensions,dim)
+  dimensions = LDUnits.GetDimensions(toUnit)
+  GetDimensions()
+  LDControls.ListBoxContent(lbToDimensions,dim)
+  
+  result = LDUnits.Convert(value,fromUnit,toUnit)
+  SetResult()
+  
+  err = LDUnits.GetErrors()
+  txt = ""
+  For i = 1 To Array.GetItemCount(err)
+    txt = txt+err[i]+NL
+  EndFor
+  Controls.SetTextBoxText(errors,txt)
+  
+  If (result <> "FAILED") Then
+    hist = fromUnit+" TO "+toUnit
+    count = Array.GetItemCount(history)
+    index = LDArray.GetIndex(history,hist)
+    If (index > 0) Then
+      LDControls.ComboBoxSelect(historyCombo,index)
+    Else
+      history[count+1] = hist
+      LDControls.ComboBoxContent(historyCombo,history)
+      LDControls.ComboBoxSelect(historyCombo,count+1)
+    EndIf
+  EndIf
+EndSub
+
+Sub SetResult
+  resultDisplay = result
+  If (precision > 1) Then
+    resultDisplay = LDMath.FixSigFig(resultDisplay,Text.GetSubText(precisionData[precision],1,2))
+  EndIf
+  Controls.SetTextBoxText(valueTo,resultDisplay)
+EndSub
+
+'=========================================================
+' EVENT SUBROUTINES
+'=========================================================
+
+Sub OnListBoxItemChanged
+  lb = LDControls.LastListBox
+  index = LDControls.LastListBoxIndex
+  If (lb = lbBase) Then
+    Controls.SetTextBoxText(tbBase,baseUnits[baseUnitsIndices[index]])
+  ElseIf (lb = lbDerived) Then
+    Controls.SetTextBoxText(tbDerived,derivedUnits[derivedUnitsIndices[index]])
+    dimensions = LDUnits.GetDimensions(derivedUnitsIndices[index])
+    GetDimensions()
+    LDControls.ListBoxContent(lbDerivedDimensions,dim)
+  ElseIf (lb = lbConstants) Then
+    Controls.SetTextBoxText(tbConstants,Constants[constantsIndices[index]])
+  ElseIf (lb = lbPrefixes) Then
+    Controls.SetTextBoxText(tbPrefixes,Prefixes[prefixesIndices[index]])
+  EndIf
+EndSub
+
+Sub OnButtonClicked
+  button = Controls.LastClickedButton
+  If (button = convert) Then
+    Convert()
+  ElseIf (button = export) Then
+    LDUnits.Export()
+  ElseIf (button = import) Then
+    LDUnits.Import()
+    Initialise()
+  ElseIf (button = save) Then
+    File.WriteContents(File.GetSettingsFilePath(),history)
+  ElseIf (button = load) Then
+    history = File.ReadContents(File.GetSettingsFilePath())
+    LDControls.ComboBoxContent(historyCombo,history)
+  ElseIf (button = remove) Then
+    index = LDControls.ComboBoxGetSelected(historyCombo)
+    If (index > 0) Then
+      count = Array.GetItemCount(history)
+      For i = index+1 To count
+        history[i-1] = history[i]
+      EndFor
+      history[count] = ""
+      If (index = count) Then
+        index = index-1
+      EndIf
+      LDControls.ComboBoxContent(historyCombo,history)
+      LDControls.ComboBoxSelect(historyCombo,index)
+    EndIf
+  ElseIf (button = help) Then
+    txt = "This uses the LDUnits object."+NL+NL
+    txt = txt+"Enter a value and any set of units to convert from and to, then press Convert."+NL+NL
+    txt = txt+"The units are case sensitive and may be combined in any way, using prefixes, constants and powers."
+    GraphicsWindow.ShowMessage(txt,"Units Converter Help")
+  EndIf
+EndSub
+
+Sub OnComboBoxItemChanged
+  cb = LDControls.LastComboBox
+  index = LDControls.LastComboBoxIndex
+  If (cb = samplesCombo) Then
+    sample = samples[index]
+    pos = Text.GetIndexOf(sample,"TO")
+    fromUnit = Text.GetSubText(sample,1,pos-2)
+    toUnit = Text.GetSubTextToEnd(sample,pos+3)
+    If (Controls.GetTextBoxText(valueFrom) = "") Then
+      Controls.SetTextBoxText(valueFrom,1)
+    EndIf
+    Controls.SetTextBoxText(unitsFrom,fromUnit)
+    Controls.SetTextBoxText(unitsTo,toUnit)
+    Convert()
+  ElseIf (cb = historyCombo) Then
+    sample = history[index]
+    pos = Text.GetIndexOf(sample,"TO")
+    fromUnit = Text.GetSubText(sample,1,pos-2)
+    toUnit = Text.GetSubTextToEnd(sample,pos+3)
+    If (Controls.GetTextBoxText(valueFrom) = "") Then
+      Controls.SetTextBoxText(valueFrom,1)
+    EndIf
+    Controls.SetTextBoxText(unitsFrom,fromUnit)
+    Controls.SetTextBoxText(unitsTo,toUnit)
+    Convert()
+  ElseIf (cb = precisionCombo) Then
+    precision = index
+    SetResult()
+  EndIf
+EndSub
+
+

@@ -1,0 +1,48 @@
+gw = 600
+gh = 600
+GraphicsWindow.Width = gw+200
+GraphicsWindow.Height = gh
+
+For i = 1 To 5
+  input[i] = Controls.AddTextBox(gw+10,40*i)
+  Controls.SetSize(input[i],100,20)
+  Controls.SetTextBoxText(input[i],0)
+  GraphicsWindow.DrawText(gw+120,2+40*i,"Coef "+Text.GetCharacter(i+64))
+EndFor
+plot = Controls.AddButton("Plot",gw+10,40*i)
+Controls.SetSize(plot,100,24)
+clear = Controls.AddButton("Clear",gw+10,40*(i+1))
+Controls.SetSize(clear,100,24)
+
+GraphicsWindow.BackgroundColor = "Black"
+LDGraph.BorderColour = "#00000000"
+LDGraph.InteriorColour = "#00000000"
+LDGraph.TextColour = "White"
+LDGraph.AxesColour = "White"
+LDGraph.GridColour = "#00000000"
+graph1 = LDGraph.AddGraph(0,0,gw,gh,"Polynomial A+Bx+Cx²+Dx³+Ex⁴","x","f(x)")
+DoPlot()
+
+Controls.ButtonClicked = OnButtonClicked
+
+Sub OnButtonClicked
+  If (Controls.LastClickedButton = plot) Then
+    DoPlot()
+  EndIf
+  If (Controls.LastClickedButton = clear) Then
+    Shapes.Remove(graph1)
+    graph1 = LDGraph.AddGraph(0,0,gw,gh,"Polynomial A+Bx+Cx2+Dx3+Ex4","x","f(x)")
+  EndIf
+EndSub
+
+Sub DoPlot
+  For i = 1 To 5
+    val[i] = Controls.GetTextBoxText(input[i])
+  EndFor
+  For i = -10 To 10 Step 0.1
+    x = i
+    y = val[1]+val[2]*x+val[3]*x*x+val[4]*x*x*x+val[5]*x*x*x*x
+    data[x] = y
+  EndFor
+  LDGraph.AddSeriesLine(graph1,val[1]+","+val[2]+","+val[3]+","+val[4]+","+val[5],data,GraphicsWindow.GetRandomColor())
+EndSub

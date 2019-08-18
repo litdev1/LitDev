@@ -1,0 +1,47 @@
+GraphicsWindow.Width = 400
+GraphicsWindow.Height = 400
+GraphicsWindow.BackgroundColor = LDColours.DarkGray
+
+picture = Controls.AddButton("Take Picture", 20,350)
+pause = Controls.AddButton("Pause", 125,350)
+resume = Controls.AddButton("Resume", 190,350)
+effect = Controls.AddButton("Effect", 270,350)
+end = Controls.AddButton("Exit", 335,350)
+setDefault = Controls.AddButton("Set Default", 20,320)
+Controls.ButtonClicked = OnButtonClicked
+
+combo = LDControls.AddComboBox(LDImage.GetEffects(), 100,200)
+LDControls.ComboBoxItemChanged = OnComboBoxItemChanged
+Shapes.Move(combo,270,320)
+default = Controls.AddTextBox(125,320)
+Controls.SetSize(default,125,24)
+defaults = LDImage.EffectDefaults
+numEffects = Array.GetItemCount(defaults)
+
+webcam = LDWebCam.Start(320,240)
+Shapes.Move(webcam,40,40)
+
+Sub OnButtonClicked
+  If (Controls.LastClickedButton = picture) Then
+    LDWebCam.Snapshot()
+  ElseIf (Controls.LastClickedButton = pause) Then
+    LDWebCam.Pause()
+  ElseIf (Controls.LastClickedButton = resume) Then
+    LDWebCam.Resume()
+  ElseIf (Controls.LastClickedButton = end) Then
+    LDWebCam.End()
+    Program.End()
+  ElseIf (Controls.LastClickedButton = effect) Then
+    LDWebCam.Effect = Math.GetRandomNumber(numEffects)-1
+    LDControls.ComboBoxSelect(combo,LDWebCam.Effect)
+    Controls.SetTextBoxText(default,defaults[LDWebCam.Effect])
+  ElseIf (Controls.LastClickedButton = setDefault) Then
+    defaults[LDWebCam.Effect] = Controls.GetTextBoxText(default)
+    LDImage.EffectDefaults = defaults
+  EndIf
+EndSub
+
+Sub OnComboBoxItemChanged
+  LDWebCam.Effect = LDControls.LastComboBoxIndex
+  Controls.SetTextBoxText(default,defaults[LDWebCam.Effect])
+EndSub

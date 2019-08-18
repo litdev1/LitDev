@@ -1,0 +1,58 @@
+dict[1] = "move left"
+dict[2] = "move right"
+dict[3] = "move up"
+dict[4] = "move down"
+dict[5] = "stop ball"
+dict[6] = "red"
+dict[7] = "green"
+dict[8] = "blue"
+dict[9] = "black"
+dict[10] = "orange"
+dict[11] = "yellow"
+dict[12] = "pink"
+dict[13] = "cyan"
+dict[14] = "white"
+dict[15] = "gray"
+GraphicsWindow.DrawText(10,10*i,"Voice commands")
+For i = 1 To Array.GetItemCount(dict)
+  GraphicsWindow.DrawText(10,20+20*i,dict[i])
+EndFor
+LDSpeech.Vocabulary(dict)
+LDSpeech.Listen = OnListen
+ball = Shapes.AddEllipse(50,50)
+x = GraphicsWindow.Width/2
+y = GraphicsWindow.Height/2
+u = 0
+v = 0
+Shapes.Move(ball,x-25,y-25)
+
+While ("True")
+  x = x+u
+  y = y+v
+  If (x < 25 Or x > GraphicsWindow.Width-25) Then
+    u = -u
+  ElseIf (y < 25 Or y > GraphicsWindow.Height-25) Then
+    v = -v
+  EndIf
+  Shapes.Move(ball,x-25,y-25)
+  Program.Delay(10)
+EndWhile
+
+Sub OnListen
+  If (LDSpeech.LastSpokenConfidence > 0.5) Then
+    If(LDSpeech.LastSpoken = "move left") Then
+      u = -1
+    ElseIf(LDSpeech.LastSpoken = "move right") Then
+      u = 1
+    ElseIf(LDSpeech.LastSpoken = "move up") Then
+      v = -1
+    ElseIf(LDSpeech.LastSpoken = "move down") Then
+      v = 1
+    ElseIf(LDSpeech.LastSpoken = "stop ball") Then
+      u = 0
+      v = 0
+    Else
+      LDShapes.BrushColour(ball,LDSpeech.LastSpoken)
+    EndIf
+  EndIf
+EndSub

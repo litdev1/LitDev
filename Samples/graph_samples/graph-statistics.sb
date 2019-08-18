@@ -1,0 +1,33 @@
+for  i = 1 To 1000
+  Random[i] = Math.GetRandomNumber(999)/1000.0 'Don't include 0 or 1
+EndFor
+Mean = 4
+STD = 0.5
+PDFNormal = LDStatistics.DistNormal(Mean, STD, 101) 'Normal (bell) distribution Probablity density function
+CDFNormal = LDStatistics.Integrate(PDFNormal) 'Cummulative density function
+RandNormal = LDStatistics.InterpolateX(CDFNormal, Random) 'Data generated randomly with Normal distribution
+FreqDist = LDStatistics.Frequency(RandNormal, 50, "True") 'Frequency distribution of random generated data
+
+LDStatistics.SetArray(RandNormal)
+TextWindow.WriteLine("Input Mean = "+Mean+" Generated Mean = "+LDStatistics.Mean)
+TextWindow.WriteLine("Input STD = "+STD+" Generated STD = "+LDStatistics.SDev)
+
+LDGraphicsWindow.State = 2
+graph = LDGraph.AddGraph(0, 0, GraphicsWindow.Width, GraphicsWindow.Height, "Normal Distribution", "Value", "Frequency")
+LDGraph.AddSeriesLine(graph, "Normal PDF", PDFNormal, "Red")
+LDGraph.AddSeriesLine(graph, "Normal CDF", CDFNormal, "Blue")
+LDGraph.AddSeriesHistogram(graph, "Generated PDF", FreqDist, "Purple")
+
+LDEvents.Resized = OnResized
+update = 0
+While ("true")
+  If (update = 1) Then
+    update = 0
+    LDShapes.ReSize(graph, GraphicsWindow.Width, GraphicsWindow.Height)
+    LDShapes.Centre(graph, GraphicsWindow.Width/2, GraphicsWindow.Height/2)
+  EndIf
+EndWhile
+
+Sub OnResized
+  update = 1
+EndSub

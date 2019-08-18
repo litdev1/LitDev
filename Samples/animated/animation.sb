@@ -1,0 +1,9 @@
+GraphicsWindow.BackgroundColor = "DarkGray"
+LDGraphicsWindow.PauseUpdates() 'Don't show anything while loading images
+LDShapes.AnimationInterval = 0 'No updates yet
+anim = LDShapes.AddAnimatedImage(Program.Directory+"\anim.png","True",4,4)
+gif = LDShapes.AddAnimatedGif(Program.Directory+"\bat.gif","True")
+Shapes.Move(anim,100,100)
+Shapes.Move(gif,200,200)
+LDShapes.AnimationInterval = 75 'Start the updates at 75 ms intervals
+LDGraphicsWindow.ResumeUpdates() 'Show the display

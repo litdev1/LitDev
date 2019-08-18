@@ -1,0 +1,94 @@
+folder = Program.Directory
+source = File.ReadContents(folder+"\code1.cs")
+LDInline.IncludeCS(source,"",folder+"\codeCS.dll")
+'LDInline.LoadDLL(folder+"\codeCS.dll")
+source = File.ReadContents(folder+"\code1.vb")
+LDInline.IncludeVB(source,"","")
+
+TextWindow.WriteLine("METHODS")
+methods = LDInline.GetMethods("False")
+Mindices = Array.GetAllIndices(methods)
+For i = 1 To Array.GetItemCount(Mindices)
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.Write(i+" ")
+  TextWindow.ForegroundColor = "Red"
+  TextWindow.Write(Mindices[i])
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.WriteLine(" : "+methods[Mindices[i]])
+  arguments = LDInline.GetMethodParameters(Mindices[i])
+  Pindices = Array.GetAllIndices(arguments)
+  For j = 1 To Array.GetItemCount(Pindices)
+    TextWindow.ForegroundColor = "Gray"
+    TextWindow.Write("  "+j+" ")
+    TextWindow.ForegroundColor = "Yellow"
+    TextWindow.Write(Pindices[j])
+    TextWindow.ForegroundColor = "Gray"
+    TextWindow.WriteLine(" : "+arguments[Pindices[j]])
+  EndFor
+EndFor
+TextWindow.WriteLine("")
+
+TextWindow.WriteLine("PROPERTIES")
+properties = LDInline.GetProperties()
+Pindices = Array.GetAllIndices(properties)
+For i = 1 To Array.GetItemCount(Pindices)
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.Write(i+" ")
+  TextWindow.ForegroundColor = "Green"
+  TextWindow.Write(Pindices[i])
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.WriteLine(" : "+properties[Pindices[i]])
+EndFor
+TextWindow.WriteLine("")
+
+TextWindow.WriteLine("EVENTS")
+events = LDInline.GetEvents()
+Eindices = Array.GetAllIndices(events)
+For i = 1 To Array.GetItemCount(Eindices)
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.Write(i+" ")
+  TextWindow.ForegroundColor = "Blue"
+  TextWindow.Write(Eindices[i])
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.WriteLine(" : "+events[Eindices[i]])
+EndFor
+TextWindow.WriteLine("")
+
+TextWindow.WriteLine("REFERENCES")
+references = LDInline.GetReferences("False")
+Rindices = Array.GetAllIndices(references)
+For i = 1 To Array.GetItemCount(Rindices)
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.Write(i+" ")
+  TextWindow.ForegroundColor = "Cyan"
+  TextWindow.WriteLine(Rindices[i])
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.WriteLine("  "+references[Rindices[i]])
+EndFor
+TextWindow.WriteLine("")
+
+TextWindow.WriteLine("ASSEMBLIES")
+assemblies = LDInline.GetAssemblies("False")
+Aindices = Array.GetAllIndices(assemblies)
+For i = 1 To Array.GetItemCount(Aindices)
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.Write(i+" ")
+  TextWindow.ForegroundColor = "Yellow"
+  TextWindow.WriteLine(Aindices[i])
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.WriteLine("  "+assemblies[Aindices[i]])
+EndFor
+TextWindow.WriteLine("")
+
+TextWindow.WriteLine("TYPES")
+types = LDInline.GetTypes()
+Tindices = Array.GetAllIndices(types)
+For i = 1 To Array.GetItemCount(Tindices)
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.Write(i+" ")
+  TextWindow.ForegroundColor = "Magenta"
+  TextWindow.Write(Tindices[i])
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.WriteLine(" : "+types[Tindices[i]])
+EndFor
+TextWindow.WriteLine("")

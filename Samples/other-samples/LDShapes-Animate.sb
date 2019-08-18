@@ -1,0 +1,9 @@
+GraphicsWindow.BackgroundColor = LDColours.BlueViolet
+GraphicsWindow.BrushColor = LDColours.Coral
+GraphicsWindow.PenWidth = 5
+star = LDShapes.AddStar(7,50,100)
+LDShapes.Centre(star,GraphicsWindow.Width/2,GraphicsWindow.Height/2)
+LDShapes.AnimateOpacity(star,1000,0)
+LDShapes.AnimateRotation(star,-1000,0)
+LDShapes.AnimateZoom(star,1000,0,-2,-2)
+

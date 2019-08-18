@@ -1,0 +1,93 @@
+xmlFile = "C:\Program Files (x86)\Microsoft\Small Basic\SmallBasicLibrary.xml"
+xml = LDxml.Open(xmlFile)
+ParseChildren()
+WriteMember() 'Final member output
+
+Sub ParseChildren
+  'Recursive traverse xml element tree
+  LDxml.FirstChild()
+  ParseNode()
+  While(LDxml.NextSibling() = "SUCCESS")
+    ParseNode()
+  EndWhile
+  LDxml.Parent()
+EndSub
+
+Sub ParseNode
+  If (LDxml.NodeType = "Element") Then
+    If (LDxml.NodeName = "member") Then
+      WriteMember() 'Previous member output
+      attrib = LDxml.Attributes
+      name = attrib["name"]
+      name = LDText.Replace(name,"Microsoft.SmallBasic.Library.","")
+      type = Text.GetSubText(name,1,1)
+      member = Text.GetSubTextToEnd(name,3)
+      If (type = "T") Then
+        object = member
+      Else
+        'member = Text.GetSubTextToEnd(member,Text.GetLength(object)+2)
+      EndIf
+    ElseIf (LDxml.NodeName = "param") Then
+      attrib = LDxml.Attributes
+      numParam = numParam+1
+      params[numParam]["Name"] = attrib["name"]
+      params[numParam]["Text"] = LDxml.NodeInnerText
+    ElseIf (LDxml.NodeName = "summary") Then
+      summary = LDxml.NodeInnerText
+    EndIf
+  ElseIf (LDxml.NodeType = "Text") Then
+  EndIf
+  
+  If (LDxml.ChildrenCount > 0) Then
+    ParseChildren()
+  EndIf
+EndSub
+
+Sub WriteMember
+  If (type = "") Then 'First call do nothing
+    Goto Finished
+  ElseIf (type = "T") Then
+    If (Text.IsSubText(member,"Internal")) Then 'Ignore
+      Goto Finished
+    EndIf
+    TextWindow.ForegroundColor = "Red"
+    TextWindow.Write("Object ")
+  ElseIf (type = "M") Then
+    If (Text.IsSubText(member,"System")) Then 'Ignore
+      Goto Finished
+    EndIf
+    TextWindow.ForegroundColor = "Yellow"
+    TextWindow.Write("Method ")
+  ElseIf (type = "P") Then
+    TextWindow.ForegroundColor = "Green"
+    TextWindow.Write("Parameter ")
+  ElseIf (type = "E") Then
+    TextWindow.ForegroundColor = "Magenta"
+    TextWindow.Write("Event ")
+  EndIf
+  'Insert arguments
+  pos = Text.GetIndexOf(member,"Primitive")
+  If (pos > 1) Then
+    member = Text.GetSubText(member,1,pos-1)
+    For i = 1 To numParam
+      member = member + params[i]["Name"]
+      If (i < numParam) Then
+        member = member+","
+      Else
+        member = member+")"
+      EndIf
+    EndFor
+  EndIf
+  TextWindow.WriteLine(member)
+  TextWindow.ForegroundColor = "Gray"
+  TextWindow.WriteLine("    "+LDText.Trim(summary))
+  For i = 1 To numParam
+    TextWindow.ForegroundColor = "Cyan"
+    TextWindow.WriteLine("  Argument "+params[i]["Name"])
+    TextWindow.ForegroundColor = "Gray"
+    TextWindow.WriteLine("    "+LDText.Trim(params[i]["Text"]))
+  EndFor
+  
+  Finished:
+  numParam = 0
+EndSub

@@ -1,0 +1,15 @@
+gw = 800
+gh = 800
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+
+For i = 1 To 100
+  data1[i] = i*Math.GetRandomNumber(10)
+  data2[i] = i*Math.GetRandomNumber(10)
+  data3[i] = i*Math.GetRandomNumber(10)
+EndFor
+
+graph1 = LDGraph.AddGraph(0,0,gw,gh,"Test","X","Y")
+LDGraph.AddSeriesLine(graph1,"1",data1,"Red")
+LDGraph.AddSeriesHistogram(graph1,"2",data2,"Blue")
+LDGraph.AddSeriesPoints(graph1,"3",data3,"Green")

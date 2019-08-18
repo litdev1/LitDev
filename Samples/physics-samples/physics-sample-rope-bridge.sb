@@ -1,0 +1,82 @@
+gw = 600
+gh = 600
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+GraphicsWindow.BackgroundColor = "Black"
+GraphicsWindow.Title = "Click to create a shape or click a shape it impulse  it up"
+
+'Remove the side boundaries while we create and contract the rope within the GW
+offset = 40 'The shrink of the rope from the sides
+LDPhysics.SetBoundaries(-1,gw+1,0,gh)
+end1 = LDPhysics.AddFixedAnchor(-offset,gh/2)
+end2 = LDPhysics.AddFixedAnchor(gw+offset,gh/2)
+LDPhysics.RopeColour = "Pink"
+LDPhysics.AddRope(end1,end2)
+'Move the rop into the display so it is hanging below the anchors
+'We do it in pixel steps to stop the rope snagging or getting twisted on itself
+For i = 1 To offset
+  LDPhysics.DoTimestep()
+  LDPhysics.SetPosition(end1,-offset+i,gh/2,0)
+  LDPhysics.SetPosition(end2,gw+offset-i,gh/2,0)
+EndFor
+'Reset the GW display boundaries
+LDPhysics.SetBoundaries(0,gw,0,gh)
+
+'Create large static circles with restiturion > 1 - gives an impulse (like a pinball obstacle)
+GraphicsWindow.BrushColor = "Orange"
+radius = 30
+circle = Shapes.AddEllipse(2*radius,2*radius)
+Shapes.Move(circle,gw/2-radius,100-radius)
+LDPhysics.AddFixedShape(circle,0.5,2)
+circle = Shapes.AddEllipse(2*radius,2*radius)
+Shapes.Move(circle,gw*3/8-radius,200-radius)
+LDPhysics.AddFixedShape(circle,0.5,2)
+circle = Shapes.AddEllipse(2*radius,2*radius)
+Shapes.Move(circle,gw*5/8-radius,200-radius)
+LDPhysics.AddFixedShape(circle,0.5,2)
+
+mouseDown = 0
+GraphicsWindow.MouseDown = OnMouseDown
+Sub OnMouseDown
+  mouseDown = 1
+EndSub
+
+GraphicsWindow.PenWidth = 0
+While("True")
+  If (LDUtilities.KeyDown("Space")) Then
+    LDPhysics.AddExplosion(GraphicsWindow.MouseX,GraphicsWindow.MouseY,1000,10,"White")
+  EndIf
+  start = Clock.ElapsedMilliseconds
+  If (mouseDown = 1) Then
+    xM = GraphicsWindow.MouseX
+    yM = GraphicsWindow.MouseY
+    hit = LDPhysics.GetShapeAt(xM,yM)
+    If (hit <> "") Then
+      'If we clicked a shape then impulse it up
+      LDPhysics.SetImpulse(hit,0,-1000*LDPhysics.GetMass(hit))
+    Else
+      'Create a new shape
+      rand = Math.GetRandomNumber(3)
+      If (rand = 1) Then
+        GraphicsWindow.BrushColor = "Green"
+        shape = Shapes.AddTriangle(0,0,18,0,9,15)
+      ElseIf (rand = 2) Then
+        GraphicsWindow.BrushColor = "Yellow"
+        shape = Shapes.AddRectangle(15,15)
+      Else
+        GraphicsWindow.BrushColor = "Red"
+        shape = Shapes.AddEllipse(17,17)
+      EndIf
+      LDPhysics.AddMovingShape(shape,0.5,0.8,5) 'Increased density for the relatively small shapes
+      LDPhysics.SetPosition(shape,xM,yM,0)
+      LDPhysics.SetBullet(shape) 'We dont want it it tunnel though the rope when moving fast
+    EndIf
+    mouseDown = 0
+  EndIf
+  LDPhysics.DoTimestep()
+  delay = 1000*LDPhysics.TimeStep - (Clock.ElapsedMilliseconds-start)
+  If (delay > 0) Then
+    Program.Delay(delay)
+  EndIf
+EndWhile
+

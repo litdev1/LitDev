@@ -1,0 +1,79 @@
+GetDevice()
+Initialise()
+
+LDHID.Input = OnInput
+LDHID.Removed = OnRemoved
+Controls.ButtonClicked = OnButtonClicked
+
+Sub GetDevice
+  devices = LDHID.FindDevices()
+  dev = 0
+  While (dev < 1 Or dev > Array.GetItemCount(devices))
+    TextWindow.WriteLine("Select a USB device (Enter the number in the first column)")
+    For i = 1 To Array.GetItemCount(devices)
+      TextWindow.WriteLine(i + ": "+devices[i]["VID"] + " " + devices[i]["PID"] + " " + devices[i]["Description"])  
+    EndFor
+    dev = Math.Round(TextWindow.ReadNumber())
+  EndWhile
+  
+  TextWindow.Hide()
+  device = "MyDevice"
+  VID = devices[dev]["VID"]
+  PID = devices[dev]["PID"]
+EndSub
+
+Sub Initialise
+  status = LDHID.AddDevice(VID,PID,device)
+  statusTextBox = Controls.AddTextBox(30,0)
+  Controls.SetSize(statusTextBox,400,24)
+  setStatus()
+  inputLength = LDHID.InputLength(device)
+  outputLength = LDHID.OutputLength(device)
+  GraphicsWindow.DrawText(30,30,inputLength+" Input Bytes")
+  GraphicsWindow.DrawText(230,30,outputLength+" Output Bytes")
+  For i = 1 To inputLength
+    inputTextBox[i] = Controls.AddTextBox(30,30*(i+1))
+  EndFor
+  For i = 1 To outputLength
+    outputTextBox[i] = Controls.AddTextBox(230,30*(i+1))
+  EndFor
+  send = Controls.AddButton("Send Output",230,30*(i+1))
+EndSub
+
+Sub OnInput
+  If (LDHID.LastDevice = device) Then
+    input = LDHID.LastInput
+    For i = 1 To inputLength
+      bits = LDHID.GetBits(input[i])
+      result = ""
+      For j = 1 To 8
+        result = Text.Append(result,bits[j]+" ")
+      EndFor
+      result = result + "("+input[i]+")"
+      Controls.SetTextBoxText(inputTextBox[i],result)
+    EndFor
+  EndIf
+EndSub
+
+Sub OnRemoved
+  status = "False"
+  setStatus()
+EndSub
+
+Sub OnButtonClicked
+  If (Controls.LastClickedButton = send) Then
+    data = ""
+    For i = 1 To outputLength
+      data[i] = Controls.GetTextBoxText(outputTextBox[i])
+    EndFor
+    LDHID.Output(device,data)
+  EndIf
+EndSub
+
+Sub setStatus
+  If (status) Then
+    Controls.SetTextBoxText(statusTextBox,device+" is connected and working")
+  Else
+    Controls.SetTextBoxText(statusTextBox,device+" is not connected or failed")
+  EndIf
+EndSub

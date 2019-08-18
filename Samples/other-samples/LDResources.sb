@@ -1,0 +1,35 @@
+If ("False") Then
+  'Create and save resouces
+  image1 = ImageList.LoadImage(Flickr.GetRandomPicture("car"))
+  Sound.Play(Program.Directory+"/BigBang.wav")
+  Sound.Stop(Program.Directory+"/BigBang.wav")
+  LDResources.AddText("Hello World")
+  LDResources.AddFile("C:\temp\test.txt")
+  LDResources.Save()
+Else
+  'Load and test existing resources
+  LDResources.Load()
+  texts = LDResources.Texts
+  files = LDResources.Files
+  images = LDResources.Images
+  sounds = LDResources.Sounds
+  For i = 1 To Array.GetItemCount(texts)
+    TextWindow.WriteLine(texts[i])
+  EndFor
+  For i = 1 To Array.GetItemCount(files)
+    TextWindow.WriteLine(files[i])
+    LDResources.ExtractFile(files[i])
+  EndFor
+  For i = 1 To Array.GetItemCount(images)
+    TextWindow.WriteLine(images[i])
+    GraphicsWindow.DrawResizedImage(images[i],0,0,GraphicsWindow.Width,GraphicsWindow.Height)
+    Program.Delay(1000)
+  EndFor
+  For i = 1 To Array.GetItemCount(sounds)
+    TextWindow.WriteLine(sounds[i])
+    Sound.Play(sounds[i])
+    Program.Delay(1000)
+    Sound.Stop(sounds[i])
+  EndFor
+  LDResources.CleanTemp()
+EndIf

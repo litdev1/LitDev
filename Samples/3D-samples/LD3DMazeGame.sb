@@ -1,0 +1,477 @@
+'===========================================================
+' A SIMPLE 3D MAZE GAME for SMALL BASIC using LITDEV extension
+'===========================================================
+
+LDGraphicsWindow.State = 2
+gw = GraphicsWindow.Width
+gh = GraphicsWindow.Height
+'GraphicsWindow.Width = gw
+'GraphicsWindow.Height = gh
+GraphicsWindow.BackgroundColor = "Black"
+GraphicsWindow.Title = "Small Basic 3D Cone Maze"
+
+'User name
+GraphicsWindow.BrushColor = "Red"
+GraphicsWindow.FontSize = 20
+user = ""
+userBox = Controls.AddTextBox(50,100)
+Controls.SetTextBoxText(userBox,"")
+Controls.SetSize(userBox,200,30)
+LDFocus.SetFocus(userBox)
+userTxt = Shapes.AddText("Enter your user name here")
+Shapes.Move(userTxt,50,50)
+userButton = Controls.AddButton("OK",50,150)
+Controls.ButtonClicked = OnButtonClicked
+While (user = "")
+  Program.Delay(100)
+EndWhile
+Shapes.Remove(userBox)
+Shapes.Remove(userButton)
+Shapes.Remove(userTxt)
+Sub OnButtonClicked
+  user = Controls.GetTextBoxText(userBox)
+EndSub
+
+'===========================================================
+' INITIALISATION
+'===========================================================
+
+GraphicsWindow.DrawText(50,50,"KEYS: Keypad + W, S, A, D, Escape")
+GraphicsWindow.DrawText(50,100,"Recommend just Left, Right and W (forward)")
+GraphicsWindow.DrawText(50,150,"Find all the evil spinning cones to get a high score!")
+GraphicsWindow.DrawText(50,200,"Go when the title bar timer starts...")
+
+'Load images and set main control variables
+wallImg = ImageList.LoadImage(Program.Directory+"\wall.jpg")
+stonesImg = ImageList.LoadImage(Program.Directory+"\stones.jpg")
+waterImg = ImageList.LoadImage(Program.Directory+"\water.jpg")
+args = "" 'For use with LDCall
+speed = 1 'Control speed
+size = 1 ' The image per tile scaling
+proximity = size/10 'Closest approach to an object
+
+'Wait for OK
+button = Controls.AddButton("OK",50,250)
+ok = 0
+Controls.ButtonClicked = OnOK
+While (ok = 0)
+  Program.Delay(100) 
+EndWhile
+
+START:
+GraphicsWindow.Clear()
+
+'Create a view 
+view3D = LD3DView.AddView(gw,gh,"True") 'Will not clip to size if window rescaled
+creation = Shapes.AddText("Creating Scene")
+
+'Create a cone geometry
+createCone()
+
+'Create a basic wall tile object
+createBasicWall()
+
+'Animation end event
+LD3DView.TranslationCompleted = OnTranslationCompleted
+
+'Create a world based on layout
+' X is an empty room
+' L is a room with a light
+' C is a room with a rotating illuminated cone
+layout = ""
+layout[15] = "LXX     LXXXXXXXXXXXXXXXLXXXX"
+layout[14] = "X X XXLXX   X    X        XCX "
+layout[13] = "XXLXX   X   X    X          L    "
+layout[12] = "L C XXL XL  X    LXXXXXXXLXXXXX"
+layout[11] = "XXX L X  X  LXXXX     X     XCX"
+layout[10] = "L XXXXXX X      L     X  XXLXXXLXXXLX"
+layout[9]  = "X  X  L   XXXXLXXXXXXXXL  X  X     X"
+layout[8]  = "   X  X   X               L  X   XLXX"
+layout[7]  = "LXXX    LXXXXXXXXXXXLXXXXXX  L   X  X"
+layout[6]  = "C X  XLXX     X           X  XXXXX  L  "
+layout[5]  = "XXLXX   X  XXXX     LXXXXXXX     L  X"
+layout[4]  = "L X XXL XL          X      XXXXXXXXXX"
+layout[3]  = "XXX L X  XXXXXXXLXXXX        XCX"
+layout[2]  = "X XXXXXX X        X      XXLXXXXXXXLX"
+layout[1]  = "XXL XX XLXXXXXXXXXXXXXXXXXXXXLXXXXXXX"
+createWorld()
+
+'Some different light types
+'LD3DView.AddDirectionalLight(view3D,"#201010",1,1,1)
+'LD3DView.AddDirectionalLight(view3D,"#201010",-1,1,-1)
+LD3DView.AddAmbientLight(view3D,"#101010") 'Dim ambient light
+
+Shapes.Remove(creation)
+
+'===========================================================
+' GAME LOOP
+'===========================================================
+
+startTime = Clock.ElapsedMilliseconds
+progress = 0
+While (progress < coneCount)
+  start = Clock.ElapsedMilliseconds
+  
+  'Use the keys to move the camera - comment S to prevent backwards movement out of the maze, or Up, Down, A and D to simplify movement
+  yaw = 0
+  pitch = 0
+  roll = 0
+  move = 0
+  If (LDUtilities.KeyDown("Left")) Then
+    yaw = yaw-1.5*speed
+  EndIf
+  If (LDUtilities.KeyDown("Right")) Then
+    yaw = yaw+1.5*speed
+  EndIf
+  If (LDUtilities.KeyDown("Up")) Then
+    pitch = pitch-1.5*speed
+  EndIf
+  If (LDUtilities.KeyDown("Down")) Then
+    pitch = pitch+1.5*speed
+  EndIf
+  If (LDUtilities.KeyDown("A")) Then
+    roll = roll+1.5*speed
+  EndIf
+  If (LDUtilities.KeyDown("D")) Then
+    roll = roll-1.5*speed
+  EndIf
+  If (LDUtilities.KeyDown("W")) Then
+    move = move+size/25*speed
+  EndIf
+  If (LDUtilities.KeyDown("S")) Then
+    move = move-size/25*speed
+  EndIf
+  
+  'Prevent forward movement into an object
+  hit = LD3DView.HitTest(view3D,-1,-1)
+  If (hit <> "" And hit[2] < proximity) Then
+    move = Math.Min(0,move) 'We can still back up
+    For i = 1 To coneCount
+      If (hit[1] = cone[i]) Then
+        'Remove cones as we find them
+        LD3DView.ModifyObject(view3D,cone[i],"H")
+        progress = progress+1
+      EndIf
+    EndFor
+  EndIf
+  
+  'Perhaps better without the pitch and roll
+  LD3DView.MoveCamera(view3D,yaw,pitch,roll,move) 'These are relative changes wrt current view
+  
+  'Exit
+  If (LDUtilities.KeyDown("Escape")) Then
+    Program.End()
+  EndIf
+  
+  'Reanimate cones
+  For kCone = 1 To coneCount
+    If (startConeAnimation[kCone] = 1) Then
+      startConeAnimation[kCone] = 0
+      LDCall.Function("animateCone",kCone)
+    EndIf
+  EndFor
+  
+  'Display the camera position and direction and game time
+  pos = LDCall.Function2("truncate",LD3DView.GetCameraPosition(view3D),2)
+  dir = LDCall.Function2("truncate",LD3DView.GetCameraDirection(view3D),2)
+  GraphicsWindow.Title = "Time = "+Math.Round((Clock.ElapsedMilliseconds-startTime)/1000)+" Cones remaining = "+(coneCount-progress)+" Position = ("+pos[1]+" , "+pos[2]+" , "+pos[3]+") Direction = "+dir[1]+" , "+dir[2]+" , "+dir[3]+")"
+  
+  delay = 20 - (Clock.ElapsedMilliseconds-start)
+  If (delay > 0) Then
+    Program.Delay(delay)
+  EndIf
+EndWhile
+
+'Game ends - check the scores
+Shapes.Remove(view3D)
+timesec = Math.Round((Clock.ElapsedMilliseconds-startTime)/1000)
+GraphicsWindow.DrawText(50,50,"You did it in "+timesec+" seconds")
+score = Math.Max(0,1000-timesec)
+hightscore = LDNetwork.HighScore("3DMazeGame2",user,score)
+GraphicsWindow.DrawText(50,100,"Your score is "+score)
+GraphicsWindow.DrawText(50,150,"The high score is "+hightscore[2]+" by "+hightscore[1])
+
+'Wait for OK
+button = Controls.AddButton("OK",50,200)
+ok = 0
+Controls.ButtonClicked = OnOK
+While (ok = 0)
+  Program.Delay(100) 
+EndWhile
+
+GoTo START
+
+'===========================================================
+' SUBROUTINES
+'===========================================================
+
+'Creata a basic wall tile object
+Sub createBasicWall
+  points = ""
+  indices = ""
+  textures = ""
+  index = 0
+  For i = 1 To size
+    For j = 1 To size
+      x1 = i-1
+      x2 = i
+      y1 = j-1
+      y2 = j
+      z = 0
+      'Triangle1
+      points = points+x1+":"+y1+":"+z+":"
+      points = points+x2+":"+y1+":"+z+":"
+      points = points+x2+":"+y2+":"+z+":"
+      indices = indices + index+":"+(index+1)+":"+(index+2)+":"
+      index = index+3
+      textures = textures + "0 0:0 1:1 1:"
+      
+      'Triangle2
+      points = points+x1+":"+y1+":"+z+":"
+      points = points+x2+":"+y2+":"+z+":"
+      points = points+x1+":"+y2+":"+z+":"
+      indices = indices + index+":"+(index+1)+":"+(index+2)+":"
+      index = index+3
+      textures = textures + "0 0:1 1:1 0:"
+    EndFor
+  EndFor
+  wall = LD3DView.AddGeometry(view3D,points,indices,"","White","D")
+  LD3DView.AddImage(view3D,wall,textures,wallImg,"D")
+  LD3DView.ModifyObject(view3D,wall,"H")
+EndSub
+
+Sub createWall
+  i = args[1] 'Left to Right
+  j = args[2] 'Front to Back
+  k = args[3] 'Down to Up
+  dir = args[4]
+  
+  If (dir = "F") Then
+    return = LD3DView.CloneObject(view3D,wall)
+    LD3DView.TranslateGeometry(view3D,return,i*size,k*size,-j*size)
+  ElseIf (dir = "B") Then
+    return = LD3DView.CloneObject(view3D,wall)
+    LD3DView.RotateGeometry(view3D,return,0,1,0,180)
+    LD3DView.TranslateGeometry(view3D,return,i*size,k*size,-j*size+size)
+  ElseIf (dir = "L") Then
+    return = LD3DView.CloneObject(view3D,wall)
+    LD3DView.RotateGeometry(view3D,return,0,1,0,90)
+    LD3DView.TranslateGeometry(view3D,return,i*size-size/2,k*size,-j*size+size/2)
+  ElseIf (dir = "R") Then
+    return = LD3DView.CloneObject(view3D,wall)
+    LD3DView.RotateGeometry(view3D,return,0,1,0,-90)
+    LD3DView.TranslateGeometry(view3D,return,i*size+size/2,k*size,-j*size+size/2)
+  ElseIf (dir = "U") Then
+    return = LD3DView.CloneObject(view3D,wall)
+    LD3DView.AddImage(view3D,return,textures,waterImg,"D")
+    LD3DView.RotateGeometry(view3D,return,1,0,0,90)
+    LD3DView.TranslateGeometry(view3D,return,i*size,k*size+size/2,-j*size+size/2)
+  ElseIf (dir = "D") Then
+    return = LD3DView.CloneObject(view3D,wall)
+    LD3DView.AddImage(view3D,return,textures,stonesImg,"D")
+    LD3DView.RotateGeometry(view3D,return,1,0,0,-90)
+    LD3DView.TranslateGeometry(view3D,return,i*size,k*size-size/2,-j*size+size/2)
+  EndIf
+  LD3DView.Freeze(view3D,return) ' We won't ever modify this so freeze it
+EndSub
+
+'Change the input array of numbers to the required number of decimal places
+Sub truncate
+  return = args[1]
+  sigfig = args[2]
+  multiplier = Math.Power(10,sigfig)
+  For i = 1 To Array.GetItemCount(return)
+    return[i] = (1/multiplier)*Math.Round(multiplier*return[i])
+  EndFor
+EndSub
+
+'Get layout character
+Sub getChar
+  i = args[1]
+  j = args[2]
+  return = Text.GetSubText(layout[i],j,1)
+  If (return = " ") Then
+    return = ""
+  EndIf
+EndSub
+
+'Crearte a maze layout - the large indexes are forward
+Sub createWorld
+  cameraSet = 0
+  coneCount = 0
+  For y = 1 To Array.GetItemCount(layout)
+    Shapes.Remove(creation)
+    creation = Shapes.AddText("Creating Scene "+Math.Round(100*(y)/(Array.GetItemCount(layout)))+"%")
+    For x = 1 To Text.GetLength(layout[y])
+      char = LDCall.Function2("getChar",y,x)
+      If (char <> "") Then
+        If (cameraSet = 0) Then
+          'Initial camera position and direction and view angle
+          LD3DView.ResetCamera(view3D,x*size+size/2,0.4*size,-size/2,0,0,-1,"","","")
+          LD3DView.CameraProperties(view3D,0,30*size,60) ' limit to 30 blocks (the longest corridor)
+          cameraSet = 1 'The first room is the start point
+        EndIf
+        
+        'Floor and ceiling
+        LDCall.Function4("createWall",x,y,0,"U")
+        LDCall.Function4("createWall",x,y,0,"D")
+        
+        'Left and right walls
+        If (LDCall.Function2("getChar",y,x-1) = "") Then
+          LDCall.Function4("createWall",x,y,0,"L")
+        EndIf
+        If (LDCall.Function2("getChar",y,x+1) = "") Then
+          LDCall.Function4("createWall",x,y,0,"R")
+        EndIf
+        
+        'Front and back walls
+        If (LDCall.Function2("getChar",y-1,x) = "") Then
+          LDCall.Function4("createWall",x,y,0,"B")
+        EndIf
+        If (LDCall.Function2("getChar",y+1,x) = "") Then
+          LDCall.Function4("createWall",x,y,0,"F")
+        EndIf
+        
+        'Add a lit cone - these are the main performance limiters so keep this kind of thing to a minimum
+        If (char = "C") Then
+          'Lots of spotlights are slow.
+          'spot = LD3DView.AddSpotLight(view3D,"Red",x*size+0.1,size/2,-(y*size)+0.1,1,0,1,80,0.8*size)
+          'spot = LD3DView.AddSpotLight(view3D,"Green",x*size+size-0.1,size/2,-(y*size)+0.1,-1,0,1,80,0.8*size)
+          'spot = LD3DView.AddSpotLight(view3D,"Blue",x*size+size-0.1,size/2,-(y*size-size)-0.1,-1,0,-1,80,0.8*size)
+          'spot = LD3DView.AddSpotLight(view3D,"Yellow",x*size+0.1,size/2,-(y*size-size)-0.1,1,0,-1,80,0.8*size)
+          
+          color = LDColours.HSLtoRGB(Math.GetRandomNumber(360),1,0.5)' A random high brightness colour
+          'spot = LD3DView.AddSpotLight(view3D,color,x*size+size/2,size,-(y*size-size/2),0,-1,0,30,size/2)
+          'spot = LD3DView.AddPointLight(view3D,color,x*size+size/2,0.98*size,-(y*size-size/2),2*size)
+          
+          coneCount = coneCount+1
+          cone[coneCount] = LD3DView.AddGeometry(view3D,pointsCone,indicesCone,"",color,"D") 'A base colour
+          LD3DView.AddImage(view3D,cone[coneCount],texturesCone,waterImg,"S") ' Some shiny texture that is stronly affected by lights
+          LD3DView.TranslateGeometry(view3D,cone[coneCount],x*size+size/2,size/3,-(y*size-size/2))
+          LD3DView.AnimateRotation(view3D,cone[coneCount], 0, 1, 0, 0, 360, 3, -1)
+          coneX[coneCount] = x
+          coneY[coneCount] = y
+          LDCall.Function("animateCone",coneCount)
+        EndIf
+        
+        'Add a point light
+        If (char = "L") Then
+          point = LD3DView.AddPointLight(view3D,"White",x*size+size/2,0.98*size,-(y*size-size/2),5*size)
+        EndIf
+        
+      EndIf
+    EndFor
+  EndFor
+EndSub
+
+'Create a cone geometry
+Sub createCone
+  nside = 10
+  height = size/2
+  radius = size/4
+  pointsCone = "0:"+(2/3*height)+":0:"
+  indicesCone = ""
+  texturesCone = "0.5:1:"
+  For i = 0 To nside
+    angle = i/nside*2*Math.Pi
+    x = radius*Math.Cos(-angle)
+    y = radius*Math.Sin(-angle)
+    pointsCone = pointsCone+x+":"+(-height/3)+":"+y+":"
+    If (i < nside) Then
+      indicesCone = indicesCone + "0:"+(i+1)+":"+(i+2)+":"
+    Else
+      indicesCone = indicesCone + "0:"+(i+1)+":"+1+":"
+    EndIf
+    texturesCone = texturesCone + i/nside+":0:"
+  EndFor
+EndSub
+
+'OK button
+Sub OnOK
+  ok = 1
+EndSub
+
+'Animate a cone
+Sub animateCone
+  iCone = args[1]
+  'Current position
+  xPos = coneX[iCone]
+  yPos = coneY[iCone]
+  'The 4 possible new positions
+  newX[1] = xPos-1
+  newY[1] = yPos
+  newX[2] = xPos
+  newY[2] = yPos+1
+  newX[3] = xPos+1
+  newY[3] = yPos
+  newX[4] = xPos
+  newY[4] = yPos-1
+  'Check for directions we can move
+  For iDir = 1 To 4
+    move[iDir] = LDCall.Function2("getChar",newY[iDir],newX[iDir])
+  EndFor
+  'coneMoveDir is the last direction 1 to 4 as listed above - start in +Y direction if unset
+  If (coneMoveDir[iCone] = "") Then
+    coneMoveDir[iCone] = 2
+  EndIf
+  'Find the forward, back, left and right wrt current direction
+  dirForward = coneMoveDir[iCone]
+  dirLeft = coneMoveDir[iCone]-1
+  If (dirLeft < 1) Then
+    dirLeft = 4+dirLeft
+  EndIf
+  dirRight = coneMoveDir[iCone]-3
+  If (dirRight < 1) Then
+    dirRight = 4+dirRight
+  EndIf
+  dirBack = coneMoveDir[iCone]-2
+  If (dirBack < 1) Then
+    dirBack = 4+dirBack
+  EndIf
+  'Move forward with high chance
+  If (move[dirForward] <> "" And Math.GetRandomNumber(10) > 2) Then
+    coneX[iCone] = newX[dirForward]
+    coneY[iCone] = newY[dirForward]
+    coneMoveDir[iCone] = dirForward
+  Else
+    'If not then move left or right with 50% chance each - otherwise move back
+    If (move[dirLeft] <> "" And Math.GetRandomNumber(2) = 1) Then
+      coneX[iCone] = newX[dirLeft]
+      coneY[iCone] = newY[dirLeft]
+      coneMoveDir[iCone] = dirLeft
+    ElseIf (move[dirRight] <> "") Then
+      coneX[iCone] = newX[dirRight]
+      coneY[iCone] = newY[dirRight]
+      coneMoveDir[iCone] = dirRight
+    ElseIf (move[dirLeft] <> "") Then 'Move left if we cannot go right
+      coneX[iCone] = newX[dirLeft]
+      coneY[iCone] = newY[dirLeft]
+      coneMoveDir[iCone] = dirLeft
+    ElseIf (move[dirBack] <> "") Then
+      coneX[iCone] = newX[dirBack]
+      coneY[iCone] = newY[dirBack]
+      coneMoveDir[iCone] = dirBack
+    ElseIf (move[dirForward] <> "") Then ' It is possible we can only go forward
+      coneX[iCone] = newX[dirForward]
+      coneY[iCone] = newY[dirForward]
+      coneMoveDir[iCone] = dirForward
+    EndIf
+  EndIf
+  
+  'Do the move
+  LD3DView.AnimateTranslation(view3D,cone[iCone],coneX[iCone]*size+size/2,size/3,-(coneY[iCone]*size-size/2),1)
+EndSub
+
+'Move the cone when its last translation is completed
+Sub OnTranslationCompleted
+  'Handle rare possibility that a cone can 'get stuck' by ending its animation at the same time as another so check for all queued completed animations
+  While (LD3DView.QueuedTranslationCompleted > 0) 'Almost always exactly one.
+    lastCone = LD3DView.LastTranslationCompleted ' Get this value only once since it will dequeue any queued items
+    For jCone = 1 To coneCount ' We use jCone because iCone and kCone are used elsewhere and we don't want them to conflict
+      If (cone[jCone] = lastCone) Then
+        startConeAnimation[jCone] = 1
+      EndIf
+    EndFor   
+  EndWhile
+EndSub
+        

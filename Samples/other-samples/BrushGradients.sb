@@ -1,0 +1,35 @@
+gradient[1] = "Red"
+gradient[2] = "Yellow"
+gradient[3] = "Blue"
+
+For i = 1 To 5
+  ellipse[i] = Shapes.AddEllipse(100,100)
+  Shapes.Move(ellipse[i], 20+120*(i-1),20)
+EndFor
+
+LDShapes.BrushShape(ellipse[1],LDShapes.BrushGradient(gradient,"H"))
+LDShapes.BrushShape(ellipse[2],LDShapes.BrushGradient(gradient,"V"))
+LDShapes.BrushShape(ellipse[3],LDShapes.BrushGradient(gradient,"DD"))
+LDShapes.BrushShape(ellipse[4],LDShapes.BrushGradient(gradient,"DU"))
+LDShapes.BrushShape(ellipse[5],LDShapes.BrushGradient(gradient,""))
+
+gradient[1] = "Blue"
+gradient[2] = "White"
+gradient[3] = "YellowGreen"
+brush = LDShapes.BrushGradient(gradient,"V")
+LDGraphicsWindow.BackgroundBrushGradient(brush)
+
+brush = LDShapes.BrushGradient(gradient,"H")
+LDShapes.BrushRectangle(brush,50,300,100,100)
+LDShapes.BrushEllipse(brush,200,300,100,100)
+LDShapes.BrushRoundedRectangle(brush,350,300,100,100,20)
+'A star
+For i = 1 To 10 Step 2
+  angle = (i-0.5)*2*Math.Pi/10
+  points[i][1] = 550-70*Math.Cos(angle)
+  points[i][2] = 350-70*Math.Sin(angle)
+  angle = (i+0.5)*2*Math.Pi/10
+  points[i+1][1] = 550-30*Math.Cos(angle)
+  points[i+1][2] = 350-30*Math.Sin(angle)
+EndFor
+LDShapes.BrushPolygon(brush,points)

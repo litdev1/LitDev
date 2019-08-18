@@ -1,0 +1,36 @@
+GraphicsWindow.BackgroundColor = "Gray"
+For i = 1 To 20
+  createH2O()
+EndFor
+
+mass = LDPhysics.GetMass(o[1])
+LDPhysics.SetGravity(0,0)
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile
+
+Sub createH2O
+  x = 50+Math.GetRandomNumber(GraphicsWindow.Width-100)
+  y = 50+Math.GetRandomNumber(GraphicsWindow.Height-100)
+  GraphicsWindow.BrushColor = "White"
+  o[i] = Shapes.AddEllipse(20,20)
+  Shapes.Move(o[i],x-10,y-10)
+  GraphicsWindow.BrushColor = "Red"
+  h1 = Shapes.AddEllipse(10,10)
+  Shapes.Move(h1,8+x-5,14+y-5)
+  h2 = Shapes.AddEllipse(10,10)
+  Shapes.Move(h2,8+x-5,-14+y-5)
+  
+  LDPhysics.AddMovingShape(o[i],0,1,1)
+  LDPhysics.AddMovingShape(h1,0,1,1)
+  LDPhysics.AddMovingShape(h2,0,1,1)
+  
+  'LDPhysics.AttachShapes(h1,o[i])
+  'LDPhysics.AttachShapes(h2,o[i])
+  LDPhysics.GroupShapes(h1,o[i])
+  LDPhysics.GroupShapes(h2,o[i])
+  
+  LDPhysics.SetVelocity(o[i],Math.GetRandomNumber(501)-251,Math.GetRandomNumber(501)-251)
+EndSub

@@ -1,0 +1,78 @@
+Initialise()
+
+'============================================
+'SUBROUTINES
+'============================================
+Sub Initialise
+  'Buttons
+  buttonLabel[1] = "Save"
+  buttonLabel[2] = "Load"
+  buttonLabel[3] = "Font"
+  buttonLabel[4] = "Colour"
+  buttonLabel[5] = "Set Default"
+  buttonLabel[6] = "Set Selection"
+  buttonLabel[7] = "Clear"
+  numButton = Array.GetItemCount(buttonLabel)
+  buttonWidth = 100
+  For i = 1 To numButton
+    button[i] = Controls.AddButton(buttonLabel[i],(buttonWidth+10)*(i-1)+10,10)
+    Controls.SetSize(button[i],buttonWidth,30)
+  EndFor
+  'Window size
+  GraphicsWindow.Width = numButton*(buttonWidth+10)+10 + 160
+  'RichTextBox
+  richTextBox = LDControls.AddRichTextBox(GraphicsWindow.Width-20,GraphicsWindow.Height-60)
+  Shapes.Move(richTextBox,10,50)
+  sampleRichTextBox = LDControls.AddRichTextBox(150,30)
+  Shapes.Move(sampleRichTextBox,(buttonWidth+10)*numButton+10,10)
+  setSample()
+  'Initial parameters
+  fileName = ""
+  font[1] = LDControls.RichTextBoxFontFamily
+  font[2] = LDControls.RichTextBoxFontSize
+  font[3] = LDControls.RichTextBoxFontBold
+  font[4] = LDControls.RichTextBoxFontItalic
+  colour = ""
+  folder = Program.Directory
+  'Events
+  LDEvents.Resized = OnResized
+  Controls.ButtonClicked = OnButtonClicked
+EndSub
+
+Sub setSample
+  LDControls.RichTextBoxSetText(sampleRichTextBox,LDControls.RichTextBoxFontFamily,"False")
+  LDControls.RichTextBoxDefault(sampleRichTextBox)
+EndSub
+
+'============================================
+'EVENT SUBROUTINES
+'============================================
+Sub OnResized
+  LDShapes.SetSize(richTextBox,GraphicsWindow.Width-20,GraphicsWindow.Height-60)
+EndSub
+
+Sub OnButtonClicked
+  If (Controls.LastClickedButton = button[1]) Then
+    fileName = LDDialogs.SaveFile("rtf",folder)
+    LDControls.RichTextBoxSave(richTextBox,fileName)
+  ElseIf (Controls.LastClickedButton = button[2]) Then
+    fileName = LDDialogs.OpenFile("rtf",folder)
+    LDControls.RichTextBoxLoad(richTextBox,fileName,"False")
+  ElseIf (Controls.LastClickedButton = button[3]) Then
+    font = LDDialogs.Font(font)
+    LDControls.RichTextBoxFontFamily = font[1]
+    LDControls.RichTextBoxFontSize = font[2]
+    LDControls.RichTextBoxFontBold = font[3]
+    LDControls.RichTextBoxFontItalic = font[4]
+  ElseIf (Controls.LastClickedButton = button[4]) Then
+    colour = LDDialogs.Colour()
+    LDControls.RichTextBoxFontForeground = colour
+  ElseIf (Controls.LastClickedButton = button[5]) Then
+    LDControls.RichTextBoxDefault(richTextBox)
+  ElseIf (Controls.LastClickedButton = button[6]) Then
+    LDControls.RichTextBoxSelection(richTextBox)
+  ElseIf (Controls.LastClickedButton = button[7]) Then
+    LDControls.RichTextBoxClear(richTextBox)
+  EndIf
+  setSample()
+EndSub

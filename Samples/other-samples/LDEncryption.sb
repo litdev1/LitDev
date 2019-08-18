@@ -1,0 +1,17 @@
+'Test encryption and hash with file storage
+
+txt = "Hello World"
+pwd = "myPassword"
+
+cypher = LDEncryption.AESEncrypt(txt,pwd)
+File.WriteContents(Program.Directory+"\cypher.txt",cypher)
+cypher = File.ReadContents(Program.Directory+"\cypher.txt")
+decrypt = LDEncryption.AESDecrypt(cypher,pwd)
+TextWindow.WriteLine(decrypt)
+
+hash = LDEncryption.SHA512Hash(pwd)
+File.WriteContents(Program.Directory+"\password.txt",hash)
+hash = File.ReadContents(Program.Directory+"\password.txt")
+If (hash = LDEncryption.SHA512Hash(pwd)) Then
+  TextWindow.WriteLine("password OK")
+EndIf

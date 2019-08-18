@@ -1,0 +1,46 @@
+GraphicsWindow.PenWidth = 0
+GraphicsWindow.Width = 1000
+GraphicsWindow.Height = 700
+GraphicsWindow.Top = 0
+GraphicsWindow.Left = 0
+
+'Pencil 1
+GraphicsWindow.BrushColor = "Yellow"
+body1 = Shapes.AddRectangle(20,200)
+GraphicsWindow.BrushColor = "Brown"
+point1 = Shapes.AddTriangle(0,0,20,0,10,30)
+GraphicsWindow.BrushColor = "Pink"
+eraser1 = Shapes.AddRectangle(20,30)
+LDPhysics.AddMovingShape(body1,0.3,0.3,1)
+LDPhysics.SetPosition(body1,200,200,0)
+LDPhysics.AddMovingShape(point1,0.3,0.5,1)
+LDPhysics.SetPosition(point1,200,310,0)
+LDPhysics.AddMovingShape(eraser1,0.8,0.8,1)
+LDPhysics.SetPosition(eraser1,200,85,0)
+LDPhysics.GroupShapes(point1,body1)
+LDPhysics.GroupShapes(eraser1,body1)
+
+'Pencil 2
+GraphicsWindow.BrushColor = "Yellow"
+body2 = Shapes.AddRectangle(20,200)
+GraphicsWindow.BrushColor = "Brown"
+point2 = Shapes.AddTriangle(0,0,20,0,10,30)
+GraphicsWindow.BrushColor = "Pink"
+eraser2 = Shapes.AddRectangle(20,30)
+LDPhysics.AddMovingShape(body2,0.3,0.3,1)
+LDPhysics.SetPosition(body2,800,200,0)
+LDPhysics.AddMovingShape(point2,0.3,0.5,1)
+LDPhysics.SetPosition(point2,800,310,0)
+LDPhysics.AddMovingShape(eraser2,0.8,0.8,1)
+LDPhysics.SetPosition(eraser2,800,85,0)
+LDPhysics.AttachShapes(point2,body2)
+LDPhysics.AttachShapes(eraser2,body2)
+
+'A little sideways kick to break the symetry of the fall
+LDPhysics.SetImpulse(body1,100,0)
+LDPhysics.SetImpulse(body2,100,0)
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(10)
+EndWhile

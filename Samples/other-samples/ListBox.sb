@@ -1,0 +1,14 @@
+'Entries for listbox
+list[1] = "Mark"
+list[2] = "Fred"
+list[3] = "Jane"
+list[4] = "William"
+'Sort the list, add to listbox and hook up event
+list = LDSort.ByValue(list) 'Optional sort
+listBox = LDControls.AddListBox(list,200,200)
+Shapes.Move(listBox,50,50)
+LDControls.ListBoxItemChanged = OnListBoxItemChanged
+
+Sub OnListBoxItemChanged
+  GraphicsWindow.ShowMessage("Listbox item "+list[LDControls.LastListBoxIndex]+" selected","Information")
+EndSub

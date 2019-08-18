@@ -1,0 +1,294 @@
+'==============================================================
+'INITIALISE
+'==============================================================
+
+Initialise()
+
+'==============================================================
+'MAIN PROGRAM
+'==============================================================
+
+GraphicsWindow.KeyDown = OnKeyDown
+GraphicsWindow.KeyUp = OnKeyUp
+GraphicsWindow.MouseDown = OnMouseDown
+LDMusic.Velocity = 128
+mode = 0 '0;Normal 1:Record 2:Playback
+count = 0 'Recorded key count
+
+'==============================================================
+'EVENT SUBROUTINES
+'==============================================================
+
+Sub OnMouseDown
+  If (Mouse.IsLeftButtonDown) Then
+    If (mode = 0) Then
+      StartRecord()
+    ElseIf (mode = 1) Then
+      EndRecord()
+    EndIf
+  ElseIf (Mouse.IsRightButtonDown) Then
+    PlayBack()
+  EndIf
+EndSub
+
+Sub OnKeyDown
+  If (mode = 0) Then
+    key = GraphicsWindow.LastKey
+  ElseIf (mode = 1) Then
+    key = GraphicsWindow.LastKey
+    count = count+1
+    record[count]["key"] = key
+    record[count]["state"] = 1
+    record[count]["time"] = Clock.ElapsedMilliseconds
+  ElseIf (mode = 2) Then
+    key = record[count]["key"]
+  EndIf
+  'TextWindow.WriteLine(key)
+  If (key = "Left") Then
+    LDMusic.Instrument = LDMusic.Instrument-1
+    If (LDMusic.Instrument < 1) Then
+      LDMusic.Instrument = 128
+    EndIf
+    Shapes.SetText(instrument,LDMusic.InstrumentName(LDMusic.Instrument)+" : "+LDMusic.Instrument)
+  ElseIf (key = "Right") Then
+    LDMusic.Instrument = LDMusic.Instrument+1
+    If (LDMusic.Instrument > 128) Then
+      LDMusic.Instrument = 1
+    EndIf
+    Shapes.SetText(instrument,LDMusic.InstrumentName(LDMusic.Instrument)+" : "+LDMusic.Instrument)
+  ElseIf (key = "Down") Then
+    octaveMod = octaveMod-1
+    If (octaveMod < -4) Then
+      octaveMod = -4
+    EndIf
+    Shapes.SetText(octave,"Octaves : "+(4+octaveMod)+","+(5+octaveMod)+","+(6+octaveMod))
+  ElseIf (key = "Up") Then
+    octaveMod = octaveMod+1
+    If (octaveMod > 2) Then
+      octaveMod = 2
+    EndIf
+    Shapes.SetText(octave,"Octaves : "+(4+octaveMod)+","+(5+octaveMod)+","+(6+octaveMod))
+  ElseIf (key = "Space") Then
+    LDMusic.Velocity = 64
+  ElseIf (keys[key]["value"] = "" And keys[key] <> "") Then
+    keys[key]["value"] = LDMusic.PlayNote(keys[key]["octave"]+octaveMod,keys[key]["note"],1)
+    x = keys[key]["X"]
+    y = keys[key]["Y"]
+    Shapes.Move(keys[key]["overlay"],x+6,y+6)
+  EndIf
+  If (mode > 0) Then
+    LDGraphicsWindow.ResumeUpdates() 'Force a redraw since we are doing graphics updates in a call from an Event (problematic)
+  EndIf
+EndSub
+
+Sub OnKeyUp
+  If (mode = 0) Then
+    key = GraphicsWindow.LastKey
+  ElseIf (mode = 1) Then
+    key = GraphicsWindow.LastKey
+    count = count+1
+    record[count]["key"] = key
+    record[count]["state"] = 0
+    record[count]["time"] = Clock.ElapsedMilliseconds
+  ElseIf (mode = 2) Then
+    key = record[count]["key"]
+  EndIf
+  If (key = "Space") Then
+    LDMusic.Velocity = 128
+  ElseIf (keys[key]["value"] <> "") Then
+    LDMusic.EndNote(keys[key]["value"])
+    keys[key]["value"] = ""
+    Shapes.Move(keys[key]["overlay"],-100,-100)
+  EndIf
+  If (mode > 0) Then
+    LDUtilities.ResumeUpdates() 'Force a redraw since we are doing graphics updates in a call from an Event (problematic)
+  EndIf
+EndSub
+
+'==============================================================
+'SUBROUTINES
+'==============================================================
+
+Sub Initialise
+  SetKeys()
+  SetDisplay()
+EndSub
+
+Sub SetDisplay
+  GraphicsWindow.Width = 700
+  GraphicsWindow.Height = 350
+  GraphicsWindow.BackgroundColor = "LightGray"
+  GraphicsWindow.BrushColor = "DarkRed"
+  instrument = Shapes.AddText(LDMusic.InstrumentName(LDMusic.Instrument)+" : "+LDMusic.Instrument)
+  Shapes.Move(instrument,100,30)
+  octaveMod = 0
+  octave = Shapes.AddText("Octaves : "+(4+octaveMod)+","+(5+octaveMod)+","+(6+octaveMod))
+  Shapes.Move(octave,400,30)
+  GraphicsWindow.DrawText(100,60,"Left and Right to change Instrument")
+  GraphicsWindow.DrawText(400,60,"Up and Down to change Octaves")
+  GraphicsWindow.DrawText(290,270,"Space for Soft Pedal")
+  GraphicsWindow.DrawText(100,320,"Start and Stop Recording with Left Mouse Click, PlayBack with Right Mouse Click")
+  keyIndex = Array.GetAllIndices(keys)
+  For i = 1 To 3
+    For j = 1 To 12
+      x = 50*j
+      y = 50+50*i
+      GraphicsWindow.BrushColor = "Black"
+      GraphicsWindow.DrawRectangle(x+5,y+5,40,40)
+      index = (i-1)*12+j
+      keyName = keyIndex[index]
+      If (keyName = "OemOpenBrackets") Then
+        keyName = "["
+      ElseIf (keyName = "Oem6") Then
+        keyName = "]"
+      ElseIf (keyName = "Oem1") Then
+        keyName = ";"
+      ElseIf (keyName = "Oem3") Then
+        keyName = "'"
+      ElseIf (keyName = "OemQuotes") Then
+        keyName = "#"
+      ElseIf (keyName = "Oem5") Then
+        keyName = "\"
+      ElseIf (keyName = "OemComma") Then
+        keyName = ","
+      ElseIf (keyName = "OemPeriod") Then
+        keyName = "."
+      ElseIf (keyName = "OemQuestion") Then
+        keyName = "/"
+      ElseIf (keyName = "RightShift") Then
+        keyName = "Shift"
+      EndIf
+      GraphicsWindow.BrushColor = "Gray"
+      GraphicsWindow.DrawText(x+10,y+10,keyName)
+      GraphicsWindow.BrushColor = "Black"
+      GraphicsWindow.DrawText(x+10,y+25,keys[keyIndex[index]]["note"])
+      keys[keyIndex[index]]["X"] = x
+      keys[keyIndex[index]]["Y"] = y
+      GraphicsWindow.BrushColor = "#50FF0000"
+      keys[keyIndex[index]]["overlay"] = Shapes.AddRectangle(38,38)
+      Shapes.Move(keys[keyIndex[index]]["overlay"],-100,-100)
+    EndFor
+  EndFor
+  GraphicsWindow.PenWidth = 0
+EndSub
+
+Sub SetKeys
+  keys["Q"]["octave"] = 6
+  keys["Q"]["note"] = "C"
+  keys["W"]["octave"] = 6
+  keys["W"]["note"] = "C#"
+  keys["E"]["octave"] = 6
+  keys["E"]["note"] = "D"
+  keys["R"]["octave"] = 6
+  keys["R"]["note"] = "D#"
+  keys["T"]["octave"] = 6
+  keys["T"]["note"] = "E"
+  keys["Y"]["octave"] = 6
+  keys["Y"]["note"] = "F"
+  keys["U"]["octave"] = 6
+  keys["U"]["note"] = "F#"
+  keys["I"]["octave"] = 6
+  keys["I"]["note"] = "G"
+  keys["O"]["octave"] = 6
+  keys["O"]["note"] = "G#"
+  keys["P"]["octave"] = 6
+  keys["P"]["note"] = "A"
+  keys["OemOpenBrackets"]["octave"] = 6
+  keys["OemOpenBrackets"]["note"] = "A#"
+  keys["Oem6"]["octave"] = 6
+  keys["Oem6"]["note"] = "B"
+  
+  keys["A"]["octave"] = 5
+  keys["A"]["note"] = "C"
+  keys["S"]["octave"] = 5
+  keys["S"]["note"] = "C#"
+  keys["D"]["octave"] = 5
+  keys["D"]["note"] = "D"
+  keys["F"]["octave"] = 5
+  keys["F"]["note"] = "D#"
+  keys["G"]["octave"] = 5
+  keys["G"]["note"] = "E"
+  keys["H"]["octave"] = 5
+  keys["H"]["note"] = "F"
+  keys["J"]["octave"] = 5
+  keys["J"]["note"] = "F#"
+  keys["K"]["octave"] = 5
+  keys["K"]["note"] = "G"
+  keys["L"]["octave"] = 5
+  keys["L"]["note"] = "G#"
+  keys["Oem1"]["octave"] = 5
+  keys["Oem1"]["note"] = "A"
+  keys["Oem3"]["octave"] = 5
+  keys["Oem3"]["note"] = "A#"
+  keys["OemQuotes"]["octave"] = 5
+  keys["OemQuotes"]["note"] = "B"
+  
+  keys["Oem5"]["octave"] = 4
+  keys["Oem5"]["note"] = "C"
+  keys["Z"]["octave"] = 4
+  keys["Z"]["note"] = "C#"
+  keys["X"]["octave"] = 4
+  keys["X"]["note"] = "D"
+  keys["C"]["octave"] = 4
+  keys["C"]["note"] = "D#"
+  keys["V"]["octave"] = 4
+  keys["V"]["note"] = "E"
+  keys["B"]["octave"] = 4
+  keys["B"]["note"] = "F"
+  keys["N"]["octave"] = 4
+  keys["N"]["note"] = "F#"
+  keys["M"]["octave"] = 4
+  keys["M"]["note"] = "G"
+  keys["OemComma"]["octave"] = 4
+  keys["OemComma"]["note"] = "G#"
+  keys["OemPeriod"]["octave"] = 4
+  keys["OemPeriod"]["note"] = "A"
+  keys["OemQuestion"]["octave"] = 4
+  keys["OemQuestion"]["note"] = "A#"
+  keys["RightShift"]["octave"] = 4
+  keys["RightShift"]["note"] = "B"
+EndSub
+
+Sub StartRecord
+  count = 0
+  mode = 1
+  record = ""
+  record[count]["key"] = ""
+  record[count]["state"] = 0
+  record[count]["time"] = Clock.ElapsedMilliseconds
+  record[count]["instrument"] = LDMusic.Instrument
+  record[count]["velocity"] = LDMusic.Velocity
+  record[count]["octave"] = octaveMod
+  rec = Shapes.AddEllipse(20,20)
+  Shapes.Move(rec,10,10)
+EndSub
+
+Sub EndRecord
+  mode = 0
+  Shapes.Remove(rec)
+EndSub
+
+Sub PlayBack
+  play = Shapes.AddTriangle(10,10,30,20,10,30)
+  mode = 2
+  lastTime = record[0]["time"]
+  LDMusic.Instrument = record[0]["instrument"]
+  LDMusic.Velocity = record[0]["velocity"]
+  octaveMod = record[count]["octave"]
+  Shapes.SetText(instrument,LDMusic.InstrumentName(LDMusic.Instrument)+" : "+LDMusic.Instrument)
+  Shapes.SetText(octave,"Octaves : "+(4+octaveMod)+","+(5+octaveMod)+","+(6+octaveMod))
+  
+  For count = 1 To Array.GetItemCount(record)-1
+    If (record[count]["state"] = 1) Then
+      OnKeyDown()
+    ElseIf (record[count]["state"] = 0) Then
+      OnKeyUp()
+    EndIf
+    time = record[count]["time"]
+    Program.Delay(time-lastTime)
+    lastTime = time
+  EndFor
+  mode = 0
+  Shapes.Remove(play)
+EndSub
+

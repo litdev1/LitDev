@@ -1,0 +1,19 @@
+wheel1 = Shapes.AddEllipse(40,40)
+wheel2 = Shapes.AddEllipse(40,40)
+car = Shapes.AddRectangle(200,50)
+LDPhysics.AddMovingShape(wheel1,1,0,1)
+LDPhysics.AddMovingShape(wheel2,1,0,1)
+
+LDPhysics.SetPosition(wheel1,180,400,0)
+LDPhysics.SetPosition(wheel2,320,400,0)
+LDPhysics.AddMovingShape(car,0.3,0.5,1)
+LDPhysics.SetPosition(car,250,360,0)
+LDPhysics.AttachShapesWithRotation(wheel1,car)
+LDPhysics.AttachShapesWithRotation(wheel2,car)
+
+LDPhysics.SetVelocity(car,100,0)
+
+While ("True")
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile

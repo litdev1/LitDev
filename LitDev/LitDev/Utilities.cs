@@ -40,6 +40,7 @@ using Microsoft.Win32.SafeHandles;
 using System.Threading;
 using LitDev.Engines;
 using System.Windows.Threading;
+using System.Collections.Specialized;
 
 namespace LitDev
 {
@@ -774,6 +775,39 @@ namespace LitDev
             return sb.ToString();
         }
 
+        /// <summary>
+        /// This method is much slower than the ToPrimitiveArray method but
+        /// will generate valid Primitives for more complex types of data
+        /// structures.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static string ToPrimitiveArrayNative<T>(this T[] array)
+        {
+            Primitive result = new Primitive();
+            if (array.Length == 0 )
+            {
+                return result;
+            }
+
+            try
+            {
+
+                for (int i = 0; i < array.Length; i++)
+                {
+                    result[i + 1] = array[i].ToString();
+                }
+
+               
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(array.ToPrimitiveArray());
+            }
+        }
+
         public static string ToPrimitiveArray<T>(this List<T> list)
         {
             StringBuilder sb = new StringBuilder();
@@ -783,6 +817,31 @@ namespace LitDev
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// This method is much slower than the ToPrimitiveArray method but
+        /// will generate valid Primitives for more complex types of data
+        /// structures.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static Primitive ToPrimitiveArrayNative<T>(this List<T> list)
+        {
+            Primitive result = new Primitive();
+
+            if (list.Count == 0)
+            {
+                return result;
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                result[i + 1] = list[i].ToString();
+            }
+
+            return result;
         }
 
         public static double getDouble(string value)
@@ -1670,14 +1729,27 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Fix the Flickr object (Version 1.0).
+        /// Fix the Flickr object
         /// </summary>
-        public static void FixFlickr()
+        public static Primitive FixFlickr()
         {
             Type FlickrType = typeof(Flickr);
-            FieldInfo fieledInfo = FlickrType.GetField("_urlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
-            string _urlTemplate = (string)fieledInfo.GetValue(null);
-            fieledInfo.SetValue(null, _urlTemplate.Replace("http://", "https://"));
+            FieldInfo fieldInfo = FlickrType.GetField("_urlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+            string _urlTemplate = (string)fieldInfo.GetValue(null);
+            _urlTemplate = _urlTemplate.Replace("http://", "https://");
+            _urlTemplate = _urlTemplate.Replace("api.flickr.com", "www.flickr.com");
+            fieldInfo.SetValue(null, _urlTemplate);
+
+            fieldInfo = FlickrType.GetField("_picUrlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+            string _picUrlTemplate = (string)fieldInfo.GetValue(null);
+            _picUrlTemplate = _picUrlTemplate.Replace("http://", "https://");
+            _picUrlTemplate = _picUrlTemplate.Replace("static.flickr.com", "staticflickr.com");
+            fieldInfo.SetValue(null, _picUrlTemplate);
+
+            Primitive result = new Primitive();
+            result["_urlTemplate"] = _urlTemplate;
+            result["_picUrlTemplate"] = _picUrlTemplate;
+            return result;
         }
 
         /// <summary>
@@ -1751,6 +1823,26 @@ namespace LitDev
                 CultureInfo.DefaultThreadCurrentCulture = Thread.CurrentThread.CurrentCulture;
                 CultureInfo.DefaultThreadCurrentUICulture = Thread.CurrentThread.CurrentCulture;
             }
+        }
+
+        /// <summary>
+        /// Get an array of available cultures.
+        /// </summary>
+        /// <returns>An array indexed by culture names, with the value set to a description.</returns>
+        public static Primitive AvailableCultures()
+        {
+            // get culture names
+            SortedDictionary<string, string> list = new SortedDictionary<string, string>();
+            foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.AllCultures))
+            {
+                list[ci.Name] = ci.EnglishName;
+            }
+            StringBuilder result = new StringBuilder();
+            foreach (KeyValuePair<string, string> kvp in list)
+            {
+                result.Append($"{Utilities.ArrayParse(kvp.Key)}={Utilities.ArrayParse(kvp.Value)};");
+            }
+            return Utilities.CreateArrayMap(result.ToString());
         }
 
         /// <summary>

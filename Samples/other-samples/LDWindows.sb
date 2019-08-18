@@ -1,0 +1,76 @@
+'Create the main window with buttons to show other windows
+numWin = 5
+For i = 1 To numWin
+  show[i] = Controls.AddButton("Show window "+i,20,20+40*(i-1))
+EndFor
+
+'Create some windows with a ball and close button and hide initially
+For i = 1 To numWin
+  id[i] = LDWindows.Create()
+  GraphicsWindow.Title = "Window "+i
+  GraphicsWindow.Hide()
+  ball[i] = Shapes.AddEllipse(20,20)
+  hide[i] = Controls.AddButton("Close",20,20)
+  GraphicsWindow.MouseDown = OnMouseDown
+  GraphicsWindow.MouseMove = OnMouseMove
+EndFor
+
+'Set the main window as active
+iWin = 0
+LDWindows.CurrentID = iWin
+LDWindows.Activated = OnActivated
+Controls.ButtonClicked = OnButtonClicked
+
+'A main thread loop to handle all the event action
+'Problems if we do it in the event subroutines
+While ("True")
+  If (activated = 1) Then
+    iWin = LDWindows.LastActivated
+    setWin()
+    activated = 0
+  EndIf
+  If (clicked = 1) Then
+    For i = 1 To numWin
+      If (Controls.LastClickedButton = hide[i]) Then
+        iWin = id[i]
+        setWin()
+        GraphicsWindow.Hide()
+        iWin = 0
+        setWin()
+      ElseIf (Controls.LastClickedButton = show[i]) Then
+        iWin = id[i]
+        setWin()
+        GraphicsWindow.Show()
+        GraphicsWindow.BackgroundColor = GraphicsWindow.GetRandomColor()
+      EndIf
+    EndFor
+    clicked = 0
+  EndIf
+  Program.Delay(20)
+EndWhile
+
+'When a window gets focus switch to it
+Sub OnActivated
+  activated = 1
+EndSub
+
+'Change background colour on current window (not main window since no event registered for this window)
+Sub OnMouseDown
+  GraphicsWindow.BackgroundColor = GraphicsWindow.GetRandomColor()
+EndSub
+
+'Move the current window ball
+Sub OnMouseMove
+  Shapes.Move(ball[iWin],GraphicsWindow.MouseX-10,GraphicsWindow.MouseY-10)
+EndSub
+
+'Show and hide windows on button clicks
+Sub OnButtonClicked
+  clicked = 1
+EndSub
+
+'Set the window and make it topmost when we change a window.
+Sub setWin
+  LDWindows.CurrentID = iWin
+  LDWindows.Active = iWin
+EndSub

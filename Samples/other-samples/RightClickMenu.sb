@@ -1,0 +1,34 @@
+items[1] = "Delete"
+images[1] = Program.Directory+"\cross.png"
+For i = 1 To 20
+  ellipse[i] = Shapes.AddEllipse(50,50)
+  Shapes.Move(ellipse[i],50+Math.GetRandomNumber(GraphicsWindow.Width-100)-25,50+Math.GetRandomNumber(GraphicsWindow.Height-100)-25)
+  LDControls.AddContextMenu(ellipse[i],items,images)
+EndFor
+LDControls.ContextMenu = OnContextMenu
+
+items[1] = "Webcam"
+items[2] = "Time"
+items[3] = "Exit"
+images[1] = Program.Directory+"\webcam.png"
+images[2] = Program.Directory+"\time.png"
+images[3] = Program.Directory+"\cross.png"
+LDDialogs.AddRightClickMenu(items,images)
+LDDialogs.RightClickMenu = OnRightClickMenu
+
+Sub OnRightClickMenu
+  lastClick = LDDialogs.LastRightClickMenuItem
+  If (lastClick = 1) Then
+    LDWebCam.Start(GraphicsWindow.Width,GraphicsWindow.Height)
+  ElseIf (lastClick = 2) Then
+    GraphicsWindow.ShowMessage(Clock.Time+" "+Clock.Date,"Time")
+  ElseIf (lastClick = 3) Then
+    Program.End()
+  EndIf
+EndSub
+
+Sub OnContextMenu
+  If (LDControls.LastContextItem = 1) Then
+    Shapes.Remove(LDControls.LastContextControl)
+  EndIf
+EndSub

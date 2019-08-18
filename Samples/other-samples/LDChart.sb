@@ -1,0 +1,84 @@
+GraphicsWindow.Width = 900
+GraphicsWindow.Height = 600
+GraphicsWindow.Top = 0
+GraphicsWindow.Title = "Click a segment"
+GraphicsWindow.FontName = "Segoe UI"
+GraphicsWindow.FontBold = "False"
+
+data = ""
+For i = 1 To 12
+  data["My Test Data "+i] = Math.GetRandomNumber(10)
+EndFor
+
+GraphicsWindow.BackgroundColor = "Black"
+GraphicsWindow.PenColor = "White"
+chart1 = LDChart.AddChart(300,300)
+LDChart.Properties(chart1,"doughnut",1)
+LDChart.Legend(chart1,1,"legend_percent","false")
+LDChart.ColourMap(chart1,0,0.3,0.6,"hue",0,1,"LightBlue")
+LDChart.SetData(chart1,data)
+
+GraphicsWindow.BackgroundColor = LDColours.WhiteSmoke
+GraphicsWindow.PenColor = "Red"
+chart2 = LDChart.AddChart(300,300)
+Shapes.Move(chart2,300,0)
+LDChart.Properties(chart2,"pie",1.1)
+LDChart.Legend(chart2,1.5,"percent","false")
+LDChart.ColourMap(chart2,0,0,0.6,"lightness",0.8,0.2,"")
+LDChart.SetData(chart2,data)
+
+GraphicsWindow.BackgroundColor = "Gray"
+GraphicsWindow.PenColor = "Black"
+chart3 = LDChart.AddChart(300,300)
+Shapes.Move(chart3,600,0)
+LDChart.Properties(chart3,"bubble",1)
+LDChart.Legend(chart3,1,"legend_percent","false")
+LDChart.ColourMap(chart3,0,1,0.5,"hue",0,1,"White")
+LDChart.SetData(chart3,data)
+
+GraphicsWindow.BackgroundColor = "LightYellow"
+GraphicsWindow.PenColor = "LightYellow"
+chart4 = LDChart.AddChart(300,300)
+Shapes.Move(chart4,0,300)
+LDChart.Properties(chart4,"doughnut",1)
+LDChart.Legend(chart4,1,"overlay","true")
+LDChart.ColourMap(chart4,0.67,0.5,0.4,"saturation",0.1,0.9,"LightBlue")
+LDChart.SetData(chart4,data)
+
+GraphicsWindow.BackgroundColor = "Purple"
+GraphicsWindow.PenColor = "White"
+chart5 = LDChart.AddChart(300,300)
+Shapes.Move(chart5,300,300)
+LDChart.Properties(chart5,"bar",1)
+LDChart.Legend(chart5,1,"legend_percent","false")
+LDChart.ColourMap(chart5,0,1,0.4,"hue",0.67,1,"")
+LDChart.SetData(chart5,data)
+
+GraphicsWindow.BackgroundColor = "LightYellow"
+GraphicsWindow.PenColor = "Black"
+GraphicsWindow.FontName = "Brush Script MT"
+GraphicsWindow.FontSize = 14
+GraphicsWindow.FontBold = "True"
+chart6 = LDChart.AddChart(300,300)
+Shapes.Move(chart6,600,300)
+LDChart.Properties(chart6,"column",1)
+LDChart.Legend(chart6,1,"overlay","fase")
+LDChart.ColourMap(chart6,0.67,0.5,0.4,"saturation",0.9,0.9,"White")
+LDChart.SetData(chart6,data)
+
+LDChart.ValueClicked = OnValueClicked
+Sub OnValueClicked
+  LDChart.Highlight(LDChart.LastChart,LDChart.LastLabel,0.1)
+EndSub
+LDShapes.SetShapeEvent(chart1)
+LDShapes.SetShapeEvent(chart2)
+LDShapes.SetShapeEvent(chart3)
+LDShapes.SetShapeEvent(chart4)
+LDShapes.SetShapeEvent(chart5)
+LDShapes.SetShapeEvent(chart6)
+LDShapes.ShapeEvent = OnShapeEvent
+Sub OnShapeEvent
+  If (LDShapes.LastEventType = "MouseLeave") Then
+    LDChart.Update(LDShapes.LastEventShape)
+  EndIf
+EndSub

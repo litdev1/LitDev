@@ -1,0 +1,524 @@
+'===================================================================
+'MAIN PROGRAM
+'===================================================================
+
+Initialise()
+
+'MAIN LOOP DOING THE PHYSICS UPDATES
+While ("True")
+  LDPhysics.DoTimestep()
+  ready = 1
+  For i = 1 To 7
+    ball = spot[i]
+    DoUpdateBall()
+    ball = stripe[i]
+    DoUpdateBall()
+  EndFor
+  ball = cue
+  DoUpdateBall()
+  ball = black
+  DoUpdateBall()
+  DoUpdateGame()
+  Program.Delay(1)
+EndWhile
+
+'===================================================================
+'SUBROUTINES
+'===================================================================
+
+'INITIALISE
+Sub Initialise
+  'CONSTANTS
+  radius = 15
+  pocket = 3*radius
+  damping = 0.2
+  friction = 0.5
+  restitution = 1
+  density = 1
+  
+  'IMAGES
+  URL = Program.Directory
+  imgSpot = ImageList.LoadImage(URL+"\spot.png")
+  imgStripe = ImageList.LoadImage(URL+"\stripe.png")
+  imgCue = ImageList.LoadImage(URL+"\cue.png")
+  imgBlack = ImageList.LoadImage(URL+"\black.png")
+  
+  ' CREATE WINDOW
+  gw = 800
+  gh = 400
+  GraphicsWindow.CanResize = "False"
+  GraphicsWindow.Width = gw
+  GraphicsWindow.Height = gh+100
+  GraphicsWindow.Title = "SmallBasic Pool"
+  GraphicsWindow.Left = (Desktop.Width-gw)/2
+  GraphicsWindow.Top = (Desktop.Height-gh)/4
+  LDGraphicsWindow.Icon = URL+"\spot.png"
+  
+  GraphicsWindow.BackgroundColor = "Green"
+  GraphicsWindow.PenWidth = 2
+  GraphicsWindow.BrushColor = "Black"
+  GraphicsWindow.DrawLine(gw/4,0,gw/4,gh)
+  GraphicsWindow.DrawEllipse(gw/8,gh/2-gw/8,gw/4,gw/4)
+  GraphicsWindow.PenWidth = 0
+  GraphicsWindow.BrushColor = "Green"
+  GraphicsWindow.FillRectangle(gw/4+1,0,gw/8,gh)
+  GraphicsWindow.PenWidth = 2
+  GraphicsWindow.BrushColor = "Black"
+  GraphicsWindow.FillEllipse(3*gw/4-3,gh/2-3,6,6)
+  GraphicsWindow.FillEllipse(gw/4-3,gh/2-3,6,6)
+  
+  GraphicsWindow.PenWidth = 0
+  LDCursors.None()
+  
+  'SCOREBOX
+  GraphicsWindow.BrushColor = "Gray"
+  GraphicsWindow.FillRectangle(0,gh,gw,100)
+  GraphicsWindow.BrushColor = "Black"
+  GraphicsWindow.FontSize = 12
+  score = Shapes.AddText("")
+  Shapes.Move(score,40,gh+10)
+  stats = Shapes.AddText("")
+  Shapes.Move(stats,40,gh+40)
+  info = Shapes.AddText("")
+  Shapes.Move(info,40,gh+70)
+  
+  LDPhysics.SetBoundaries(-1,gw+1,-1,gh+101) 'Deleted
+  LDPhysics.SetGravity(0,0)
+  'LDPhysics.VelocityIterations = 6*1
+  'LDPhysics.PositionIterations = 2*1 
+  'LDPhysics.TimeStep = 0.025/1
+  LDPhysics.VelocityThreshold = 0
+  LDPhysics.LoadImagesAsCircles = "True"
+  
+  'CREATE BALLS AND ATTACTCH TO PHYSICS ENGINE
+  For i = 1 To 7
+    GraphicsWindow.BrushColor = "Yellow"
+    'spot[i] = Shapes.AddEllipse(2*radius,2*radius)
+    spot[i] = Shapes.AddImage(imgSpot)
+    LDPhysics.AddMovingShape(spot[i],friction,restitution,density)
+    LDPhysics.SetDamping(spot[i],damping,damping)
+    
+    GraphicsWindow.BrushColor = "Red"
+    'stripe[i] = Shapes.AddEllipse(2*radius,2*radius)
+    stripe[i] = Shapes.AddImage(imgStripe)
+    LDPhysics.AddMovingShape(stripe[i],friction,restitution,density)
+    LDPhysics.SetDamping(stripe[i],damping,damping)
+  EndFor
+  
+  GraphicsWindow.BrushColor = "Black"
+  'black = Shapes.AddEllipse(2*radius,2*radius)
+  black = Shapes.AddImage(imgBlack)
+  LDPhysics.AddMovingShape(black,friction,restitution,density)
+  LDPhysics.SetDamping(black,damping,damping)
+  
+  'SHOT LINE below cue, above all other balls
+  GraphicsWindow.PenWidth = 1
+  GraphicsWindow.PenColor = "#80000000"
+  shot = Shapes.AddLine(0,0,0,0)
+  GraphicsWindow.PenWidth = 0
+  
+  GraphicsWindow.BrushColor = "White"
+  'cue = Shapes.AddEllipse(2*radius,2*radius)
+  cue = Shapes.AddImage(imgCue)
+  LDPhysics.AddMovingShape(cue,friction,restitution,density)
+  LDPhysics.SetDamping(cue,damping,damping)
+  
+  reset()
+  
+  'CREATE TABLE EDGES AND ATTACH TO PHYSICS ENGINE
+  GraphicsWindow.BrushColor = "Brown"
+  
+  topLeft = Shapes.AddRectangle(gw/2-1.75*pocket,10)
+  Shapes.Move(topLeft,pocket,0)
+  LDPhysics.AddFixedShape(topLeft,friction,restitution)
+  
+  topRight = Shapes.AddRectangle(gw/2-1.75*pocket,10)
+  Shapes.Move(topRight,gw/2+0.75*pocket,0)
+  LDPhysics.AddFixedShape(topRight,friction,restitution)
+  
+  bottomLeft = Shapes.AddRectangle(gw/2-1.75*pocket,10)
+  Shapes.Move(bottomLeft,pocket,gh-10)
+  LDPhysics.AddFixedShape(bottomLeft,friction,restitution)
+  
+  bottomRight = Shapes.AddRectangle(gw/2-1.75*pocket,10)
+  Shapes.Move(bottomRight,gw/2+0.75*pocket,gh-10)
+  LDPhysics.AddFixedShape(bottomRight,friction,restitution)
+  
+  left = Shapes.AddRectangle(10,gh-2*pocket)
+  Shapes.Move(left,0,pocket)
+  LDPhysics.AddFixedShape(left,friction,restitution)
+  
+  right = Shapes.AddRectangle(10,gh-2*pocket)
+  Shapes.Move(right,gw-10,pocket)
+  LDPhysics.AddFixedShape(right,friction,restitution)
+  
+  'DETAILS
+  GraphicsWindow.BrushColor = "Brown"
+  GraphicsWindow.FillRectangle(0,0,pocket,pocket)
+  GraphicsWindow.FillRectangle(gw-pocket,0,pocket,pocket)
+  GraphicsWindow.FillRectangle(gw-pocket,gh-pocket,pocket,pocket)
+  GraphicsWindow.FillRectangle(0,gh-pocket,pocket,pocket)
+  GraphicsWindow.FillRectangle(0,0,gw,8)
+  GraphicsWindow.FillRectangle(0,gh-8,gw,8)
+  GraphicsWindow.BrushColor = "Green"
+  GraphicsWindow.FillEllipse(0.1*pocket,0.1*pocket,1.2*pocket,1.2*pocket)
+  GraphicsWindow.FillEllipse(gw-1.3*pocket,0.1*pocket,1.2*pocket,1.2*pocket)
+  GraphicsWindow.FillEllipse(gw-1.3*pocket,gh-1.3*pocket,1.2*pocket,1.2*pocket)
+  GraphicsWindow.FillEllipse(0.1*pocket,gh-1.3*pocket,1.2*pocket,1.2*pocket)
+  GraphicsWindow.FillEllipse(gw/2-pocket,0.1*pocket,2*pocket,pocket)
+  GraphicsWindow.FillEllipse(gw/2-pocket,gh-1.1*pocket,2*pocket,pocket)
+  GraphicsWindow.BrushColor = "Yellow"
+  For i = 50 To gw/2-50 Step 50
+    Shapes.Move(Shapes.AddEllipse(4,4),i-2,3)
+    Shapes.Move(Shapes.AddEllipse(4,4),gw/2+i-2,3)
+    Shapes.Move(Shapes.AddEllipse(4,4),i-2,gh-7)
+    Shapes.Move(Shapes.AddEllipse(4,4),gw/2+i-2,gh-7)
+  EndFor
+  For i = 50 To gh-50 Step 50
+    Shapes.Move(Shapes.AddEllipse(4,4),3,i-2)
+    Shapes.Move(Shapes.AddEllipse(4,4),gw-7,i-2)
+  EndFor
+  
+  'START MOUSE CLICK TO TAKE A SHOT
+  GraphicsWindow.MouseDown = OnMouseDown
+  GraphicsWindow.MouseUp = OnMouseUp
+  GraphicsWindow.KeyDown = OnKeyDown
+EndSub
+
+'RESET GAME
+Sub reset
+  'GAME PARAMETERS
+  ready = 1
+  start = 0
+  setup = 0
+  player = 2
+  playerBall = ""
+  pottedSpots = 0
+  pottedStripes = 0
+  foulShot = 0
+  firstHit = ""
+  potted = ""
+  
+  For i = 1 To 7
+    LDPhysics.SetVelocity(spot[i],0,0)
+    LDPhysics.SetVelocity(stripe[i],0,0)
+  EndFor
+  
+  sqtr3 = radius*Math.SquareRoot(3)
+  x = 3*gw/4
+  y = gh/2
+  LDPhysics.SetPosition(spot[1],x-2*sqtr3,y,0)
+  
+  LDPhysics.SetPosition(spot[2],x-sqtr3,y-radius,0)
+  LDPhysics.SetPosition(stripe[1],x-sqtr3,y+radius,0)
+  
+  LDPhysics.SetPosition(stripe[2],x,y-2*radius,0)
+  LDPhysics.SetPosition(black,x,y,0)
+  LDPhysics.SetPosition(spot[3],x,y+2*radius,0)
+  
+  LDPhysics.SetPosition(spot[4],x+sqtr3,y-3*radius,0)
+  LDPhysics.SetPosition(stripe[3],x+sqtr3,y-1*radius,0)
+  LDPhysics.SetPosition(spot[5],x+sqtr3,y+1*radius,0)
+  LDPhysics.SetPosition(stripe[4],x+sqtr3,y+3*radius,0)
+  
+  LDPhysics.SetPosition(stripe[5],x+2*sqtr3,y-4*radius,0)
+  LDPhysics.SetPosition(stripe[6],x+2*sqtr3,y-2*radius,0)
+  LDPhysics.SetPosition(spot[6],x+2*sqtr3,y,0)
+  LDPhysics.SetPosition(stripe[7],x+2*sqtr3,y+2*radius,0)
+  LDPhysics.SetPosition(spot[7],x+2*sqtr3,y+4*radius,0)
+  
+  LDPhysics.SetPosition(cue,gw/4,gh/2,0)
+  LDPhysics.SetVelocity(cue,0,0)
+  LDPhysics.SetVelocity(black,0,0)
+  
+  LDPhysics.DoTimestep()
+EndSub
+
+'UPDATE EVERYTHING NOT DONE BY THE PHYSICS ENGINE (GAMEPLAY) FOR EACH BALL
+Sub DoUpdateBall
+  'Stop near stationary balls
+  vel = LDPhysics.GetVelocity(ball)
+  speed = vel[1]*vel[1] + vel[2]*vel[2]
+  If (speed < 1) Then
+    LDPhysics.SetVelocity(ball,0,0)
+    LDPhysics.SetRotation(ball,0)
+    speed = 0
+  EndIf
+  
+  'Detect balls potted
+  pos = LDPhysics.GetPosition(ball)
+  If (speed > 0 And (pos[1] < radius Or pos[1] > gw-radius Or pos[2] < radius Or pos[2] > gh-radius)) Then
+    speed = 0
+    Sound.PlayClick()
+    LDPhysics.SetVelocity(ball,0,0)
+    LDPhysics.SetPosition(ball,-100,500-Math.GetRandomNumber(1000),0) 'Off screen (not overlapping)
+    potted[Array.GetItemCount(potted)+1] = ball
+  EndIf
+  
+  'A moving ball
+  If (speed > 0) Then
+    ready = 0
+  EndIf
+EndSub
+
+'UPDATE EVERYTHING ELSE (GAMEPLAY)
+Sub DoUpdateGame
+  'Draw shot line
+  If (ready = 1 And start = 0) Then
+    xM = GraphicsWindow.MouseX
+    yM = GraphicsWindow.MouseY
+    pos = LDPhysics.GetPosition(cue)
+    LDShapes.MoveLine(shot,xM,yM,pos[1],pos[2])
+    Shapes.ShowShape(shot)
+  EndIf
+  
+  'Update scoring
+  If (ready = 1 And start = 0 And setup = 0) Then
+    
+    setup = 1
+    
+    'Put black or cue back
+    pos = LDPhysics.GetPosition(black)
+    If (pos[1] < radius Or pos[1] > gw-radius Or pos[2] < radius Or pos[2] > gh-radius) Then
+      LDPhysics.SetPosition(black,550,200,0)
+      LDPhysics.SetVelocity(black,0,0)
+    EndIf
+    pos = LDPhysics.GetPosition(cue)
+    If (pos[1] < radius Or pos[1] > gw-radius Or pos[2] < radius Or pos[2] > gh-radius) Then
+      LDPhysics.SetPosition(cue,200,200,0)
+      LDPhysics.SetVelocity(cue,0,0)
+    EndIf
+    
+    'First hit ball
+    If (firstHit = black) Then
+      firstHit = "Black"
+    Else
+      For i = 1 To 7
+        If (firstHit = spot[i]) Then
+          firstHit = "Spot"
+        ElseIf (firstHit = stripe[i]) Then
+          firstHit = "Stripe"
+        EndIf
+      EndFor
+    EndIf
+    
+    'Potted balls
+    foulCue = 0
+    potSpot = 0
+    potStripe = 0
+    pots = ""
+    winner = 0
+    
+    If (Array.GetItemCount(potted) > 0) Then
+      For i = 1 To Array.GetItemCount(potted)
+        If (potted[i] = black) Then
+          winner = 3-player
+          pots[i]="Black"
+        ElseIf (potted[i] = cue) Then
+          foulCue = 1
+          pots[i]="Cue"
+        Else
+          For j = 1 To 7
+            If (potted[i] = spot[j]) Then
+              potSpot = potSpot+1
+              pots[i]="Spot"
+              pottedSpots = pottedSpots+1
+            ElseIf (potted[i] = stripe[j]) Then
+              potStripe = potStripe+1
+              pots[i]="Stripe"
+              pottedStripes = pottedStripes+1
+            EndIf
+          EndFor
+        EndIf
+      EndFor
+    EndIf
+    
+    onBlack = 0
+    If ((playerBall[player] = "Spot" And pottedSpots = 7) Or (playerBall[player] = "Stripe" And pottedStripes = 7)) Then
+      onBlack = 1
+      If (Array.GetItemCount(potted) = 1 And potted[1] = black) Then
+        winner = player
+      EndIf
+    EndIf
+    
+    If (winner > 0) Then
+      title = "Player "+winner+" WINS"
+      Shapes.SetText(stats,"")
+      Shapes.SetText(score,title)
+      Program.Delay(3000)
+      reset()
+    Else
+      title = ""
+      nextPlayer = 0
+      
+      If (firstHit <> "") Then
+        title = title+firstHit+" Hit : "
+      EndIf
+      
+      If (foulCue = 1) Then
+        title = title+"Foul (Cue Potted) : "
+        nextPlayer = 1
+      EndIf
+      
+      If (firstHit = "None") Then
+        title = title+"Foul (No Hit) : "
+        nextPlayer = 1
+      ElseIf (firstHit = "Black" And onBlack = 0) Then
+        title = title+"Foul (Black Hit) : "
+        nextPlayer = 1
+      ElseIf (playerBall[player] <> "") Then
+        If (firstHit = "Spot" And potStripe > 0) Then
+          title = title+"Foul (Wrong Pot) : "
+          nextPlayer = 1
+        ElseIf (firstHit = "Stripe" And potSpot > 0) Then
+          title = title+"Foul (Wrong Pot) : "
+          nextPlayer = 1
+        ElseIf (firstHit <> playerBall[player] And foulCue = 0) Then
+          title = title+"Foul (Wrong Hit) : "
+          nextPlayer = 1
+        EndIf
+      EndIf
+      
+      If (Array.GetItemCount(pots) > 0) Then
+        title = title+"Potted ("
+        For i = 1 To Array.GetItemCount(pots)
+          title = title+pots[i]
+          If (i < Array.GetItemCount(pots)) Then
+            title = title + " "
+          EndIf
+        EndFor
+        title = title+") : "
+      EndIf
+      
+      If (Text.EndsWith(title," : ")) Then
+        title = Text.GetSubText(title,1,Text.GetLength(title)-2)
+      EndIf
+      Shapes.SetText(stats,title)
+      
+      If (nextPlayer = 0) Then
+        If (Array.GetItemCount(pots) = 0) Then
+          nextPlayer = 1
+        ElseIf (playerBall[player] = "") Then
+          For i = 0 To Array.GetItemCount(pots)
+            If (pots[i] = "Spot") Then
+              playerBall[player] = "Spot"
+              playerBall[3-player] = "Stripe"
+              Goto Done
+            ElseIf (pots[i] = "Stripe") Then
+              playerBall[player] = "Stripe"
+              playerBall[3-player] = "Spot"
+              Goto Done
+            EndIf
+          EndFor
+        EndIf
+      EndIf
+      Done:
+      
+      extras = ""
+      If (Text.IsSubText(title,"Foul")) Then
+        foulShot = 2
+        extras = " 2 Shots"
+      EndIf
+      If (foulShot = 1) Then
+        nextPlayer = 0
+        extras = " 2nd Shot"
+      EndIf
+      foulShot = Math.Max(0,foulShot-1)
+      
+      If (nextPlayer = 1) Then
+        player = 3-player
+      EndIf
+      
+      If (playerBall[player] = "") Then
+        Shapes.SetText(score,"Player "+player+" to Play (Any Ball"+extras+") : Press and Hold Mouse to Shoot, Arrow Keys for Spin")
+      ElseIf (playerBall[player] = "Spot" And pottedSpots = 7) Then
+        Shapes.SetText(score,"Player "+player+" to Play (Black"+extras+") : Press and Hold Mouse to Shoot, Arrow Keys for Spin")
+      ElseIf (playerBall[player] = "Stripe" And pottedStripes = 7) Then
+        Shapes.SetText(score,"Player "+player+" to Play (Black"+extras+") : Press and Hold Mouse to Shoot, Arrow Keys for Spin")
+      Else
+        Shapes.SetText(score,"Player "+player+" to Play ("+playerBall[player]+"s"+extras+") : Press and Hold Mouse to Shoot, Arrow Keys for Spin")
+      EndIf
+    EndIf
+    
+  ElseIf (ready = 0) Then
+    hit = LDPhysics.GetCollisions(cue)
+    If (firstHit = "None" And hit[1] <> "" And (Text.StartsWith(hit[1],"Ellipse") Or Text.StartsWith(hit[1],"Image"))) Then
+      firstHit = hit[1]
+      If (spinTopX <> 0) Then
+        'Get both velocities since we can't be sure this is before or after collision is completed
+        velCue = LDPhysics.GetVelocity(cue)
+        velHit = LDPhysics.GetVelocity(firstHit)
+        LDPhysics.DoTimestep() ' Force a timestep to make sure the hit is completed before applying spin impulse
+        LDPhysics.SetImpulse(cue,(velCue[1]+velHit[1])*spinTopX,(velCue[2]+velHit[2])*spinTopX)
+        spinTopX = 0
+      EndIf
+    EndIf
+  EndIf
+  
+  'Update Power
+  If (ready = 1) Then
+    If (start > 0) Then
+      setup = 0
+      power = Math.Min(1000,(Clock.ElapsedMilliseconds - start)/2)
+    EndIf
+    spinSide = Math.Min(10,Math.Max(-10,spinSide))
+    spinTop = Math.Min(10,Math.Max(-10,spinTop))
+    Shapes.SetText(info,"Power = "+Math.Floor(power)+" : Side Spin = "+Math.Floor(spinSide)+" : Top Spin = "+Math.Floor(spinTop))
+  EndIf
+  
+EndSub
+
+'===================================================================
+'EVENTS
+'===================================================================
+
+'FIRE THE CUE BALL IN THE MOUSE DIRECTION
+Sub OnMouseDown
+  If (ready = 1) Then
+    start = Clock.ElapsedMilliseconds
+  EndIf
+EndSub
+
+Sub OnMouseUp
+  If (ready = 1) Then
+    xM = GraphicsWindow.MouseX
+    yM = GraphicsWindow.MouseY
+    pos = LDPhysics.GetPosition(cue)
+    dirX = xM-pos[1]
+    dirY = yM-pos[2]
+    len = Math.SquareRoot(dirX*dirX + dirY*dirY)
+    dirX = dirX/len
+    dirY = dirY/len
+    
+    powerX = power*LDPhysics.GetMass(cue)
+    spinSideX = spinSide*LDPhysics.GetInertia(cue)*100
+    spinTopX = spinTop*LDPhysics.GetMass(cue)/20
+    LDPhysics.SetImpulse(cue,powerX*dirX,powerX*dirY)
+    LDPhysics.SetTorque(cue,-spinSideX)
+    
+    ready = 0
+    start = 0
+    power = 0
+    spinSide = 0
+    spinTop = 0
+    firstHit = "None"
+    potted = ""
+    Shapes.SetText(stats,"Taking Shot")
+    Shapes.HideShape(shot)
+  EndIf
+EndSub
+
+Sub OnKeyDown
+  If (ready = 1) Then
+    key = GraphicsWindow.LastKey
+    If (key = "Left") Then
+      spinSide = spinSide-1
+    ElseIf (key = "Right") Then
+      spinSide = spinSide+1
+    ElseIf (key = "Up") Then
+      spinTop = spinTop+1
+    ElseIf (key = "Down") Then
+      spinTop = spinTop-1
+    EndIf
+  EndIf
+EndSub

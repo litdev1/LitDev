@@ -1,0 +1,49 @@
+'Connect to Bluetooth controller
+status = LDBlueTooth.Initialise()
+If (status) Then
+  TextWindow.WriteLine("Bluetooth found")
+  TextWindow.WriteLine("")
+  ListDevices()
+Else
+  TextWindow.WriteLine("Bluetooth NOT found")
+  Program.Delay(5000)
+  Program.End()
+EndIf
+
+'Loop on send and receive files
+While ("True")
+  TextWindow.WriteLine("Select option - enter number")
+  TextWindow.WriteLine("1 Send File")
+  TextWindow.WriteLine("2 Receive File")
+  input = TextWindow.ReadNumber()
+  TextWindow.WriteLine("Enter the local file name")
+  testFile = Program.Directory+"/"+textWindow.Read()
+  If (input = 1) Then
+    status = LDBlueTooth.SendFile(testFile)
+  ElseIf (input = 2) Then
+    status = LDBlueTooth.ReceiveFile(testFile)
+  EndIf
+  If (status = "False") Then
+    TextWindow.WriteLine("Failed : "+LDBlueTooth.LastError)
+  EndIf
+  TextWindow.WriteLine("")
+EndWhile
+
+'List and select device to connect
+Sub ListDevices
+  devices = LDBlueTooth.GetDevices()
+  count = Array.GetItemCount(devices)
+  If (count > 0) Then
+    input = 0
+    While (input < 1 Or input > count)
+      TextWindow.WriteLine("Select Device - enter number")
+      For i = 1 To count
+        TextWindow.WriteLine(i+" "+devices[i])
+      EndFor
+      input = Math.Round(TextWindow.ReadNumber())
+      TextWindow.WriteLine("")
+    EndWhile
+    LDBlueTooth.Device = devices[input]
+  EndIf
+EndSub
+    

@@ -20,5 +20,14 @@ namespace LitDevUnitTests
             Assert.AreEqual( array, LDText.Split(phrase," ") );
             Assert.AreEqual( array2, LDText.Split(phrase, "1= ;2=,;"));
         }
+
+        [TestMethod]
+        public void FindAll()
+        {
+            string phrase = "One morning I shot an elephant in my pajamas. How he got in my pajamas, I don't know.";
+            Primitive array = "1=38;2=64;";
+
+            Assert.AreEqual(array, LDText.FindAll(phrase, "pajamas"));
+        }
     }
 }

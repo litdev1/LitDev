@@ -1,0 +1,88 @@
+'Example SQL taken from http://zetcode.com/db/sqlite/select/
+
+'Set a database file - it is created if it doesn't exist yet
+datFile = Program.Directory+"\database.db"
+database = LDDataBase.ConnectSQLite(datFile)
+
+'Create a listview control to view the table data
+GraphicsWindow.Show()
+listView = LDDataBase.AddListView(GraphicsWindow.Width,GraphicsWindow.Height)
+
+'Create a Cars table
+command = "BEGIN TRANSACTION;"
+command = command + "DROP TABLE IF EXISTS Cars;"
+command = command + "CREATE TABLE Cars(Id INTEGER PRIMARY KEY, Name TEXT, Cost NUM);"
+command = command + "INSERT INTO Cars(Name,Cost)VALUES('Audi','52642');"
+command = command + "INSERT INTO Cars(Name,Cost)VALUES('Mercedes','57127');"
+command = command + "INSERT INTO Cars(Name,Cost)VALUES('Skoda','9000');"
+command = command + "INSERT INTO Cars(Name,Cost)VALUES('Volvo','29000');"
+command = command + "INSERT INTO Cars(Name,Cost)VALUES('Bentley','350000');"
+command = command + "INSERT INTO Cars(Name,Cost)VALUES('Citroen','21000');"
+command = command + "INSERT INTO Cars(Name,Cost)VALUES('Hummer','41400');"
+command = command + "INSERT INTO Cars(Name,Cost)VALUES('Volkswagen','21600');"
+command = command + "COMMIT;"
+LDDataBase.Command(database,command)
+
+'Some SQL commands on this databse
+LDDataBase.Query(database, "SELECT * FROM Cars;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT Name, Cost FROM Cars;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT Name, Cost AS Price FROM Cars;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT * FROM Cars LIMIT 4;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT * FROM Cars LIMIT 2, 4;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT * FROM Cars LIMIT 4 OFFSET 2;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT * FROM Cars ORDER BY Cost;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT Name, Cost FROM Cars ORDER BY Cost DESC;", listView, "False")
+Program.Delay(1000)
+
+'Create an Orders table
+command = "BEGIN TRANSACTION;"
+command = command + "DROP TABLE IF EXISTS Orders;"
+command = command + "CREATE TABLE Orders(Id INTEGER PRIMARY KEY, OrderPrice NUM, Customer TEXT);"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('1200','Williamson');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('200','Robertson');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('40','Robertson');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('1640','Smith');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('100','Robertson');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('50','Williamson');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('150','Smith');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('250','Smith');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('840','Brown');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('440','Black');"
+command = command + "INSERT INTO Orders(OrderPrice,Customer)VALUES('20','Brown');"
+command = command + "COMMIT;"
+LDDataBase.Command(database,command)
+
+'Some SQL commands on this databse
+LDDataBase.Query(database, "SELECT * FROM Orders;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT * FROM Orders WHERE id=6;", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT * FROM Orders WHERE Customer='Smith';", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT * FROM Orders WHERE Customer LIKE 'B%';", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT Customer FROM Orders WHERE Customer LIKE 'B%';", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT DISTINCT Customer FROM Orders WHERE Customer LIKE 'B%';", listView, "False")
+Program.Delay(1000)
+LDDataBase.Query(database, "SELECT sum(OrderPrice) AS Total, Customer FROM Orders GROUP BY Customer;", listView, "False")
+Program.Delay(1000)
+result = LDDataBase.Query(database, "SELECT sum(OrderPrice) AS Total, Customer FROM Orders GROUP BY Customer HAVING sum(OrderPrice)>1000;", listView, "True")
+Program.Delay(1000)
+
+'Demonstrate data return from query
+For i = 1 To Array.GetItemCount(result)
+  TextWindow.WriteLine(result[i]["Customer"]+" has total purchases of "+result[i]["Total"])
+EndFor
+
+'Show the tables present in the database
+LDDataBase.Query(database, "SELECT * FROM sqlite_master WHERE type='table'", listView, "False")
+
+  

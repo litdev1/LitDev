@@ -1,0 +1,94 @@
+args = "" 'For use with LDCall
+
+GraphicsWindow.BackgroundColor = "LightBlue"
+gw = 500
+gh = 500
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+GraphicsWindow.DrawText(10,10,"KEYS: Keypad + W,S,A,D,H,J,C,Escape")
+
+view3D = LD3DView.AddView(gw,gh,"True") 'Will not clip to size if window rescaled
+
+sphere = LD3DView.AddSphere(view3D, 1, 100, "Black", "D")
+LD3DView.AddImage(view3D,sphere,"",Program.Directory+"\skydome.jpg","E")
+LD3DView.ReverseNormals(view3D, sphere)
+LD3DView.ScaleGeometry(view3D, sphere,1000,1000,1000)
+
+zeb = LD3DView.LoadModel(view3D, Program.Directory+"\zeb.3ds")
+LD3DView.AnimateRotation(view3D,zeb[1],0,0,1,0,360,5,-1)
+
+path = ""
+For i = 1 To 5000 Step 10
+  angle = i*Math.Pi/180
+  radius = 1+i/50
+  path = path+(radius*Math.Cos(angle))+":"+(50+radius)+":"+(radius*Math.Sin(angle))+" "
+EndFor
+tube = LD3DView.AddTube(view3D, path, 2, 10, "Red", "D")
+LD3DView.AnimateRotation(view3D,tube,0,1,0,360,0,5,-1)
+
+'Some different light types
+LD3DView.AddDirectionalLight(view3D,"Pink",-1,-1,-1)
+LD3DView.AddDirectionalLight(view3D,"DarkBlue",1,1,1)
+LD3DView.AddAmbientLight(view3D,"#555555")
+
+'Initial camera position and direction and view angle
+LD3DView.ResetCamera(view3D,0,-100,0,0,1,0,0,0,1)
+
+While ("True")
+  'Use the keys to move the camera
+  yaw = 0
+  pitch = 0
+  roll = 0
+  move = 0
+  If (LDUtilities.KeyDown("Left")) Then
+    yaw = yaw-1
+  EndIf
+  If (LDUtilities.KeyDown("Right")) Then
+    yaw = yaw+1
+  EndIf
+  If (LDUtilities.KeyDown("Up")) Then
+    pitch = pitch-1
+  EndIf
+  If (LDUtilities.KeyDown("Down")) Then
+    pitch = pitch+1
+  EndIf
+  If (LDUtilities.KeyDown("A")) Then
+    roll = roll+1
+  EndIf
+  If (LDUtilities.KeyDown("D")) Then
+    roll = roll-1
+  EndIf
+  If (LDUtilities.KeyDown("W")) Then
+    move = move+1
+  EndIf
+  If (LDUtilities.KeyDown("S")) Then
+    move = move-1
+  EndIf
+  
+  LD3DView.MoveCamera(view3D,yaw,pitch,roll,move) 'These are relative changes wrt current view
+   
+  'Exit
+  If (LDUtilities.KeyDown("Escape")) Then
+    Shapes.Remove(view3D)
+    Program.Delay(100)
+    Program.End()
+  EndIf
+  
+  'Display the camera position and direction
+  pos = LDCall.Function2("truncate",LD3DView.GetCameraPosition(view3D),2)
+  dir = LDCall.Function2("truncate",LD3DView.GetCameraDirection(view3D),2)
+  GraphicsWindow.Title = "Position = ("+pos[1]+" , "+pos[2]+" , "+pos[3]+") Direction = "+dir[1]+" , "+dir[2]+" , "+dir[3]+")"
+  
+  Program.Delay(10)
+EndWhile
+
+'Change the input array of numbers to the required number of decimal places
+Sub truncate
+  return = args[1]
+  sigfig = args[2]
+  multiplier = Math.Power(10,sigfig)
+  For i = 1 To Array.GetItemCount(return)
+    return[i] = (1/multiplier)*Math.Round(multiplier*return[i])
+  EndFor
+EndSub
+    

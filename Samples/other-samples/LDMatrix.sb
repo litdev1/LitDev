@@ -1,0 +1,41 @@
+'Solve a linear set of equations
+
+matrix = LDMatrix.Create(3,3)
+inverse = LDMatrix.Create(3,3)
+lhs = LDMatrix.Create(3,1)
+rhs = LDMatrix.Create(3,1)
+
+LDMatrix.SetValue(matrix, 1, 1, 2)
+LDMatrix.SetValue(matrix, 1, 2, -1)
+LDMatrix.SetValue(matrix, 1, 3, 0)
+LDMatrix.SetValue(matrix, 2, 1, -1)
+LDMatrix.SetValue(matrix, 2, 2, 2)
+LDMatrix.SetValue(matrix, 2, 3, -1)
+LDMatrix.SetValue(matrix, 3, 1, 0)
+LDMatrix.SetValue(matrix, 3, 2, -1)
+LDMatrix.SetValue(matrix, 3, 3, 2)
+
+LDMatrix.SetValue(rhs, 1, 1, 6)
+LDMatrix.SetValue(rhs, 2, 1, 3)
+LDMatrix.SetValue(rhs, 3, 1, 4)
+
+LDMatrix.Inverse(matrix,inverse)
+LDMatrix.Multiply(inverse,rhs,lhs)
+
+var[1] = "x"
+var[2] = "y"
+var[3] = "z"
+For i = 1 To 3
+  For j = 1 To 3
+    TextWindow.Write(LDMatrix.GetValue(matrix, i, j)+var[j]+" ")
+  EndFor
+  TextWindow.Write("= "+LDMatrix.GetValue(rhs, i, 1))
+  TextWindow.WriteLine("")
+EndFor
+TextWindow.WriteLine("")
+For i = 1 To 3
+  TextWindow.WriteLine(var[i]+" = "+LDMatrix.GetValue(lhs, i, 1))
+EndFor
+TextWindow.WriteLine("")
+
+

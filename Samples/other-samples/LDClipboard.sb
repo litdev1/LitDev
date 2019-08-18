@@ -1,0 +1,13 @@
+LDClipboard.SetText("Hello World")
+TextWindow.WriteLine(LDClipboard.GetText())
+
+LDClipboard.SetFileList(File.GetFiles(Program.Directory))
+files = LDClipboard.GetFileList()
+For i = 1 To Array.GetItemCount(files)
+  TextWindow.WriteLine(files[i])   
+EndFor
+
+image = ImageList.LoadImage(Flickr.GetRandomPicture("Car"))
+LDClipboard.SetImage(image)
+image2 = LDClipboard.GetImage()
+GraphicsWindow.DrawResizedImage(image2,0,0,GraphicsWindow.Width,GraphicsWindow.Height)

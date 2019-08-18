@@ -1,0 +1,88 @@
+'Manual control version
+
+'Assign events
+LDServer.ClientConnected = OnClientConnected
+LDServer.ClientDisconnected = OnClientDisconnected
+LDServer.ClientMessage = OnClientMessage
+LDTextWindow.KeyDown = OnKeyDown
+
+'Start the server and output the connection string to a file
+server = LDServer.Start("False")
+File.WriteLine(Program.Directory+"\server.txt",1,server)
+
+'Keep server running and process messages
+TextWindow.Title = "Server"
+While ("True")
+  start = Clock.ElapsedMilliseconds
+  
+  ProcessCommands()
+  
+  delay = 50-(Clock.ElapsedMilliseconds-start)
+  If (delay > 0) Then
+    Program.Delay(delay)
+  EndIf
+EndWhile
+
+'==================================================
+'EVENT SUBROUTINES
+'==================================================
+Sub OnClientConnected
+  LDQueue.Enqueue("MSG",LDServer.LastClientConnected+":CONNECTED")
+EndSub
+
+Sub OnClientDisconnected
+  LDQueue.Enqueue("MSG",LDServer.LastClientDisconnected+":DISCONNECTED")
+EndSub
+
+Sub OnClientMessage
+  LDQueue.Enqueue("MSG",LDServer.LastClient+":"+LDServer.LastClientMessage)
+EndSub
+
+Sub OnKeyDown
+  If (LDTextWindow.LastKey = "Escape") Then
+    LDQueue.Enqueue("MSG",":END")
+  EndIf
+EndSub
+
+'==================================================
+'SUBROUTINES
+'==================================================
+Sub ProcessCommands
+  msg = 0
+  While (LDQueue.GetCount("MSG") > 0)
+    message = LDQueue.Dequeue("MSG")
+    msg = msg+1
+    'TextWindow.WriteLine(msg+" : "+message)
+    pos = Text.GetIndexOf(message,":")
+    client = Text.GetSubText(message,1,pos-1)
+    message = Text.GetSubTextToEnd(message,pos+1)
+    clients = LDServer.GetClients()
+    If (message = "END") Then
+      For i = 1 To Array.GetItemCount(clients)
+        LDServer.SendMessage(clients[i],":END")
+      EndFor
+      Program.End()
+    ElseIf (message = "CONNECTED") Then
+      'Send a message to all clients about the connected client
+      TextWindow.WriteLine(client+" Connected")
+      For i = 1 To Array.GetItemCount(clients)
+        LDServer.SendMessage(clients[i],client+":CONNECTED")
+      EndFor
+    ElseIf (message = "DISCONNECTED") Then
+      'Send a message to all remaining clients about the disconnected client
+      TextWindow.WriteLine(client+" Disconnected")
+      For i = 1 To Array.GetItemCount(clients)
+        If (clients[i] <> client) Then
+          LDServer.SendMessage(clients[i],client+":DISCONNECTED")
+        EndIf
+      EndFor
+    Else
+      'Pump all messages to all clients apart from the originator
+      For i = 1 To Array.GetItemCount(clients)
+        If (clients[i] <> client) Then
+          LDServer.SendMessage(clients[i],client+":"+message)
+        EndIf
+      EndFor
+    EndIf
+  EndWhile
+EndSub

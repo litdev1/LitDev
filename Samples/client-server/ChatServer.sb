@@ -1,0 +1,8 @@
+connect = LDServer.Start("True")
+File.WriteContents(Program.Directory+"\ChatConnect.txt",connect)
+TextWindow.Title = "Chat Server"
+LDServer.AutoMessages = "True"
+
+While ("True")
+  Program.Delay(10)
+EndWhile

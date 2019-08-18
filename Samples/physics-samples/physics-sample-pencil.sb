@@ -1,0 +1,82 @@
+'Note the different effect clicking the eraser, bodyand point of the different pencil types
+'The mass of grouped shapes is different to the mass of the attached shapes
+'Also the clicking the button only triggers the ButtonClicked and not the MouseDown
+
+GraphicsWindow.PenWidth = 0
+GraphicsWindow.Width = 1000
+GraphicsWindow.Height = 700
+GraphicsWindow.Top = 0
+GraphicsWindow.Left = 0
+GraphicsWindow.BackgroundColor = "Gray"
+LDPhysics.Reset()
+
+tb = Controls.AddButton("Click me or a pencil",0,0)
+LDPhysics.AddMovingShape(tb,0.3,0.9,1)
+LDPhysics.SetPosition(tb,400,100,0)
+LDPhysics.SetTorque(tb,50000)
+
+'Pencil 1
+GraphicsWindow.BrushColor = "Yellow"
+body1 = Shapes.AddRectangle(20,200)
+GraphicsWindow.BrushColor = "Brown"
+point1 = Shapes.AddTriangle(0,0,20,0,10,30)
+GraphicsWindow.BrushColor = "Pink"
+eraser1 = Shapes.AddRectangle(20,30)
+
+LDPhysics.AddMovingShape(body1,0.3,0.3,1)
+LDPhysics.SetPosition(body1,200,200,0)
+LDPhysics.AddMovingShape(point1,0.3,0.5,1)
+LDPhysics.SetPosition(point1,200,310,0)
+LDPhysics.AddMovingShape(eraser1,0.8,0.8,1)
+LDPhysics.SetPosition(eraser1,200,85,0)
+
+LDPhysics.GroupShapes(point1,body1)
+LDPhysics.GroupShapes(eraser1,body1)
+
+'Pencil 2
+GraphicsWindow.BrushColor = "Yellow"
+body2 = Shapes.AddRectangle(20,200)
+GraphicsWindow.BrushColor = "Brown"
+point2 = Shapes.AddTriangle(0,0,20,0,10,30)
+GraphicsWindow.BrushColor = "Pink"
+eraser2 = Shapes.AddRectangle(20,30)
+
+LDPhysics.AddMovingShape(body2,0.3,0.3,1)
+LDPhysics.SetPosition(body2,800,200,0)
+LDPhysics.AddMovingShape(point2,0.3,0.5,1)
+LDPhysics.SetPosition(point2,800,310,0)
+LDPhysics.AddMovingShape(eraser2,0.8,0.8,1)
+LDPhysics.SetPosition(eraser2,800,85,0)
+
+LDPhysics.AttachShapes(point2,body2)
+LDPhysics.AttachShapes(eraser2,body2)
+
+mouseDown = 0
+GraphicsWindow.MouseDown = OnMouseDown
+Sub OnMouseDown
+  mouseDown = 1
+EndSub
+
+clicked = 0
+Controls.ButtonClicked = OnButtonClicked
+Sub OnButtonClicked
+ clicked = 1
+EndSub
+
+While ("True")
+  If (mouseDown = 1) Then
+    xM = GraphicsWindow.MouseX
+    yM = GraphicsWindow.MouseY
+    hit = LDPhysics.GetShapeAt(xM,yM)
+    If (hit <> "") Then
+      LDPhysics.SetImpulse(hit,50*LDPhysics.GetMass(hit),-500*LDPhysics.GetMass(hit))
+    EndIf
+    mouseDown = 0
+  EndIf
+  If (clicked = 1) Then 
+    LDPhysics.SetImpulse(Controls.LastClickedButton,30*LDPhysics.GetMass(tb),-300*LDPhysics.GetMass(tb))
+    clicked = 0
+  EndIf
+  LDPhysics.DoTimestep()
+  Program.Delay(10)
+EndWhile

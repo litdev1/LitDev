@@ -1,0 +1,139 @@
+gw = 600
+gh = 600
+GraphicsWindow.Width = gw
+GraphicsWindow.Height = gh
+GraphicsWindow.Title = "Joints - Up, Down, Return for motor, Space to drop shape"
+LDPhysics.Reset()
+
+'LDPhysics.SetGravity(0,0)
+
+MakeMouse()
+MakePulley()
+MakeLine()
+MakeOrbit()
+MakeGear()
+
+While("True")
+  start = Clock.ElapsedMilliseconds
+  
+  If (LDUtilities.KeyDown("Space")) Then
+    If (Math.GetRandomNumber(2) = 1) Then
+      shape = Shapes.AddRectangle(10,10)
+    Else
+      shape = Shapes.AddEllipse(10,10)
+    EndIf
+    Shapes.Move(shape,GraphicsWindow.MouseX-5,GraphicsWindow.MouseY+5) 'below mouse
+    LDPhysics.AddMovingShape(shape,0.5,0.5,1)
+  EndIf
+  
+  If (LDUtilities.KeyDown("Up")) Then
+    LDPhysics.SetJointMotor(line,100,100000)
+    LDPhysics.SetJointMotor(orbit,100,100000)
+    LDPhysics.SetJointMotor(gear,100,100000)
+  ElseIf (LDUtilities.KeyDown("Down")) Then
+    LDPhysics.SetJointMotor(line,-100,100000)
+    LDPhysics.SetJointMotor(orbit,-100,100000)
+    LDPhysics.SetJointMotor(gear,-100,100000)
+  ElseIf (LDUtilities.KeyDown("Return")) Then
+    LDPhysics.SetJointMotor(line,0,0)
+    LDPhysics.SetJointMotor(orbit,0,0)
+    LDPhysics.SetJointMotor(gear,0,0)
+  EndIf
+  
+  pos1 = LDPhysics.GetPosition(pulley1)
+  pos2 = LDPhysics.GetPosition(pulley2)
+  LDShapes.MoveLine(rope1,75,40,pos1[1],pos1[2]-10)
+  LDShapes.MoveLine(rope2,125,40,pos2[1],pos2[2]-10)
+  If (pos1[2] >= gh-40) Then
+    LDPhysics.SetJointMotor(motor,100,1000)
+  ElseIf (pos2[2] >= gh-40) Then
+    LDPhysics.SetJointMotor(motor,-100,1000)
+  EndIf
+  
+  LDPhysics.DoTimestep()
+  
+  delay = 1000*LDPhysics.TimeStep - (Clock.ElapsedMilliseconds-start)
+  If (delay > 0) Then
+    Program.Delay(delay)
+  EndIf
+EndWhile
+
+Sub MakeMouse
+  mouse1 = Shapes.AddEllipse(20,20)
+  Shapes.Move(mouse1,Gw/2-10,gh/2-10)
+  LDPhysics.AddMovingShape(mouse1,0.5,0.5,1)
+  LDPhysics.AttachShapesWithJoint(mouse1,mouse1,"Mouse","False","10000")
+EndSub
+
+Sub MakePulley
+  pulley1 = Shapes.AddRectangle(50,20)
+  pulley2 = Shapes.AddRectangle(50,20)
+  Shapes.Move(pulley1,50,gh-50)
+  Shapes.Move(pulley2,100,50) 'Top of pulley is just above this platform
+  LDPhysics.AddMovingShape(pulley1,0.5,0.5,1)
+  LDPhysics.AddMovingShape(pulley2,0.5,0.5,1)
+  LDPhysics.ToggleRotation(pulley1) 'Prevent rotation of platforms
+  LDPhysics.ToggleRotation(pulley2)
+  LDPhysics.AttachShapesWithJoint(pulley1,pulley2,"Pulley","True","")
+  'Comment lines below to allow lateral swinging
+  anchor = LDPhysics.AddFixedAnchor(0,0)
+  LDPhysics.AttachShapesWithJoint(pulley1,anchor,"Line","False","1=0;2=1;") 'Keep vertical
+  motor = LDPhysics.AttachShapesWithJoint(pulley1,pulley2,"Line","True","1=0;2=1;")'keep vertical axis
+  
+  'stop = Shapes.AddRectangle(150,2)
+  'Shapes.Move(stop,25,gh-30)
+  'LDPhysics.AddFixedShape(stop,0.5,0.5)
+  
+  rope1 = Shapes.AddLine(0,0,0,0)
+  rope2 = Shapes.AddLine(0,0,0,0)
+  ropeTop = Shapes.AddLine(75,40,125,40)
+EndSub
+
+Sub MakeLine
+  'Quite a bit of work to allow line1 to rotate
+  line1 = Shapes.AddRectangle(20,20)
+  line2 = Shapes.AddRectangle(10,10) 'Smaller anchor shape
+  line3 = Shapes.AddRectangle(10,10)
+  line4 = Shapes.AddRectangle(10,10)
+  Shapes.Move(line1,300-10,100-10)
+  Shapes.Move(line2,300-5,100-5)
+  Shapes.Move(line3,300-5,150-5)
+  Shapes.Move(line4,300-5,175-5)
+  Shapes.SetOpacity(line2,0) 'Anchor shape is transparent
+  
+  LDPhysics.AddMovingShape(line1,0.5,0.5,1)
+  LDPhysics.AddMovingShape(line2,0.5,0.5,1)
+  LDPhysics.AddMovingShape(line3,0.5,0.5,1)
+  LDPhysics.AddMovingShape(line4,0.5,0.5,1)
+  LDPhysics.AttachShapesWithRotation(line1,line2)
+  LDPhysics.AttachShapesWithJoint(line1,line2,"Distance","False","")'keep them close
+  anchor = LDPhysics.AddFixedAnchor(0,0)
+  line = LDPhysics.AttachShapesWithJoint(anchor,line2,"Prismatic_V","False","1=3;2=1;3=-100;4=200;")
+  LDPhysics.AttachShapesWithJoint(line2,line3,"Distance","False","1=0.5;")
+  LDPhysics.AttachShapesWithJoint(line3,line4,"Distance","False","1=0.5;")
+  
+  angle = Math.ArcTan(1/3)
+  GraphicsWindow.DrawLine(300-100*Math.Cos(angle),100-100*Math.Sin(angle),300+200*Math.Cos(angle),100+200*Math.Sin(angle))
+EndSub
+
+Sub MakeOrbit
+  orbit1 = Shapes.AddEllipse(50,50)
+  orbit2 = Shapes.AddEllipse(20,20)
+  Shapes.Move(orbit1,400-25,300-25)
+  Shapes.Move(orbit2,400-10,350-10)
+  LDPhysics.AddMovingShape(orbit1,0.5,0.5,1)
+  LDPhysics.AddMovingShape(orbit2,0.5,0.5,1)
+  anchor = LDPhysics.AddFixedAnchor(400,400)
+  orbit = LDPhysics.AttachShapesWithJoint(anchor,orbit1,"Revolute","False","")
+  orbital = LDPhysics.AttachShapesWithJoint(orbit1,orbit2,"Revolute","False","1=-3.14;2=3.14;")
+  GraphicsWindow.DrawEllipse(300,300,200,200)
+EndSub
+
+Sub MakeGear
+  gear1 = Shapes.AddRectangle(20,20)
+  Shapes.Move(gear1,gw/2-10,20-10)
+  LDPhysics.AddMovingShape(gear1,0.5,0.5,1)
+  anchor = LDPhysics.AddFixedAnchor(gw/2,20)
+  gear = LDPhysics.AttachShapesWithJoint(anchor,gear1,"Prismatic_H","False","")
+  LDPhysics.AttachShapesWithJoint(gear1,orbit2,"Gear","True","1=5;2="+gear+";3="+orbital+";")
+EndSub

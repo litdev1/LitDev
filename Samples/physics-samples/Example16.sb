@@ -1,0 +1,64 @@
+LDPhysics.SetAABB(-1000,1000,-100,200)
+LDPhysics.Reset()
+
+GraphicsWindow.PenWidth = 1
+
+For i = 1 To 50
+  mode = Math.GetRandomNumber(3)
+  If (mode = 1) Then
+    GraphicsWindow.BrushColor = "Yellow"
+    temp = Shapes.AddRectangle(20+Math.GetRandomNumber(20),20+Math.GetRandomNumber(20))
+    LDPhysics.AddMovingShape(temp,0.5,0.8,1)
+    LDPhysics.SetPosition(temp,Math.GetRandomNumber(600),50,0)
+  ElseIf (mode = 2) Then
+    GraphicsWindow.BrushColor = "Red"
+    rad = 20+Math.GetRandomNumber(20)
+    temp = Shapes.AddEllipse(rad,rad)
+    LDPhysics.AddMovingShape(temp,0.5,0.8,1)
+    LDPhysics.SetPosition(temp,Math.GetRandomNumber(600),50,0)
+  Else
+    GraphicsWindow.BrushColor = "Green"
+    temp = Shapes.AddTriangle(0,0,20+Math.GetRandomNumber(20),0,0,2+Math.GetRandomNumber(20))
+    LDPhysics.AddMovingShape(temp,0.5,0.8,1)
+    LDPhysics.SetPosition(temp,Math.GetRandomNumber(600),50,0)
+  EndIf
+EndFor
+
+panLeft = 0
+panRight = 0
+GraphicsWindow.keyDown = OnkeyDown
+GraphicsWindow.keyUp = OnkeyUp
+Sub OnkeyDown
+  k = GraphicsWindow.LastKey
+  If (k = "Left") Then
+    panLeft = 1
+  ElseIf (k = "Right") Then
+    panRight = 1
+  EndIf
+EndSub
+Sub OnkeyUp
+  k = GraphicsWindow.LastKey
+  If (k = "Left") Then
+    panLeft = 0
+  ElseIf (k = "Right") Then
+    panRight = 0
+  EndIf
+EndSub
+
+LDPhysics.SetBoundaries(-1,1+GraphicsWindow.Width,0,GraphicsWindow.Height)
+
+While ("True")
+  handleEvents()
+  LDPhysics.DoTimestep()
+  Program.Delay(20)
+EndWhile
+
+Sub handleEvents
+  speed = 10
+  If (panLeft = 1) Then
+    LDPhysics.PanView(-speed,0)
+  EndIf
+  If (panRight = 1) Then
+    LDPhysics.PanView(speed,0)
+  EndIf
+EndSub

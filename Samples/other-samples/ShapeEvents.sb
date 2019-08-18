@@ -1,0 +1,32 @@
+GraphicsWindow.Title = "Drag and drop the balls"
+size = 50
+numBall = 5
+ballSet = 0
+GraphicsWindow.BrushColor = "Blue"
+For i = 1 To numBall
+  ball[i] = Shapes.AddEllipse(size,size)
+  Shapes.Move(ball[i],100*i,100)
+  LDShapes.SetShapeEvent(ball[i])
+EndFor
+
+LDShapes.ShapeEvent = OnShapeEvent
+
+While ("True")
+  If (ballSet = 1) Then
+    Shapes.Move(shapeEvent,GraphicsWindow.MouseX-size/2,GraphicsWindow.MouseY-size/2)
+  EndIf
+  Program.Delay(20)
+EndWhile
+
+Sub OnShapeEvent
+  shapeEvent = LDShapes.LastEventShape
+  If (LDShapes.LastEventType = "MouseDown") Then
+    ballSet = 1
+  ElseIf (LDShapes.LastEventType = "MouseUp") Then
+    ballSet = 0
+  ElseIf (LDShapes.LastEventType = "MouseEnter") Then
+    LDShapes.BrushColour(shapeEvent,"Red")
+  ElseIf (LDShapes.LastEventType = "MouseLeave") Then
+    LDShapes.BrushColour(shapeEvent,"Blue")
+  EndIf
+EndSub
