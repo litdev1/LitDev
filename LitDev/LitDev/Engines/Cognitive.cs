@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -20,6 +22,7 @@ namespace LitDev.Engines
     {
         private HttpClient clientSearch = new HttpClient();
         private HttpClient clientSpell = new HttpClient();
+        private HttpClient clientTranslate = new HttpClient();
         private NameValueCollection queryString = HttpUtility.ParseQueryString(string.Empty);
         private DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(JsonWeb));
 
@@ -30,6 +33,7 @@ namespace LitDev.Engines
         {
             clientSearch.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "52b0b43437c7406b90f5b3db0097306c");
             clientSpell.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "ef01ee4bc41e4cf1af361d4246b6ce9e");
+            clientTranslate.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "49f22a1374ff46a09bd869aee2d913bb");
         }
 
         public JsonWeb SearchRequest(string search)
@@ -82,6 +86,71 @@ namespace LitDev.Engines
             Stream stream = response.Content.ReadAsStreamAsync().Result;
             return (JsonWeb)jsonSerializer.ReadObject(stream);
         }
+
+        public string TranslateRequestAsync(string from, string to, string text)
+        {
+            object[] body = new object[] { new { Text = text } };
+            string requestBody = JsonConvert.SerializeObject(body);
+
+            // Web Request parameters
+            queryString.Clear();
+            queryString["api-version"] = "3.0";
+            queryString["from"] = from;
+            queryString["to"] = to;
+            string uri = "https://api.cognitive.microsofttranslator.com/translate?" + queryString;
+
+            try
+            {
+                HttpResponseMessage response = clientTranslate.PostAsync(uri, new StringContent(requestBody, Encoding.UTF8, "application/json")).Result;
+                string result = response.Content.ReadAsStringAsync().Result;
+                TranslationResult[] deserializedOutput = JsonConvert.DeserializeObject<TranslationResult[]>(result);
+                return deserializedOutput[0].Translations[0].Text;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+    }
+
+    public class TranslationResult
+    {
+        public DetectedLanguage DetectedLanguage { get; set; }
+        public TextResult SourceText { get; set; }
+        public Translation[] Translations { get; set; }
+    }
+
+    public class DetectedLanguage
+    {
+        public string Language { get; set; }
+        public float Score { get; set; }
+    }
+
+    public class TextResult
+    {
+        public string Text { get; set; }
+        public string Script { get; set; }
+    }
+
+    public class Translation
+    {
+        public string Text { get; set; }
+        public TextResult Transliteration { get; set; }
+        public string To { get; set; }
+        public Alignment Alignment { get; set; }
+        public SentenceLength SentLen { get; set; }
+    }
+
+    public class Alignment
+    {
+        public string Proj { get; set; }
+    }
+
+    public class SentenceLength
+    {
+        public int[] SrcSentLen { get; set; }
+        public int[] TransSentLen { get; set; }
     }
 
     #region Json

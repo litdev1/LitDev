@@ -15,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
+using LitDev.Engines;
 using Microsoft.SmallBasic.Library;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,7 @@ namespace LitDev
     public static class LDTranslate
     {
         private static Dictionary<string, string> languageList = new Dictionary<string, string>();
+        private static Cognitive cognitive = new Cognitive();
 
         private static void SetLanguages()
         {
@@ -173,43 +175,46 @@ namespace LitDev
         private static string TranslateMethod(string sourceText, string langFrom, string langTo)
         {
             SetLanguages();
-            string url = String.Format("https://translate.google.com/?hl=en&eotf=1&sl={0}&tl={1}&q={2}", langFrom, langTo, HttpUtility.UrlEncode(sourceText));
+            return cognitive.TranslateRequestAsync(langFrom, langTo, sourceText);
 
-            WebRequest translationWebRequest = WebRequest.Create(url);
-            WebResponse response = translationWebRequest.GetResponse();
-            Stream stream = response.GetResponseStream();
-            StreamReader translatedStream = new StreamReader(stream, Encoding.Default);
-            string result = translatedStream.ReadToEnd();
-            byte[] bytes;
+            //string url = String.Format("https://translate.google.com/?hl=en&eotf=1&sl={0}&tl={1}&q={2}", langFrom, langTo, HttpUtility.UrlEncode(sourceText));
 
-            int startIndex = result.IndexOf("charset=", StringComparison.Ordinal) + 8;
-            int endIndex = result.IndexOf("\"", startIndex, StringComparison.Ordinal);
-            string charset = result.Substring(startIndex, endIndex - startIndex);
+            //WebRequest translationWebRequest = WebRequest.Create(url);
+            //WebResponse response = translationWebRequest.GetResponse();
+            //Stream stream = response.GetResponseStream();
+            //StreamReader translatedStream = new StreamReader(stream, Encoding.Default);
+            //string result = translatedStream.ReadToEnd();
+            //byte[] bytes;
 
-            startIndex = result.IndexOf("<span id=result_box", StringComparison.Ordinal);
-            var sb = new StringBuilder();
-            if (startIndex > 0)
-            {
-                startIndex = result.IndexOf("<span title=", startIndex, StringComparison.Ordinal);
-                while (startIndex > 0)
-                {
-                    startIndex = result.IndexOf("onmouseover", startIndex, StringComparison.Ordinal);
-                    startIndex = result.IndexOf(">", startIndex, StringComparison.Ordinal);
-                    if (startIndex > 0)
-                    {
-                        startIndex++;
-                        endIndex = result.IndexOf("</span>", startIndex, StringComparison.Ordinal);
-                        string translatedText = result.Substring(startIndex, endIndex - startIndex);
-                        translatedText = HttpUtility.HtmlDecode(translatedText);
-                        translatedText = translatedText.Replace((char)160, (char)32);
-                        bytes = Encoding.Default.GetBytes(translatedText);
-                        translatedText = Encoding.GetEncoding(charset).GetString(bytes);
-                        sb.Append(translatedText);
-                        startIndex = result.IndexOf("<span title=", startIndex, StringComparison.Ordinal);
-                    }
-                }
-            }
-            return sb.ToString().Replace("<br>", Environment.NewLine);
+            //int startIndex = result.IndexOf("charset=", StringComparison.Ordinal) + 8;
+            //int endIndex = result.IndexOf("\"", startIndex, StringComparison.Ordinal);
+            //string charset = result.Substring(startIndex, endIndex - startIndex);
+
+            //startIndex = result.IndexOf("<span id=result_box", StringComparison.Ordinal);
+            //var sb = new StringBuilder();
+            //if (startIndex > 0)
+            //{
+            //    startIndex = result.IndexOf("<span title=", startIndex, StringComparison.Ordinal);
+            //    while (startIndex > 0)
+            //    {
+            //        startIndex = result.IndexOf("onmouseover", startIndex, StringComparison.Ordinal);
+            //        startIndex = result.IndexOf(">", startIndex, StringComparison.Ordinal);
+            //        if (startIndex > 0)
+            //        {
+            //            startIndex++;
+            //            endIndex = result.IndexOf("</span>", startIndex, StringComparison.Ordinal);
+            //            string translatedText = result.Substring(startIndex, endIndex - startIndex);
+            //            translatedText = HttpUtility.HtmlDecode(translatedText);
+            //            translatedText = translatedText.Replace((char)160, (char)32);
+            //            bytes = Encoding.Default.GetBytes(translatedText);
+            //            translatedText = Encoding.GetEncoding(charset).GetString(bytes);
+            //            sb.Append(translatedText);
+            //            startIndex = result.IndexOf("<span title=", startIndex, StringComparison.Ordinal);
+            //        }
+            //    }
+            //}
+            //return sb.ToString().Replace("<br>", Environment.NewLine);
+
             //GetHeader();
             //string txtToTranslate = sourceText;
             //string uri = "http://api.microsofttranslator.com/v2/Http.svc/Translate?text=" + System.Web.HttpUtility.UrlEncode(txtToTranslate) + "&from=" + langFrom + "&to=" + langTo;

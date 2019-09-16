@@ -709,6 +709,8 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            LDTranslate.Translate("Ein Besuch im Zoo.", "de", "en");
+
             Primitive img1 = LDClipboard.GetImage();
             LDImage.SaveAs(img1, "C:\\Temp\\DemoImg.jpg");
 
