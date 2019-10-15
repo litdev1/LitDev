@@ -112,6 +112,44 @@ namespace LitDev.Engines
                 return "";
             }
         }
+
+        public Dictionary<string,string> AvailableLanguagesRequestAsync()
+        {
+            // Web Request parameters
+            queryString.Clear();
+            queryString["api-version"] = "3.0";
+            queryString["scope"] = "translation";
+            string uri = "https://api.cognitive.microsofttranslator.com/languages?" + queryString;
+            Dictionary<string, string> languageList = new Dictionary<string, string>();
+
+            try
+            {
+                HttpResponseMessage response = clientTranslate.GetAsync(uri).Result;
+                string result = response.Content.ReadAsStringAsync().Result;
+                AvailableLanguagesResult deserializedOutput = JsonConvert.DeserializeObject<AvailableLanguagesResult>(result);
+                foreach (KeyValuePair<string, AvailableLanguage> language in deserializedOutput.Translation)
+                {
+                    languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(language.Value.Name.ToLower()), language.Key);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return languageList;
+        }
+    }
+
+    public class AvailableLanguagesResult
+    {
+        public Dictionary<string, AvailableLanguage> Translation { get; set; }
+    }
+
+    public class AvailableLanguage
+    {
+        public string Name { get; set; }
+        public string NativeName { get; set; }
+        public string Dir { get; set; }
     }
 
     public class TranslationResult

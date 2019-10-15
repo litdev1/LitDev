@@ -51,6 +51,8 @@ namespace LitDev
         private static void SetLanguages()
         {
             if (languageList.Count > 0) return;
+            languageList = cognitive.AvailableLanguagesRequestAsync();
+            return;
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("AFRIKAANS".ToLower()), "af");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("ALBANIAN".ToLower()), "sq");
             languageList.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("AMHARIC".ToLower()), "am");
