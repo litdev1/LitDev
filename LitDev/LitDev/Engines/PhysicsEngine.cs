@@ -19,7 +19,7 @@
 //3. This notice may not be removed or altered from any source distribution.
 
 //The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
-//Copyright (C) <2011 - 2015> litdev@hotmail.co.uk
+//Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
 //LitDev Extension is free software: you can redistribute it and/or modify
