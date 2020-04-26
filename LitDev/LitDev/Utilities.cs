@@ -41,6 +41,8 @@ using System.Threading;
 using LitDev.Engines;
 using System.Windows.Threading;
 using System.Collections.Specialized;
+using System.Drawing;
+using Size = System.Drawing.Size;
 
 namespace LitDev
 {
@@ -100,7 +102,7 @@ namespace LitDev
         public static BitmapFrame getBitmapFrame(Canvas controlToConvert)
         {
             // get size of control
-            Size sizeOfControl = new Size(controlToConvert.ActualWidth, controlToConvert.ActualHeight);
+            System.Windows.Size sizeOfControl = new System.Windows.Size(controlToConvert.ActualWidth, controlToConvert.ActualHeight);
             // measure and arrange the control
             controlToConvert.Measure(sizeOfControl);
             // arrange the surface
@@ -712,13 +714,13 @@ namespace LitDev
                             grid = (Grid)content;
                         }
                         Transform transform = grid.LayoutTransform;
-                        Brush background = grid.Background;
+                        System.Windows.Media.Brush background = grid.Background;
                         grid.LayoutTransform = null;
                         grid.Background = _window.Background;
 
                         int width = (int)grid.ActualWidth;
                         int height = (int)grid.ActualHeight;
-                        Size size = new Size(width, height);
+                        System.Windows.Size size = new System.Windows.Size(width, height);
                         grid.Measure(size);
                         grid.Arrange(new Rect(size));
                         RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
@@ -1905,6 +1907,81 @@ namespace LitDev
             {
                 System.Windows.Forms.Cursor.Position = new System.Drawing.Point(xCur, yCur);
             }
+        }
+
+        /// <summary>
+        /// Save the entire visible screen as an image file (png, jpg, bmp, gif, tiff or ico).
+        /// A short delay may be required after updating the window before calling.
+        /// </summary>
+        /// <param name="fileName">
+        /// The file to save the image to (*.png, *.jpg, *.bmp, *.gif, *.tiff or *.ico).
+        /// If this is set to "", then the image is created internally as an ImageList.
+        /// </param>
+        /// <returns>
+        /// The ImageList image if fileName is "", otherwise if output to a file, then "" is returned.
+        /// </returns>
+        public static Primitive CaptureScreen(Primitive fileName)
+        {
+            Type ShapesType = typeof(Shapes);
+            Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+            Dictionary<string, BitmapSource> _savedImages;
+            try
+            {
+                Bitmap img = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+                Graphics graphics = Graphics.FromImage(img);
+                graphics.CopyFromScreen(0, 0, 0, 0, img.Size);
+
+                string _fileName = ((string)fileName).ToLower();
+
+                if (fileName == "")
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                            string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
+                            _savedImages[shapeName] = FastPixel.GetBitmapImage((Bitmap)img);
+                            return shapeName;
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else if (_fileName.EndsWith(".png"))
+                {
+                    img.Save(fileName, ImageFormat.Png);
+                }
+                else if (_fileName.EndsWith(".jpg") || _fileName.EndsWith(".jpeg"))
+                {
+                    img.Save(fileName, ImageFormat.Jpeg);
+                }
+                else if (_fileName.EndsWith(".bmp"))
+                {
+                    img.Save(fileName, ImageFormat.Bmp);
+                }
+                else if (_fileName.EndsWith(".gif"))
+                {
+                    img.Save(fileName, ImageFormat.Gif);
+                }
+                else if (_fileName.EndsWith(".tiff"))
+                {
+                    img.Save(fileName, ImageFormat.Tiff);
+                }
+                else if (_fileName.EndsWith(".ico"))
+                {
+                    img.Save(fileName, ImageFormat.Icon);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
         }
     }
 }
