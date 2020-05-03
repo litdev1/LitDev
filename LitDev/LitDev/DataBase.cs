@@ -886,5 +886,43 @@ namespace LitDev
                 return "FAILED";
             }
         }
+
+        /// <summary>
+        /// Commit any changes made in a LDControls.DataView to the database.
+        /// This is an alternative to SaveTable, where the data binding fails for some reason.
+        /// This method may be slower than SaveTable, since it recreates the table line by line using SQL.
+        /// </summary>
+        /// <param name="database">The existing database label (see ConnectSQLite, ConnectMySQL, ConnectSqlServer, ConnectOleDb or ConnectOdbc).</param>
+        /// <param name="dataview">A DataView control.</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive SaveTableBySQL(Primitive database, Primitive dataview)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                DataBase dataBase = GetDataBase(database);
+                if (null == dataBase) return "FAILED";
+
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue((string)dataview, out obj)) return "FAILED";
+
+                WindowsFormsHost host = (WindowsFormsHost)obj;
+                DataGridView dataView = (DataGridView)host.Child;
+
+                dataView.EndEdit();
+                ((BindingSource)dataView.DataSource).EndEdit();
+                UpdateDataTableBySQL(dataBase, dataView);
+
+                return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
     }
 }

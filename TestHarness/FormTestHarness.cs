@@ -709,6 +709,12 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive datFile = "C:/Users/steve/Documents/SmallBasic/steve/database.db";
+            Primitive database = LDDataBase.ConnectSQLite(datFile);
+            Primitive dataView = LDControls.AddDataView(240, 350, "");
+            LDDataBase.EditTable(datFile, "Cars", dataView);
+            LDDataBase.SaveTable(database, dataView);
+
             LDTranslate.Translate("Ein Besuch im Zoo.", "de", "en");
 
             Primitive img1 = LDClipboard.GetImage();
