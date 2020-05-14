@@ -243,6 +243,7 @@
     <Compile Include="Box2D\Box2D.Dynamics\World.cs" />
     <Compile Include="Box2D\Box2D.Dynamics\WorldCallback.cs" />
     <Compile Include="Box2D\Box2D\Box2DXDebug.cs" />
+    <Compile Include="LitDev\Finances.cs" />
     <Compile Include="LitDev\Forms\FormXML.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -280,6 +281,7 @@
     </Compile>
     <Compile Include="LitDev\Controller.cs" />
     <Compile Include="LitDev\WaveForm.cs" />
+    <Compile Include="LitDev\WebAPI.cs" />
     <Compile Include="LitDev\XML.cs" />
     <Compile Include="LitDev\FTP.cs" />
     <Compile Include="LitDev\Engines\BingSearchContainer.cs" />
