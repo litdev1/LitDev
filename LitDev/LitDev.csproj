@@ -243,7 +243,16 @@
     <Compile Include="Box2D\Box2D.Dynamics\World.cs" />
     <Compile Include="Box2D\Box2D.Dynamics\WorldCallback.cs" />
     <Compile Include="Box2D\Box2D\Box2DXDebug.cs" />
-    <Compile Include="LitDev\Finances.cs" />
+    <Compile Include="LitDev\Finances\BalanceStatement.cs" />
+    <Compile Include="LitDev\Finances\CashFlowStatement.cs" />
+    <Compile Include="LitDev\Finances\Company.cs" />
+    <Compile Include="LitDev\Finances\Engine.cs" />
+    <Compile Include="LitDev\Finances\FinancialWrapper.cs" />
+    <Compile Include="LitDev\Finances\IncomeStatement.cs" />
+    <Compile Include="LitDev\Finances\Price.cs" />
+    <Compile Include="LitDev\Finances\Profile.cs" />
+    <Compile Include="LitDev\Finances\Quote.cs" />
+    <Compile Include="LitDev\Finances\Search.cs" />
     <Compile Include="LitDev\Forms\FormXML.cs">
       <SubType>Form</SubType>
     </Compile>
