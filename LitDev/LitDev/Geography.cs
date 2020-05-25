@@ -40,9 +40,13 @@ namespace LitDev
         public static string query;
         public static string json;
 
+        
+        //This is the api abstraction
+        private static WebAPI api = WebAPIFactory.Instance.GetWebApi(baseURL);
+
         public static List<Country> GetAllCountries()
         {
-            query = $"{baseURL}/all";
+            query = $"/all";
 
             if (Fields?.Length > 0)
             {
@@ -54,7 +58,7 @@ namespace LitDev
 
         public static List<Country> GetCountriesByName(string name)
         {
-            query = $"{baseURL}/name/{name}";
+            query = $"/name/{name}";
 
             if (FullTextSearch || Fields?.Length > 0)
             {
@@ -83,7 +87,7 @@ namespace LitDev
         {
             try
             {
-                query = $"{baseURL}/alpha";
+                query = $"/alpha";
                 query += $"?codes={ArrayToURL(codes)}";
 
 
@@ -107,7 +111,7 @@ namespace LitDev
 
         public static List<Country> GetCountriesByCurrency(string currency)
         {
-            query = $"{baseURL}/currency/{currency}";
+            query = $"/currency/{currency}";
 
             if (Fields?.Length > 0)
             {
@@ -119,7 +123,7 @@ namespace LitDev
 
         public static List<Country> GetCountriesByCapital(string capital)
         {
-            query = $"{baseURL}/capital/{capital}";
+            query = $"/capital/{capital}";
 
             if (Fields?.Length > 0)
             {
@@ -131,7 +135,7 @@ namespace LitDev
 
         public static List<Country> GetCountriesByCallingCode(string callingCode)
         {
-            query = $"{baseURL}/callingcode/{callingCode}";
+            query = $"/callingcode/{callingCode}";
             if (Fields?.Length > 0)
             {
                 query += $"?fields={ArrayToURL(Fields)}";
@@ -142,7 +146,7 @@ namespace LitDev
 
         public static List<Country> GetCountriesByRegion(string region)
         {
-            query = $"{baseURL}/region/{region}";
+            query = $"/region/{region}";
             if (Fields?.Length > 0)
             {
                 query += $"?fields={ArrayToURL(Fields)}";
@@ -153,7 +157,7 @@ namespace LitDev
 
         public static List<Country> GetCountriesByRegionalBloc(string bloc)
         {
-            query = $"{baseURL}/regionalbloc/{bloc}";
+            query = $"/regionalbloc/{bloc}";
             if (Fields?.Length > 0)
             {
                 query += $"?fields={ArrayToURL(Fields)}";
@@ -164,24 +168,7 @@ namespace LitDev
 
         private static string JSON(string URL)
         {
-            json = Response(Request(URL));
-            return json;
-        }
-
-        private static WebRequest Request(string URL)
-        {
-            WebRequest WR = WebRequest.Create(URL);
-            WR.ContentType = "application/x-www-form-urlencoded";
-            WR.Method = "GET";
-            return WR;
-        }
-
-        private static string Response(WebRequest WR)
-        {
-            WebResponse response = WR.GetResponse();
-            Stream stream = response.GetResponseStream();
-            StreamReader translatedStream = new StreamReader(stream, Encoding.UTF8);
-            return translatedStream.ReadToEnd();
+            return api.Get(URL);
         }
 
         private static string ArrayToURL(string[] fields)
