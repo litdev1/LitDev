@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace LitDev.Finances
@@ -68,5 +69,43 @@ namespace LitDev.Finances
         public decimal EarningsBeforeTaxMargin;
         [JsonProperty("Net Profit Margin")]
         public decimal NetProfitMargin;
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"date={date.ToString("YYYY-MM-DD")};");
+            sb.Append($"Revenue={Revenue};");
+            sb.Append($"RevenueGrowth={RevenueGrowth};");
+            sb.Append($"CostOfRevenue={CostOfRevenue};");
+            sb.Append($"GrossProfit={GrossProfit};");
+            sb.Append($"R&DExpenses={ResearchAndDevelopmentExpenses};");
+            sb.Append($"SG&AExpenses={SGAExpenses};");
+            sb.Append($"OperatingExpenses={OperatingExpenses};");
+            sb.Append($"OperatingIncome={OperatingIncome};");
+            sb.Append($"InterestExpense={InterestExpense}");
+            sb.Append($"EarningsBeforeTax={EarningsBeforeTax};");
+            sb.Append($"IncomeTaxExpense={IncomeTaxExpense};");
+            sb.Append($"NetIncomeNonControllingInt={NetIncomeNonControllingInt};");
+            sb.Append($"NetIncomeDiscontinuedOps={NetIncomeDiscontinuedOps};");
+            sb.Append($"NetIncome={NetIncome};");
+            sb.Append($"PreferredDividends={PreferredDividends};");
+            sb.Append($"NetIncomeCom={NetIncomeCom};");
+            sb.Append($"EPS={EPS};");
+            sb.Append($"EPSDiluted={EPSDiluted};");
+            sb.Append($"WeightedAverageShsOut={WeightedAverageShsOut};");
+            sb.Append($"WeightedAverageShsOutDil={WeightedAverageShsOutDil};");
+            sb.Append($"DividendPerShare={DividendPerShare};");
+            sb.Append($"GrossMargin={GrossMargin};");
+            sb.Append($"EBITDAMargin={EBITDAMargin};");
+            sb.Append($"EBITMargin={EBITMargin};");
+            sb.Append($"ProfitMargin={ProfitMargin};");
+            sb.Append($"FreeCashFlowMargin={FreeCashFlowMargin};");
+            sb.Append($"EBITDA={EBITDA};");
+            sb.Append($"EBIT={EBIT};");
+            sb.Append($"ConsolidatedIncome={ConsolidatedIncome};");
+            sb.Append($"EarningsBeforeTaxMargin={EarningsBeforeTaxMargin};");
+            sb.Append($"NetProfitMargin={NetProfitMargin};");
+            return sb.ToString();
+        }
     }
 }

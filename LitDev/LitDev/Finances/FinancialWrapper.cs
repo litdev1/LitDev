@@ -3,6 +3,11 @@
     public class FinancialWrapper<T>
     {
         public string symbol;
-        public T[] financials; 
+        public T[] financials;
+
+        public override string ToString()
+        {
+            return $"symbol={symbol};{financials.ToString()}";
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace LitDev.Finances
@@ -94,5 +95,41 @@ namespace LitDev.Finances
 
         [JsonProperty("Other Liabilities")]
         public string OtherLiabilities;
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"date={Date.ToString("YYYY-MM-DD")};");
+            sb.Append($"CashAndCashEquivalents={CashAndCashEquivalents};");
+            sb.Append($"ShortTermInvestments={ShortTermInvestments};");
+            sb.Append($"CashAndShortTermInvestments={CashAndShortTermInvestments};");
+            sb.Append($"Receivables={Receivables};");
+            sb.Append($"Inventories={Inventories};");
+            sb.Append($"TotalCurrentAssets={TotalCurrentAssets};");
+            sb.Append($"PropertyPlantEquipmentNet={PropertyPlantEquipmentNet};");
+            sb.Append($"GoodwillAndIntangibleAssets={GoodwillAndIntangibleAssets};");
+            sb.Append($"LongTermInvestments={LongTermInvestments};");
+            sb.Append($"TaxAssets={TaxAssets};");
+            sb.Append($"TotalNonCurrentAssets={TotalNonCurrentAssets};");
+            sb.Append($"TotalAssets={TotalAssets};");
+            sb.Append($"Payables={Payables};");
+            sb.Append($"ShortTermDebt={ShortTermDebt};");
+            sb.Append($"TotalCurrentLiabilities={TotalCurrentLiabilities};");
+            sb.Append($"LongTermDebt={LongTermDebt};");
+            sb.Append($"TotalDebt={TotalDebt};");
+            sb.Append($"DeferredRevenue={DeferredRevenue};");
+            sb.Append($"TaxLiabilities={TaxLiabilities};");
+            sb.Append($"DepositLiabilities={DepositLiabilities};");
+            sb.Append($"TotalNonCurrentLiabilities={TotalNonCurrentLiabilities};");
+            sb.Append($"TotalLiabilities={TotalLiabilities};");
+            sb.Append($"OtherComprehensiveIncome={OtherComprehensiveIncome};");
+            sb.Append($"RetainedEarningsDeficit={RetainedEarningsDeficit};");
+            sb.Append($"TotalShareholdersEquity={TotalShareholdersEquity};");
+            sb.Append($"Investments={Investments};");
+            sb.Append($"NetDebt={NetDebt};");
+            sb.Append($"OtherAssets={OtherAssets};");
+            sb.Append($"OtherLiabilities={OtherLiabilities};");
+            return sb.ToString();
+        }
     }
 }

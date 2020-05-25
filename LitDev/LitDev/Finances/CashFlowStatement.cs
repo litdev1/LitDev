@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace LitDev.Finances
@@ -52,5 +53,27 @@ namespace LitDev.Finances
 
         [JsonProperty("Net Cash/Marketcap")]
         public string NetCashMarketcap ;
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"date={Date.ToString("YYYY-MM-DD")};");
+            sb.Append($"DepreciationAmortization={DepreciationAmortization};");
+            sb.Append($"StockBasedCompensation={StockBasedCompensation};");
+            sb.Append($"OperatingCashFlow={OperatingCashFlow};");
+            sb.Append($"CapitalExpenditure={CapitalExpenditure};");
+            sb.Append($"AcquisitionsAndDisposals={AcquisitionsAndDisposals};");
+            sb.Append($"InvestmentPurchasesAndSales={InvestmentPurchasesAndSales};");
+            sb.Append($"InvestingCashFlow={InvestingCashFlow};");
+            sb.Append($"IssuanceRepaymentOfDebt={IssuanceRepaymentOfDebt};");
+            sb.Append($"IssuanceBuybacksOfShares={IssuanceBuybacksOfShares};");
+            sb.Append($"DividendPayments={DividendPayments};");
+            sb.Append($"FinancingCashFlow={FinancingCashFlow};");
+            sb.Append($"EffectOfForexChangesOnCash={EffectOfForexChangesOnCash};");
+            sb.Append($"NetCashFlowChangeInCash={NetCashFlowChangeInCash};");
+            sb.Append($"FreeCashFlow={FreeCashFlow};");
+            sb.Append($"NetCashMarketcap={NetCashMarketcap};");
+            return sb.ToString();
+        }
     }
 }

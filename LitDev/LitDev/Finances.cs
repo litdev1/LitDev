@@ -59,6 +59,27 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Gets the current price of the company.
+        /// This information is returned in real-time.
+        /// </summary>
+        /// <param name="ticker">The symbol of the company we want to find.</param>
+        /// <returns>
+        ///    A price of the company in the form of an array upon success
+        ///    and a failure returns FAILURE. 
+        /// </returns>
+        public static Primitive Price(string ticker)
+        {
+            try
+            {
+                return Engine.GetRealTimePrice(ticker).ToString();
+            }
+            catch (Exception ex)
+            {
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
         /// Searches the exchange for the ticker name
         /// and returns results that are similar to the ticker name. 
         /// </summary>
@@ -111,17 +132,17 @@ namespace LitDev
                 if (statementType.Equals("Income", sc))
                 {
                     FinancialWrapper<IncomeStatement> statement = Engine.GetIncomeStatement(ticker, period);
-                    //return statement.ToString();
+                    return statement.ToString();
                 }
                 else if (statementType.Equals("Balance", sc))
                 {
                     FinancialWrapper<BalanceStatement> statement = Engine.GetBalanceStatement(ticker, period);
-                    //return statement.ToString();
+                    return statement.ToString();
                 }
                 else if (statementType.Equals("CashFlow", sc))
                 {
                     FinancialWrapper<CashFlowStatement> statement = Engine.GetCashFlowStatement(ticker, period);
-                    //return statement.ToString();
+                    return statement.ToString();
                 }
             }
             catch (Exception ex)
@@ -129,7 +150,7 @@ namespace LitDev
                 return "FAILED";
             }
 
-            return null;
+            return "FAILED";
         }
     }
 }

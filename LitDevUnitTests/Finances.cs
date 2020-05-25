@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using LitDev;
 using NUnit.Framework;
 using LitDev.Finances;
+using Microsoft.SmallBasic.Library;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace LitDevUnitTests
@@ -28,6 +30,11 @@ namespace LitDevUnitTests
             Assert.AreEqual("AAPL", data[0].symbol);
             Assert.AreEqual("Apple Inc.", data[0].name);
             Assert.AreEqual("NASDAQ", data[0].exchange);
+
+            Primitive primitive = LDFinances.Quote("AAPL");
+            Assert.AreEqual("AAPL", primitive["symbol"]);
+            Assert.AreEqual("Apple Inc.", primitive["name"]);
+            Assert.AreEqual("NASDAQ", primitive["exchange"]);
         }
 
         [TestMethod]
