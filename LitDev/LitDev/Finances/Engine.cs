@@ -16,6 +16,9 @@ namespace LitDev.Finances
     {
         private static WebAPI api = WebAPIFactory.Instance.GetWebApi("https://financialmodelingprep.com/api/v3");
         private static int limit = 10;
+        public static string key;
+
+        public static string LastURL => api.lastUrl;
 
         public enum ReportingPeriod
         {
@@ -25,17 +28,17 @@ namespace LitDev.Finances
 
         public static Company GetCompanyProfile(string company)
         {
-            return api.DeserializeJSON<Company>($"/company/profile/{company}");
+            return api.DeserializeJSON<Company>($"/company/profile/{company}?apikey={key}");
         }
 
         public static Quote[] GetCompanyQuote(string company)
         {
-            return api.DeserializeJSON<Quote[]>($"/quote/{company}");
+            return api.DeserializeJSON<Quote[]>($"/quote/{company}?apikey={key}");
         }
 
         public static Search[] GetSearch(string name, string exchange)
         {
-            return api.DeserializeJSON<Search[]>($"/search?query={name}&limit={limit}&exchange={exchange}");
+            return api.DeserializeJSON<Search[]>($"/search?query={name}&limit={limit}&exchange={exchange}&apikey={key}");
         }
 
         public static FinancialWrapper<IncomeStatement> GetIncomeStatement(string name, ReportingPeriod period = ReportingPeriod.Annual)
@@ -43,10 +46,10 @@ namespace LitDev.Finances
             switch (period)
             {
                 case ReportingPeriod.Quarterly:
-                    return api.DeserializeJSON<FinancialWrapper<IncomeStatement>>($"/financials/income-statement/{name}?period=quarter");
+                    return api.DeserializeJSON<FinancialWrapper<IncomeStatement>>($"/financials/income-statement/{name}?period=quarter&apikey={key}");
                 case ReportingPeriod.Annual:
                 default:
-                    return api.DeserializeJSON<FinancialWrapper<IncomeStatement>>($"/financials/income-statement/{name}");
+                    return api.DeserializeJSON<FinancialWrapper<IncomeStatement>>($"/financials/income-statement/{name}?apikey={key}");
             }
         }
 
@@ -55,10 +58,10 @@ namespace LitDev.Finances
             switch (period)
             {
                 case ReportingPeriod.Quarterly:
-                    return api.DeserializeJSON<FinancialWrapper<BalanceStatement>>($"/financials/balance-sheet-statement/{name}?period=quarter");
+                    return api.DeserializeJSON<FinancialWrapper<BalanceStatement>>($"/financials/balance-sheet-statement/{name}?period=quarter&apikey={key}");
                 case ReportingPeriod.Annual:
                 default:
-                    return api.DeserializeJSON<FinancialWrapper<BalanceStatement>>($"/financials/balance-sheet-statement/{name}");
+                    return api.DeserializeJSON<FinancialWrapper<BalanceStatement>>($"/financials/balance-sheet-statement/{name}?apikey={key}");
             }
         }
 
@@ -67,10 +70,10 @@ namespace LitDev.Finances
             switch (period)
             {
                 case ReportingPeriod.Quarterly:
-                    return api.DeserializeJSON<FinancialWrapper<CashFlowStatement>>($"/financials/cash-flow-statement/{name}?period=quarter");
+                    return api.DeserializeJSON<FinancialWrapper<CashFlowStatement>>($"/financials/cash-flow-statement/{name}?period=quarter&apikey={key}");
                 case ReportingPeriod.Annual:
                 default:
-                    return api.DeserializeJSON<FinancialWrapper<CashFlowStatement>>($"/financials/cash-flow-statement/{name}");
+                    return api.DeserializeJSON<FinancialWrapper<CashFlowStatement>>($"/financials/cash-flow-statement/{name}?apikey={key}");
             }
         }
 
@@ -121,7 +124,7 @@ namespace LitDev.Finances
 
         public static Price GetRealTimePrice(string company)
         {
-            return api.DeserializeJSON<Price>($"/stock/real-time-price/{company}");
+            return api.DeserializeJSON<Price>($"/stock/real-time-price/{company}?apikey={key}");
         }
         public static void GetStockPriceList()
         {

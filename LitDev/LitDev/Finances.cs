@@ -11,8 +11,21 @@ namespace LitDev
     /// <summary>
     /// Lets you ask financial information... 
     /// </summary>
+    [SmallBasicType]
     public static class LDFinances
     {
+
+        /// <summary>
+        /// The API key to use for this API.
+        /// You need to get an api key from
+        /// https://financialmodelingprep.com/developer/docs/
+        /// </summary>
+        public static Primitive Key
+        {
+            get { return Engine.key; }
+            set { Engine.key = value; }
+        }
+
         /// <summary>
         /// Gets a description of the company including information such as
         /// CEO, Sector, price, and market cap amongst other things.
@@ -32,8 +45,9 @@ namespace LitDev
             }
             catch (Exception ex)
             {
-                return "FAILED";
+                return ex.ToString();
             }
+
         }
 
         /// <summary>
