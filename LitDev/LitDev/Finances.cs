@@ -38,7 +38,7 @@ namespace LitDev
         ///    A description of the company in the form of an array upon success.
         ///    On failure returns FAILURE.
         /// </returns>
-        public static Primitive Description(string ticker)
+        public static Primitive Description(Primitive ticker)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace LitDev
         ///    A quote of the company in the form of an array upon success
         ///    and a failure returns FAILURE. 
         /// </returns>
-        public static Primitive Quote(string ticker)
+        public static Primitive Quote(Primitive ticker)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace LitDev
         ///    A price of the company in the form of an array upon success
         ///    and a failure returns FAILURE. 
         /// </returns>
-        public static Primitive Price(string ticker)
+        public static Primitive Price(Primitive ticker)
         {
             try
             {
@@ -108,7 +108,7 @@ namespace LitDev
         ///    A quote of the company in the form of an array upon success
         ///    and a failure returns FAILURE.
         /// </returns>
-        public static Primitive Search(string ticker, string exchange)
+        public static Primitive Search(Primitive ticker, Primitive exchange)
         {
             try
             {
@@ -132,29 +132,29 @@ namespace LitDev
         ///     Valid statement types are: "Income", "Balance", and, "CashFlow". 
         /// </param>
         /// <returns></returns>
-        public static Primitive Statement(string ticker, string reportingPeriod, string statementType)
+        public static Primitive Statement(Primitive ticker, Primitive reportingPeriod, Primitive statementType)
         {
             StringComparison sc = StringComparison.InvariantCultureIgnoreCase;
 
             Engine.ReportingPeriod period = Engine.ReportingPeriod.Annual;
-            if (ticker.Equals("Quarterly", sc))
+            if (ticker.ToString().Equals("Quarterly", sc))
             {
                 period = Engine.ReportingPeriod.Quarterly;
             }
 
             try
             {
-                if (statementType.Equals("Income", sc))
+                if (statementType.ToString().Equals("Income", sc))
                 {
                     FinancialWrapper<IncomeStatement> statement = Engine.GetIncomeStatement(ticker, period);
                     return statement.ToString();
                 }
-                else if (statementType.Equals("Balance", sc))
+                else if (statementType.ToString().Equals("Balance", sc))
                 {
                     FinancialWrapper<BalanceStatement> statement = Engine.GetBalanceStatement(ticker, period);
                     return statement.ToString();
                 }
-                else if (statementType.Equals("CashFlow", sc))
+                else if (statementType.ToString().Equals("CashFlow", sc))
                 {
                     FinancialWrapper<CashFlowStatement> statement = Engine.GetCashFlowStatement(ticker, period);
                     return statement.ToString();

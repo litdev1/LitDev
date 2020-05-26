@@ -1,0 +1,57 @@
+' Step one we need to ask you for an API key to access this service 
+TextWindow.WriteLine("This service requires you to have an API key")
+TextWindow.WriteLine("If you do not have one you can get your API key at https://financialmodelingprep.com/developer/docs/")
+key = ""
+While key = ""
+  TextWindow.Write("Please enter your API key:")
+  key = TextWindow.Read()
+EndWhile
+
+LDFinances.Key = key
+
+ticker = "AAPL" 'In this example we will be looking up Apple throught its symbolic name on the stock market.
+searchTicker = "AA"
+searchExchange = "NASDAQ"
+
+Description()
+Quote()
+Statement()
+Search()
+
+Sub Description
+  data = LDFinances.Description(ticker)
+  TextWindow.WriteLine("Description")
+  TextWindow.WriteLine("Symbol: " + data["symbol"])
+  TextWindow.WriteLine("Price: " + data["price"])
+  TextWindow.WriteLine("Beta: "  + data["beta"])
+  TextWindow.WriteLine("Average Volume: " + data["volumeAverage"] )
+  TextWindow.WriteLine("Market Cap: " + data["marketCap"])
+  TextWindow.WriteLine("...")
+  TextWindow.WriteLine("That is a subset of the data we can get from description")
+EndSub
+
+Sub Quote
+  data = LDFinances.Quote(ticker)
+  data = data[1]
+  TextWindow.WriteLine("Quote")
+  TextWindow.WriteLine("Symbol: " + data["symbol"])
+  TextWindow.WriteLine("Price: " + data["price"])
+  TextWindow.WriteLine("Day: (" + data["dayLow"] + "," + data["dayHigh"] +")")
+  TextWindow.WriteLine("Year: (" + data["yearLow"] + "," + data["yearHigh"] +")")
+  TextWindow.WriteLine("Next Earnings Announcement will be on " + data["earningsAnnouncement"] )
+  TextWindow.WriteLine("...")
+  TextWindow.WriteLine("That is a subset of the data we can get from a quote")
+EndSub
+
+Sub Price
+  data = LDFinances.Price(ticker)
+  TextWindow.WriteLine("Price")
+  TextWindow.WriteLine(data["symbol"] + " is trading at " + data["price"])
+EndSub
+
+Sub Search
+  data = LDFinances.Search(searchTicker,searchExchange)
+  For i = 1 To Array.GetItemCount(data)
+    TextWindow.WriteLine(i + "." + data[i]["name"] + " (" + data[i]["symbol"] +") is being traded on " + data[i]["stockExchangeShortName"] + " in "  + data[i]["currency"] +".")
+   EndFor
+EndSub
