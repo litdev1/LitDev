@@ -16,7 +16,7 @@ namespace LitDev.Finances
     {
         private static WebAPI api = WebAPIFactory.Instance.GetWebApi("https://financialmodelingprep.com/api/v3");
         private static int limit = 10;
-        public static string key;
+        public static string key = "d7f226423e7ccbe237e43e93f064acb2";
 
         public static string LastURL => api.lastUrl;
 

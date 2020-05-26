@@ -10,6 +10,7 @@ namespace LitDev
 {
     /// <summary>
     /// Lets you ask financial information... 
+    /// Created by Abhishek Sathiabalan for LD extension.
     /// </summary>
     [SmallBasicType]
     public static class LDFinances
