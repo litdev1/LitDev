@@ -23,7 +23,7 @@ namespace LitDev.Finances
         public decimal priceAvg200;
         public int volume;
         public int avgVolume;
-        [JsonProperty("exhange")]
+        [JsonProperty("exchange")]
         public string exchange;
         public decimal open;
         public decimal previousClose;
@@ -55,7 +55,7 @@ namespace LitDev.Finances
             sb.Append($"previousClose={previousClose};");
             sb.Append($"eps={eps};");
             sb.Append($"pe={pe};");
-            sb.Append($"earningsAnnouncement={earningsAnnouncement.ToString("YYYY-M-DD")};");
+            sb.Append($"earningsAnnouncement={earningsAnnouncement.ToString("yyyy-MM-dd")};");
             sb.Append($"sharesOutstanding={sharesOutstanding};");
             sb.Append($"timestamp={timestamp};");
             return sb.ToString();

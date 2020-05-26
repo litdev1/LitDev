@@ -59,6 +59,7 @@
     <Compile Include="CSV.cs" />
     <Compile Include="Finances.cs" />
     <Compile Include="Geography.cs" />
+    <Compile Include="LDFinance.cs" />
     <Compile Include="LDGeography.cs" />
     <Compile Include="LDHashTable.cs" />
     <Compile Include="LDText.cs" />

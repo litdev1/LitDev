@@ -8,16 +8,30 @@ using LitDev;
 using NUnit.Framework;
 using LitDev.Finances;
 using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace LitDevUnitTests
 {
+    /// <summary>
+    /// This class tests the Finance Engine.
+    /// </summary>
     [TestClass]
     public class Finances
     {
+
+        [SetUp]
+        public void SetUp()
+        {
+            Primitive key = File.ReadContents("finapi.txt");
+            LDFinances.Key = key;
+        }
+
         [TestMethod]
         public void GetProfile()
         {
+            SetUp();
+            Assert.IsFalse(string.IsNullOrWhiteSpace(Engine.key));
             var data = Engine.GetCompanyProfile("AAPL");
             Assert.AreEqual("AAPL", data.symbol);
             Assert.AreEqual("Technology",data.profile.sector);
@@ -26,20 +40,17 @@ namespace LitDevUnitTests
         [TestMethod]
         public void GetQuote()
         {
+            SetUp();
             var data = Engine.GetCompanyQuote("AAPL");
             Assert.AreEqual("AAPL", data[0].symbol);
             Assert.AreEqual("Apple Inc.", data[0].name);
             Assert.AreEqual("NASDAQ", data[0].exchange);
-
-            Primitive primitive = LDFinances.Quote("AAPL");
-            Assert.AreEqual("AAPL", primitive["symbol"]);
-            Assert.AreEqual("Apple Inc.", primitive["name"]);
-            Assert.AreEqual("NASDAQ", primitive["exchange"]);
         }
 
         [TestMethod]
         public void GetSearch()
         {
+            SetUp();
             var data = Engine.GetSearch("AA", "NASDAQ");
             Assert.IsNotNull(data[0]);
             Assert.IsNotNull(data[9]);
@@ -48,6 +59,7 @@ namespace LitDevUnitTests
         [TestMethod]
         public void GetFinancialStatements()
         {
+            SetUp();
             var annual = Engine.GetIncomeStatement("AAPL");
             Assert.AreEqual("AAPL", annual.symbol);
             Assert.IsNotNull(annual.financials);
@@ -62,7 +74,9 @@ namespace LitDevUnitTests
         [TestMethod]
         public void GetBalanceStatements()
         {
+            SetUp();
             var annual = Engine.GetBalanceStatement("AAPL");
+            Console.WriteLine(Engine.LastURL);
             Assert.AreEqual("AAPL", annual.symbol);
             Assert.IsNotNull(annual.financials);
         }
@@ -70,6 +84,7 @@ namespace LitDevUnitTests
         [TestMethod]
         public void GetCashFlowStatement()
         {
+            SetUp();
             var annual = Engine.GetCashFlowStatement("AAPL");
             Assert.AreEqual("AAPL", annual.symbol);
             Assert.IsNotNull(annual.financials);
@@ -78,6 +93,7 @@ namespace LitDevUnitTests
         [TestMethod]
         public void GetStockPrice()
         {
+            SetUp();
             var price = Engine.GetRealTimePrice("AAPL");
             Assert.AreEqual("AAPL", price.symbol);
             Assert.IsTrue(price.price > 0);

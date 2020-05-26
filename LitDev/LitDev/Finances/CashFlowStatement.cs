@@ -57,7 +57,7 @@ namespace LitDev.Finances
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append($"date={Date.ToString("YYYY-MM-DD")};");
+            sb.Append($"date={Date.ToString("yyyy-MM-dd")};");
             sb.Append($"DepreciationAmortization={DepreciationAmortization};");
             sb.Append($"StockBasedCompensation={StockBasedCompensation};");
             sb.Append($"OperatingCashFlow={OperatingCashFlow};");
