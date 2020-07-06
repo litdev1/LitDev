@@ -350,7 +350,7 @@ namespace LitDev
                 Primitive result = "";
                 while (line != null)
                 {
-                    result[line.Substring(62)] = line.Substring(0,62);
+                    result[line.Substring(56)] = line.Substring(0,56);
                     line = fs.ReadLine();
                 }
 
