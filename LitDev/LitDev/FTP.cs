@@ -18,6 +18,7 @@
 using Microsoft.SmallBasic.Library;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 
@@ -350,7 +351,9 @@ namespace LitDev
                 Primitive result = "";
                 while (line != null)
                 {
-                    result[line.Substring(56)] = line.Substring(0,56);
+                    string[] data = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    int pos = line.IndexOf(data.Last());
+                    result[line.Substring(pos)] = line.Substring(0, pos);
                     line = fs.ReadLine();
                 }
 

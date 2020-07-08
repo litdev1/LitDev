@@ -709,9 +709,9 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            Primitive result = LDftp.ListFiles("gnu", "ftp.gnu.org", "", "");
+            //Primitive result = LDftp.ListFiles("gnu", "ftp.gnu.org", "", "");
             //result = LDftp.ListFiles("ftp://ftp.gnu.org/gnu/","ftp://ftp.gnu.org/gnu/","","");
-            result = LDftp.ListFiles("public_html", "litdev.co.uk", "a7899275", "trainer21");
+            Primitive result = LDftp.ListFiles("Notebooks/15,4 Zoll Notebooks", "download.chiligreen.com", "", "");
             TextWindow.WriteLine(result);
                
             Primitive datFile = "C:/Users/steve/Documents/SmallBasic/steve/database.db";
