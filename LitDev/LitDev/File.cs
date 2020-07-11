@@ -26,6 +26,7 @@ using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {
@@ -159,6 +160,39 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
             return "";
+        }
+
+        /// <summary>
+        /// Writes a text file from an array with one line in the file for each value in the array.
+        /// </summary>
+        /// <param name="fileName">
+        /// The full path of the file.
+        /// </param>
+        /// <param name="array">
+        /// An array to output to the file.
+        /// </param>
+        /// <param name="append">
+        /// Append to an existing file "True" or over-write "False".
+        /// </param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive WriteFromArray(Primitive fileName, Primitive array, Primitive append)
+        {
+            try
+            {
+                StreamWriter streamWriter = new StreamWriter(fileName, append);
+                Primitive indices = SBArray.GetAllIndices(array);
+                for (int i = 1; i <= SBArray.GetItemCount(indices); i++)
+                {
+                    streamWriter.WriteLine((string)array[indices[i]]);
+                }
+                streamWriter.Close();
+                return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
         }
 
         /// <summary>
