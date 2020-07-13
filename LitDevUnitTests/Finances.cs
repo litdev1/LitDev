@@ -24,6 +24,7 @@ namespace LitDevUnitTests
         public void SetUp()
         {
             Primitive key = File.ReadContents("finapi.txt");
+            Engine.key = key;
             LDFinances.Key = key;
         }
 
@@ -32,62 +33,9 @@ namespace LitDevUnitTests
         {
             SetUp();
             Assert.IsFalse(string.IsNullOrWhiteSpace(Engine.key));
-            var data = Engine.GetCompanyProfile("AAPL");
-            Assert.AreEqual("AAPL", data.symbol);
-            Assert.AreEqual("Technology",data.profile.sector);
-        }
-
-        [TestMethod]
-        public void GetQuote()
-        {
-            SetUp();
-            var data = Engine.GetCompanyQuote("AAPL");
-            Assert.AreEqual("AAPL", data[0].symbol);
-            Assert.AreEqual("Apple Inc.", data[0].name);
-            Assert.AreEqual("NASDAQ", data[0].exchange);
-        }
-
-        [TestMethod]
-        public void GetSearch()
-        {
-            SetUp();
-            var data = Engine.GetSearch("AA", "NASDAQ");
-            Assert.IsNotNull(data[0]);
-            Assert.IsNotNull(data[9]);
-        }
-
-        [TestMethod]
-        public void GetFinancialStatements()
-        {
-            SetUp();
-            var annual = Engine.GetIncomeStatement("AAPL");
-            Assert.AreEqual("AAPL", annual.symbol);
-            Assert.IsNotNull(annual.financials);
-            Assert.IsTrue( annual.financials[0].date.CompareTo( new DateTime(2019, 09, 8)) >= 0 );
-
-            var quarterly = Engine.GetIncomeStatement("AAPL", Engine.ReportingPeriod.Quarterly);
-            Assert.AreEqual("AAPL", quarterly.symbol);
-            Assert.IsNotNull(quarterly.financials);
-            Assert.IsTrue(quarterly.financials[0].date.CompareTo(new DateTime(2020, 03, 28)) >= 0);
-        }
-
-        [TestMethod]
-        public void GetBalanceStatements()
-        {
-            SetUp();
-            var annual = Engine.GetBalanceStatement("AAPL");
+            var data = Engine.GetDescription("AAPL");
             Console.WriteLine(Engine.LastURL);
-            Assert.AreEqual("AAPL", annual.symbol);
-            Assert.IsNotNull(annual.financials);
-        }
 
-        [TestMethod]
-        public void GetCashFlowStatement()
-        {
-            SetUp();
-            var annual = Engine.GetCashFlowStatement("AAPL");
-            Assert.AreEqual("AAPL", annual.symbol);
-            Assert.IsNotNull(annual.financials);
         }
 
         [TestMethod]
@@ -95,8 +43,38 @@ namespace LitDevUnitTests
         {
             SetUp();
             var price = Engine.GetRealTimePrice("AAPL");
-            Assert.AreEqual("AAPL", price.symbol);
-            Assert.IsTrue(price.price > 0);
+            Assert.IsNotNull( price.date.ToString() );
+            Assert.IsTrue( price.close > 0 );
+            Assert.IsTrue(price.high > 0);
+            Assert.IsTrue(price.low > 0);
+            Assert.IsTrue(price.open > 0);
+            Assert.IsTrue(price.volume >= 0);
+        }
+
+        [TestMethod]
+        public void GetHistoricalStockPrices()
+        {
+            SetUp();
+            var price = Engine.GetHistoricalPrice("AAPL", "2019-01-02", "2020-01-31", "daily");
+            var firstDay = price[0];
+            var lastDay = price[price.Length - 1];
+
+            Console.WriteLine(lastDay.ToString());
+
+            Assert.IsNotNull(firstDay.date.ToString());
+            Assert.IsTrue(firstDay.close > 0);
+            Assert.IsTrue(firstDay.high > 0);
+            Assert.IsTrue(firstDay.low > 0);
+            Assert.IsTrue(firstDay.open > 0);
+            Assert.IsTrue(firstDay.volume >= 0);
+
+            Assert.IsNotNull(lastDay.date.ToString());
+            Assert.IsTrue(lastDay.close > 0);
+            Assert.IsTrue(lastDay.high > 0);
+            Assert.IsTrue(lastDay.low > 0);
+            Assert.IsTrue(lastDay.open > 0);
+            Assert.IsTrue(lastDay.volume >= 0);
+
         }
     }
 }
