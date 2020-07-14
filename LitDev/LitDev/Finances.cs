@@ -19,7 +19,7 @@ namespace LitDev
         /// <summary>
         /// The API key to use for this API.
         /// You need to get an api key from
-        /// https://financialmodelingprep.com/developer/docs/
+        /// https://api.tiingo.com/documentation/general/overview
         /// </summary>
         public static Primitive Key
         {
@@ -28,10 +28,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Gets a description of the company including information such as
-        /// CEO, Sector, price, and market cap amongst other things.
-        ///
-        /// This information is updated on a minute to minute basis. 
+        /// Gets a description of the company.
         /// </summary>
         /// <param name="ticker">The symbol of the company we want to find.</param>
         /// <returns>
@@ -42,7 +39,7 @@ namespace LitDev
         {
             try
             {
-                return Engine.GetCompanyProfile(ticker).ToString();
+                return Engine.GetDescription(ticker).ToString();
             }
             catch (Exception ex)
             {
@@ -52,30 +49,8 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Gets a quote for the company requested.
-        /// This information is updated in real-time. 
-        /// </summary>
-        /// <param name="ticker">The symbol of the company we want to find.</param>
-        /// <returns>
-        ///    A quote of the company in the form of an array upon success
-        ///    and a failure returns FAILURE. 
-        /// </returns>
-        public static Primitive Quote(Primitive ticker)
-        {
-            try
-            {
-                Quote[] quotes = Engine.GetCompanyQuote(ticker);
-                return quotes.ToPrimitiveArray();
-            }
-            catch (Exception ex)
-            {
-                return "FAILED";
-            }
-        }
-
-        /// <summary>
-        /// Gets the current price of the company.
-        /// This information is returned in real-time.
+        /// Gets the current price of the company as
+        /// reported by the API.
         /// </summary>
         /// <param name="ticker">The symbol of the company we want to find.</param>
         /// <returns>
@@ -95,77 +70,32 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Searches the exchange for the ticker name
-        /// and returns results that are similar to the ticker name. 
+        /// Gets the Historical stock information for a stock
         /// </summary>
         /// <param name="ticker">The symbol of the company we want to find.</param>
-        /// <param name="exchange">
-        ///       The exchange to search on, valid exchanges values include the following:
-        ///       ETF | MUTUAL_FUND | COMMODITY | INDEX | CRYPTO | FOREX | TSX | AMEX | NASDAQ | NYSE | EURONEXT | ""
-        ///       If the exchange is set to "" it searches all exchanges listed above. 
-        /// </param>
-        /// <returns>
-        ///    A quote of the company in the form of an array upon success
-        ///    and a failure returns FAILURE.
-        /// </returns>
-        public static Primitive Search(Primitive ticker, Primitive exchange)
-        {
-            try
-            {
-                Search[] results = Engine.GetSearch(ticker, exchange);
-                return results.ToPrimitiveArray();
-            }
-            catch (Exception ex)
-            {
-                return "FAILED";
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ticker">The symbol of the company we want to find.</param>
-        /// <param name="reportingPeriod">
-        ///     Valid reporting periods are "Annual" and "Quarterly". 
-        /// </param>
-        /// <param name="statementType">
-        ///     Valid statement types are: "Income", "Balance", and, "CashFlow". 
-        /// </param>
+        /// <param name="startDate">The start date formatted in YYYY-MM-DD</param>
+        /// <param name="endDate">The end date formatted in YYYY-MM-DD</param>
+        /// <param name="freq">daily', 'weekly','monthly', 'annually' are the only valid paramaters</param>
         /// <returns></returns>
-        public static Primitive Statement(Primitive ticker, Primitive reportingPeriod, Primitive statementType)
+        public static Primitive HistoricalPrice(Primitive ticker, Primitive startDate, Primitive endDate,
+            Primitive freq)
         {
-            StringComparison sc = StringComparison.InvariantCultureIgnoreCase;
-
-            Engine.ReportingPeriod period = Engine.ReportingPeriod.Annual;
-            if (ticker.ToString().Equals("Quarterly", sc))
-            {
-                period = Engine.ReportingPeriod.Quarterly;
-            }
-
             try
             {
-                if (statementType.ToString().Equals("Income", sc))
+                Price[] prices = Engine.GetHistoricalPrice(ticker, startDate, endDate, freq);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < prices.Length; i++)
                 {
-                    FinancialWrapper<IncomeStatement> statement = Engine.GetIncomeStatement(ticker, period);
-                    return statement.ToString();
+                    sb.AppendFormat("{0}={1};", i + 1, Utilities.ArrayParse( prices[i].ToString() ) );
                 }
-                else if (statementType.ToString().Equals("Balance", sc))
-                {
-                    FinancialWrapper<BalanceStatement> statement = Engine.GetBalanceStatement(ticker, period);
-                    return statement.ToString();
-                }
-                else if (statementType.ToString().Equals("CashFlow", sc))
-                {
-                    FinancialWrapper<CashFlowStatement> statement = Engine.GetCashFlowStatement(ticker, period);
-                    return statement.ToString();
-                }
+
+                return sb.ToString();
             }
             catch (Exception ex)
             {
                 return "FAILED";
             }
-
-            return "FAILED";
         }
+
     }
 }

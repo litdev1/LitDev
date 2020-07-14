@@ -88,6 +88,13 @@ namespace LitDev
             //data in question but that is less important since the user is using 
             //their own resources to deserialize vs public resources to refetch the data. 
 
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls
+                                                   | SecurityProtocolType.Tls11
+                                                   | SecurityProtocolType.Tls12
+                                                   | SecurityProtocolType.Ssl3;
+
+
             WebRequest WR = WebRequest.Create(URL);
             WR.ContentType = "application/x-www-form-urlencoded";
             WR.Method = "GET";
