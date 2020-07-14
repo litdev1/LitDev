@@ -709,6 +709,8 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive finances = LDFinances.Description("APPL");
+
             //Primitive result = LDftp.ListFiles("gnu", "ftp.gnu.org", "", "");
             //result = LDftp.ListFiles("ftp://ftp.gnu.org/gnu/","ftp://ftp.gnu.org/gnu/","","");
             Primitive result = LDftp.ListFiles("Notebooks/15,4 Zoll Notebooks", "download.chiligreen.com", "", "");
