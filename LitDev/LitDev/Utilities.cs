@@ -48,7 +48,7 @@ namespace LitDev
 {
     public static class Utilities
     {
-        public static string URL = "http://litdev.co.uk";
+        public static string URL = "http://litdev.uk";
         public static bool bShowErrors = true;
         public static bool bShowFileErrors = true;
         public static bool bShowNoShapeErrors = true;
