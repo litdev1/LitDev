@@ -11,6 +11,4 @@ This project is an extension for Small Basic and has has loads of extra function
 
 [Small Basic](http://smallbasic.com/) About Small Basic and download
 
-[Small Basic Forum](https://social.msdn.microsoft.com/Forums/en-US/home?forum=smallbasic) MSDN forum for Small Basic
-
-[LitDev](http://litdev.co.uk) My Small Basic site with additional resources, documentation and samples
+[LitDev](http://litdev.uk) My Small Basic site with additional resources, documentation and samples (Reinstated 2023, now litdev.uk)
