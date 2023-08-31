@@ -643,6 +643,17 @@ namespace TestHarness
             sw.WriteLine(" <link rel=\"stylesheet\" type=\"text/css\" href=\"styleAPI.css\" />");
             sw.WriteLine(" <link rel=\"shortcut icon\" href=\"favicon.ico\" />");
             sw.WriteLine("</head>");
+
+            sw.WriteLine("< !--Google tag(gtag.js)-- >");
+            sw.WriteLine("< script async src = \"https://www.googletagmanager.com/gtag/js?id=G-XBNXVYR125\" ></ script >");
+            sw.WriteLine("< script >");
+            sw.WriteLine("  window.dataLayer = window.dataLayer || [];");
+            sw.WriteLine("  function gtag() { dataLayer.push(arguments); }");
+            sw.WriteLine("  gtag('js', new Date());");
+            sw.WriteLine("");
+            sw.WriteLine("  gtag('config', 'G-XBNXVYR125');");
+            sw.WriteLine("</ script >");
+
             sw.WriteLine("<body>");
             sw.WriteLine("<div id=\"wrapper\">");
             sw.WriteLine("<div id=\"content\">");
@@ -683,16 +694,16 @@ namespace TestHarness
             sw.WriteLine("</div>");
             sw.WriteLine("</div>");
             sw.WriteLine("</body>");
-            sw.WriteLine("<script>");
-            sw.WriteLine("(function (i, s, o, g, r, a, m) {");
-            sw.WriteLine(" i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {");
-            sw.WriteLine("  (i[r].q = i[r].q || []).push(arguments)");
-            sw.WriteLine(" }, i[r].l = 1 * new Date(); a = s.createElement(o),");
-            sw.WriteLine(" m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)");
-            sw.WriteLine("})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');");
-            sw.WriteLine("ga('create', 'UA-28519634-1', 'auto');");
-            sw.WriteLine("ga('send', 'pageview');");
-            sw.WriteLine("</script>");
+            //sw.WriteLine("<script>");
+            //sw.WriteLine("(function (i, s, o, g, r, a, m) {");
+            //sw.WriteLine(" i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {");
+            //sw.WriteLine("  (i[r].q = i[r].q || []).push(arguments)");
+            //sw.WriteLine(" }, i[r].l = 1 * new Date(); a = s.createElement(o),");
+            //sw.WriteLine(" m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)");
+            //sw.WriteLine("})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');");
+            //sw.WriteLine("ga('create', 'UA-28519634-1', 'auto');");
+            //sw.WriteLine("ga('send', 'pageview');");
+            //sw.WriteLine("</script>");
             //sw.WriteLine("<script type=\"text/javascript\">");
             //sw.WriteLine("var _gaq = _gaq || [];");
             //sw.WriteLine("_gaq.push(['_setAccount', 'UA-28519634-1']);");
@@ -709,6 +720,12 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive result1 = LDftp.Download("C:\\temp\\test", "downloads.txt", "litdev.uk", "u697520431", "Oxford00");
+
+            Primitive picture = Microsoft.SmallBasic.Library.ImageList.LoadImage("c:\\temp\\image.jpg");
+            LDGraphicsWindow.BackgroundImage(picture);
+            //GraphicsWindow.DrawImage(picture, 0, 0);
+
             Primitive finances = LDFinances.Description("APPL");
 
             //Primitive result = LDftp.ListFiles("gnu", "ftp.gnu.org", "", "");
