@@ -1,6 +1,10 @@
 # LitDev
 LitDev Extension for Small Basic
 
+Following the downturn in Small Basic after the loss of the MS Forum, the LitDev websit lapsed.  I have reinstated it, unfortunately it needed a different domain name.
+
+:boom: **The new website is [litdev.uk](http://litdev.uk)** :boom:
+
 ## Summary
 
 Microsoft Small Basic is a free simplified programming language for children and adults to get started learning to program.
