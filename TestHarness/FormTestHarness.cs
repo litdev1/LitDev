@@ -644,15 +644,15 @@ namespace TestHarness
             sw.WriteLine(" <link rel=\"shortcut icon\" href=\"favicon.ico\" />");
             sw.WriteLine("</head>");
 
-            sw.WriteLine("< !--Google tag(gtag.js)-- >");
-            sw.WriteLine("< script async src = \"https://www.googletagmanager.com/gtag/js?id=G-XBNXVYR125\" ></ script >");
-            sw.WriteLine("< script >");
+            sw.WriteLine("<!-- Google tag (gtag.js) -->");
+            sw.WriteLine("<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-XBNXVYR125\"></script>");
+            sw.WriteLine("<script>");
             sw.WriteLine("  window.dataLayer = window.dataLayer || [];");
-            sw.WriteLine("  function gtag() { dataLayer.push(arguments); }");
+            sw.WriteLine("  function gtag(){dataLayer.push(arguments);}");
             sw.WriteLine("  gtag('js', new Date());");
             sw.WriteLine("");
             sw.WriteLine("  gtag('config', 'G-XBNXVYR125');");
-            sw.WriteLine("</ script >");
+            sw.WriteLine("</script>");
 
             sw.WriteLine("<body>");
             sw.WriteLine("<div id=\"wrapper\">");
@@ -688,8 +688,7 @@ namespace TestHarness
             sw.WriteLine("<br />");
             sw.WriteLine("<div id=\"footer\">");
             sw.WriteLine("<hr style=\"height: 2px; width: 100%;\" />");
-            sw.WriteLine("<a style=\"position: relative; float: left;\" href=\"http://free-website-translation.com/\" id=\"ftwtranslation_button\" hreflang=\"en\" title=\"\" style=\"border:0;\"><img src=\"http://free-website-translation.com/img/fwt_button_en.gif\" id=\"ftwtranslation_image\" alt=\"Website Translation Widget\" style=\"border:0;\"/></a> <script type=\"text/javascript\" src=\"http://free-website-translation.com/scripts/fwt.js\" /></script>");
-            //sw.WriteLine("<a style=\"position: relative; float: right;\" href=\"http://www.000webhost.com/\" target=\"_blank\"><img src=\"http://www.000webhost.com/images/80x15_powered.gif\" alt=\"Web Hosting\" width=\"80\" height=\"15\" border=\"0\" /></a>");
+            sw.WriteLine("<a style=\"position: relative; float: left;\" href=\"http://free-website-translation.com/\" id=\"ftwtranslation_button\" hreflang=\"en\" title=\"\" style=\"border:0;\"><img src=\"http://free-website-translation.com/img/fwt_button_en.gif\" id=\"ftwtranslation_image\" alt=\"Free Website Translator\" style=\"border:0;\"/></a> <script type=\"text/javascript\" src=\"http://free-website-translation.com/scripts/fwt.js\" /></script>");
             sw.WriteLine("</div>");
             sw.WriteLine("</div>");
             sw.WriteLine("</div>");
