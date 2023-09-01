@@ -11,7 +11,7 @@ If you use SB-Prime IDE with Extension Manager, you should download an updated v
 
 If there are social media or other Small Basic communitities that you know of please update them about the new website.  If it is unused, it will probably lapse again at some point.
 
-Any questions, then please post an Issue here.
+Any questions, then please post an [issue](https://github.com/litdev1/LitDev/issues).
 
 ## Summary
 
