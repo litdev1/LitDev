@@ -688,7 +688,7 @@ namespace TestHarness
             sw.WriteLine("<br />");
             sw.WriteLine("<div id=\"footer\">");
             sw.WriteLine("<hr style=\"height: 2px; width: 100%;\" />");
-            sw.WriteLine("<a style=\"position: relative; float: left;\" href=\"http://free-website-translation.com/\" id=\"ftwtranslation_button\" hreflang=\"en\" title=\"\" style=\"border:0;\"><img src=\"http://free-website-translation.com/img/fwt_button_en.gif\" id=\"ftwtranslation_image\" alt=\"Free Website Translator\" style=\"border:0;\"/></a> <script type=\"text/javascript\" src=\"http://free-website-translation.com/scripts/fwt.js\" /></script>");
+            //sw.WriteLine("<a style=\"position: relative; float: left;\" href=\"http://free-website-translation.com/\" id=\"ftwtranslation_button\" hreflang=\"en\" title=\"\" style=\"border:0;\"><img src=\"http://free-website-translation.com/img/fwt_button_en.gif\" id=\"ftwtranslation_image\" alt=\"Free Website Translator\" style=\"border:0;\"/></a> <script type=\"text/javascript\" src=\"http://free-website-translation.com/scripts/fwt.js\" /></script>");
             sw.WriteLine("</div>");
             sw.WriteLine("</div>");
             sw.WriteLine("</div>");
@@ -719,7 +719,9 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            Primitive result1 = LDftp.Download("C:\\temp\\test", "downloads.txt", "litdev.uk", "u697520431", "Oxford00");
+            Primitive image1 = Microsoft.SmallBasic.Library.ImageList.LoadImage("https:\\\\litdev.uk\\game_images\\rubic.png");
+
+            Primitive result1 = LDftp.Download("C:\\temp\\test", "downloads.txt", "litdev.uk", "xxx", "xxx");
 
             Primitive picture = Microsoft.SmallBasic.Library.ImageList.LoadImage("c:\\temp\\image.jpg");
             LDGraphicsWindow.BackgroundImage(picture);
@@ -817,6 +819,10 @@ namespace TestHarness
             {
                 string url = "https://a75b9da71f50095fc4dc527d860da4427f274b07.googledrive.com/host/0B9s0FFxEQDb6T3VUdEw3QTJDS1E/efecast00.mp3";
                 Uri uri = new Uri(url);
+                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 WebRequest webRequest = WebRequest.Create(url);
                 webResponse = webRequest.GetResponse();
                 stream = System.IO.File.Open(tempFileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);

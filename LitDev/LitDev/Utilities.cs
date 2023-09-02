@@ -1458,6 +1458,8 @@ namespace LitDev
             string info = "This version is " + Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\r\n";
             try
             {
+                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 WebRequest webRequest = WebRequest.Create(Utilities.URL + "/LitDev-version.html");
                 WebResponse webResponse = webRequest.GetResponse();
                 StreamReader streamReader = new StreamReader(webResponse.GetResponseStream());
