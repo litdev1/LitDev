@@ -258,5 +258,14 @@ namespace LitDev
                 return -1;
             }
         }
+
+        /// <summary>
+        /// Set SSL secirity for network operations downoading files.
+        /// </summary>
+        public static void SetSSL()
+        {
+            WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+        }
     }
 }
