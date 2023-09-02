@@ -1732,6 +1732,7 @@ namespace LitDev
             string _urlTemplate = (string)fieldInfo.GetValue(null);
             _urlTemplate = _urlTemplate.Replace("http://", "https://");
             _urlTemplate = _urlTemplate.Replace("api.flickr.com", "www.flickr.com");
+            _urlTemplate = _urlTemplate.Replace("1f9fb9818296700580bf3340279346b6", "0710832f037b546b7ba28571850f36bd");
             fieldInfo.SetValue(null, _urlTemplate);
 
             fieldInfo = FlickrType.GetField("_picUrlTemplate", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);

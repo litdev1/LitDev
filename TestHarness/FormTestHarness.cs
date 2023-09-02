@@ -719,6 +719,11 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            LDNetwork.SetSSL();
+            Primitive flickr = LDUtilities.FixFlickr();
+            Primitive imageURL = Flickr.GetRandomPicture("Car");
+            Primitive image2 = Microsoft.SmallBasic.Library.ImageList.LoadImage(imageURL);
+            
             Primitive image1 = Microsoft.SmallBasic.Library.ImageList.LoadImage("https:\\\\litdev.uk\\game_images\\rubic.png");
 
             Primitive result1 = LDftp.Download("C:\\temp\\test", "downloads.txt", "litdev.uk", "xxx", "xxx");
