@@ -11,7 +11,7 @@ If you use SB-Prime IDE with Extension Manager, you may download an updated vers
 
 I have also created an initial [Small Basic forum](https://litdev.uk/mybb) using MyBB.
 
-Any questions, then please post an [issue](https://github.com/litdev1/LitDev/issues).
+Any questions, then please post an [issue](https://github.com/litdev1/LitDev/issues) or email admin@litdev.uk.
 
 ## Summary
 
