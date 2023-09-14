@@ -618,6 +618,7 @@ namespace TestHarness
                 System.IO.File.Copy(Application.StartupPath + "\\SlimDX.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\SlimDX.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\MathNet.Numerics.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\MathNet.Numerics.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\Newtonsoft.Json.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Newtonsoft.Json.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\SmallVisualBasicLibrary.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\SmallVisualBasicLibrary.dll", true);
                 //System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Effects.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Effects.dll", true);
                 //System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Interactions.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Interactions.dll", true);
             }
@@ -723,6 +724,7 @@ namespace TestHarness
             Primitive flickr = LDUtilities.FixFlickr();
             Primitive imageURL = Flickr.GetRandomPicture("Car");
             Primitive image2 = Microsoft.SmallBasic.Library.ImageList.LoadImage(imageURL);
+            GraphicsWindow.DrawImage(image2, 0, 0);
             
             Primitive image1 = Microsoft.SmallBasic.Library.ImageList.LoadImage("https:\\\\litdev.uk\\game_images\\rubic.png");
 
