@@ -403,6 +403,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="sVB.cs" />
     <Compile Include="Themes\Styles.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -17,8 +44,6 @@
 
 using LitDev.Engines;
 using LitDev.Themes;
-using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -37,15 +62,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Xps.Packaging;
-using SBArray = Microsoft.SmallBasic.Library.Array;
-using SBShapes = Microsoft.SmallBasic.Library.Shapes;
 
 namespace LitDev
 {
     /// <summary>
     /// Controls for the GraphicsWindow.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDControls
     {
         private static void AddControl(string name, Control control)
@@ -85,7 +112,7 @@ namespace LitDev
             set { iconSize = value; }
         }
         [HideFromIntellisense]
-        public static event SmallBasicCallback ContextMenu
+        public static event SBCallback ContextMenu
         {
             add
             {
@@ -97,7 +124,7 @@ namespace LitDev
             }
         }
         [HideFromIntellisense]
-        public static event SmallBasicCallback Menu
+        public static event SBCallback Menu
         {
             add
             {
@@ -111,7 +138,7 @@ namespace LitDev
 
         private static string _LastTreeView;
         private static string _LastTreeViewIndex;
-        private static SmallBasicCallback _TreeViewItemChangedDelegate = null;
+        private static SBCallback _TreeViewItemChangedDelegate = null;
         private static void _TreeViewItemChangedEvent(Object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             _LastTreeView = ((TreeView)sender).Name;
@@ -134,7 +161,7 @@ namespace LitDev
             if (null == _TreeViewItemChangedDelegate) return;
             _TreeViewItemChangedDelegate();
         }
-        private static SmallBasicCallback _TreeViewItemChanged
+        private static SBCallback _TreeViewItemChanged
         {
             get
             {
@@ -242,7 +269,7 @@ namespace LitDev
 
         private static string _LastBrowser;
         private static string _LastBrowserPage;
-        private static SmallBasicCallback _LoadCompletedDelegate = null;
+        private static SBCallback _LoadCompletedDelegate = null;
         private static void _LoadCompletedEvent(Object sender, NavigationEventArgs e)
         {
             _LastBrowser = ((WebBrowser)sender).Name;
@@ -251,7 +278,7 @@ namespace LitDev
             if (null == _LoadCompletedDelegate) return;
             _LoadCompletedDelegate();
         }
-        private static SmallBasicCallback _LoadCompleted
+        private static SBCallback _LoadCompleted
         {
             get
             {
@@ -277,7 +304,7 @@ namespace LitDev
 
         private static string _LastListBox;
         private static string _LastListBoxIndex;
-        private static SmallBasicCallback _ListBoxItemChangedDelegate = null;
+        private static SBCallback _ListBoxItemChangedDelegate = null;
         private static void _ListBoxItemChangedEvent(Object sender, SelectionChangedEventArgs e)
         {
             _LastListBox = ((ListBox)sender).Name;
@@ -301,7 +328,7 @@ namespace LitDev
             if (null == _ListBoxItemChangedDelegate) return;
             _ListBoxItemChangedDelegate();
         }
-        private static SmallBasicCallback _ListBoxItemChanged
+        private static SBCallback _ListBoxItemChanged
         {
             get
             {
@@ -315,7 +342,7 @@ namespace LitDev
 
         private static string _LastComboBox;
         private static string _LastComboBoxIndex;
-        private static SmallBasicCallback _ComboBoxItemChangedDelegate = null;
+        private static SBCallback _ComboBoxItemChangedDelegate = null;
         private static void _ComboBoxItemChangedEvent(Object sender, SelectionChangedEventArgs e)
         {
             _LastComboBox = ((ComboBox)sender).Name;
@@ -332,7 +359,7 @@ namespace LitDev
             if (null == _ComboBoxItemChangedDelegate) return;
             _ComboBoxItemChangedDelegate();
         }
-        private static SmallBasicCallback _ComboBoxItemChanged
+        private static SBCallback _ComboBoxItemChanged
         {
             get
             {
@@ -346,7 +373,7 @@ namespace LitDev
 
         private static string _LastCheckBox;
         private static string _LastCheckBoxState;
-        private static SmallBasicCallback _CheckBoxChangedDelegate = null;
+        private static SBCallback _CheckBoxChangedDelegate = null;
         private static void _CheckBoxChangedEvent(Object sender, RoutedEventArgs e)
         {
             _LastCheckBox = ((CheckBox)sender).Name;
@@ -354,7 +381,7 @@ namespace LitDev
             if (null == _CheckBoxChangedDelegate) return;
             _CheckBoxChangedDelegate();
         }
-        private static SmallBasicCallback _CheckBoxChanged
+        private static SBCallback _CheckBoxChanged
         {
             get
             {
@@ -368,7 +395,7 @@ namespace LitDev
 
         private static string _LastContextItem = "";
         private static string _LastContextContol = "";
-        private static SmallBasicCallback _ContextClickDelegate = null;
+        private static SBCallback _ContextClickDelegate = null;
         private static void _ContextClickEvent(Object sender, RoutedEventArgs e)
         {
             MenuItem _item = (MenuItem)sender;
@@ -382,7 +409,7 @@ namespace LitDev
 
         private static string _LastRadioButton;
         private static string _LastRadioButtonGroup;
-        private static SmallBasicCallback _RadioButtonClickedDelegate = null;
+        private static SBCallback _RadioButtonClickedDelegate = null;
         private static void _RadioButtonClickedEvent(Object sender, RoutedEventArgs e)
         {
             _LastRadioButton = ((RadioButton)sender).Name;
@@ -391,7 +418,7 @@ namespace LitDev
             _RadioButtonClickedDelegate();
         }
 
-        private static SmallBasicCallback _DragDropDelegate = null;
+        private static SBCallback _DragDropDelegate = null;
         private static Primitive _LastDropFiles = "";
         private static string _LastDropShape = "";
         private static void _DragOver(object sender, DragEventArgs e)
@@ -487,7 +514,7 @@ namespace LitDev
         }
         private static string _LastRichTextBox = "";
         private static bool bIndentToTab = true;
-        private static SmallBasicCallback _RichTextBoxTextTypedDelegate = null;
+        private static SBCallback _RichTextBoxTextTypedDelegate = null;
         private static void _RichTextBoxTextTypedEvent(object sender, TextChangedEventArgs e)
         {
             RichTextBox richTextBox = (RichTextBox)sender;
@@ -518,8 +545,8 @@ namespace LitDev
         }
 
         private static string _LastMediaPlayer = "";
-        private static SmallBasicCallback _MediaPlayerEndedDelegate = null;
-        private static SmallBasicCallback _MediaPlayerOpenedDelegate = null;
+        private static SBCallback _MediaPlayerEndedDelegate = null;
+        private static SBCallback _MediaPlayerOpenedDelegate = null;
         private static void _MediaPlayerEndedEvent(Object sender, RoutedEventArgs e)
         {
             _LastMediaPlayer = ((MediaElement)sender).Name;
@@ -536,7 +563,7 @@ namespace LitDev
         private static double sliderMaximum = 100;
         private static string _LastSlider = "";
         private static double _LastSliderValue = 0;
-        private static SmallBasicCallback _SliderChangedDelegate = null;
+        private static SBCallback _SliderChangedDelegate = null;
         private static void _SliderChangedEvent(Object sender, RoutedEventArgs e)
         {
             _LastSlider = ((Slider)sender).Name;
@@ -547,7 +574,7 @@ namespace LitDev
 
         private static string _LastPasswordBox = "";
         private static string _LastPassword = "";
-        private static SmallBasicCallback _PasswordEnteredDelegate = null;
+        private static SBCallback _PasswordEnteredDelegate = null;
         private static void _PasswordBoxKeyEvent(Object sender, KeyEventArgs e)
         {
             _LastPasswordBox = ((PasswordBox)sender).Name;
@@ -561,7 +588,7 @@ namespace LitDev
 
         private static string _LastMenuItem = "";
         private static string _LastMenuContol = "";
-        private static SmallBasicCallback _MenuClickDelegate = null;
+        private static SBCallback _MenuClickDelegate = null;
         private static void _MenuClickEvent(Object sender, RoutedEventArgs e)
         {
             MenuItem _item = (MenuItem)sender;
@@ -690,7 +717,7 @@ namespace LitDev
         private static string _LastListView = "";
         private static int _LastListViewRow = 0;
         private static int _LastListViewColumn = 0;
-        private static SmallBasicCallback _ListViewSelectionChangedDelegate = null;
+        private static SBCallback _ListViewSelectionChangedDelegate = null;
         public static void _ListViewSelectionChangedEvent(Object sender, SelectionChangedEventArgs e)
         {
             _LastListView = ((ListView)sender).Name;
@@ -741,9 +768,9 @@ namespace LitDev
             }
         }
 
-        private static SmallBasicCallback _DataViewSelectionChangedDelegate = null;
-        private static SmallBasicCallback _DataViewButtonClickedDelegate = null;
-        private static SmallBasicCallback _DataViewCellValueChangedDelegate = null;
+        private static SBCallback _DataViewSelectionChangedDelegate = null;
+        private static SBCallback _DataViewButtonClickedDelegate = null;
+        private static SBCallback _DataViewCellValueChangedDelegate = null;
         private static string lastDataView = "";
         private static Primitive lastChanged = "";
         private static Primitive lastButton = "";
@@ -1064,7 +1091,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -1123,7 +1154,7 @@ namespace LitDev
         /// <summary>
         /// Event when a treeview selection changes or selected item is clicked.
         /// </summary>
-        public static event SmallBasicCallback TreeViewItemChanged
+        public static event SBCallback TreeViewItemChanged
         {
             add
             {
@@ -1512,7 +1543,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -1648,7 +1683,7 @@ namespace LitDev
         /// <summary>
         /// Event when a shape or control right click context menu item is selected.
         /// </summary>
-        public static event SmallBasicCallback ContextMenuClicked
+        public static event SBCallback ContextMenuClicked
         {
             add
             {
@@ -2228,7 +2263,7 @@ namespace LitDev
         /// <summary>
         /// Event when text is typed into a rich text box.
         /// </summary>
-        public static event SmallBasicCallback RichTextBoxTextTyped
+        public static event SBCallback RichTextBoxTextTyped
         {
             add
             {
@@ -2269,7 +2304,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
@@ -2413,7 +2452,7 @@ namespace LitDev
         /// <summary>
         /// Event when a browser page is loaded.
         /// </summary>
-        public static event SmallBasicCallback BrowserPageLoaded
+        public static event SBCallback BrowserPageLoaded
         {
             add
             {
@@ -2485,7 +2524,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -2571,7 +2614,7 @@ namespace LitDev
         /// <summary>
         /// Event when a listbox selection changes or selected item is clicked.
         /// </summary>
-        public static event SmallBasicCallback ListBoxItemChanged
+        public static event SBCallback ListBoxItemChanged
         {
             add
             {
@@ -2747,7 +2790,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -2797,7 +2844,7 @@ namespace LitDev
         /// <summary>
         /// Event when a combobox selection changes or selected item is clicked.
         /// </summary>
-        public static event SmallBasicCallback ComboBoxItemChanged
+        public static event SBCallback ComboBoxItemChanged
         {
             add
             {
@@ -2992,7 +3039,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -3027,7 +3078,7 @@ namespace LitDev
         /// <summary>
         /// Event when a checkbox is clicked.
         /// </summary>
-        public static event SmallBasicCallback CheckBoxChanged
+        public static event SBCallback CheckBoxChanged
         {
             add
             {
@@ -3277,7 +3328,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -3312,7 +3367,7 @@ namespace LitDev
         /// <summary>
         /// Event when a radio button selection changes (it is clicked).
         /// </summary>
-        public static event SmallBasicCallback RadioButtonClicked
+        public static event SBCallback RadioButtonClicked
         {
             add
             {
@@ -3498,7 +3553,7 @@ namespace LitDev
         /// <summary>
         /// Event when a file is dropped on an object set with AllowDrop.
         /// </summary>
-        public static event SmallBasicCallback FileDropped
+        public static event SBCallback FileDropped
         {
             add
             {
@@ -3547,7 +3602,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
@@ -3591,7 +3650,7 @@ namespace LitDev
         /// <summary>
         /// Event when a media player ends playing current media.
         /// </summary>
-        public static event SmallBasicCallback MediaPlayerEnded
+        public static event SBCallback MediaPlayerEnded
         {
             add
             {
@@ -3606,7 +3665,7 @@ namespace LitDev
         /// <summary>
         /// Event when a media player opens new media.
         /// </summary>
-        public static event SmallBasicCallback MediaPlayerOpened
+        public static event SBCallback MediaPlayerOpened
         {
             add
             {
@@ -4259,7 +4318,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -4349,7 +4412,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -4481,7 +4548,7 @@ namespace LitDev
         /// <summary>
         /// Event when a slider is changed.
         /// </summary>
-        public static event SmallBasicCallback SliderChanged
+        public static event SBCallback SliderChanged
         {
             add
             {
@@ -4526,7 +4593,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -4562,7 +4633,7 @@ namespace LitDev
         /// <summary>
         /// Event when a password is entered (Return key pressed).
         /// </summary>
-        public static event SmallBasicCallback PasswordEntered
+        public static event SBCallback PasswordEntered
         {
             add
             {
@@ -4608,7 +4679,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -4755,7 +4830,7 @@ namespace LitDev
         /// <summary>
         /// Event when a menu item is selected.
         /// </summary>
-        public static event SmallBasicCallback MenuClicked
+        public static event SBCallback MenuClicked
         {
             add
             {
@@ -4805,7 +4880,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
@@ -4941,7 +5020,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -5356,7 +5439,7 @@ namespace LitDev
         /// <summary>
         /// Event when a listview selection changes.
         /// </summary>
-        public static event SmallBasicCallback ListViewSelectionChanged
+        public static event SBCallback ListViewSelectionChanged
         {
             add
             {
@@ -5519,7 +5602,7 @@ namespace LitDev
         /// This event is not called for dataview button clicks, use DataViewButtonClicked.
         /// This event is not called for dataview checkbox or combobox clicks, use DataViewCellValueChanged.
         /// </summary>
-        public static event SmallBasicCallback DataViewSelectionChanged
+        public static event SBCallback DataViewSelectionChanged
         {
             add
             {
@@ -5534,7 +5617,7 @@ namespace LitDev
         /// <summary>
         /// Event when a dataview button is clicked.
         /// </summary>
-        public static event SmallBasicCallback DataViewButtonClicked
+        public static event SBCallback DataViewButtonClicked
         {
             add
             {
@@ -5549,7 +5632,7 @@ namespace LitDev
         /// <summary>
         /// Event when a dataview cell value changes after it is commited, for example by selecting away from the cell.
         /// </summary>
-        public static event SmallBasicCallback DataViewCellValueChanged
+        public static event SBCallback DataViewCellValueChanged
         {
             add
             {
@@ -5618,7 +5701,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);

@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -16,8 +43,6 @@
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using LitDev.Engines;
-using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.IO;
 using System.Reflection;
@@ -45,7 +70,11 @@ namespace LitDev
     /// <summary>
     /// Additional Events.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDEvents
     {
         // Local variables set or used by events
@@ -58,10 +87,10 @@ namespace LitDev
         private static FileSystemWatcher watcher = new FileSystemWatcher();
 
         // This is the SmallBasic delegate
-        private static SmallBasicCallback _MouseWheelDelegate = null;
-        private static SmallBasicCallback _MouseDoubleClickDelegate = null;
-        private static SmallBasicCallback _ResizedDelegate = null;
-        private static SmallBasicCallback _FileSystemWatcherDelegate = null;
+        private static SBCallback _MouseWheelDelegate = null;
+        private static SBCallback _MouseDoubleClickDelegate = null;
+        private static SBCallback _ResizedDelegate = null;
+        private static SBCallback _FileSystemWatcherDelegate = null;
 
         // Event subroutine calls the SmallBasic delegate 
         public static void _MouseWheelEvent(Object sender, MouseWheelEventArgs e) //public for LDScrollbars use
@@ -89,7 +118,7 @@ namespace LitDev
         }
 
         // Start event and set SmallBasic callback delegate
-        private static SmallBasicCallback _MouseWheel
+        private static SBCallback _MouseWheel
         {
             get
             {
@@ -121,7 +150,7 @@ namespace LitDev
                 }
             }
         }
-        private static SmallBasicCallback _MouseDoubleClick
+        private static SBCallback _MouseDoubleClick
         {
             get
             {
@@ -153,7 +182,7 @@ namespace LitDev
                 }
             }
         }
-        private static SmallBasicCallback _Resized
+        private static SBCallback _Resized
         {
             get
             {
@@ -185,7 +214,7 @@ namespace LitDev
                 }
             }
         }
-        private static SmallBasicCallback _FileSystemWatcher
+        private static SBCallback _FileSystemWatcher
         {
             get
             {
@@ -202,7 +231,7 @@ namespace LitDev
 
         // Error handling event
         private static string lastError = "";
-        private static SmallBasicCallback _ErrorDelegate = null;
+        private static SBCallback _ErrorDelegate = null;
         public static void _Error(Object sender, ErrorEventArgs e)
         {
             lastError = e.Message();
@@ -212,7 +241,7 @@ namespace LitDev
         /// <summary>
         /// Event when the mouse wheel is rotated.
         /// </summary>
-        public static event SmallBasicCallback MouseWheel
+        public static event SBCallback MouseWheel
         {
             add
             {
@@ -235,7 +264,7 @@ namespace LitDev
         /// <summary>
         /// Event when the mouse is double clicked.
         /// </summary>
-        public static event SmallBasicCallback MouseDoubleClick
+        public static event SBCallback MouseDoubleClick
         {
             add
             {
@@ -250,7 +279,7 @@ namespace LitDev
         /// <summary>
         /// Event when the GraphicsWindow is resized.
         /// </summary>
-        public static event SmallBasicCallback Resized
+        public static event SBCallback Resized
         {
             add
             {
@@ -267,7 +296,7 @@ namespace LitDev
         /// 
         /// The FilePath and FileFilter should be set before registering this event.
         /// </summary>
-        public static event SmallBasicCallback FileChange
+        public static event SBCallback FileChange
         {
             add
             {
@@ -323,7 +352,7 @@ namespace LitDev
         /// Event when a LitDev extension error occurs.
         /// This is in addition to TextWindow warnings, which can be turned off using LDUtilties.ShowErrors, LDUtilties.ShowFileErrors and LDUtilties.ShowNoShapeErrors.
         /// </summary>
-        public static event SmallBasicCallback Error
+        public static event SBCallback Error
         {
             add
             {

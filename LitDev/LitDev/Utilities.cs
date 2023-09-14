@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -15,8 +42,6 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1180,7 +1205,11 @@ namespace LitDev
     /// <summary>
     /// General 
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDUtilities
     {
         private static KeyConverter kc = new KeyConverter();
@@ -1313,7 +1342,7 @@ namespace LitDev
         }
 
         [HideFromIntellisense]
-        public static event SmallBasicCallback GWClosing
+        public static event SBCallback GWClosing
         {
             add
             {
@@ -1897,13 +1926,13 @@ namespace LitDev
             switch (((string)button).ToLower())
             {
                 case "left":
-                    User32.mouse_event(User32.MOUSEEVENTF_LEFTDOWN | User32.MOUSEEVENTF_LEFTUP, (uint)x, (uint)y, 0, 0);
+                    User32.mouse_event(User32.MOUSEEVENTF_LEFTDOWN | User32.MOUSEEVENTF_LEFTUP, (uint)(int)x, (uint)(int)y, 0, 0);
                     break;
                 case "right":
-                    User32.mouse_event(User32.MOUSEEVENTF_RIGHTDOWN | User32.MOUSEEVENTF_RIGHTUP, (uint)x, (uint)y, 0, 0);
+                    User32.mouse_event(User32.MOUSEEVENTF_RIGHTDOWN | User32.MOUSEEVENTF_RIGHTUP, (uint)(int)x, (uint)(int)y, 0, 0);
                     break;
                 case "middle":
-                    User32.mouse_event(User32.MOUSEEVENTF_MIDDLEDOWN | User32.MOUSEEVENTF_MIDDLEUP, (uint)x, (uint)y, 0, 0);
+                    User32.mouse_event(User32.MOUSEEVENTF_MIDDLEDOWN | User32.MOUSEEVENTF_MIDDLEUP, (uint)(int)x, (uint)(int)y, 0, 0);
                     break;
             }
             if (x >= 0 && y >= 0)
@@ -1926,7 +1955,7 @@ namespace LitDev
         public static Primitive CaptureScreen(Primitive fileName)
         {
             Type ShapesType = typeof(Shapes);
-            Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+            Type ImageListType = typeof(SBImageList);
             Dictionary<string, BitmapSource> _savedImages;
             try
             {
@@ -1943,7 +1972,11 @@ namespace LitDev
                         try
                         {
                             _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+#if SVB
+                            string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                             string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
                             _savedImages[shapeName] = FastPixel.GetBitmapImage((Bitmap)img);
                             return shapeName;
                         }

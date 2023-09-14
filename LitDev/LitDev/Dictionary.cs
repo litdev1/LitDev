@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -15,8 +42,6 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.CodeDom.Compiler;
 using System.ComponentModel;
@@ -32,12 +57,16 @@ using System.Xml;
 using System.Xml.Linq;
 
 namespace LitDev
-{    
+{
     /// <summary>
     /// This class provides access to an online Dictionary service.
     /// Alternative for Version 1.0 Dictionary object that fails.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDDictionary
     {
         private const string _frenchGuid = "{92DF305E-677C-43D1-9FC7-B2A3D08DCA5C}";

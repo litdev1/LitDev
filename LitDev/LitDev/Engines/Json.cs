@@ -463,7 +463,6 @@ namespace LitDev.Engines
                 foreach (string vector in vectors)
                 {
                     string check = "\"" + vector + "\" : 0,";
-                    //Microsoft.SmallBasic.Library.TextWindow.WriteLine(check);
                     string replace = "\"" + vector + "\" : {\"x\": 0,\"y\": 0},";
                     newLine = newLine.Replace(check, replace);
                 }

@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -16,8 +43,6 @@
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using LitDev.Engines;
-using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,7 +57,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {
@@ -188,7 +212,11 @@ namespace LitDev
     /// <summary>
     /// Shapes extension utilities.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDShapes
     {
         private static Type GraphicsWindowType = typeof(GraphicsWindow);
@@ -332,7 +360,7 @@ namespace LitDev
 
         private static string lastEventShape = "";
         private static string lastEventType = "";
-        private static SmallBasicCallback _ShapeEventsDelegate = null;
+        private static SBCallback _ShapeEventsDelegate = null;
         private static void _ShapeEventsMouseDown(Object sender, MouseButtonEventArgs e)
         {
             lastEventShape = ((FrameworkElement)sender).Name;
@@ -1060,7 +1088,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Polygon", false}).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
+#endif
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
@@ -1126,7 +1158,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Polygon", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
+#endif
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
@@ -1215,7 +1251,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Polygon", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Polygon" }).ToString();
+#endif
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
@@ -3223,7 +3263,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Image", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Image" }).ToString();
+#endif
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -3349,7 +3393,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                shapeName = method.Invoke(null, new object[] { "Image", false }).ToString();
+#else
                 shapeName = method.Invoke(null, new object[] { "Image" }).ToString();
+#endif
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
@@ -3812,7 +3860,7 @@ namespace LitDev
         /// <summary>
         /// Event when a shape event occurs to a registered shape (SetShapeEvent)
         /// </summary>
-        public static event SmallBasicCallback ShapeEvent
+        public static event SBCallback ShapeEvent
         {
             add
             {

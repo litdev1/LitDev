@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -16,8 +43,6 @@
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using LitDev.Engines;
-using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -28,14 +53,17 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {
     /// <summary>
     /// Dialogs and popups.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDDialogs
     {
         public static bool _Waiting = false;
@@ -56,7 +84,7 @@ namespace LitDev
         }
 
         private static string _LastMenuClickItem = "";
-        private static SmallBasicCallback _MenuClickDelegate = null;
+        private static SBCallback _MenuClickDelegate = null;
         private static void _MenuClickEvent(Object sender, EventArgs e)
         {
             MenuItem _item = (MenuItem)sender;
@@ -469,7 +497,7 @@ namespace LitDev
                 ThreadStart start = delegate
                 {
                     System.Windows.Forms.FontDialog dlg = new System.Windows.Forms.FontDialog();
-                    if (Microsoft.SmallBasic.Library.Array.GetItemCount(font) == 4)
+                    if (SBArray.GetItemCount(font) == 4)
                     {
                         System.Drawing.FontStyle fontStyle = new System.Drawing.FontStyle();
                         if (font[3]) fontStyle |= System.Drawing.FontStyle.Bold;
@@ -568,7 +596,7 @@ namespace LitDev
         /// <summary>
         /// Event when a right click context menu item is selected.
         /// </summary>
-        public static event SmallBasicCallback RightClickMenu
+        public static event SBCallback RightClickMenu
         {
             add
             {

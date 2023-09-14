@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -15,7 +42,6 @@
 //You should have received a copy of the GNU General Public License
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.SmallBasic.Library;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -27,7 +53,6 @@ using System.Drawing.Printing;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
-using Microsoft.SmallBasic.Library.Internal;
 using LitDev.Engines;
 
 namespace LitDev
@@ -36,7 +61,11 @@ namespace LitDev
     /// TextWindow utilities.
     /// Includes low level keyboard events.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDTextWindow
     {
         private static KeyConverter kc = new KeyConverter();
@@ -49,8 +78,8 @@ namespace LitDev
 
         private static Object _lock = new Object();
         private static Keys _LastKey = Keys.None;
-        private static SmallBasicCallback _KeyDownDelegate = null;
-        private static SmallBasicCallback _KeyUpDelegate = null;
+        private static SBCallback _KeyDownDelegate = null;
+        private static SBCallback _KeyUpDelegate = null;
         private static bool bHooked = false;
         private static User32.LowLevelKeyboardProc _hookDelegate = new User32.LowLevelKeyboardProc(HookCallback);
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
@@ -104,7 +133,7 @@ namespace LitDev
         /// Low level event when a key is pressed down.
         /// This event is independent of any window focus, i.e. not just for TextWindow or GraphicsWindow.
         /// </summary>
-        public static event SmallBasicCallback KeyDown
+        public static event SBCallback KeyDown
         {
             add
             {
@@ -121,7 +150,7 @@ namespace LitDev
         /// Low level event when a key is released.
         /// This event is independent of any window focus, i.e. not just for TextWindow or GraphicsWindow.
         /// </summary>
-        public static event SmallBasicCallback KeyUp
+        public static event SBCallback KeyUp
         {
             add
             {
@@ -261,7 +290,7 @@ namespace LitDev
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
-            Type ImageListType = typeof(Microsoft.SmallBasic.Library.ImageList);
+            Type ImageListType = typeof(SBImageList);
             Dictionary<string, BitmapSource> _savedImages;
             TextWindow.Show();
             Utilities.bTextWindow = true;
@@ -277,7 +306,11 @@ namespace LitDev
                         try
                         {
                             _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+#if SVB
+                            string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                             string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
                             _savedImages[shapeName] = FastPixel.GetBitmapImage((Bitmap)img);
                             return shapeName;
                         }

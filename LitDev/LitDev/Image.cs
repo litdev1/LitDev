@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -16,7 +43,6 @@
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using LitDev.Engines;
-using Microsoft.SmallBasic.Library;
 using Svg;
 using System;
 using System.Collections.Generic;
@@ -26,9 +52,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Windows.Media.Imaging;
-using SBArray = Microsoft.SmallBasic.Library.Array;
 using System.Drawing.Imaging;
-using Microsoft.SmallBasic.Library.Internal;
 
 namespace LitDev
 {
@@ -257,7 +281,11 @@ namespace LitDev
     /// Provides methods to modify and image process images stored in ImageList.
     /// Any effect parameter can be defaulted to "".
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDImage
     {
         private static Dictionary<string, Shadow> Shadows = new Dictionary<string, Shadow>();
@@ -642,7 +670,11 @@ namespace LitDev
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                     if (!_savedImages.TryGetValue(image, out img)) return imageCopy;
                     MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                    imageCopy = method.Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                     imageCopy = method.Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
 
                     FastThread.SaveBitmapSource(imageCopy, img, true);
                 }
@@ -819,7 +851,11 @@ namespace LitDev
                     if (!_savedImages.TryGetValue((string)image1, out img1)) return imageNew;
                     if (!_savedImages.TryGetValue((string)image2, out img2)) return imageNew;
                     MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                    imageNew = method.Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                     imageNew = method.Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
 
                     Bitmap dImg1 = FastPixel.GetBitmap(img1);
                     Bitmap dImg2 = FastPixel.GetBitmap(img2);
@@ -876,7 +912,11 @@ namespace LitDev
                     if (!_savedImages.TryGetValue((string)image1, out img1)) return imageNew;
                     if (!_savedImages.TryGetValue((string)image2, out img2)) return imageNew;
                     MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                    imageNew = method.Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                     imageNew = method.Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
 
                     Bitmap dImg1 = FastPixel.GetBitmap(img1);
                     Bitmap dImg2 = FastPixel.GetBitmap(img2);
@@ -1488,7 +1528,11 @@ namespace LitDev
                 SvgDocument svgDocument = SvgDocument.Open(fileName);
 
                 _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+#if SVB
+                string imageName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                 string imageName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
 
                 FastThread.SaveBitmap(imageName, svgDocument.Draw());
 
@@ -1574,7 +1618,11 @@ namespace LitDev
                                     bi.StreamSource = stream;
                                     bi.EndInit();
 
+#if SVB
+                                    string cropName = method1.Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                                     string cropName = method1.Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
                                     _savedImages[cropName] = bi;
                                     resultRow[j + 1] = cropName;
                                 }
@@ -1619,7 +1667,11 @@ namespace LitDev
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
                     MethodInfo methodInfo = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                    string imageName = methodInfo.Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                     string imageName = methodInfo.Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
 
                     Bitmap img = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
@@ -1692,7 +1744,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                imageNew = method.Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                 imageNew = method.Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
                 _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
 
                 int width = SBArray.GetItemCount(pixels);
@@ -2006,7 +2062,11 @@ namespace LitDev
                     _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                     if (!_savedImages.TryGetValue(image, out img)) return normalMap;
                     MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                    normalMap = method.Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
                     normalMap = method.Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
 
                     if (scale == "") scale = 1;
                     Bitmap bm = FastPixel.GetBitmap(img);

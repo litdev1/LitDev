@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -16,8 +43,6 @@
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using LitDev.Engines;
-using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System;
 using System.Globalization;
 using System.Reflection;
@@ -37,14 +62,18 @@ namespace LitDev
     /// 
     /// For large scrolling regions see Rasterize property.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDScrollBars
     {
         private static bool rasterize = true;
         private static bool bKeyScroll = true;
         private static bool bMouseScroll = true;
 
-        private static SmallBasicCallback _ScrollChangedDelegate = null;
+        private static SBCallback _ScrollChangedDelegate = null;
         private static void _ScrollChangedEvent(Object sender, ScrollChangedEventArgs e)
         {
             if (null != _ScrollChangedDelegate) _ScrollChangedDelegate();
@@ -103,7 +132,7 @@ namespace LitDev
         private static void _MouseDownEvent(object sender, MouseButtonEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
-            SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseDown", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
+            SBCallback callback = (SBCallback)GraphicsWindowType.GetField("_mouseDown", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
             e.Handled = true;
         }
@@ -111,7 +140,7 @@ namespace LitDev
         private static void _MouseUpEvent(object sender, MouseButtonEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
-            SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseUp", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
+            SBCallback callback = (SBCallback)GraphicsWindowType.GetField("_mouseUp", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
             e.Handled = true;
         }
@@ -119,7 +148,7 @@ namespace LitDev
         private static void _MouseMoveEvent(object sender, MouseEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
-            SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_mouseMove", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
+            SBCallback callback = (SBCallback)GraphicsWindowType.GetField("_mouseMove", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
             e.Handled = true;
         }
@@ -130,7 +159,7 @@ namespace LitDev
             {
                 Type GraphicsWindowType = typeof(GraphicsWindow);
                 GraphicsWindowType.GetField("_lastKey", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).SetValue(null, e.Key);
-                SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_keyDown", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                SBCallback callback = (SBCallback)GraphicsWindowType.GetField("_keyDown", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
                 if (null != callback) callback();
                 e.Handled = !bKeyScroll;
             }
@@ -139,7 +168,7 @@ namespace LitDev
         private static void _KeyUpEvent(object sender, KeyEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
-            SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_keyUp", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
+            SBCallback callback = (SBCallback)GraphicsWindowType.GetField("_keyUp", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
             e.Handled = true;
         }
@@ -147,7 +176,7 @@ namespace LitDev
         private static void _TextInputEvent(object sender, TextCompositionEventArgs e)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
-            SmallBasicCallback callback = (SmallBasicCallback)GraphicsWindowType.GetField("_textInput", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
+            SBCallback callback = (SBCallback)GraphicsWindowType.GetField("_textInput", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
             if (null != callback) callback();
             e.Handled = true;
         }
@@ -443,7 +472,7 @@ namespace LitDev
         /// <summary>
         /// Event when a scroll operation occurs
         /// </summary>
-        public static event SmallBasicCallback ScrollBarChanged
+        public static event SBCallback ScrollBarChanged
         {
             add
             {

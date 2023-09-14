@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -15,14 +42,12 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.SmallBasic.Library;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {
@@ -48,7 +73,11 @@ namespace LitDev
     /// <summary>
     /// Call Functions with arguments, asyncronously from any extension or from a pre-compiled SmallBasic exe.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDCall
     {
         private static Assembly entryAssembly = Assembly.GetEntryAssembly();
@@ -80,7 +109,7 @@ namespace LitDev
         private static string lastCall = "";
         private static string lastResult = "";
         private static Object lockCall = new Object();
-        private static SmallBasicCallback _CallCompleteDelegate = null;
+        private static SBCallback _CallCompleteDelegate = null;
         private static void DoCall(Object obj)
         {
             MethodInfo methodInfo = (MethodInfo)((Object[])obj)[0];
@@ -226,7 +255,7 @@ namespace LitDev
         /// <summary>
         /// Event when an asynchronous subroutine method call completes.
         /// </summary>
-        public static event SmallBasicCallback CallComplete
+        public static event SBCallback CallComplete
         {
             add
             {

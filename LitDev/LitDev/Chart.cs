@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -15,7 +42,6 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.SmallBasic.Library;
 using System;
 using System.Reflection;
 using System.Windows;
@@ -23,9 +49,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Collections.Generic;
 using System.Windows.Media;
-using Microsoft.SmallBasic.Library.Internal;
 using System.Windows.Shapes;
-using SBArray = Microsoft.SmallBasic.Library.Array;
 using System.Windows.Media.Animation;
 using LitDev.Engines;
 using System.Windows.Media.Effects;
@@ -401,7 +425,7 @@ namespace LitDev
 
         public static string lastChart = "";
         public static string lastLabel = "";
-        public static SmallBasicCallback _ValueClickedDelegate = null;
+        public static SBCallback _ValueClickedDelegate = null;
         public static void _ValueClickedEvent(Object sender, MouseButtonEventArgs e)
         {
             FrameworkElement obj = (FrameworkElement)sender;
@@ -415,7 +439,11 @@ namespace LitDev
     /// <summary>
     /// Chart control.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDChart
     {
         private static double doughnutFraction = 0.7;
@@ -457,7 +485,7 @@ namespace LitDev
         /// <summary>
         /// Event when a chart segment is clicked.
         /// </summary>
-        public static event SmallBasicCallback ValueClicked
+        public static event SBCallback ValueClicked
         {
             add
             {
@@ -505,7 +533,11 @@ namespace LitDev
                 method.Invoke(null, new object[] { });
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                chartName = method.Invoke(null, new object[] { "Control", false }).ToString();
+#else
                 chartName = method.Invoke(null, new object[] { "Control" }).ToString();
+#endif
 
                 _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);

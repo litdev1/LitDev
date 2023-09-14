@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -17,7 +44,6 @@
 
 //http://32feet.codeplex.com/license
 
-using Microsoft.SmallBasic.Library;
 using System;
 using InTheHand.Net;
 using InTheHand.Net.Sockets;
@@ -46,7 +72,11 @@ namespace LitDev
     /// The Advanced features refer to non file transfer (effectively writing a device driver).
     /// To communicate with a USB bluetooth stick you also need have an external bluetooth device, setting it to be dicoverable etc before running your SmallBasic program.
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDBlueTooth
     {
         private static BluetoothRadio localRadio = null;
@@ -62,7 +92,7 @@ namespace LitDev
         private static string lastError = "";
         private static string lastDevice = "";
 
-        private static SmallBasicCallback _InRangeDelegate = null;
+        private static SBCallback _InRangeDelegate = null;
         private static void inRangeEvent(object sender, BluetoothWin32RadioInRangeEventArgs e)
         {
             setDevices();
@@ -71,7 +101,7 @@ namespace LitDev
             _InRangeDelegate();
         }
 
-        private static SmallBasicCallback _OutOfRangeDelegate = null;
+        private static SBCallback _OutOfRangeDelegate = null;
         private static void outOfRangeEvent(object sender, BluetoothWin32RadioOutOfRangeEventArgs e)
         {
             setDevices();
@@ -173,7 +203,7 @@ namespace LitDev
         /// Event when a bluetooth device comes in range.
         /// Seems to keep firing unexpectedly.
         /// </summary>
-        public static event SmallBasicCallback InRange
+        public static event SBCallback InRange
         {
             add
             {
@@ -189,7 +219,7 @@ namespace LitDev
         /// Event when a bluetooth device goes out of range.
         /// Doesn't seem to work as expected.
         /// </summary>
-        public static event SmallBasicCallback OutOfRange
+        public static event SBCallback OutOfRange
         {
             add
             {

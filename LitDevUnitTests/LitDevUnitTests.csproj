@@ -53,6 +53,9 @@
     <Reference Include="SmallBasicLibrary">
       <HintPath>..\SmallBasicLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="SmallVisualBasicLibrary">
+      <HintPath>..\SmallVisualBasicLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>

@@ -1,4 +1,31 @@
-﻿using System;
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -6,14 +33,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.SmallBasic.Library;
-using Microsoft.SmallBasic.Library.Internal;
 using System.Reflection;
-using SBArray = Microsoft.SmallBasic.Library.Array;
-using SBMath = Microsoft.SmallBasic.Library.Math;
-using SBProgram = Microsoft.SmallBasic.Library.Program;
-using SBControls = Microsoft.SmallBasic.Library.Controls;
-using SBImageList = Microsoft.SmallBasic.Library.ImageList;
 using LitDev;
 using System.IO;
 using System.Diagnostics;
@@ -723,14 +743,14 @@ namespace TestHarness
             LDNetwork.SetSSL();
             Primitive flickr = LDUtilities.FixFlickr();
             Primitive imageURL = Flickr.GetRandomPicture("Car");
-            Primitive image2 = Microsoft.SmallBasic.Library.ImageList.LoadImage(imageURL);
+            Primitive image2 = SBImageList.LoadImage(imageURL);
             GraphicsWindow.DrawImage(image2, 0, 0);
             
-            Primitive image1 = Microsoft.SmallBasic.Library.ImageList.LoadImage("https:\\\\litdev.uk\\game_images\\rubic.png");
+            Primitive image1 = SBImageList.LoadImage("https:\\\\litdev.uk\\game_images\\rubic.png");
 
             Primitive result1 = LDftp.Download("C:\\temp\\test", "downloads.txt", "litdev.uk", "xxx", "xxx");
 
-            Primitive picture = Microsoft.SmallBasic.Library.ImageList.LoadImage("c:\\temp\\image.jpg");
+            Primitive picture = SBImageList.LoadImage("c:\\temp\\image.jpg");
             LDGraphicsWindow.BackgroundImage(picture);
             //GraphicsWindow.DrawImage(picture, 0, 0);
 
@@ -752,7 +772,7 @@ namespace TestHarness
             Primitive img1 = LDClipboard.GetImage();
             LDImage.SaveAs(img1, "C:\\Temp\\DemoImg.jpg");
 
-            Primitive shp = Microsoft.SmallBasic.Library.Controls.AddButton("Button", 10, 10);
+            Primitive shp = SBControls.AddButton("Button", 10, 10);
             LDShapes.ReSize(shp, 100, 100);
             LDShapes.ReSize(shp, 200, 200);
 
@@ -772,7 +792,7 @@ namespace TestHarness
             LDFastArray.Collapse(a);
             Primitive b = LDFastArray.ToArray(a);
 
-            Primitive img = Microsoft.SmallBasic.Library.ImageList.LoadImage("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/STS120LaunchHiRes-edit1.jpg/153px-STS120LaunchHiRes-edit1.jpg");
+            Primitive img = SBImageList.LoadImage("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/STS120LaunchHiRes-edit1.jpg/153px-STS120LaunchHiRes-edit1.jpg");
             //Primitive x1 = LDImage.Copy(img);
             //LDImage.EffectCharcoal(x1);
 
@@ -785,7 +805,7 @@ namespace TestHarness
             Primitive data = LDxml.ToArray();
             LDxml.FromArray(data);
             LDxml.Save("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\sample1.xml");
-            Primitive txt = Microsoft.SmallBasic.Library.File.ReadContents("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\txt.txt");
+            Primitive txt = SBFile.ReadContents("C:\\Users\\Steve\\Documents\\SmallBasic\\steve\\txt.txt");
             LDSearch.GetProof(txt, "");
             LDSearch.GetWeb("bill gates");
             return;
@@ -986,6 +1006,13 @@ namespace TestHarness
             //values[i++] = unitSystem.Convert(1, "psi", "lbf/in2");
             //values[i++] = unitSystem.Convert(1, "Kpsig", "Kpsi");
             //values[i++] = unitSystem.Convert(1, "USD", "GBP");
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            Primitive Result = "RESULT=" + LDBits.AndBits(125, 12);
+            GraphicsWindow.DrawBoundText(10, 10, 200, Result);
+            LDShapes.AddRegularPolygon(10, 20);
         }
     }
 }

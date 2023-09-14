@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -16,11 +43,9 @@
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using LitDev.Engines;
-using Microsoft.SmallBasic.Library;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SBArray = Microsoft.SmallBasic.Library.Array;
 
 namespace LitDev
 {
@@ -86,7 +111,11 @@ namespace LitDev
     /// Access IO-Warrior devices.
     /// See http://www.codemercs.com/io-warrior/?L=1
     /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
     [SmallBasicType]
+#endif
     public static class LDIOWarrior
     {
         public static uint timeout = 1000;
@@ -220,12 +249,12 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return "";
-                uint length = (uint)count;
+                uint length = (uint)(int)count;
                 if (length == 0) length = (channel == 0) ? device.reportSize : device.specialReportSize;
                 byte[] buffer = new byte[length];
-                length = device.Read((uint)channel, buffer, blocking, length);
+                length = device.Read((uint)(int)channel, buffer, blocking, length);
                 string result = "";
                 for (int i = 0; i < length; i++)
                 {
@@ -253,7 +282,7 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return 0;
                 int length = SBArray.GetItemCount(data);
                 byte[] buffer = new byte[length];
@@ -261,7 +290,7 @@ namespace LitDev
                 {
                     buffer[i] = (byte)data[i + 1];
                 }
-                return (int)device.Write((uint)channel, buffer, (uint)length);
+                return (int)device.Write((uint)(int)channel, buffer, (uint)length);
             }
             catch (Exception ex)
             {
@@ -281,7 +310,7 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return 0;
                 return (int)device.reportSize;
             }
@@ -303,7 +332,7 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return 0;
                 return (int)device.specialReportSize;
             }
@@ -323,7 +352,7 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return "";
                 return device.name;
             }
@@ -343,7 +372,7 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return 0;
                 return Convert.ToString(device.pid, 16);
             }
@@ -380,7 +409,7 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return "";
                 return device.sn.ToString();
             }
@@ -400,7 +429,7 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return 0;
                 return (int)device.version;
             }
@@ -420,7 +449,7 @@ namespace LitDev
             get { return (int)timeout; }
             set
             {
-                timeout = (uint)value;
+                timeout = (uint)(int)value;
                 foreach (IOWDevice i in IOWDevices)
                 {
                     Functions.IowKitSetTimeout(i.handle, timeout);
@@ -438,7 +467,7 @@ namespace LitDev
         {
             try
             {
-                IOWDevice device = GetDevice((uint)id);
+                IOWDevice device = GetDevice((uint)(int)id);
                 if (null == device) return;
 
                 int length = GetSpecialReportSize(id);

@@ -1,4 +1,31 @@
-﻿//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
+﻿//#define SVB 
+#if SVB
+using Microsoft.SmallVisualBasic.Library;
+using Microsoft.SmallVisualBasic.Library.Internal;
+using SBArray = Microsoft.SmallVisualBasic.Library.Array;
+using SBShapes = Microsoft.SmallVisualBasic.Library.Shapes;
+using SBFile = Microsoft.SmallVisualBasic.Library.File;
+using SBMath = Microsoft.SmallVisualBasic.Library.Math;
+using SBProgram = Microsoft.SmallVisualBasic.Library.Program;
+using SBControls = Microsoft.SmallVisualBasic.Library.Controls;
+using SBImageList = Microsoft.SmallVisualBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallVisualBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
+#else
+using Microsoft.SmallBasic.Library;
+using Microsoft.SmallBasic.Library.Internal;
+using SBArray = Microsoft.SmallBasic.Library.Array;
+using SBShapes = Microsoft.SmallBasic.Library.Shapes;
+using SBFile = Microsoft.SmallBasic.Library.File;
+using SBMath = Microsoft.SmallBasic.Library.Math;
+using SBProgram = Microsoft.SmallBasic.Library.Program;
+using SBControls = Microsoft.SmallBasic.Library.Controls;
+using SBImageList = Microsoft.SmallBasic.Library.ImageList;
+using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
+using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
+#endif
+
+//The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
 //Copyright (C) <2011 - 2020> litdev@hotmail.co.uk
 //This file is part of the LitDev Extension for Small Basic.
 
@@ -159,8 +186,8 @@ namespace LitDev.Engines
             BaseUnits.Add(new BaseUnit("LUMINANCE", "candella"));
 
             //CONSTANTS
-            Constants.Add(new Constant("Ratio of Circumference to Diameter", "pi", Math.PI));
-            Constants.Add(new Constant("Natural Logarithm Base", "e", Math.E));
+            Constants.Add(new Constant("Ratio of Circumference to Diameter", "pi", System.Math.PI));
+            Constants.Add(new Constant("Natural Logarithm Base", "e", System.Math.E));
 
             //Derived Units
 
@@ -422,7 +449,7 @@ namespace LitDev.Engines
             {
                 foreach (string error in Errors)
                 {
-                    Microsoft.SmallBasic.Library.TextWindow.WriteLine(error);
+                    TextWindow.WriteLine(error);
                 }
             }
 
@@ -434,7 +461,7 @@ namespace LitDev.Engines
                 Leaf fromLeaf = new Leaf(eOperatorType.MULTIPLY, eLeafType.COMPOUND, unit.name);
                 foreach (string error in Errors)
                 {
-                    Microsoft.SmallBasic.Library.TextWindow.WriteLine(error);
+                    SBTextWindow.WriteLine(error);
                 }
             }
 
@@ -973,7 +1000,7 @@ namespace LitDev.Engines
             leafResult.power *= children[1].leafResult.power;
             if (null != children[2].derivedUnit) leafResult.add = children[2].derivedUnit.add;
 
-            value = Math.Pow(leafResult.number * leafResult.prefix * children[2].value, leafResult.power);
+            value = System.Math.Pow(leafResult.number * leafResult.prefix * children[2].value, leafResult.power);
             //value = leafResult.number * leafResult.prefix * Math.Pow(children[2].value, leafResult.power);
             foreach (KeyValuePair<string, double> kvp in children[2].leafResult.dimensions)
             {
