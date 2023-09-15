@@ -1,4 +1,4 @@
-﻿//#define SVB   
+﻿//#define SVB
 #if SVB
 using Microsoft.SmallVisualBasic.Library;
 using Microsoft.SmallVisualBasic.Library.Internal;
@@ -82,7 +82,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = GraphicsWindowType.GetMethod("AddControl", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                method.Invoke(null, new object[] { name, control, true });
+#else
                 method.Invoke(null, new object[] { name, control });
+#endif
             }
             catch (Exception ex)
             {
@@ -1098,7 +1102,6 @@ namespace LitDev
 #endif
 
                 _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
                     try
