@@ -1,4 +1,4 @@
-﻿//#define SVB 
+﻿//#define SVB   
 #if SVB
 using Microsoft.SmallVisualBasic.Library;
 using Microsoft.SmallVisualBasic.Library.Internal;
@@ -703,7 +703,7 @@ namespace LitDev
 
         public static Primitive CreateArrayMap(Primitive array)
         {
-            array[0] = array[0];
+            array.GetItemCount();
             return array;
         }
 
@@ -883,7 +883,11 @@ namespace LitDev
 
         public static string getString(Primitive value)
         {
+#if SVB
+            return (string)typeof(Primitive).GetField("_stringValue", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(value);
+#else
             return (string)typeof(Primitive).GetField("_primitive", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(value);
+#endif
         }
 
         public static void ClearMediaPlayer(string wavFile)

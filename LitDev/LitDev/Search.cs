@@ -15,7 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with LitDev Extension.  If not, see <http://www.gnu.org/licenses/>.
 
-//#define SVB 
+//#define SVB   
 #if SVB
 using Microsoft.SmallVisualBasic.Library;
 using Microsoft.SmallVisualBasic.Library.Internal;
