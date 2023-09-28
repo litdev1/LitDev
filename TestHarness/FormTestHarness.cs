@@ -741,6 +741,9 @@ namespace TestHarness
         private void buttonTest_Click(object sender, EventArgs e)
         {
             LDNetwork.SetSSL();
+            TextWindow.WriteLine(LDTranslate.Languages());
+            Primitive a1 = LDTranslate.Translate("Hello", "en", "de");
+            TextWindow.WriteLine(a1);
             Primitive flickr = LDUtilities.FixFlickr();
             Primitive imageURL = Flickr.GetRandomPicture("Car");
             Primitive image2 = SBImageList.LoadImage(imageURL);
