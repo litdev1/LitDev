@@ -1,5 +1,7 @@
 # LitDev
-LitDev Extension for Small Basic
+LitDev Extension for Small Basic.
+
+See [Wiki](https://github.com/litdev1/LitDev/wiki) for more details.
 
 ## Website Update
 
