@@ -9,7 +9,7 @@ Following a downturn in my Small Basic activity after the loss of the MS Forum, 
 
 :boom: **The new website is [litdev.uk](http://litdev.uk)** :boom:
 
-If you use SB-Prime IDE with Extension Manager, you may download an updated version of [SB-Prime](http://litdev.uk/downloads/SB-Prime.zip) from the website to be compitible with the new website domain name.
+If you use SB-Prime IDE with Extension Manager, you may download an updated version of SB-Prime from the website to be compitible with the new website domain name.
 
 I have also created a [Small Basic forum](https://litdev.uk/mybb) which is a good place to ask questions.
 
