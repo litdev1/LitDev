@@ -740,6 +740,10 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive txt3 = "Utillity prograym to convert Small Basic and exttrension xmlfiles to rtf and html documents. This tool was used to create the rtf files provided with extensions on this site as well as the Small Basic API above and html API previews. Tool also contains some other utilities. It requires .Net 4.8 which installer will detect and install if you want this tool.";
+            Primitive a3 = LDSearch.GetProof(txt3, "proof");
+            TextWindow.WriteLine(a3);
+
             LDNetwork.SetSSL();
             TextWindow.WriteLine(LDTranslate.Languages());
             Primitive a1 = LDTranslate.Translate("Hello", "en", "de");

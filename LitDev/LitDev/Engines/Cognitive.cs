@@ -33,7 +33,7 @@ namespace LitDev.Engines
         {
             clientSearch.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "52b0b43437c7406b90f5b3db0097306c");
             clientSpell.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "ef01ee4bc41e4cf1af361d4246b6ce9e");
-            clientTranslate.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "49f22a1374ff46a09bd869aee2d913bb");
+            clientTranslate.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "22ac294ef5844cc68ce87210232fb169");
         }
 
         public JsonWeb SearchRequest(string search)
