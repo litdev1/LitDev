@@ -86,8 +86,7 @@ namespace LitDev
             string result = "";
             try
             {
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 WebRequest webRequest = WebRequest.Create(url);
                 webResponse = webRequest.GetResponse();
                 streamReader = new StreamReader(webResponse.GetResponseStream());
@@ -122,8 +121,7 @@ namespace LitDev
             string result = "";
             try
             {
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 WebRequest webRequest = WebRequest.Create(url);
                 webResponse = webRequest.GetResponse();
                 streamReader = new StreamReader(webResponse.GetResponseStream());
@@ -154,8 +152,7 @@ namespace LitDev
             string result = "";
             try
             {
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 WebRequest webRequest = WebRequest.Create(url);
                 webResponse = webRequest.GetResponse();
                 streamReader = new StreamReader(webResponse.GetResponseStream());
@@ -259,8 +256,7 @@ namespace LitDev
             {
                 FileInfo fileInf = new FileInfo(localFile);
                 Uri uri = new Uri(remoteFile);
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 WebRequest webRequest = WebRequest.Create(uri);
 
                 int bufferSize = 2048;

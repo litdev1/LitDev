@@ -89,8 +89,7 @@ namespace LitDev
             //their own resources to deserialize vs public resources to refetch the data. 
 
             ServicePointManager.Expect100Continue = true;
-            WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            LDNetwork.SetSSL();
             WebRequest WR = WebRequest.Create(URL);
             WR.ContentType = "application/x-www-form-urlencoded";
             WR.Method = "GET";

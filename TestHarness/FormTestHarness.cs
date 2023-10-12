@@ -740,7 +740,17 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            Primitive txt3 = "Utillity prograym to convert Small Basic and exttrension xmlfiles to rtf and html documents. This tool was used to create the rtf files provided with extensions on this site as well as the Small Basic API above and html API previews. Tool also contains some other utilities. It requires .Net 4.8 which installer will detect and install if you want this tool.";
+            LDNetwork.SetSSL();
+            Primitive imageURL1 = "https://farm66.staticflickr.com/65535/52371893947_4f7745e098.jpg";
+            Primitive image4 = LDImage.LoadImage(imageURL1);
+            Primitive width = Microsoft.SmallBasic.Library.ImageList.GetWidthOfImage(image4);
+            GraphicsWindow.DrawResizedImage(image4, 0, 0, GraphicsWindow.Width, GraphicsWindow.Height);
+                
+            Primitive path = "C:\\Users\\steve\\Documents\\SmallBasic\\steve\\WWFlakes.ttf";
+            Primitive result2 = LDGraphicsWindow.SetFontFromFile(path);
+            GraphicsWindow.DrawBoundText(10, 10, 500, result2);
+
+            Primitive txt3 = "Misspelly Utillity prograym to convert Small Basic and exttrension xmlfiles to rtf and html documents. This tool was used to create the rtf files provided with extensions on this site as well as the Small Basic API above and html API previews. Tool also contains some other utilities. It requires .Net 4.8 which installer will detect and install if you want this tool.";
             Primitive a3 = LDSearch.GetProof(txt3, "proof");
             TextWindow.WriteLine(a3);
 
@@ -853,10 +863,7 @@ namespace TestHarness
             {
                 string url = "https://a75b9da71f50095fc4dc527d860da4427f274b07.googledrive.com/host/0B9s0FFxEQDb6T3VUdEw3QTJDS1E/efecast00.mp3";
                 Uri uri = new Uri(url);
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 WebRequest webRequest = WebRequest.Create(url);
                 webResponse = webRequest.GetResponse();
                 stream = System.IO.File.Open(tempFileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);

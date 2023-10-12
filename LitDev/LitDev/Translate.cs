@@ -187,8 +187,7 @@ namespace LitDev
             string clientSecret = "Vn1J4b9Bx/I3cfjWtUFYIxeUfEuruWlCTlCLc5llW5I=";
             String strTranslatorAccessURI = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
             String strRequestDetails = string.Format("grant_type=client_credentials&client_id={0}&client_secret={1}&scope=http://api.microsofttranslator.com", HttpUtility.UrlEncode(clientID), HttpUtility.UrlEncode(clientSecret));
-            WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            LDNetwork.SetSSL();
             WebRequest webRequest = WebRequest.Create(strTranslatorAccessURI);
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
@@ -213,8 +212,7 @@ namespace LitDev
 
             //string url = String.Format("https://translate.google.com/?hl=en&eotf=1&sl={0}&tl={1}&q={2}", langFrom, langTo, HttpUtility.UrlEncode(sourceText));
 
-            //WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //LDNetwork.SetSSL();
             //WebRequest translationWebRequest = WebRequest.Create(url);
             //WebResponse response = translationWebRequest.GetResponse();
             //Stream stream = response.GetResponseStream();
@@ -254,8 +252,7 @@ namespace LitDev
             //GetHeader();
             //string txtToTranslate = sourceText;
             //string uri = "http://api.microsofttranslator.com/v2/Http.svc/Translate?text=" + System.Web.HttpUtility.UrlEncode(txtToTranslate) + "&from=" + langFrom + "&to=" + langTo;
-            //WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //LDNetwork.SetSSL();
             //WebRequest translationWebRequest = WebRequest.Create(uri);
             //translationWebRequest.Headers.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("Authorization", token);
             //WebResponse response = translationWebRequest.GetResponse();
@@ -273,8 +270,7 @@ namespace LitDev
             return languageList.Values.ToList();
             //GetHeader();
             //string uri = "http://api.microsofttranslator.com/v2/Http.svc/GetLanguagesForTranslate";
-            //WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //LDNetwork.SetSSL();
             //WebRequest languagesWebRequest = WebRequest.Create(uri);
             //languagesWebRequest.Headers.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("Authorization", token);
             //WebResponse response = languagesWebRequest.GetResponse();
@@ -289,8 +285,7 @@ namespace LitDev
             return languageList.Keys.ToList();
             //GetHeader();
             //string uri = "http://api.microsofttranslator.com/v2/Http.svc/GetLanguageNames?locale=" + CultureInfo.CurrentCulture.Name;
-            //WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //LDNetwork.SetSSL();
             //WebRequest languagesWebRequest = WebRequest.Create(uri);
             //languagesWebRequest.Headers.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase("Authorization", token);
             //languagesWebRequest.ContentType = "text/xml";

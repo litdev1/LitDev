@@ -65,8 +65,7 @@ namespace LitDev
 
         private static void DoUpload(Object obj)
         {
-            WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            LDNetwork.SetSSL();
             FtpWebRequest reqFTP = (FtpWebRequest)((Object[])obj)[0];
             FileInfo fileInf = (FileInfo)((Object[])obj)[1];
 
@@ -112,8 +111,7 @@ namespace LitDev
 
         private static void DoDownload(Object obj)
         {
-            WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            LDNetwork.SetSSL();
             FtpWebRequest reqFTP = (FtpWebRequest)((Object[])obj)[0];
             FileInfo fileInf = (FileInfo)((Object[])obj)[1];
 
@@ -160,8 +158,7 @@ namespace LitDev
 
         private static void DoDelete(Object obj)
         {
-            WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            LDNetwork.SetSSL();
             FtpWebRequest reqFTP = (FtpWebRequest)((Object[])obj)[0];
 
             try
@@ -265,8 +262,7 @@ namespace LitDev
             {
                 FileInfo fileInf = new FileInfo(localFile);
                 Uri uri = new Uri("ftp://" + ftpServerIP + "/" + remoteFile);
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(uri);
                 reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
 
@@ -304,8 +300,7 @@ namespace LitDev
             {
                 FileInfo fileInf = new FileInfo(localFile);
                 Uri uri = new Uri("ftp://" + ftpServerIP + "/" + remoteFile);
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(uri);
                 reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
 
@@ -341,8 +336,7 @@ namespace LitDev
             try
             {
                 Uri uri = new Uri("ftp://" + ftpServerIP + "/" + remoteFile);
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(uri);
                 reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
 
@@ -379,8 +373,7 @@ namespace LitDev
             {
                 Uri uri = new Uri("ftp://" + ftpServerIP + "/" + remoteFolder + "/");
 
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(uri);
                 reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
                 reqFTP.KeepAlive = false;

@@ -47,8 +47,7 @@ namespace LitDev.Engines
             queryString["safesearch"] = "Moderate";
             string uri = "https://api.cognitive.microsoft.com/bing/v7.0/search?" + queryString;
 
-            WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            LDNetwork.SetSSL();
             HttpResponseMessage response = clientSearch.GetAsync(uri).Result;
             Stream stream = response.Content.ReadAsStreamAsync().Result;
             return (JsonWeb)jsonSerializer.ReadObject(stream);
@@ -84,8 +83,7 @@ namespace LitDev.Engines
             //content.Headers.ContentLength = byteData.Length;
             //clientSpell.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            LDNetwork.SetSSL();
             HttpResponseMessage response = clientSpell.PostAsync(uri, content).Result;
             Stream stream = response.Content.ReadAsStreamAsync().Result;
             return (JsonWeb)jsonSerializer.ReadObject(stream);
@@ -105,8 +103,7 @@ namespace LitDev.Engines
 
             try
             {
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 HttpResponseMessage response = clientTranslate.PostAsync(uri, new StringContent(requestBody, Encoding.UTF8, "application/json")).Result;
                 string result = response.Content.ReadAsStringAsync().Result;
                 TranslationResult[] deserializedOutput = JsonConvert.DeserializeObject<TranslationResult[]>(result);
@@ -130,8 +127,7 @@ namespace LitDev.Engines
 
             try
             {
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 HttpResponseMessage response = clientTranslate.GetAsync(uri).Result;
                 string result = response.Content.ReadAsStringAsync().Result;
                 AvailableLanguagesResult deserializedOutput = JsonConvert.DeserializeObject<AvailableLanguagesResult>(result);

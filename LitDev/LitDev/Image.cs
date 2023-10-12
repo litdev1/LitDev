@@ -2277,5 +2277,21 @@ namespace LitDev
                 return result;
             }
         }
+
+        /// <summary>
+        /// Replacement for default method of the same name.  Handles image downloads from Flickr.
+        /// Loads an image from a file or the Internet into memory (Imagelist).
+        /// </summary>
+        /// <param name="fileNameOrURL">The file name to load the image from.  This could be a local file or a URL to the Internet location.</param>
+        /// <returns>Returns the name of the image that was loaded.</returns>
+        public static Primitive LoadImage(Primitive fileNameOrURL)
+        {
+            LDNetwork.SetSSL();
+            string tmpFile = SBFile.GetTemporaryFilePath();
+            LDNetwork.DownloadFile(tmpFile, fileNameOrURL);
+            Primitive image = SBImageList.LoadImage(tmpFile);
+            SBFile.DeleteFile(tmpFile);
+            return image;
+        }
     }
 }

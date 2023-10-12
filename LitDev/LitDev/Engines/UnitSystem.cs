@@ -308,8 +308,7 @@ namespace LitDev.Engines
         {
             try
             {
-                WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                LDNetwork.SetSSL();
                 WebRequest webRequest = WebRequest.Create("http://data.fixer.io/api/latest?access_key=d78ec300520b7c9b69292b9caf85f343");
                 WebResponse webResponse = webRequest.GetResponse();
                 StreamReader stream = new StreamReader(webResponse.GetResponseStream());
