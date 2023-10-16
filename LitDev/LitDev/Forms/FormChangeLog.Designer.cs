@@ -24,8 +24,8 @@
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("LDImage", new System.Windows.Forms.TreeNode[] {
             treeNode3});
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Update HelixToolkit");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("AddIcosahedron, AddDodecahedron, AddEllipsoid, AddOctahedron, AddTorus methods ad" +
-        "ded");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("AddIcosahedron, AddDodecahedron, AddEllipsoid, AddOctahedron, AddTorus , AddMater" +
+        "ial methods added");
             System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("LD3DView", new System.Windows.Forms.TreeNode[] {
             treeNode5,
             treeNode6});
@@ -2023,8 +2023,8 @@
             treeNode5.Name = "Node1";
             treeNode5.Text = "Update HelixToolkit";
             treeNode6.Name = "Node2";
-            treeNode6.Text = "AddIcosahedron, AddDodecahedron, AddEllipsoid, AddOctahedron, AddTorus methods ad" +
-    "ded";
+            treeNode6.Text = "AddIcosahedron, AddDodecahedron, AddEllipsoid, AddOctahedron, AddTorus , AddMater" +
+    "ial methods added";
             treeNode7.Name = "Node0";
             treeNode7.Text = "LD3DView";
             treeNode8.Name = "Node0";

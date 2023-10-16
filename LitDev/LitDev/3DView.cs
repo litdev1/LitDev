@@ -1142,6 +1142,54 @@ namespace LitDev
                 }
             }
 
+            public void AddMaterial_Delegate()
+            {
+                int i = 0;
+                string shapeName = (string)data[i++];
+                string geometryName = (string)data[i++];
+                Primitive colour = (Primitive)data[i++];
+                Primitive materialType = (Primitive)data[i++];
+                UIElement obj = (UIElement)data[i++];
+
+                try
+                {
+                    if (obj.GetType() == typeof(Viewport3D))
+                    {
+                        Geometry geom = getGeometry(geometryName);
+                        if (null == geom) return;
+                        GeometryModel3D geometry = geom.geometryModel3D;
+
+                        MaterialGroup material = (MaterialGroup)geometry.Material;
+                        Brush brush = null;
+                        foreach (GradientBrush iBrush in LDShapes.brushes)
+                        {
+                            if (iBrush.name == colour)
+                            {
+                                brush = iBrush.getBrush();
+                            }
+                        }
+                        if (null == brush) brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
+                        switch (materialType.ToString().ToLower())
+                        {
+                            case "e":
+                                material.Children.Add(new DiffuseMaterial(brush));
+                                material.Children.Add(new EmissiveMaterial(brush));
+                                break;
+                            case "d":
+                                material.Children.Add(new DiffuseMaterial(brush));
+                                break;
+                            case "s":
+                                material.Children.Add(new SpecularMaterial(brush, specular));
+                                break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
             public void SetBackMaterial_Delegate()
             {
                 int i = 0;
@@ -4048,6 +4096,40 @@ namespace LitDev
                 {
                     Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, colour, materialType, obj });
                     FastThread.BeginInvoke(delegates.ResetMaterial_Delegate);
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Add a material to an existing geometry.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
+        public static void AddMaterial(Primitive shapeName, Primitive geometryName, Primitive colour, Primitive materialType)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    Delegates delegates = new Delegates(new object[] { (string)shapeName, (string)geometryName, colour, materialType, obj });
+                    FastThread.BeginInvoke(delegates.AddMaterial_Delegate);
                 }
                 else
                 {
