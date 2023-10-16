@@ -82,6 +82,9 @@
     <Reference Include="DirectShowLib-2005">
       <HintPath>..\DirectShowLib-2005.dll</HintPath>
     </Reference>
+    <Reference Include="HelixToolkit.Wpf, Version=2.24.0.0, Culture=neutral, PublicKeyToken=52aa3500039caf0d, processorArchitecture=MSIL">
+      <HintPath>..\packages\HelixToolkit.Wpf.2.24.0\lib\net462\HelixToolkit.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="Interop.Shell32">
       <HintPath>..\Interop.Shell32.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -520,12 +523,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\help.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HelixToolkit.Wpf\HelixToolkit.csproj">
-      <Project>{3f3b4548-a9db-4874-86f7-e7c4fec8a351}</Project>
-      <Name>HelixToolkit</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="AppIcon.ico" />

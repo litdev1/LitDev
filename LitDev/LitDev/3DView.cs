@@ -1331,6 +1331,24 @@ namespace LitDev
             }
         }
 
+        private static void AddArrow(MeshBuilder builder, Point3D point1, Point3D point2, double diameter, double headLength = 3, double headDiameter = 2, int thetaDiv = 18)
+        {
+            var dir = point2 - point1;
+            var length = dir.Length;
+            var r = diameter / 2;
+
+            var pc = new PointCollection
+                {
+                    new Point(0, 0),
+                    new Point(0, r),
+                    new Point(length - (diameter * headLength), r),
+                    new Point(length - (diameter * headLength), r * headDiameter),
+                    new Point(length, 0)
+                };
+
+            builder.AddRevolvedGeometry(pc, null, point1, dir, thetaDiv);
+        }
+
         /// <summary>
         /// Get or set the specular exponent used for specular materials (default 5).
         /// </summary>
@@ -2922,8 +2940,9 @@ namespace LitDev
                                 Viewport3D viewport3D = (Viewport3D)obj;
                                 ModelVisual3D modelVisual3D = (ModelVisual3D)viewport3D.Children[0];
                                 Model3DGroup model3DGroup = (Model3DGroup)modelVisual3D.Content;
+                                ModelImporter modelImporter = new ModelImporter();
 
-                                Model3DGroup model3DGroupLoad = ModelImporter.Load(fileName);
+                                Model3DGroup model3DGroupLoad = modelImporter.Load(fileName);
                                 string names = "";
                                 int i = 0;
                                 foreach (GeometryModel3D geometry in model3DGroupLoad.Children)
@@ -3118,7 +3137,7 @@ namespace LitDev
                                     points.Add(new Point(Utilities.getDouble(s[i]), Utilities.getDouble(s[i + 1])));
                                 }
                                 int thetaDiv = divisions < 2 ? 10 : (int)divisions;
-                                builder.AddRevolvedGeometry(points, new Point3D(0, 0, 0), new Vector3D(0, 1, 0), thetaDiv);
+                                builder.AddRevolvedGeometry(points, null, new Point3D(0, 0, 0), new Vector3D(0, 1, 0), thetaDiv);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;
@@ -3289,7 +3308,7 @@ namespace LitDev
                             if (obj.GetType() == typeof(Viewport3D))
                             {
                                 MeshBuilder builder = new MeshBuilder(true, true);
-                                builder.AddArrow(new Point3D(0, 0, 0), new Point3D(0, length, 0), diameter, arrowLength / diameter, arrowDiameter / diameter, divisions);
+                                AddArrow(builder, new Point3D(0, 0, 0), new Point3D(0, length, 0), diameter, arrowLength / diameter, arrowDiameter / diameter, divisions);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;
@@ -3518,6 +3537,291 @@ namespace LitDev
                             {
                                 MeshBuilder builder = new MeshBuilder(true, true);
                                 builder.AddRegularIcosahedron(new Point3D(0, 0, 0), radius, false);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add a dodecahedron geometry object centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="sideLength">The Length of the edges of the dodecahedron.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddDodecahedron(Primitive shapeName, Primitive sideLength, Primitive colour, Primitive materialType)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddDodecahedron(new Point3D(0, 0, 0), new Vector3D(1, 0, 0), new Vector3D(0, 1, 0), sideLength);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add an ellipsoid geometry object centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="radiusX">The X radius of the ellipsoid.</param>
+        /// <param name="radiusY">The Y radius of the ellipsoid.</param>
+        /// <param name="radiusZ">The Z radius of the ellipsoid.</param>
+        /// <param name="divisions">The ellipsoid divisions, default 10 (affects number of triangles and smoothness).</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddEllipsoid(Primitive shapeName, Primitive radiusX, Primitive radiusY, Primitive radiusZ, Primitive divisions, Primitive colour, Primitive materialType)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                int phiDiv = divisions < 2 ? 10 : (int)divisions;
+                                int thetaDiv = 2 * phiDiv;
+                                builder.AddEllipsoid(new Point3D(0, 0, 0), radiusX, radiusY, radiusZ, thetaDiv, phiDiv);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add an octahedron geometry object centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="sideLength">The Length of the edges of the octahedron.</param>
+        /// <param name="height">The half height of the octahedron.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddOctahedron(Primitive shapeName, Primitive sideLength, Primitive height, Primitive colour, Primitive materialType)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddOctahedron(new Point3D(0, 0, 0), new Vector3D(1, 0, 0), new Vector3D(0, 1, 0), sideLength, height);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add a tetrahedron geometry object centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="sideLength">The Length of the edges of the tetrahedron.</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddTetrahedron(Primitive shapeName, Primitive sideLength, Primitive colour, Primitive materialType)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                builder.AddTetrahedron(new Point3D(0, 0, 0), new Vector3D(1, 0, 0), new Vector3D(0, 1, 0), sideLength);
+                                MeshGeometry3D mesh = builder.ToMesh();
+
+                                Viewport3D viewport3D = (Viewport3D)obj;
+                                return AddGeometry(viewport3D, mesh.Positions, mesh.TriangleIndices, mesh.Normals, mesh.TextureCoordinates, colour, materialType);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Add a torus geometry object centred at (0,0,0).
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="radius">The radius of the torus.</param>
+        /// <param name="diameter">The diameter of the tube.</param>
+        /// <param name="divisions">The torus divisions, default 10 (affects number of triangles and smoothness).</param>
+        /// <param name="colour">A colour or gradient brush for the object.</param>
+        /// <param name="materialType">A material for the object.
+        /// The available options are:
+        /// "E" Emmissive - constant brightness.
+        /// "D" Diffusive - affected by lights.
+        /// "S" Specular  - specular highlights.
+        /// </param>
+        /// <returns>The 3DView Geometry name.</returns>
+        public static Primitive AddTorus(Primitive shapeName, Primitive radius, Primitive diameter, Primitive divisions, Primitive colour, Primitive materialType)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                MeshBuilder builder = new MeshBuilder(true, true);
+                                int phiDiv = divisions < 2 ? 10 : (int)divisions;
+                                int thetaDiv = 2 * phiDiv;
+                                builder.AddTorus(2 *radius, diameter, thetaDiv, phiDiv);
                                 MeshGeometry3D mesh = builder.ToMesh();
 
                                 Viewport3D viewport3D = (Viewport3D)obj;
