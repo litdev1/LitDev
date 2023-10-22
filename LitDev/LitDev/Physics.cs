@@ -1778,7 +1778,7 @@ namespace LitDev
                                     bSetPosition = true;
                                 }
 
-                                    if (body.type == 0 || body.type == 1) //treat kinematic as static
+                                if (body.type == 0 || body.type == 1) //treat kinematic as static
                                 {
                                     //TextWindow.WriteLine("Fixed Shape");
                                     AddFixedShape(shapeName, fixture.friction, fixture.restitution);
