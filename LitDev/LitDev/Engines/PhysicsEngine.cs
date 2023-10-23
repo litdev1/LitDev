@@ -1781,6 +1781,7 @@ namespace LitDev.Engines
 
                 for (Body body = world.GetBodyList(); body != null; body = body._next)
                 {
+                    if (body.IsSleeping()) continue;
                     for (Shape shape = body.GetShapeList(); shape != null; shape = shape._next)
                     {
                         if (null != shape.UserData && shape.UserData.GetType() != typeof(Sprite)) continue;
