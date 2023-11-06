@@ -1755,7 +1755,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Fix the Flickr object
+        /// Fix the Flickr object with an updated API key.
         /// </summary>
         public static Primitive FixFlickr()
         {

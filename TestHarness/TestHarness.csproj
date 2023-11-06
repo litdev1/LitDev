@@ -130,6 +130,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LDBasic\LDBasic.csproj">
+      <Project>{4561488a-71cf-45e5-8e18-a6983fb10f02}</Project>
+      <Name>LDBasic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LitDev\LitDev.csproj">
       <Project>{CDFCE8E5-0080-4301-ABF5-C076DDEDE500}</Project>
       <Name>LitDev</Name>

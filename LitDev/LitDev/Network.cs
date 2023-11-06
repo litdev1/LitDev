@@ -286,7 +286,9 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Set SSL secirity for network operations downoading files.
+        /// Set SSL security for network operations downoading files.
+        /// LoadImage and DownloadFile both use this method internally for special cases.
+        /// Use this call before using various network operations that do not require LoadImage or DownloadFile.
         /// </summary>
         public static void SetSSL()
         {

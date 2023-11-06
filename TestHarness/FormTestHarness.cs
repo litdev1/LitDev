@@ -639,6 +639,8 @@ namespace TestHarness
                 System.IO.File.Copy(Application.StartupPath + "\\MathNet.Numerics.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\MathNet.Numerics.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\Newtonsoft.Json.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Newtonsoft.Json.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\SmallVisualBasicLibrary.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\SmallVisualBasicLibrary.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\LDBasic.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\LDBasic.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\LDBasic.xml", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\LDBasic.xml", true);
                 //System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Effects.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Effects.dll", true);
                 //System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Interactions.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Interactions.dll", true);
             }
