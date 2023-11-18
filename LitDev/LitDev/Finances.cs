@@ -63,7 +63,7 @@ namespace LitDev
         /// <param name="ticker">The symbol of the company we want to find.</param>
         /// <returns>
         ///    A description of the company in the form of an array upon success.
-        ///    On failure returns FAILURE.
+        ///    On failure returns an error message.
         /// </returns>
         public static Primitive Description(Primitive ticker)
         {
@@ -85,7 +85,7 @@ namespace LitDev
         /// <param name="ticker">The symbol of the company we want to find.</param>
         /// <returns>
         ///    A price of the company in the form of an array upon success
-        ///    and a failure returns FAILURE. 
+        ///    and a failure returns FAILED. 
         /// </returns>
         public static Primitive Price(Primitive ticker)
         {
@@ -106,7 +106,10 @@ namespace LitDev
         /// <param name="startDate">The start date formatted in YYYY-MM-DD</param>
         /// <param name="endDate">The end date formatted in YYYY-MM-DD</param>
         /// <param name="freq">daily', 'weekly','monthly', 'annually' are the only valid paramaters</param>
-        /// <returns></returns>
+        /// <returns>
+        ///    A historical price of the company in the form of an array upon success
+        ///    and a failure returns FAILED. 
+        /// </returns>
         public static Primitive HistoricalPrice(Primitive ticker, Primitive startDate, Primitive endDate,
             Primitive freq)
         {
