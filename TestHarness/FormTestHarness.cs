@@ -593,7 +593,7 @@ namespace TestHarness
         {
             ChangeLog();
             CopyDll();
-            Process proc = Process.Start(Application.StartupPath + "..\\..\\..\\..\\..\\..\\LitDevUtilities\\LitDevUtilities\\bin\\Release\\LitDevUtilities.exe");
+            Process proc = Process.Start(Application.StartupPath + "..\\..\\..\\..\\..\\LitDevUtilities\\LitDevUtilities\\bin\\Release\\LitDevUtilities.exe");
             while (!proc.HasExited) System.Threading.Thread.Sleep(100);
 
             proc = Process.Start(Application.StartupPath + "..\\..\\..\\..\\MergeLitDev.bat");
