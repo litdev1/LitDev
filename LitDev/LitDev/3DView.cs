@@ -1848,7 +1848,11 @@ namespace LitDev
                                 GeometryModel3D geometry = geom.geometryModel3D;
                                 MeshGeometry3D mesh = (MeshGeometry3D)geometry.Geometry;
                                 MaterialGroup material = (MaterialGroup)geometry.BackMaterial;
-                                if (null == material) material = new MaterialGroup();
+                                if (null == material)
+                                {
+                                    material = new MaterialGroup();
+                                    geometry.BackMaterial = material;
+                                }
 
                                 string[] s;
                                 int i;

@@ -742,6 +742,12 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive view3D = LD3DView.AddView(GraphicsWindow.Width, GraphicsWindow.Height, "True");
+            Primitive triangle = LD3DView.AddGeometry(view3D, "0 0 0 1 0 0 1 1 0", "0 1 2", "", "Red", "E");
+            LD3DView.AddBackImage(view3D, triangle, "", "Green", "E");
+            LD3DView.AutoControl("True", "True", 5, 1);
+            return;
+
             LDNetwork.SetSSL();
             Primitive imageURL1 = "https://farm66.staticflickr.com/65535/52371893947_4f7745e098.jpg";
             Primitive image4 = LDImage.LoadImage(imageURL1);
