@@ -748,11 +748,11 @@ namespace TestHarness
             LD3DView.AutoControl("True", "True", 5, 1);
             return;
 
-            LDNetwork.SetSSL();
-            Primitive imageURL1 = "https://farm66.staticflickr.com/65535/52371893947_4f7745e098.jpg";
-            Primitive image4 = LDImage.LoadImage(imageURL1);
-            Primitive width = Microsoft.SmallBasic.Library.ImageList.GetWidthOfImage(image4);
-            GraphicsWindow.DrawResizedImage(image4, 0, 0, GraphicsWindow.Width, GraphicsWindow.Height);
+            //LDNetwork.SetSSL();
+            //Primitive imageURL1 = "https://farm66.staticflickr.com/65535/52371893947_4f7745e098.jpg";
+            //Primitive image4 = LDImage.LoadImage(imageURL1);
+            //Primitive width = Microsoft.SmallBasic.Library.ImageList.GetWidthOfImage(image4);
+            //GraphicsWindow.DrawResizedImage(image4, 0, 0, GraphicsWindow.Width, GraphicsWindow.Height);
                 
             Primitive path = "C:\\Users\\steve\\Documents\\SmallBasic\\steve\\WWFlakes.ttf";
             Primitive result2 = LDGraphicsWindow.SetFontFromFile(path);
