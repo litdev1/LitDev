@@ -95,7 +95,7 @@
             this.copyrightLabel.Name = "copyrightLabel";
             this.copyrightLabel.Size = new System.Drawing.Size(196, 15);
             this.copyrightLabel.TabIndex = 9;
-            this.copyrightLabel.Text = "Copyright © 2011 - 2015 (GNU GPL)";
+            this.copyrightLabel.Text = "Copyright © 2011 - 2024 (GNU GPL)";
             // 
             // mainPicture
             // 
