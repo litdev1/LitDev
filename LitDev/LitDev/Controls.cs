@@ -62,6 +62,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Xps.Packaging;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 
 namespace LitDev
 {
@@ -229,26 +230,27 @@ namespace LitDev
         private static bool readOnly = false;
         private static bool caseSensitive = false;
         private static Thickness thickness = new Thickness(0);
-        private static TextRange FindWordFromPosition(TextPointer position, string word)
+        private static Tuple<TextRange, int, int> FindWordFromPosition(TextPointer position, string word)
         {
+            int row = -1;
+            int column = -1;
             while (position != null)
             {
                 if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
                 {
-                    string textRun = position.GetTextInRun(LogicalDirection.Forward);
-                    if (!caseSensitive)
-                    {
-                        textRun = textRun.ToLower();
-                        word = word.ToLower();
-                    }
-
-                    // Find the starting index of any substring that matches "word".
-                    int indexInRun = textRun.IndexOf(word);
+                    string textRun = position.GetTextInRun(LogicalDirection.Forward) + '\n';
+                    int indexInRun = textRun.IndexOf(word, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
                     if (indexInRun >= 0)
                     {
+                        int lineStart = indexInRun;
+                        int lineEnd = indexInRun;
+                        while (lineStart > 0 && textRun[lineStart - 1] != '\r' && textRun[lineStart - 1] != '\n') lineStart--;
+                        while (lineEnd < textRun.Length - 1 && textRun[lineEnd] != '\r' && textRun[lineEnd] != '\n') lineEnd++;
                         TextPointer start = position.GetPositionAtOffset(indexInRun);
                         TextPointer end = start.GetPositionAtOffset(word.Length);
-                        return new TextRange(start, end);
+                        column = indexInRun - lineStart;
+                        start.GetLineStartPosition(-int.MaxValue, out row);
+                        return new Tuple<TextRange, int, int>(new TextRange(start, end), -row, column);
                     }
                 }
 
@@ -256,7 +258,37 @@ namespace LitDev
             }
 
             // position will be null if "word" is not found.
-            return null;
+            return new Tuple<TextRange, int, int>(null, -1, -1);
+        }
+        private static Tuple<TextRange, int, int> FindLineFromPosition(TextPointer position, string word)
+        {
+            int row = -1;
+            int column = -1;
+            while (position != null)
+            {
+                if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
+                {
+                    string textRun = position.GetTextInRun(LogicalDirection.Forward) + '\n';
+                    int indexInRun = textRun.IndexOf(word, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                    if (indexInRun >= 0)
+                    {
+                        int lineStart = indexInRun;
+                        int lineEnd = indexInRun;
+                        while (lineStart > 0 && textRun[lineStart - 1] != '\r' && textRun[lineStart - 1] != '\n') lineStart--;
+                        while (lineEnd < textRun.Length - 1 && textRun[lineEnd] != '\r' && textRun[lineEnd] != '\n') lineEnd++;
+                        TextPointer start = position.GetPositionAtOffset(lineStart);
+                        TextPointer end = position.GetPositionAtOffset(lineEnd);
+                        column = indexInRun - lineStart;
+                        start.GetLineStartPosition(-int.MaxValue, out row);
+                        return new Tuple<TextRange, int, int>(new TextRange(start, end), -row, column);
+                    }
+                }
+
+                position = position.GetNextContextPosition(LogicalDirection.Forward);
+            }
+
+            // position will be null if "word" is not found.
+            return new Tuple<TextRange, int, int>(null, -1, -1);
         }
         private static void ApplySelection(TextRange textSelection)
         {
@@ -1984,7 +2016,9 @@ namespace LitDev
         /// <param name="mode">Contol over which instances of the word or phrase to set.
         /// 0 - All instances
         /// 1 - First instance
-        /// 2 - Last instance</param>
+        /// 2 - Last instance
+        /// 3 - All instances (style the entire line)
+        /// </param>
         /// <returns>None.</returns>
         public static void RichTextBoxWord(Primitive shapeName, Primitive text, Primitive mode)
         {
@@ -2008,14 +2042,14 @@ namespace LitDev
                         {
                             RichTextBox richTextBox = (RichTextBox)obj;
                             TextPointer start = richTextBox.Document.ContentStart;
-                            TextRange textSelection = FindWordFromPosition(start, text);
+                            TextRange textSelection = mode < 3 ? FindWordFromPosition(start, text).Item1 : FindLineFromPosition(start, text).Item1;
                             while (null != textSelection)
                             {
                                 if (mode == 0)
                                 {
                                     ApplySelection(textSelection);
                                     start = textSelection.End;
-                                    textSelection = FindWordFromPosition(start, text);
+                                    textSelection = FindWordFromPosition(start, text).Item1;
                                 }
                                 else if (mode == 1)
                                 {
@@ -2024,7 +2058,7 @@ namespace LitDev
                                 }
                                 else if (mode == 2)
                                 {
-                                    TextRange textSelectionNext = FindWordFromPosition(start, text);
+                                    TextRange textSelectionNext = FindWordFromPosition(start, text).Item1;
                                     if (null == textSelectionNext)
                                     {
                                         ApplySelection(textSelection);
@@ -2035,6 +2069,12 @@ namespace LitDev
                                         textSelection = textSelectionNext;
                                         start = textSelection.End;
                                     }
+                                }
+                                else if (mode == 3)
+                                {
+                                    ApplySelection(textSelection);
+                                    start = textSelection.End;
+                                    textSelection = FindLineFromPosition(start, text).Item1;
                                 }
                             }
                         }
@@ -5003,6 +5043,49 @@ namespace LitDev
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Get selected text in a TextBox.
+        /// </summary>
+        /// <param name="shapeName">The TextBox or RichTextBox name.</param>
+        /// <returns>The selected text.</returns>
+        public static Primitive TextBoxSelection(Primitive shapeName)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        if (obj.GetType() == typeof(TextBox))
+                        {
+                            return ((TextBox)obj).SelectedText;
+                        }
+                        else if (obj.GetType() == typeof(RichTextBox))
+                        {
+                            return ((RichTextBox)obj).Selection.Text;
+                        }
+                        return "";
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
             }
         }
 

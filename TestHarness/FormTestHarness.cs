@@ -742,6 +742,12 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive rtb1 = LDControls.AddRichTextBox(200, 200);
+            LDControls.RichTextBoxSetText(rtb1, "Hello there hello\nAnd hello\nAnd hello\nAnd hello", "False");
+            LDControls.RichTextBoxFontForeground = "Red";
+            LDControls.RichTextBoxWord(rtb1, "Hello", 3);
+            return;
+
             Primitive view3D = LD3DView.AddView(GraphicsWindow.Width, GraphicsWindow.Height, "True");
             Primitive triangle = LD3DView.AddGeometry(view3D, "0 0 0 1 0 0 1 1 0", "0 1 2", "", "Red", "E");
             LD3DView.AddBackImage(view3D, triangle, "", "Green", "E");
