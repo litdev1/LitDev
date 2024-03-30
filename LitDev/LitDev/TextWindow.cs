@@ -629,4 +629,204 @@ namespace LitDev
             SetConsoleTextAttribute(hConsoleOutput, (ushort)(16 * bgIndex + fgIndex));
         }
     }
+
+    /// <summary>
+    /// Alias for TextWindow.
+    /// 
+    /// The TextWindow provides text-related input and output functionalities.  For example using this class, it is possible to write or read some text or number to and from the text-based text window.
+    /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
+    [SmallBasicType]
+#endif
+    public static class TW
+    {
+        /// <summary>Shows the Text window to enable interactions with it.</summary>
+        public static void Show()
+        {
+            TextWindow.Show();
+        }
+
+        /// <summary>
+        /// Hides the text window.  Content is perserved when the window is shown again.
+        /// </summary>
+        public static void Hide()
+        {
+            TextWindow.Hide();
+        }
+
+        /// <summary>Clears the TextWindow.</summary>
+        public static void Clear()
+        {
+            TextWindow.Clear();
+        }
+
+        /// <summary>Waits for user input before returning.</summary>
+        public static void Pause()
+        {
+            TextWindow.Pause();
+        }
+
+        /// <summary>
+        /// Waits for user input only when the TextWindow is already open.
+        /// </summary>
+        public static void PauseIfVisible()
+        {
+            TextWindow.PauseIfVisible();
+        }
+
+        /// <summary>Waits for user input before returning.</summary>
+        public static void PauseWithoutMessage()
+        {
+            TextWindow.PauseWithoutMessage();
+        }
+
+        /// <summary>
+        /// Reads a line of text from the text window.  This function will not return until the user hits ENTER.
+        /// </summary>
+        /// <returns>The text that was read from the text window</returns>
+        public static Primitive Read()
+        {
+            return TextWindow.Read();
+        }
+
+        /// <summary>Reads a single character from the text window.</summary>
+        /// <returns>The character that was read from the text window.</returns>
+        [HideFromIntellisense]
+        public static Primitive ReadKey()
+        {
+            return TextWindow.ReadKey();
+        }
+
+        /// <summary>
+        /// Reads a number from the text window.  This function will not return until the user hits ENTER.
+        /// </summary>
+        /// <returns>The number that was read from the text window</returns>
+        public static Primitive ReadNumber()
+        {
+            return TextWindow.ReadNumber();
+        }
+
+        /// <summary>
+        /// Writes text or number to the text window.  A new line character will be appended to the output, so that the next time something is written to the text window, it will go in a new line.
+        /// </summary>
+        /// <param name="data">
+        /// The text or number to write to the text window.
+        /// </param>
+        public static void WriteLine(Primitive data)
+        {
+            TextWindow.WriteLine(data);
+        }
+
+        /// <summary>
+        /// Writes text or number to the text window.  Unlike WriteLine, this will not append a new line character, which means, anything written to the text window after this call will be on the same line.
+        /// </summary>
+        /// <param name="data">
+        /// The text or number to write to the text window
+        /// </param>
+        public static void Write(Primitive data)
+        {
+            TextWindow.Write(data);
+        }
+
+        /// <summary>
+        /// Gets or sets the foreground color of the text to be output in the text window.
+        /// </summary>
+        public static Primitive ForegroundColor
+        {
+            get
+            {
+                return TextWindow.ForegroundColor;
+            }
+            set
+            {
+                TextWindow.ForegroundColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the background color of the text to be output in the text window.
+        /// </summary>
+        public static Primitive BackgroundColor
+        {
+            get
+            {
+                return TextWindow.BackgroundColor;
+            }
+            set
+            {
+                TextWindow.BackgroundColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the cursor's column position on the text window.
+        /// </summary>
+        public static Primitive CursorLeft
+        {
+            get
+            {
+                return TextWindow.CursorLeft;
+            }
+            set
+            {
+                TextWindow.CursorLeft = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the cursor's row position on the text window.
+        /// </summary>
+        public static Primitive CursorTop
+        {
+            get
+            {
+                return TextWindow.CursorTop;
+            }
+            set
+            {
+                TextWindow.CursorTop = value;
+            }
+        }
+
+        /// <summary>Gets or sets the Left position of the Text Window.</summary>
+        public static Primitive Left
+        {
+            get
+            {
+                return TextWindow.Left;
+            }
+            set
+            {
+                TextWindow.Left = value;
+            }
+        }
+
+        /// <summary>Gets or sets the Title for the text window.</summary>
+        public static Primitive Title
+        {
+            get
+            {
+                return TextWindow.Title;
+            }
+            set
+            {
+                TextWindow.Title = value;
+            }
+        }
+
+        /// <summary>Gets or sets the Top position of the Text Window.</summary>
+        public static Primitive Top
+        {
+            get
+            {
+                return TextWindow.Top;
+            }
+            set
+            {
+                TextWindow.Top = value;
+            }
+        }
+    }
 }

@@ -1594,4 +1594,578 @@ namespace LitDev
         //    FastThread.Invoke(ret);
         //}
     }
+
+    /// <summary>
+    /// Alias for GraphicsWindow.
+    /// 
+    /// The GraphicsWindow provides graphics related input and output functionality.  For example, using this class, it is possible to draw and fill circles and rectangles.
+    /// </summary>
+#if SVB
+    [SmallVisualBasicType]
+#else
+    [SmallBasicType]
+#endif
+    public static class GW
+    {
+        /// <summary>
+        /// Shows the Graphics window to enable interactions with it.
+        /// </summary>
+        public static void Show()
+        {
+            GraphicsWindow.Show();
+        }
+
+        /// <summary>Hides the Graphics window.</summary>
+        public static void Hide()
+        {
+            GraphicsWindow.Hide();
+        }
+
+        /// <summary>
+        /// Draws a rectangle on the screen using the selected Pen.
+        /// </summary>
+        /// <param name="x">The x co-ordinate of the rectangle.</param>
+        /// <param name="y">The y co-ordinate of the rectangle.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        public static void DrawRectangle(Primitive x, Primitive y, Primitive width, Primitive height)
+        {
+            GraphicsWindow.DrawRectangle(x, y, width, height);
+        }
+
+        /// <summary>
+        /// Fills a rectangle on the screen using the selected Brush.
+        /// </summary>
+        /// <param name="x">The x co-ordinate of the rectangle.</param>
+        /// <param name="y">The y co-ordinate of the rectangle.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        public static void FillRectangle(Primitive x, Primitive y, Primitive width, Primitive height)
+        {
+            GraphicsWindow.FillRectangle(x, y, width, height);
+        }
+
+        /// <summary>
+        /// Draws an ellipse on the screen using the selected Pen.
+        /// </summary>
+        /// <param name="x">The x co-ordinate of the ellipse.</param>
+        /// <param name="y">The y co-ordinate of the ellipse.</param>
+        /// <param name="width">The width of the ellipse.</param>
+        /// <param name="height">The height of the ellipse.</param>
+        public static void DrawEllipse(Primitive x, Primitive y, Primitive width, Primitive height)
+        {
+            GraphicsWindow.DrawEllipse(x, y, width, height);
+        }
+
+        /// <summary>
+        /// Fills an ellipse on the screen using the selected Brush.
+        /// </summary>
+        /// <param name="x">The x co-ordinate of the ellipse.</param>
+        /// <param name="y">The y co-ordinate of the ellipse.</param>
+        /// <param name="width">The width of the ellipse.</param>
+        /// <param name="height">The height of the ellipse.</param>
+        public static void FillEllipse(Primitive x, Primitive y, Primitive width, Primitive height)
+        {
+            GraphicsWindow.FillEllipse(x, y, width, height);
+        }
+
+        /// <summary>
+        /// Draws a triangle on the screen using the selected pen.
+        /// </summary>
+        /// <param name="x1">The x co-ordinate of the first point.</param>
+        /// <param name="y1">The y co-ordinate of the first point.</param>
+        /// <param name="x2">The x co-ordinate of the second point.</param>
+        /// <param name="y2">The y co-ordinate of the second point.</param>
+        /// <param name="x3">The x co-ordinate of the third point.</param>
+        /// <param name="y3">The y co-ordinate of the third point.</param>
+        public static void DrawTriangle(
+          Primitive x1,
+          Primitive y1,
+          Primitive x2,
+          Primitive y2,
+          Primitive x3,
+          Primitive y3)
+        {
+            GraphicsWindow.DrawTriangle(x1, y1, x2, y2, x3, y3);
+        }
+
+        /// <summary>
+        /// Draws and fills a triangle on the screen using the selected brush.
+        /// </summary>
+        /// <param name="x1">The x co-ordinate of the first point.</param>
+        /// <param name="y1">The y co-ordinate of the first point.</param>
+        /// <param name="x2">The x co-ordinate of the second point.</param>
+        /// <param name="y2">The y co-ordinate of the second point.</param>
+        /// <param name="x3">The x co-ordinate of the third point.</param>
+        /// <param name="y3">The y co-ordinate of the third point.</param>
+        public static void FillTriangle(
+          Primitive x1,
+          Primitive y1,
+          Primitive x2,
+          Primitive y2,
+          Primitive x3,
+          Primitive y3)
+        {
+            GraphicsWindow.FillTriangle(x1, y1, x2, y2, x3, y3);
+        }
+
+        /// <summary>Draws a line from one point to another.</summary>
+        /// <param name="x1">The x co-ordinate of the first point.</param>
+        /// <param name="y1">The y co-ordinate of the first point.</param>
+        /// <param name="x2">The x co-ordinate of the second point.</param>
+        /// <param name="y2">The y co-ordinate of the second point.</param>
+        public static void DrawLine(Primitive x1, Primitive y1, Primitive x2, Primitive y2)
+        {
+            GraphicsWindow.DrawLine(x1, y1, x2, y2);
+        }
+
+        /// <summary>
+        /// Draws a line of text on the screen at the specified location.
+        /// </summary>
+        /// <param name="x">The x co-ordinate of the text start point.</param>
+        /// <param name="y">The y co-ordinate of the text start point.</param>
+        /// <param name="text">The text to draw</param>
+        public static void DrawText(Primitive x, Primitive y, Primitive text)
+        {
+            GraphicsWindow.DrawText(x, y, text);
+        }
+
+        /// <summary>
+        /// Draws a line of text on the screen at the specified location.
+        /// </summary>
+        /// <param name="x">The x co-ordinate of the text start point.</param>
+        /// <param name="y">The y co-ordinate of the text start point.</param>
+        /// <param name="width">
+        /// The maximum available width.  This parameter helps define when the text should wrap.
+        /// </param>
+        /// <param name="text">The text to draw.</param>
+        public static void DrawBoundText(Primitive x, Primitive y, Primitive width, Primitive text)
+        {
+            GraphicsWindow.DrawBoundText(x, y, width, text);
+        }
+
+        /// <summary>
+        /// Draws the specified image from memory on to the screen, in the specified size.
+        /// </summary>
+        /// <param name="imageName">The name of the image to draw</param>
+        /// <param name="x">
+        /// The x co-ordinate of the point to draw the image at.
+        /// </param>
+        /// <param name="y">
+        /// The y co-ordinate of the point to draw the image at.
+        /// </param>
+        /// <param name="width">The width to draw the image.</param>
+        /// <param name="height">The height to draw the image.</param>
+        public static void DrawResizedImage(
+          Primitive imageName,
+          Primitive x,
+          Primitive y,
+          Primitive width,
+          Primitive height)
+        {
+            GraphicsWindow.DrawResizedImage(imageName, x, y, width, height);
+        }
+
+        /// <summary>
+        /// Draws the specified image from memory on to the screen.
+        /// </summary>
+        /// <param name="imageName">The name of the image to draw.</param>
+        /// <param name="x">
+        /// The x co-ordinate of the point to draw the image at.
+        /// </param>
+        /// <param name="y">
+        /// The y co-ordinate of the point to draw the image at.
+        /// </param>
+        public static void DrawImage(Primitive imageName, Primitive x, Primitive y)
+        {
+            GraphicsWindow.DrawImage(imageName, x, y);
+        }
+
+        /// <summary>
+        /// Draws the pixel specified by the x and y co-ordinates using the specified color.
+        /// </summary>
+        /// <param name="x">The x co-ordinate of the pixel.</param>
+        /// <param name="y">The y co-ordinate of the pixel.</param>
+        /// <param name="color">The color of the pixel to set.</param>
+        public static void SetPixel(Primitive x, Primitive y, Primitive color)
+        {
+            GraphicsWindow.SetPixel(x, y, color);
+        }
+
+        /// <summary>
+        /// Gets the color of the pixel at the specified x and y co-ordinates.
+        /// </summary>
+        /// <param name="x">The x co-ordinate of the pixel.</param>
+        /// <param name="y">The y co-ordinate of the pixel.</param>
+        /// <returns>The color of the pixel.</returns>
+        public static Primitive GetPixel(Primitive x, Primitive y)
+        {
+            return GraphicsWindow.GetPixel(x, y);
+        }
+
+        /// <summary>Gets a valid random color.</summary>
+        /// <returns>A valid random color.</returns>
+        public static Primitive GetRandomColor()
+        {
+            return GraphicsWindow.GetRandomColor();
+        }
+
+        /// <summary>
+        /// Constructs a color given the Red, Green and Blue values.
+        /// </summary>
+        /// <param name="red">The red component of the Color (0-255).</param>
+        /// <param name="green">The green component of the color (0-255).</param>
+        /// <param name="blue">The blue component of the color (0-255).</param>
+        /// <returns>
+        /// Returns a color that can be used to set the brush or pen color.
+        /// </returns>
+        public static Primitive GetColorFromRGB(Primitive red, Primitive green, Primitive blue)
+        {
+            return GraphicsWindow.GetColorFromRGB(red, green, blue);
+        }
+
+        /// <summary>Clears the window.</summary>
+        public static void Clear()
+        {
+            GraphicsWindow.Clear();
+        }
+
+        /// <summary>Displays a message box to the user.</summary>
+        /// <param name="text">The text to be displayed on the message box.</param>
+        /// <param name="title">The title for the message box.</param>
+        public static void ShowMessage(Primitive text, Primitive title)
+        {
+            GraphicsWindow.ShowMessage(text, title);
+        }
+
+        /// <summary>
+        /// Gets or sets the Background color of the Graphics Window.
+        /// </summary>
+        public static Primitive BackgroundColor
+        {
+            get
+            {
+                return GraphicsWindow.BackgroundColor;
+            }
+            set
+            {
+                GraphicsWindow.BackgroundColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the brush color to be used to fill shapes drawn on the Graphics Window.
+        /// </summary>
+        public static Primitive BrushColor
+        {
+            get
+            {
+                return GraphicsWindow.BrushColor;
+            }
+            set
+            {
+                GraphicsWindow.BrushColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Specifies whether or not the Graphics Window can be resized by the user.
+        /// </summary>
+        public static Primitive CanResize
+        {
+            get
+            {
+                return GraphicsWindow.CanResize;
+            }
+            set
+            {
+                GraphicsWindow.CanResize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the width of the pen used to draw shapes on the Graphics Window.
+        /// </summary>
+        public static Primitive PenWidth
+        {
+            get
+            {
+                return GraphicsWindow.PenWidth;
+            }
+            set
+            {
+                GraphicsWindow.PenWidth = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the color of the pen used to draw shapes on the Graphics Window.
+        /// </summary>
+        public static Primitive PenColor
+        {
+            get
+            {
+                return GraphicsWindow.PenColor;
+            }
+            set
+            {
+                GraphicsWindow.PenColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Font Name to be used when drawing text on the Graphics Window.
+        /// </summary>
+        public static Primitive FontName
+        {
+            get
+            {
+                return GraphicsWindow.FontName;
+            }
+            set
+            {
+                GraphicsWindow.FontName = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Font Size to be used when drawing text on the Graphics Window.
+        /// </summary>
+        public static Primitive FontSize
+        {
+            get
+            {
+                return GraphicsWindow.FontSize;
+            }
+            set
+            {
+                GraphicsWindow.FontSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether or not the font to be used when drawing text on the Graphics Window, is bold.
+        /// </summary>
+        public static Primitive FontBold
+        {
+            get
+            {
+                return GraphicsWindow.FontBold;
+            }
+            set
+            {
+                GraphicsWindow.FontBold = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether or not the font to be used when drawing text on the Graphics Window, is italic.
+        /// </summary>
+        public static Primitive FontItalic
+        {
+            get
+            {
+                return GraphicsWindow.FontItalic;
+            }
+            set
+            {
+                GraphicsWindow.FontItalic = value;
+            }
+        }
+
+        /// <summary>Gets or sets the title for the graphics window.</summary>
+        public static Primitive Title
+        {
+            get
+            {
+                return GraphicsWindow.Title;
+            }
+            set
+            {
+                GraphicsWindow.Title = value;
+            }
+        }
+
+        /// <summary>Gets or sets the Height of the graphics window.</summary>
+        public static Primitive Height
+        {
+            get
+            {
+                return GraphicsWindow.Height;
+            }
+            set
+            {
+                GraphicsWindow.Height = value;
+            }
+        }
+
+        /// <summary>Gets or sets the Width of the graphics window.</summary>
+        public static Primitive Width
+        {
+            get
+            {
+                return GraphicsWindow.Width;
+            }
+            set
+            {
+                GraphicsWindow.Width = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Left Position of the graphics window.
+        /// </summary>
+        public static Primitive Left
+        {
+            get
+            {
+                return GraphicsWindow.Left;
+            }
+            set
+            {
+                GraphicsWindow.Left = value;
+            }
+        }
+
+        /// <summary>Gets or sets the Top Position of the graphics window.</summary>
+        public static Primitive Top
+        {
+            get
+            {
+                return GraphicsWindow.Top;
+            }
+            set
+            {
+                GraphicsWindow.Top = value;
+            }
+        }
+
+        /// <summary>Gets the last key that was pressed or released.</summary>
+        public static Primitive LastKey
+        {
+            get
+            {
+                return GraphicsWindow.LastKey;
+            }
+        }
+
+        /// <summary>
+        /// Gets the last text that was entered on the Graphics Window.
+        /// </summary>
+        public static Primitive LastText
+        {
+            get
+            {
+                return GraphicsWindow.LastText;
+            }
+        }
+
+        /// <summary>
+        /// Gets the x-position of the mouse relative to the Graphics Window.
+        /// </summary>
+        public static Primitive MouseX
+        {
+            get
+            {
+                return GraphicsWindow.MouseX;
+            }
+        }
+
+        /// <summary>
+        /// Gets the y-position of the mouse relative to the Graphics Window.
+        /// </summary>
+        public static Primitive MouseY
+        {
+            get
+            {
+                return GraphicsWindow.MouseY;
+            }
+        }
+
+        /// <summary>
+        /// Raises an event when a key is pressed down on the keyboard.
+        /// </summary>
+        public static event SmallBasicCallback KeyDown
+        {
+            add
+            {
+                GraphicsWindow.KeyDown += value;
+            }
+            remove
+            {
+                GraphicsWindow.KeyDown -= value;
+            }
+        }
+
+        /// <summary>
+        /// Raises an event when a key is released on the keyboard.
+        /// </summary>
+        public static event SmallBasicCallback KeyUp
+        {
+            add
+            {
+                GraphicsWindow.KeyUp += value;
+            }
+            remove
+            {
+                GraphicsWindow.KeyUp -= value;
+            }
+        }
+
+        /// <summary>
+        /// Raises an event when the mouse button is clicked down.
+        /// </summary>
+        public static event SmallBasicCallback MouseDown
+        {
+            add
+            {
+                GraphicsWindow.MouseDown += value;
+            }
+            remove
+            {
+                GraphicsWindow.MouseDown -= value;
+            }
+        }
+
+        /// <summary>Raises an event when the mouse button is released.</summary>
+        public static event SmallBasicCallback MouseUp
+        {
+            add
+            {
+                GraphicsWindow.MouseUp += value;
+            }
+            remove
+            {
+                GraphicsWindow.MouseUp -= value;
+            }
+        }
+
+        /// <summary>Raises an event when the mouse is moved around.</summary>
+        public static event SmallBasicCallback MouseMove
+        {
+            add
+            {
+                GraphicsWindow.MouseMove += value;
+            }
+            remove
+            {
+                GraphicsWindow.MouseMove -= value;
+            }
+        }
+
+        /// <summary>
+        /// Raises an event when text is entered on the GraphicsWindow.
+        /// </summary>
+        public static event SmallBasicCallback TextInput
+        {
+            add
+            {
+                GraphicsWindow.TextInput += value;
+            }
+            remove
+            {
+                GraphicsWindow.TextInput -= value;
+            }
+        }
+    }
 }
