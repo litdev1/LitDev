@@ -82,6 +82,7 @@ namespace LitDev
     {
         private static Assembly entryAssembly = Assembly.GetEntryAssembly();
         private static Type mainModule = entryAssembly.EntryPoint.DeclaringType;
+        private static string compiler = "";
 
         private static string Func(string funcName, Primitive args)
         {
@@ -407,6 +408,36 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Set or get the path to the Small Basic compiler for use with Compile method.  If unset the default location will be used.
+        /// </summary>
+        public static Primitive Compiler
+        {
+            get
+            {
+                if (compiler == "")
+                {
+                    if (IntPtr.Size == 8)
+                    {
+                        compiler = "C:\\Program Files (x86)\\Microsoft\\Small Basic\\SmallBasicCompiler.exe";
+                    }
+                    else
+                    {
+                        compiler = "C:\\Program Files\\Microsoft\\Small Basic\\SmallBasicCompiler.exe";
+                    }
+                }
+
+                return compiler;
+            }
+            set
+            {
+                compiler = value;
+                if (!System.IO.File.Exists(compiler))
+                {
+                    compiler = "";
+                }
+            }
+        }
+        /// <summary>
         /// Compile a secondary Small Basic file.
         /// Assumes that Small Basic is installed in the default location for your OS.
         /// </summary>
@@ -416,19 +447,9 @@ namespace LitDev
         {
             try
             {
-                string compiler = "";
-                if (IntPtr.Size == 8)
-                {
-                    compiler = "C:\\Program Files (x86)\\Microsoft\\Small Basic\\SmallBasicCompiler.exe";
-                }
-                else
-                {
-                    compiler = "C:\\Program Files\\Microsoft\\Small Basic\\SmallBasicCompiler.exe";
-                }
-
                 Process p = new Process();
                 ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = compiler;
+                psi.FileName = Compiler;
                 psi.Arguments = "\"" + Path.GetFileName(path) + "\"";
                 psi.WorkingDirectory = Path.GetDirectoryName(path);
                 psi.RedirectStandardOutput = true;
