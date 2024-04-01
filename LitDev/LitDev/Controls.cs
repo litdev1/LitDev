@@ -63,6 +63,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Xps.Packaging;
 using MathNet.Numerics.LinearAlgebra.Factorization;
+using SlimDX;
 
 namespace LitDev
 {
@@ -2017,6 +2018,74 @@ namespace LitDev
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Get the line text and column of text currently closest to the mouse in a RichTextBox.
+        /// </summary>
+        /// <param name="shapeName">The RichTextBox control.</param>
+        /// <returns>Array with the line text and column number closest to mouse position.</returns>
+        public static Primitive RichTextBoxMousePosition(Primitive shapeName)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "";
+                }
+
+                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                {
+                    try
+                    {
+                        if (obj.GetType() == typeof(RichTextBox))
+                        {
+                            RichTextBox richTextBox = (RichTextBox)obj;
+                            TextRange range = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
+                            string textRun = range.Text;
+
+                            if (System.Windows.Input.Mouse.Capture(richTextBox))
+                            {
+                                Point pointToWindow = System.Windows.Input.Mouse.GetPosition(richTextBox);
+                                TextPointer mouse = richTextBox.GetPositionFromPoint(pointToWindow, true);
+
+                                if (null != mouse)
+                                {
+                                    TextPointer start = mouse.GetLineStartPosition(0);
+                                    TextPointer end = mouse.GetLineStartPosition(1);
+                                    if (null == start) start = richTextBox.Document.ContentStart;
+                                    if (null == end) end = richTextBox.Document.ContentEnd;
+                                    start = start.GetInsertionPosition(LogicalDirection.Forward);
+                                    end = end.GetInsertionPosition(LogicalDirection.Backward);
+                                    int col = start.GetOffsetToPosition(mouse);
+                                    string text = new TextRange(start, end).Text.Trim();
+                                    col = SBMath.Min(text.Length, SBMath.Max(1, col));
+
+                                    string result = "1=" + Utilities.ArrayParse(text) + ";2=" + col + ";";
+                                    return Utilities.CreateArrayMap(result);
+                                }
+                            }
+                        }
+                        return "";
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        return "";
+                    }
+                });
+                return FastThread.InvokeWithReturn(ret).ToString();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
             }
         }
 
