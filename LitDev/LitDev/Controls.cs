@@ -2025,8 +2025,9 @@ namespace LitDev
         /// Get the line text and column of text currently closest to the mouse in a RichTextBox.
         /// </summary>
         /// <param name="shapeName">The RichTextBox control.</param>
+        /// <param name="overText">Mouse must be exactly over text "True" or the nearest text "False".</param>
         /// <returns>Array with the line text and column number closest to mouse position.</returns>
-        public static Primitive RichTextBoxMousePosition(Primitive shapeName)
+        public static Primitive RichTextBoxMousePosition(Primitive shapeName, Primitive overText)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Dictionary<string, UIElement> _objectsMap;
@@ -2053,7 +2054,7 @@ namespace LitDev
                             if (System.Windows.Input.Mouse.Capture(richTextBox))
                             {
                                 Point pointToWindow = System.Windows.Input.Mouse.GetPosition(richTextBox);
-                                TextPointer mouse = richTextBox.GetPositionFromPoint(pointToWindow, true);
+                                TextPointer mouse = richTextBox.GetPositionFromPoint(pointToWindow, !overText);
 
                                 if (null != mouse)
                                 {
