@@ -580,6 +580,17 @@ namespace LitDev
             richTextBox.TextChanged += _RichTextBoxTextTypedEvent;
         }
 
+        private static string _LastRichTextBoxSelection = "";
+        private static SBCallback _RichTextBoxSelectionChangedDelegate = null;
+        private static void _RichTextBoxSelectionChangedEvent(object sender, RoutedEventArgs e)
+        {
+            RichTextBox richTextBox = (RichTextBox)sender;
+            _LastRichTextBox = richTextBox.Name;
+            _LastRichTextBoxSelection = richTextBox.Selection.Text;
+            if (null == _RichTextBoxSelectionChangedDelegate) return;
+            _RichTextBoxSelectionChangedDelegate();
+        }
+
         private static string _LastMediaPlayer = "";
         private static SBCallback _MediaPlayerEndedDelegate = null;
         private static SBCallback _MediaPlayerOpenedDelegate = null;
@@ -1600,6 +1611,7 @@ namespace LitDev
                         richTextBox.DragEnter += new DragEventHandler(_DragEnter);
                         richTextBox.Drop += new DragEventHandler(_DragDrop);
                         richTextBox.TextChanged += new TextChangedEventHandler(_RichTextBoxTextTypedEvent);
+                        richTextBox.SelectionChanged += new RoutedEventHandler(_RichTextBoxSelectionChangedEvent);
                         richTextBox.Name = shapeName;
                         richTextBox.IsReadOnly = readOnly;
                         richTextBox.Width = width;
@@ -2319,11 +2331,34 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Event when text selection changed a rich text box.
+        /// </summary>
+        public static event SBCallback RichTextBoxSelectionChanged
+        {
+            add
+            {
+                _RichTextBoxSelectionChangedDelegate = value;
+            }
+            remove
+            {
+                _RichTextBoxSelectionChangedDelegate = null;
+            }
+        }
+
+        /// <summary>
         /// The rich text box for which an event occurred.
         /// </summary>
         public static Primitive LastRichTextBox
         {
             get { return _LastRichTextBox; }
+        }
+
+        /// <summary>
+        /// The rich text box selected text associated with RichTextBoxSelectionChanged event.
+        /// </summary>
+        public static Primitive LastRichTextBoxSelection
+        {
+            get { return _LastRichTextBoxSelection; }
         }
 
         /// <summary>
