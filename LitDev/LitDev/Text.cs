@@ -101,31 +101,6 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Split a variable into an array of words.  A word is any alphanumeric set of characters (with underscore).
-        /// </summary>
-        /// <param name="text">A text string to split.</param>
-        /// <returns>A result array of deliminated words.</returns>
-        public static Primitive Words(Primitive text)
-        {
-            try
-            {
-                MatchCollection words = Regex.Matches(text, "\\b\\w+");
-                List<string> wordList = new List<string>();
-                foreach (Match match in words)
-                {
-                    wordList.Add(match.Value);
-                }
-
-                return Utilities.CreateArrayMap(wordList.ToArray().ToPrimitiveArray());
-            }
-            catch (Exception ex)
-            {
-                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                return "";
-            }
-        }
-
-        /// <summary>
         /// Lexically compare 2 text strings, the comparison is case insensitive and culture invariant.
         /// </summary>
         /// <param name="text1">The first string to compare.</param>
