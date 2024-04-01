@@ -3616,14 +3616,20 @@ namespace LitDev
                     int i = 0;
                     foreach (HitTestResult j in HitTestResults)
                     {
-                        obj = (UIElement)j.VisualHit;
-                        foreach (KeyValuePair<string, UIElement> k in _objectsMap)
+                        try
                         {
-                            if (obj == k.Value)
+                            obj = (UIElement)j.VisualHit;
+                            foreach (KeyValuePair<string, UIElement> k in _objectsMap)
                             {
-                                result[++i] = k.Key;
-                                break;
+                                if (obj == k.Value)
+                                {
+                                    result[++i] = k.Key;
+                                    break;
+                                }
                             }
+                        }
+                        catch
+                        {
                         }
                     }
                     return result;
