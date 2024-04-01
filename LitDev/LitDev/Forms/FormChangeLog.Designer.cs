@@ -29,7 +29,7 @@
             System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Compiler property added");
             System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("LDCall", new System.Windows.Forms.TreeNode[] {
             treeNode6});
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("GT and TW aliases added");
+            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("GW and TW aliases added");
             System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Aliases", new System.Windows.Forms.TreeNode[] {
             treeNode8});
             System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Version 1.2.27.0", new System.Windows.Forms.TreeNode[] {
@@ -2056,7 +2056,7 @@
             treeNode7.Name = "Node0";
             treeNode7.Text = "LDCall";
             treeNode8.Name = "Node1";
-            treeNode8.Text = "GT and TW aliases added";
+            treeNode8.Text = "GW and TW aliases added";
             treeNode9.Name = "Node0";
             treeNode9.Text = "Aliases";
             treeNode10.Name = "Node2";
