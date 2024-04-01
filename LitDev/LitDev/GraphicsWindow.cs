@@ -2085,7 +2085,7 @@ namespace LitDev
         /// <summary>
         /// Raises an event when a key is pressed down on the keyboard.
         /// </summary>
-        public static event SmallBasicCallback KeyDown
+        public static event SBCallback KeyDown
         {
             add
             {
@@ -2100,7 +2100,7 @@ namespace LitDev
         /// <summary>
         /// Raises an event when a key is released on the keyboard.
         /// </summary>
-        public static event SmallBasicCallback KeyUp
+        public static event SBCallback KeyUp
         {
             add
             {
@@ -2115,7 +2115,7 @@ namespace LitDev
         /// <summary>
         /// Raises an event when the mouse button is clicked down.
         /// </summary>
-        public static event SmallBasicCallback MouseDown
+        public static event SBCallback MouseDown
         {
             add
             {
@@ -2128,7 +2128,7 @@ namespace LitDev
         }
 
         /// <summary>Raises an event when the mouse button is released.</summary>
-        public static event SmallBasicCallback MouseUp
+        public static event SBCallback MouseUp
         {
             add
             {
@@ -2141,7 +2141,7 @@ namespace LitDev
         }
 
         /// <summary>Raises an event when the mouse is moved around.</summary>
-        public static event SmallBasicCallback MouseMove
+        public static event SBCallback MouseMove
         {
             add
             {
@@ -2156,7 +2156,7 @@ namespace LitDev
         /// <summary>
         /// Raises an event when text is entered on the GraphicsWindow.
         /// </summary>
-        public static event SmallBasicCallback TextInput
+        public static event SBCallback TextInput
         {
             add
             {
