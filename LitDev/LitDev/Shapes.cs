@@ -57,6 +57,8 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.CodeDom;
+using Box2DX.Collision;
 
 namespace LitDev
 {
@@ -3621,6 +3623,14 @@ namespace LitDev
                             obj = (UIElement)j.VisualHit;
                             foreach (KeyValuePair<string, UIElement> k in _objectsMap)
                             {
+                                if (obj.GetType() == typeof(Border)) //For RTB
+                                {
+                                    if (((Border)obj).TemplatedParent == k.Value)
+                                    {
+                                        result[++i] = k.Key;
+                                        break;
+                                    }
+                                }
                                 if (obj == k.Value)
                                 {
                                     result[++i] = k.Key;

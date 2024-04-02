@@ -746,6 +746,11 @@ namespace TestHarness
             LDControls.RichTextBoxSetText(rtb1, "Hello there hello\nAnd hello\nAnd hello\nAnd hello", "False");
             LDControls.RichTextBoxFontForeground = "Red";
             LDControls.RichTextBoxWord(rtb1, "Hello", 3);
+            while (true)
+            {
+                LDShapes.GetAllShapesAt(GW.MouseX, GW.MouseY);
+                Program.Delay(5000);
+            }
             return;
 
             Primitive view3D = LD3DView.AddView(GraphicsWindow.Width, GraphicsWindow.Height, "True");
