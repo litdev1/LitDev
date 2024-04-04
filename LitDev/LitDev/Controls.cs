@@ -2050,28 +2050,26 @@ namespace LitDev
                             RichTextBox richTextBox = (RichTextBox)obj;
                             TextRange range = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
                             string textRun = range.Text;
+                            string result = "";
 
-                            if (System.Windows.Input.Mouse.Capture(richTextBox))
+                            Point pointToWindow = System.Windows.Input.Mouse.GetPosition(richTextBox);
+                            TextPointer mouse = richTextBox.GetPositionFromPoint(pointToWindow, !overText);
+
+                            if (null != mouse)
                             {
-                                Point pointToWindow = System.Windows.Input.Mouse.GetPosition(richTextBox);
-                                TextPointer mouse = richTextBox.GetPositionFromPoint(pointToWindow, !overText);
+                                TextPointer start = mouse.GetLineStartPosition(0);
+                                TextPointer end = mouse.GetLineStartPosition(1);
+                                if (null == start) start = richTextBox.Document.ContentStart;
+                                if (null == end) end = richTextBox.Document.ContentEnd;
+                                start = start.GetInsertionPosition(LogicalDirection.Forward);
+                                end = end.GetInsertionPosition(LogicalDirection.Backward);
+                                int col = start.GetOffsetToPosition(mouse);
+                                string text = new TextRange(start, end).Text.Trim();
+                                //col = SBMath.Min(text.Length, SBMath.Max(1, col));
 
-                                if (null != mouse)
-                                {
-                                    TextPointer start = mouse.GetLineStartPosition(0);
-                                    TextPointer end = mouse.GetLineStartPosition(1);
-                                    if (null == start) start = richTextBox.Document.ContentStart;
-                                    if (null == end) end = richTextBox.Document.ContentEnd;
-                                    start = start.GetInsertionPosition(LogicalDirection.Forward);
-                                    end = end.GetInsertionPosition(LogicalDirection.Backward);
-                                    int col = start.GetOffsetToPosition(mouse);
-                                    string text = new TextRange(start, end).Text.Trim();
-                                    col = SBMath.Min(text.Length, SBMath.Max(1, col));
-
-                                    string result = "1=" + Utilities.ArrayParse(text) + ";2=" + col + ";";
-                                    return Utilities.CreateArrayMap(result);
-                                }
+                                result = "1=" + Utilities.ArrayParse(text) + ";2=" + col + ";";
                             }
+                            return Utilities.CreateArrayMap(result);
                         }
                         return "";
                     }
