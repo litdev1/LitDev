@@ -2063,7 +2063,7 @@ namespace LitDev
                                 if (null == end) end = richTextBox.Document.ContentEnd;
                                 start = start.GetInsertionPosition(LogicalDirection.Forward);
                                 end = end.GetInsertionPosition(LogicalDirection.Backward);
-                                int col = start.GetOffsetToPosition(mouse);
+                                int col = new TextRange(start, mouse).Text.Length;
                                 string text = new TextRange(start, end).Text.Trim();
                                 //col = SBMath.Min(text.Length, SBMath.Max(1, col));
 
