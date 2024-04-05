@@ -2048,8 +2048,6 @@ namespace LitDev
                         if (obj.GetType() == typeof(RichTextBox))
                         {
                             RichTextBox richTextBox = (RichTextBox)obj;
-                            TextRange range = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
-                            string textRun = range.Text;
                             string result = "";
 
                             Point pointToWindow = System.Windows.Input.Mouse.GetPosition(richTextBox);
@@ -2065,10 +2063,120 @@ namespace LitDev
                                 end = end.GetInsertionPosition(LogicalDirection.Backward);
                                 int col = new TextRange(start, mouse).Text.Length;
                                 string text = new TextRange(start, end).Text.Trim();
-                                //col = SBMath.Min(text.Length, SBMath.Max(1, col));
 
                                 result = "1=" + Utilities.ArrayParse(text) + ";2=" + col + ";";
                             }
+                            return Utilities.CreateArrayMap(result);
+                        }
+                        return "";
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        return "";
+                    }
+                });
+                return FastThread.InvokeWithReturn(ret).ToString();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Get the line text and column of text currently at the cursor caret in a RichTextBox.
+        /// </summary>
+        /// <param name="shapeName">The RichTextBox control.</param>
+        /// <returns>Array with the line text and column number at the cursor caret position.</returns>
+        public static Primitive RichTextBoxCaretPosition(Primitive shapeName)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "";
+                }
+
+                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                {
+                    try
+                    {
+                        if (obj.GetType() == typeof(RichTextBox))
+                        {
+                            RichTextBox richTextBox = (RichTextBox)obj;
+                            string result = "";
+
+                            TextPointer caret = richTextBox.CaretPosition;
+                            TextPointer start = caret.GetLineStartPosition(0);
+                            TextPointer end = caret.GetLineStartPosition(1);
+                            if (null == start) start = richTextBox.Document.ContentStart;
+                            if (null == end) end = richTextBox.Document.ContentEnd;
+                            start = start.GetInsertionPosition(LogicalDirection.Forward);
+                            end = end.GetInsertionPosition(LogicalDirection.Backward);
+                            int col = new TextRange(start, caret).Text.Length;
+                            string text = new TextRange(start, end).Text.Trim();
+
+                            result = "1=" + Utilities.ArrayParse(text) + ";2=" + col + ";";
+                            return Utilities.CreateArrayMap(result);
+                        }
+                        return "";
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        return "";
+                    }
+                });
+                return FastThread.InvokeWithReturn(ret).ToString();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Get the GraphicsWindow coordinates (center) of cursor caret in a RichTextBox.
+        /// </summary>
+        /// <param name="shapeName">The RichTextBox control.</param>
+        /// <returns>Array with the GraphicsWindow coordinates at the cursor caret position.</returns>
+        public static Primitive RichTextBoxCaretCoordinates(Primitive shapeName)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "";
+                }
+
+                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                {
+                    try
+                    {
+                        if (obj.GetType() == typeof(RichTextBox))
+                        {
+                            RichTextBox richTextBox = (RichTextBox)obj;
+                            string result = "";
+
+                            TextPointer caret = richTextBox.CaretPosition;
+                            Rect rect = caret.GetCharacterRect(LogicalDirection.Forward);
+                            double x = (rect.X + rect.Width / 2.0) + Shapes.GetLeft(shapeName);
+                            double y = (rect.Y + rect.Height / 2.0) + Shapes.GetTop(shapeName);
+
+                            result = "1=" + x + ";2=" + y + ";";
                             return Utilities.CreateArrayMap(result);
                         }
                         return "";
