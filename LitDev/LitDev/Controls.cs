@@ -64,6 +64,7 @@ using System.Windows.Navigation;
 using System.Windows.Xps.Packaging;
 using MathNet.Numerics.LinearAlgebra.Factorization;
 using SlimDX;
+using System.Text.RegularExpressions;
 
 namespace LitDev
 {
@@ -230,6 +231,7 @@ namespace LitDev
         private static TextAlignment textAlignment = TextAlignment.Left;
         private static bool readOnly = false;
         private static bool caseSensitive = false;
+        private static bool wholeWord = false;
         private static Thickness thickness = new Thickness(0);
         private static Tuple<TextRange, int, int> FindWordFromPosition(TextPointer position, string word)
         {
@@ -240,9 +242,11 @@ namespace LitDev
                 if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
                 {
                     string textRun = position.GetTextInRun(LogicalDirection.Forward) + '\n';
-                    int indexInRun = textRun.IndexOf(word, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    if (indexInRun >= 0)
+                    string find = wholeWord ? @"\b" + word + @"\b" : word;
+                    Match match = Regex.Match(textRun, find, caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
+                    if (match.Success)
                     {
+                        int indexInRun = match.Index;
                         int lineStart = indexInRun;
                         int lineEnd = indexInRun;
                         while (lineStart > 0 && textRun[lineStart - 1] != '\r' && textRun[lineStart - 1] != '\n') lineStart--;
@@ -270,9 +274,11 @@ namespace LitDev
                 if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
                 {
                     string textRun = position.GetTextInRun(LogicalDirection.Forward) + '\n';
-                    int indexInRun = textRun.IndexOf(word, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    if (indexInRun >= 0)
+                    string find = wholeWord ? @"\b" + word + @"\b" : word;
+                    Match match = Regex.Match(textRun, find, caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
+                    if (match.Success)
                     {
+                        int indexInRun = match.Index;
                         int lineStart = indexInRun;
                         int lineEnd = indexInRun;
                         while (lineStart > 0 && textRun[lineStart - 1] != '\r' && textRun[lineStart - 1] != '\n') lineStart--;
@@ -2489,6 +2495,16 @@ namespace LitDev
         {
             get { return caseSensitive ? "True" : "False"; }
             set { caseSensitive = value; }
+        }
+
+        /// <summary>
+        /// Whether word or phrase highlighting is for whole word only "True" or "False" (default).
+        /// Set this before RichTextBoxWord is called.
+        /// </summary>
+        public static Primitive RichTextBoxWholeWord
+        {
+            get { return wholeWord ? "True" : "False"; }
+            set { wholeWord = value; }
         }
 
         /// <summary>
