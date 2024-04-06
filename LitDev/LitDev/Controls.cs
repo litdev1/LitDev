@@ -2179,8 +2179,8 @@ namespace LitDev
 
                             TextPointer caret = richTextBox.CaretPosition;
                             Rect rect = caret.GetCharacterRect(LogicalDirection.Forward);
-                            double x = (rect.X + rect.Width / 2.0) + Shapes.GetLeft(shapeName);
-                            double y = (rect.Y + rect.Height / 2.0) + Shapes.GetTop(shapeName);
+                            double x = (rect.X + rect.Width / 2.0) + SBShapes.GetLeft(shapeName);
+                            double y = (rect.Y + rect.Height / 2.0) + SBShapes.GetTop(shapeName);
 
                             result = "1=" + x + ";2=" + y + ";";
                             return Utilities.CreateArrayMap(result);
@@ -2270,6 +2270,61 @@ namespace LitDev
                                     start = textSelection.End;
                                     textSelection = FindLineFromPosition(start, text).Item1;
                                 }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                FastThread.Invoke(ret);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Insert text into a RichTextBox.
+        /// </summary>
+        /// <param name="shapeName">The RichTextBox control.</param>
+        /// <param name="text">The text to insert.</param>
+        /// <param name="mode">Control over the text insertion.
+        /// 0 - Insert at the Caret.
+        /// </param>
+        public static void RichTextBoxInsert(Primitive shapeName, Primitive text, Primitive mode)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return;
+                }
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        if (obj.GetType() == typeof(RichTextBox))
+                        {
+                            RichTextBox richTextBox = (RichTextBox)obj;
+                            TextPointer insert = null;
+                            switch ((int)mode)
+                            {
+                                case 0:
+                                    insert = richTextBox.CaretPosition;
+                                    break;
+                            }
+                            if (null != insert)
+                            {
+                                insert.InsertTextInRun(text);
                             }
                         }
                     }
@@ -6003,7 +6058,7 @@ namespace LitDev
         public static Primitive AddDataView(Primitive width, Primitive height, Primitive headings)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
-            Type ShapesType = typeof(Shapes);
+            Type ShapesType = typeof(SBShapes);
             Canvas _mainCanvas;
             Dictionary<string, UIElement> _objectsMap;
             string shapeName;
