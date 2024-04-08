@@ -748,7 +748,7 @@ namespace TestHarness
             LDControls.RichTextBoxWord(rtb1, "Hello", 3);
             while (true)
             {
-                LDShapes.GetAllShapesAt(GW.MouseX, GW.MouseY);
+                LDShapes.GetAllShapesAt(GraphicsWindow.MouseX, GraphicsWindow.MouseY);
                 Program.Delay(5000);
             }
             return;
