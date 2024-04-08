@@ -630,16 +630,14 @@ namespace LitDev
         }
     }
 
+#if SVB
+#else
     /// <summary>
     /// Alias for TextWindow.
     /// 
     /// The TextWindow provides text-related input and output functionalities.  For example using this class, it is possible to write or read some text or number to and from the text-based text window.
     /// </summary>
-#if SVB
-    [SmallVisualBasicType]
-#else
     [SmallBasicType]
-#endif
     public static class TW
     {
         /// <summary>Shows the Text window to enable interactions with it.</summary>
@@ -829,4 +827,5 @@ namespace LitDev
             }
         }
     }
+#endif
 }

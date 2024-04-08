@@ -1595,16 +1595,14 @@ namespace LitDev
         //}
     }
 
+#if SVB
+#else
     /// <summary>
     /// Alias for GraphicsWindow.
     /// 
     /// The GraphicsWindow provides graphics related input and output functionality.  For example, using this class, it is possible to draw and fill circles and rectangles.
     /// </summary>
-#if SVB
-    [SmallVisualBasicType]
-#else
     [SmallBasicType]
-#endif
     public static class GW
     {
         /// <summary>
@@ -2168,4 +2166,5 @@ namespace LitDev
             }
         }
     }
+#endif
 }
