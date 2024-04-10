@@ -88,7 +88,7 @@ namespace LitDev
                 }
                 else
                 {
-                    separators = new string[] {separator};
+                    separators = new string[] { separator };
                 }
                 string[] splitText = ((string)text).Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
                 return Utilities.CreateArrayMap(splitText.ToPrimitiveArray());
@@ -326,6 +326,46 @@ namespace LitDev
         {
             if (FastStrings.TryGetValue(fastString, out sb)) return sb.ToString();
             return "";
+        }
+
+        /// <summary>
+        /// Get the new line character \n
+        /// </summary>
+        public static Primitive NL
+        {
+            get { return ((char)10).ToString(); }
+        }
+
+        /// <summary>
+        /// Get the carriage return character \r
+        /// </summary>
+        public static Primitive CR
+        {
+            get { return ((char)13).ToString(); }
+        }
+
+        /// <summary>
+        /// Get the single quote character '
+        /// </summary>
+        public static Primitive SQ
+        {
+            get { return ((char)39).ToString(); }
+        }
+
+        /// <summary>
+        /// Get the double quote character "
+        /// </summary>
+        public static Primitive DQ
+        {
+            get { return ((char)34).ToString(); }
+        }
+
+        /// <summary>
+        /// Get the back space character
+        /// </summary>
+        public static Primitive BS
+        {
+            get { return ((char)8).ToString(); }
         }
     }
 }
