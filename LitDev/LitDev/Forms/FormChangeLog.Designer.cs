@@ -44,7 +44,7 @@
             System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("GW and TW aliases added");
             System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Aliases", new System.Windows.Forms.TreeNode[] {
             treeNode14});
-            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("NL, CR, SQ, DQ, BS special characters added");
+            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("LF, CR, SQ, DQ, BS special characters added");
             System.Windows.Forms.TreeNode treeNode17 = new System.Windows.Forms.TreeNode("LDText", new System.Windows.Forms.TreeNode[] {
             treeNode16});
             System.Windows.Forms.TreeNode treeNode18 = new System.Windows.Forms.TreeNode("Version 1.2.27.0", new System.Windows.Forms.TreeNode[] {
@@ -2088,7 +2088,7 @@
             treeNode15.Name = "Node0";
             treeNode15.Text = "Aliases";
             treeNode16.Name = "Node1";
-            treeNode16.Text = "NL, CR, SQ, DQ, BS special characters added";
+            treeNode16.Text = "LF, CR, SQ, DQ, BS special characters added";
             treeNode17.Name = "Node0";
             treeNode17.Text = "LDText";
             treeNode18.Name = "Node2";

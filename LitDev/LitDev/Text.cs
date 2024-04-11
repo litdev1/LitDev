@@ -329,9 +329,9 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Get the new line character \n
+        /// Get the line feed (newline) character \n
         /// </summary>
-        public static Primitive NL
+        public static Primitive LF
         {
             get { return ((char)10).ToString(); }
         }
