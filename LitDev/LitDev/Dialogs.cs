@@ -633,5 +633,16 @@ namespace LitDev
             });
             return FastThread.InvokeWithReturn(ret).ToString();
         }
+
+        /// <summary>
+        /// A dialog asking the user to enter some text.
+        /// </summary>
+        /// <param name="prompt">A prompt decribing the input expected.</param>
+        /// <param name="title">A title for the input box.</param>
+        /// <returns>The test inpuut by the user.</returns>
+        public static Primitive InputBox(Primitive prompt, Primitive title)
+        {
+            return Microsoft.VisualBasic.Interaction.InputBox(prompt, title);
+        }
     }
 }

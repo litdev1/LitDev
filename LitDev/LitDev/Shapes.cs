@@ -59,6 +59,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.CodeDom;
 using Box2DX.Collision;
+using System.Security.Policy;
 
 namespace LitDev
 {
@@ -700,6 +701,22 @@ namespace LitDev
             catch (Exception ex)
             {
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Allow turtle speeds greater than 10, a negative value is close to instant.
+        /// </summary>
+        public static Primitive TurtleSpeed
+        {
+            get { return Turtle.Speed; }
+            set
+            {
+                Type TurtleType = typeof(Turtle);
+                int _speed = value;
+                if (_speed <= 0) _speed = 1000000;
+                TurtleType.GetField("_speed", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).SetValue(null, _speed);
             }
         }
 
