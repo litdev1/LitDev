@@ -925,13 +925,13 @@ namespace LitDev
         /// The left coordinate of the universe (default -100).
         /// </param>
         /// <param name="maxX">
-        /// The right coordinate of the universe (default 200).
+        /// The right coordinate of the universe (default 300).
         /// </param>
         /// <param name="minY">
         /// The top coordinate of the universe (default -100).
         /// </param>
         /// <param name="maxY">
-        /// The bottom coordinate of the universe (default 200).
+        /// The bottom coordinate of the universe (default 300).
         /// </param>
         /// <returns>
         /// None.
