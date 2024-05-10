@@ -1269,7 +1269,7 @@ namespace LitDev
                         AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
 
                         DoubleAnimation doubleAnimaton = new DoubleAnimation();
-                        doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimaton.Duration = new Duration(new TimeSpan((long)duration * 10000000));
                         doubleAnimaton.RepeatBehavior = (repeats > 0) ? new RepeatBehavior(repeats) : RepeatBehavior.Forever;
                         doubleAnimaton.From = startAngle;
                         doubleAnimaton.To = endAngle;
@@ -1312,7 +1312,7 @@ namespace LitDev
                         AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
 
                         DoubleAnimation doubleAnimaton = new DoubleAnimation();
-                        doubleAnimaton.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimaton.Duration = new Duration(new TimeSpan((long)duration * 10000000));
                         doubleAnimaton.RepeatBehavior = (repeats > 0) ? new RepeatBehavior(repeats) : RepeatBehavior.Forever;
                         doubleAnimaton.From = startAngle;
                         doubleAnimaton.To = endAngle;
@@ -1351,17 +1351,17 @@ namespace LitDev
                         TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
 
                         DoubleAnimation doubleAnimationX = new DoubleAnimation();
-                        doubleAnimationX.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimationX.Duration = new Duration(new TimeSpan((long)duration * 10000000));
                         doubleAnimationX.From = translateTransform3D.OffsetX;
                         doubleAnimationX.To = x;
 
                         DoubleAnimation doubleAnimationY = new DoubleAnimation();
-                        doubleAnimationY.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimationY.Duration = new Duration(new TimeSpan((long)duration * 10000000));
                         doubleAnimationY.From = translateTransform3D.OffsetY;
                         doubleAnimationY.To = y;
 
                         DoubleAnimation doubleAnimationZ = new DoubleAnimation();
-                        doubleAnimationZ.Duration = new Duration(new TimeSpan(duration * 10000000));
+                        doubleAnimationZ.Duration = new Duration(new TimeSpan((long)duration * 10000000));
                         doubleAnimationZ.From = translateTransform3D.OffsetZ;
                         doubleAnimationZ.To = z;
 
