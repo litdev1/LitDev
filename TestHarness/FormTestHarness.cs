@@ -742,6 +742,12 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive universe = LD3DView.AddView(100, 100, "True");
+            Primitive enemyShape = "0:0 1:0.1 1.2:0.3 2.5:0.3 2.8:0.6 3:0.6 3:0";
+            Primitive enemy = LD3DView.AddRevolute(universe, enemyShape, 36, GraphicsWindow.GetRandomColor(), "D");
+            LD3DView.GetPosition(universe, enemy);
+            LD3DView.GetOriginPosition(universe, enemy);
+
             Primitive rtb1 = LDControls.AddRichTextBox(200, 200);
             LDControls.RichTextBoxSetText(rtb1, "Hello there hello\nAnd hello\nAnd hello\nAnd hello", "False");
             LDControls.RichTextBoxFontForeground = "Red";

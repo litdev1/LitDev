@@ -4298,5 +4298,72 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
+
+        /// <summary>
+        /// Get the transformed (current) position of the origin (0,0,0) point when created of an existing geometry.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <returns> An array of the transformed position or "FAILED".
+        /// array[1] = X (Xcen)
+        /// array[2] = Y (Ycen)
+        /// array[3] = Z (Zcen)
+        /// </returns>
+        public static Primitive GetOriginPosition(Primitive shapeName, Primitive geometryName)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        Primitive result = "";
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return "FAILED";
+                                GeometryModel3D geometry = geom.geometryModel3D;
+
+                                Point3D center = geometry.Bounds.Location;
+                                center.X += geometry.Bounds.SizeX / 2.0;
+                                center.Y += geometry.Bounds.SizeY / 2.0;
+                                center.Z += geometry.Bounds.SizeZ / 2.0;
+                                result[1] = center.X;
+                                result[2] = center.Y;
+                                result[3] = center.Z;
+
+                                //Subtract offset to origin
+                                MeshGeometry3D mesh = (MeshGeometry3D)geometry.Geometry;
+                                result[1] -= mesh.Bounds.SizeX / 2.0;
+                                result[2] -= mesh.Bounds.SizeY / 2.0;
+                                result[3] -= mesh.Bounds.SizeZ / 2.0;
+                            }
+                            return result;
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "FAILED";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
     }
 }
