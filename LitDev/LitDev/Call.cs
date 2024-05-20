@@ -137,7 +137,7 @@ namespace LitDev
         }
 
         private static List<IncludeFile> includeFiles = new List<IncludeFile>();
-        private static int GetNextIncude()
+        private static int GetNextInclude()
         {
             int i = 1;
             foreach (IncludeFile include in includeFiles)
@@ -146,7 +146,7 @@ namespace LitDev
             }
             return i;
         }
-        private static IncludeFile GetIncude(string name)
+        private static IncludeFile GetInclude(string name)
         {
             foreach (IncludeFile include in includeFiles)
             {
@@ -360,7 +360,7 @@ namespace LitDev
         {
             try
             {
-                IncludeFile includeFile = new IncludeFile(path, GetNextIncude());
+                IncludeFile includeFile = new IncludeFile(path, GetNextInclude());
                 if (null == includeFile.type) return "";
                 includeFiles.Add(includeFile);
                 return includeFile.name;
@@ -382,7 +382,7 @@ namespace LitDev
         {
             try
             {
-                IncludeFile includeFile = GetIncude(include);
+                IncludeFile includeFile = GetInclude(include);
                 if (null == includeFile) return "FAILED";
                 MethodInfo methodInfo = includeFile.type.GetMethod(method, BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
                 if (null == methodInfo) return "FAILED";
