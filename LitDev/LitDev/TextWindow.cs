@@ -69,6 +69,14 @@ namespace LitDev
     public static class LDTextWindow
     {
         private static KeyConverter kc = new KeyConverter();
+        private static Object _lock = new Object();
+        private static Keys _LastKey = Keys.None;
+        private static SBCallback _KeyDownDelegate = null;
+        private static SBCallback _KeyUpDelegate = null;
+        private static bool bHooked = false;
+        private static User32.LowLevelKeyboardProc _hookDelegate = new User32.LowLevelKeyboardProc(HookCallback);
+        private static bool updateShowHide = true;
+
         private static void Delay(Object delay)
         {
             Thread.Sleep((int)delay);
@@ -76,12 +84,6 @@ namespace LitDev
             User32.PostMessage(_hWnd, User32.WM_KEYDOWN, User32.VK_RETURN, 0);
         }
 
-        private static Object _lock = new Object();
-        private static Keys _LastKey = Keys.None;
-        private static SBCallback _KeyDownDelegate = null;
-        private static SBCallback _KeyUpDelegate = null;
-        private static bool bHooked = false;
-        private static User32.LowLevelKeyboardProc _hookDelegate = new User32.LowLevelKeyboardProc(HookCallback);
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0)
@@ -99,6 +101,7 @@ namespace LitDev
             }
             return User32.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
         }
+
         private static void HookThread()
         {
             try
@@ -123,6 +126,7 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
+
         private static void SetHook()
         {
             Thread thread = new Thread(HookThread);
@@ -240,35 +244,47 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Hide the TextWindow.
-        /// Replacement for standard method that may fail (do not mix these methods).
+        /// Also update internal state when using Hide and Minimise methods, "True" (default) or "False".
+        /// If the internal state is updated as hidden or minimised, then methods like Read will automatically bring the window into focus.
+        /// </summary>
+        public static Primitive UpdateShowHide
+        {
+            get { return updateShowHide; }
+            set { updateShowHide = value; }
+        }
+
+        /// <summary>
+        /// Completely hide the TextWindow.
+        /// Replacement for standard method that may fail if window manually changed by the user.
         /// </summary>
         public static void Hide()
         {
+            User32.ShowWindow(User32.FindWindow(null, TextWindow.Title), User32.ShowWindowCommands.Hide);
             Type TextWindowType = typeof(TextWindow);
-            bool _windowVisible = (bool)TextWindowType.GetField("_windowVisible", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-            if (_windowVisible)
-            {
-                User32.ShowWindow(User32.FindWindow(null, TextWindow.Title), User32.ShowWindowCommands.Hide);
-                TextWindowType.GetField("_windowVisible", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).SetValue(null, false);
-            }
+            TextWindowType.GetField("_windowVisible", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).SetValue(null, updateShowHide ? false : true);
+        }
+
+        /// <summary>
+        /// Minimise the TextWindow.
+        /// </summary>
+        public static void Minimise()
+        {
+            User32.ShowWindow(User32.FindWindow(null, TextWindow.Title), User32.ShowWindowCommands.Minimize);
+            Type TextWindowType = typeof(TextWindow);
+            TextWindowType.GetField("_windowVisible", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).SetValue(null, updateShowHide ? false : true);
         }
 
         /// <summary>
         /// Show the TextWindow and give it focus.
-        /// Replacement for standard method that may fail (do not mix these methods).
+        /// Replacement for standard method that may fail  if window manually changed by the user.
         /// </summary>
         public static void Show()
         {
+            IntPtr hWnd = User32.FindWindow(null, TextWindow.Title);
+            User32.ShowWindow(hWnd, User32.ShowWindowCommands.Normal);
+            User32.SetForegroundWindow(hWnd);
             Type TextWindowType = typeof(TextWindow);
-            bool _windowVisible = (bool)TextWindowType.GetField("_windowVisible", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-            if (!_windowVisible)
-            {
-                IntPtr hWnd = User32.FindWindow(null, TextWindow.Title);
-                User32.ShowWindow(hWnd, User32.ShowWindowCommands.Normal);
-                User32.SetForegroundWindow(hWnd);
-                TextWindowType.GetField("_windowVisible", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).SetValue(null, true);
-            }
+            TextWindowType.GetField("_windowVisible", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).SetValue(null, true);
         }
 
         /// <summary>
