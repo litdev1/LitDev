@@ -7376,7 +7376,9 @@ namespace LitDev
         /// <param name="fontSize">The font size.</param>
         /// <param name="fontItallic">The font is itallic ("True" or "False").</param>
         /// <param name="fontBold">The font is bold ("True" or "False").</param>
-        public static void DataViewFont(Primitive shapeName, Primitive location, Primitive fontFamily, Primitive fontSize, Primitive fontItallic, Primitive fontBold)
+        /// <param name="foreColour">The font colour (default "").</param>
+        /// <param name="backColour">The background colour (default "").</param>
+        public static void DataViewFont(Primitive shapeName, Primitive location, Primitive fontFamily, Primitive fontSize, Primitive fontItallic, Primitive fontBold, Primitive foreColour, Primitive backColour)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);
             Dictionary<string, UIElement> _objectsMap;
@@ -7399,10 +7401,32 @@ namespace LitDev
                         {
                             dataView.DefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
                             dataView.RowHeadersDefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
+                            if (foreColour != "")
+                            {
+                                Color color = (Color)ColorConverter.ConvertFromString(foreColour);
+                                dataView.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                                dataView.RowHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                            }
+                            if (backColour != "")
+                            {
+                                Color color = (Color)ColorConverter.ConvertFromString(backColour);
+                                dataView.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                                dataView.RowHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                            }
                         }
                         if (location == "" || location.ToString().ToLower() == "header")
                         {
                             dataView.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
+                            if (foreColour != "")
+                            {
+                                Color color = (Color)ColorConverter.ConvertFromString(foreColour);
+                                dataView.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                            }
+                            if (backColour != "")
+                            {
+                                Color color = (Color)ColorConverter.ConvertFromString(backColour);
+                                dataView.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                            }
                         }
                     }
                     catch (Exception ex)
