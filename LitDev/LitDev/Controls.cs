@@ -65,6 +65,7 @@ using System.Windows.Xps.Packaging;
 using MathNet.Numerics.LinearAlgebra.Factorization;
 using SlimDX;
 using System.Text.RegularExpressions;
+using Box2DX.Collision;
 
 namespace LitDev
 {
@@ -940,7 +941,9 @@ namespace LitDev
         {
             System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
             if (bAutoSizeDataView[dataView.Name]) dataView.AutoResizeColumns(System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells);
-            //dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
+            dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
+            dataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             if (e.RowIndex >= 0 && e.RowIndex < DataGridRowCount(dataView) && e.ColumnIndex >= 0)
             {
                 lastDataView = dataView.Name;
@@ -952,9 +955,11 @@ namespace LitDev
         }
         private static void _DataViewBindingComplete(Object sender, System.Windows.Forms.DataGridViewBindingCompleteEventArgs e)
         {
-            //System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
-            //dataView.AutoResizeColumns(System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells);
-            //dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
+            System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)sender;
+            dataView.AutoResizeColumns(System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells);
+            dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
+            dataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
         }
         private static void _DataViewRowPrePaint(Object sender, System.Windows.Forms.DataGridViewRowPrePaintEventArgs e)
         {
@@ -6084,9 +6089,11 @@ namespace LitDev
                     {
                         WindowsFormsHost shape = new WindowsFormsHost();
                         System.Windows.Forms.DataGridView dataView = new System.Windows.Forms.DataGridView();
+
                         dataView.AutoResizeColumns(System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells);
                         bAutoSizeDataView[shapeName] = true;
-                        //dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
+                        dataView.AutoResizeRows(System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells);
+                        dataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
                         dataView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
                         dataView.GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dataView, true, null);
                         //dataView.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -7357,6 +7364,57 @@ namespace LitDev
             {
                 Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
                 return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Set a font for dataview.  Set this immediately after the dataview is created.
+        /// </summary>
+        /// <param name="shapeName">The dataview control.</param>
+        /// <param name="location">Loaction for font "rows", "header" or "" for both.</param>
+        /// <param name="fontFamily">The font family name.</param>
+        /// <param name="fontSize">The font size.</param>
+        /// <param name="fontItallic">The font is itallic ("True" or "False").</param>
+        /// <param name="fontBold">The font is bold ("True" or "False").</param>
+        public static void DataViewFont(Primitive shapeName, Primitive location, Primitive fontFamily, Primitive fontSize, Primitive fontItallic, Primitive fontBold)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+            if (_objectsMap.TryGetValue((string)shapeName, out obj))
+            {
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        WindowsFormsHost shape = (WindowsFormsHost)obj;
+                        System.Windows.Forms.DataGridView dataView = (System.Windows.Forms.DataGridView)shape.Child;
+
+                        System.Drawing.FontStyle style = System.Drawing.FontStyle.Regular;
+                        if (fontItallic) style |= System.Drawing.FontStyle.Italic;
+                        if (fontBold) style |= System.Drawing.FontStyle.Bold;
+                        if (location == "" || location.ToString().ToLower() == "rows")
+                        {
+                            dataView.DefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
+                            dataView.RowHeadersDefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
+                        }
+                        if (location == "" || location.ToString().ToLower() == "header")
+                        {
+                            dataView.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                FastThread.Invoke(ret);
+            }
+            else
+            {
+                Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
             }
         }
 
