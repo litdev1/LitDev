@@ -6935,7 +6935,6 @@ namespace LitDev
                         {
                             System.Windows.Forms.DataGridViewButtonColumn control = new System.Windows.Forms.DataGridViewButtonColumn();
                             control.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
-                            control.DefaultCellStyle.BackColor = System.Drawing.SystemColors.ButtonFace;
                             control.HeaderText = dataView.Columns[(int)(col - 1)].HeaderText;
                             control.Name = dataView.Columns[(int)(col - 1)].Name;
                             DataTable dataTable = (DataTable)dataView.Tag;
@@ -7405,15 +7404,13 @@ namespace LitDev
                             dataView.RowHeadersDefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
                             if (foreColour != "")
                             {
-                                Color color = (Color)ColorConverter.ConvertFromString(foreColour);
-                                dataView.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
-                                dataView.RowHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                                dataView.DefaultCellStyle.ForeColor = System.Drawing.ColorTranslator.FromHtml(foreColour);
+                                dataView.RowHeadersDefaultCellStyle.ForeColor = System.Drawing.ColorTranslator.FromHtml(foreColour);
                             }
                             if (backColour != "")
                             {
-                                Color color = (Color)ColorConverter.ConvertFromString(backColour);
-                                dataView.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
-                                dataView.RowHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                                dataView.DefaultCellStyle.BackColor = System.Drawing.ColorTranslator.FromHtml(backColour);
+                                dataView.RowHeadersDefaultCellStyle.BackColor = System.Drawing.ColorTranslator.FromHtml(backColour);
                             }
                         }
                         if (location == "" || location.ToString().ToLower() == "header")
@@ -7423,13 +7420,11 @@ namespace LitDev
                             dataView.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
                             if (foreColour != "")
                             {
-                                Color color = (Color)ColorConverter.ConvertFromString(foreColour);
-                                dataView.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                                dataView.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.ColorTranslator.FromHtml(foreColour);
                             }
                             if (backColour != "")
                             {
-                                Color color = (Color)ColorConverter.ConvertFromString(backColour);
-                                dataView.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                                dataView.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.ColorTranslator.FromHtml(backColour);
                             }
                         }
                     }
