@@ -7372,8 +7372,8 @@ namespace LitDev
         /// </summary>
         /// <param name="shapeName">The dataview control.</param>
         /// <param name="location">Loaction for font "rows", "header" or "" for both.</param>
-        /// <param name="fontFamily">The font family name.</param>
-        /// <param name="fontSize">The font size.</param>
+        /// <param name="fontFamily">The font family name (default "").</param>
+        /// <param name="fontSize">The font size (default "").</param>
         /// <param name="fontItallic">The font is itallic ("True" or "False").</param>
         /// <param name="fontBold">The font is bold ("True" or "False").</param>
         /// <param name="foreColour">The font colour (default "").</param>
@@ -7399,6 +7399,8 @@ namespace LitDev
                         if (fontBold) style |= System.Drawing.FontStyle.Bold;
                         if (location == "" || location.ToString().ToLower() == "rows")
                         {
+                            if (fontFamily == "") fontFamily = dataView.DefaultCellStyle.Font.FontFamily.Name;
+                            if (fontSize == "") fontSize = dataView.DefaultCellStyle.Font.Size;
                             dataView.DefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
                             dataView.RowHeadersDefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
                             if (foreColour != "")
@@ -7416,6 +7418,8 @@ namespace LitDev
                         }
                         if (location == "" || location.ToString().ToLower() == "header")
                         {
+                            if (fontFamily == "") fontFamily = dataView.ColumnHeadersDefaultCellStyle.Font.FontFamily.Name;
+                            if (fontSize == "") fontSize = dataView.ColumnHeadersDefaultCellStyle.Font.Size;
                             dataView.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font(fontFamily, fontSize, style);
                             if (foreColour != "")
                             {
