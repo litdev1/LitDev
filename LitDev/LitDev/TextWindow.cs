@@ -54,6 +54,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 using LitDev.Engines;
+using System.Windows;
 
 namespace LitDev
 {
@@ -131,6 +132,72 @@ namespace LitDev
         {
             Thread thread = new Thread(HookThread);
             thread.Start();
+        }
+
+        [DllImport("Kernel32")]
+        private static extern bool SetConsoleCtrlHandler(ConsoleExitEventHandler handler, bool add);
+        private delegate bool ConsoleExitEventHandler(CtrlType sig);
+        static ConsoleExitEventHandler _ConsoleExitEventHandler;
+        private static SBCallback _ExitDelegate = null;
+
+        enum CtrlType
+        {
+            CTRL_C_EVENT = 0,
+            CTRL_BREAK_EVENT = 1,
+            CTRL_CLOSE_EVENT = 2,
+            CTRL_LOGOFF_EVENT = 5,
+            CTRL_SHUTDOWN_EVENT = 6
+        }
+
+        private static bool ConsoleExitEventDelegate(CtrlType sig)
+        {
+            if (null != _ExitDelegate) _ExitDelegate();
+            return true;
+        }
+
+        //private static void ApplicationExitEventDelegate(object sender, ExitEventArgs e)
+        //{
+        //    if (null != _ExitDelegate) _ExitDelegate();
+        //}
+
+        /// <summary>
+        /// Event when TextWindow is closing.
+        /// You can perform any final actions here.
+        /// </summary>
+        public static event SBCallback Exit
+        {
+            add
+            {
+                _ExitDelegate = value;
+                _ConsoleExitEventHandler += new ConsoleExitEventHandler(ConsoleExitEventDelegate);
+                SetConsoleCtrlHandler(_ConsoleExitEventHandler, true);
+                // Application event doesn't seem to work
+                //Type SmallBasicApplicationType = typeof(SmallBasicApplication);
+                //try
+                //{
+                //    System.Windows.Application _application = (System.Windows.Application)SmallBasicApplicationType.GetField("_application", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                //    InvokeHelper ret = delegate
+                //    {
+                //        try
+                //        {
+                //            _application.Exit += new ExitEventHandler(ApplicationExitEventDelegate);
+                //        }
+                //        catch (Exception ex)
+                //        {
+                //            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                //        }
+                //    };
+                //    FastThread.Invoke(ret);
+                //}
+                //catch (Exception ex)
+                //{
+                //    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                //}
+            }
+            remove
+            {
+                _ExitDelegate = null;
+            }
         }
 
         /// <summary>
@@ -304,7 +371,6 @@ namespace LitDev
         /// </returns>
         public static Primitive Capture(Primitive fileName, Primitive border)
         {
-            Type GraphicsWindowType = typeof(GraphicsWindow);
             Type ShapesType = typeof(Shapes);
             Type ImageListType = typeof(SBImageList);
             Dictionary<string, BitmapSource> _savedImages;
