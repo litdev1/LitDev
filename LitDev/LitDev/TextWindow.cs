@@ -55,6 +55,9 @@ using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 using LitDev.Engines;
 using System.Windows;
+using System.Windows.Threading;
+using System.ComponentModel;
+using Microsoft.JScript;
 
 namespace LitDev
 {
@@ -149,16 +152,31 @@ namespace LitDev
             CTRL_SHUTDOWN_EVENT = 6
         }
 
-        private static bool ConsoleExitEventDelegate(CtrlType sig)
+        private static bool _ConsoleExitEvent(CtrlType sig)
         {
             if (null != _ExitDelegate) _ExitDelegate();
             return true;
         }
 
-        //private static void ApplicationExitEventDelegate(object sender, ExitEventArgs e)
-        //{
-        //    if (null != _ExitDelegate) _ExitDelegate();
-        //}
+        private static void _ApplicationExitEvent(object sender, ExitEventArgs e)
+        {
+            if (null != _ExitDelegate) _ExitDelegate();
+        }
+
+        private static void _ProcessExitEvent(object sender, EventArgs e)
+        {
+            if (null != _ExitDelegate) _ExitDelegate();
+        }
+
+        private static void _DomainUnloadEvent(object sender, EventArgs e)
+        {
+            if (null != _ExitDelegate) _ExitDelegate();
+        }
+
+        private static void _ApplicationSessionEndingEvent(object sender, SessionEndingCancelEventArgs e)
+        {
+            if (null != _ExitDelegate) _ExitDelegate();
+        }
 
         /// <summary>
         /// Event when TextWindow is closing.
@@ -169,30 +187,36 @@ namespace LitDev
             add
             {
                 _ExitDelegate = value;
-                _ConsoleExitEventHandler += new ConsoleExitEventHandler(ConsoleExitEventDelegate);
+                _ConsoleExitEventHandler += new ConsoleExitEventHandler(_ConsoleExitEvent);
                 SetConsoleCtrlHandler(_ConsoleExitEventHandler, true);
-                // Application event doesn't seem to work
-                //Type SmallBasicApplicationType = typeof(SmallBasicApplication);
-                //try
-                //{
-                //    System.Windows.Application _application = (System.Windows.Application)SmallBasicApplicationType.GetField("_application", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-                //    InvokeHelper ret = delegate
-                //    {
-                //        try
-                //        {
-                //            _application.Exit += new ExitEventHandler(ApplicationExitEventDelegate);
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                //        }
-                //    };
-                //    FastThread.Invoke(ret);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                //}
+
+                if (false)
+                {
+                    // Application or domain events don't seem to work here - I think because SB kills process rather than letting application close normally
+                    AppDomain.CurrentDomain.ProcessExit += new EventHandler(_ProcessExitEvent);
+                    AppDomain.CurrentDomain.DomainUnload += new EventHandler(_DomainUnloadEvent);
+                    Type SmallBasicApplicationType = typeof(SmallBasicApplication);
+                    try
+                    {
+                        System.Windows.Application _application = (System.Windows.Application)SmallBasicApplicationType.GetField("_application", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                        MethodInfo methodInvoke = typeof(SmallBasicApplication).GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+                        InvokeHelper ret = delegate
+                        {
+                            InvokeHelper ret1 = delegate
+                            {
+                                _application.ShutdownMode = ShutdownMode.OnLastWindowClose;
+                                _application.Exit += new ExitEventHandler(_ApplicationExitEvent);
+                                _application.SessionEnding += new SessionEndingCancelEventHandler(_ApplicationSessionEndingEvent);
+                            };
+                            methodInvoke.Invoke(null, new object[] { ret1 });
+                        };
+                        methodInvoke.Invoke(null, new object[] { ret });
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                }
             }
             remove
             {
