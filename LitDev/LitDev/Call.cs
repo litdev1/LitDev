@@ -48,6 +48,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Diagnostics.Eventing.Reader;
 
 namespace LitDev
 {
@@ -374,6 +375,7 @@ namespace LitDev
 
         /// <summary>
         /// Call a method in an included pre-compiled file.
+        /// All main program variables are shared with the called subroutine.
         /// </summary>
         /// <param name="include">The include file name returned by Include method.</param>
         /// <param name="method">The subroutine name to call in the included exe.</param>
@@ -397,6 +399,92 @@ namespace LitDev
                 {
                     FieldInfo fieldInfoMain = mainModule.GetField(fieldInfo.Name, BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
                     if (null != fieldInfoMain) fieldInfoMain.SetValue(null, fieldInfo.GetValue(null));
+                }
+                return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Call a method in an included pre-compiled file, specifying dynamic input and output parameters.
+        /// If both of these are "", then all variables will be copied in and back from this call, which is equivalent to the CallInclude method.
+        /// Unset variable values in the included subroutine persist between calls.
+        /// </summary>
+        /// <param name="include">The include file name returned by Include method.</param>
+        /// <param name="method">The subroutine name to call in the included exe.</param>
+        /// <param name="input">An array of variable names that will be copied to the subroutine.
+        /// If this is "", then all variables will be copied to the subroutine.</param>
+        /// <param name="output">An array of variable names that will be copied back from the subroutine.
+        /// If this is "", then the same input variables will be copied back from the subroutine.</param>
+        /// <returns>"SUCCESS" or "FAILED".</returns>
+        public static Primitive CallIncludeWithVars(Primitive include, Primitive method, Primitive input, Primitive output)
+        {
+            try
+            {
+                List<string> _input = new List<string>();
+                if (input != "")
+                {
+                    if (SBArray.IsArray(input))
+                    {
+                        Primitive indices = SBArray.GetAllIndices(input);
+                        for (int i = 1; i <= SBArray.GetItemCount(indices); i++)
+                        {
+                            int index = indices[i];
+                            _input.Add(((string)input[index]).ToLower());
+                        }
+                    }
+                    else
+                    {
+                        _input.Add(((string)input).ToLower());
+                    }
+                }
+                List<string> _output = new List<string>();
+                if (output == "")
+                {
+                    output = input;
+                }
+                if (output != "")
+                {
+                    if (SBArray.IsArray(output))
+                    {
+                        Primitive indices = SBArray.GetAllIndices(output);
+                        for (int i = 1; i <= SBArray.GetItemCount(indices); i++)
+                        {
+                            int index = indices[i];
+                            _output.Add(((string)output[index]).ToLower());
+                        }
+                    }
+                    else
+                    {
+                        _output.Add(((string)output).ToLower());
+                    }
+                }
+
+                IncludeFile includeFile = GetInclude(include);
+                if (null == includeFile) return "FAILED";
+                MethodInfo methodInfo = includeFile.type.GetMethod(method, BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                if (null == methodInfo) return "FAILED";
+
+                foreach (FieldInfo fieldInfo in includeFile.fieldInfos)
+                {
+                    if (_input.Count == 0 || _input.Contains(fieldInfo.Name.ToLower()))
+                    {
+                        FieldInfo fieldInfoMain = mainModule.GetField(fieldInfo.Name, BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                        if (null != fieldInfoMain) fieldInfo.SetValue(null, fieldInfoMain.GetValue(null));
+                    }
+                }
+                methodInfo.Invoke(null, null);
+                foreach (FieldInfo fieldInfo in includeFile.fieldInfos)
+                {
+                    if (_output.Count == 0 || _output.Contains(fieldInfo.Name.ToLower()))
+                    {
+                        FieldInfo fieldInfoMain = mainModule.GetField(fieldInfo.Name, BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                        if (null != fieldInfoMain) fieldInfoMain.SetValue(null, fieldInfo.GetValue(null));
+                    }
                 }
                 return "SUCCESS";
             }
