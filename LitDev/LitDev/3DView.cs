@@ -4301,14 +4301,14 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Get the transformed (current) position of the origin (0,0,0) point when created of an existing geometry.
+        /// Get the transformed (current) position of the origin (0,0,0) point when created from an existing geometry.
         /// </summary>
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
         /// <returns> An array of the transformed position or "FAILED".
-        /// array[1] = X (Xcen)
-        /// array[2] = Y (Ycen)
-        /// array[3] = Z (Zcen)
+        /// array[1] = X (Xorigin)
+        /// array[2] = Y (Yorigin)
+        /// array[3] = Z (Zorigin)
         /// </returns>
         public static Primitive GetOriginPosition(Primitive shapeName, Primitive geometryName)
         {
@@ -4372,9 +4372,9 @@ namespace LitDev
         /// <param name="shapeName">The 3DView object.</param>
         /// <param name="geometryName">The geometry object.</param>
         /// <returns> An array of the offset position or "FAILED".
-        /// array[1] = X (Xcen)
-        /// array[2] = Y (Ycen)
-        /// array[3] = Z (Zcen)
+        /// array[1] = X (Xoffset)
+        /// array[2] = Y (Yoffset)
+        /// array[3] = Z (Zoffset)
         /// </returns>
         public static Primitive GetOffset(Primitive shapeName, Primitive geometryName)
         {
