@@ -742,6 +742,10 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive view3D1 = LD3DView.AddView(800, 800, "True");
+            Primitive whiteKing = LD3DView.LoadModel(view3D1, "C: \\Users\\steve\\Documents\\SmallBasic\\steve\\3DChess/12939_Stone_Chess_King_Side_A_V2_l1.obj");
+            TextWindow.WriteLine(LD3DView.GetPosition(view3D1, whiteKing));
+
             Primitive universe = LD3DView.AddView(100, 100, "True");
             Primitive enemyShape = "0:0 1:0.1 1.2:0.3 2.5:0.3 2.8:0.6 3:0.6 3:0";
             Primitive enemy = LD3DView.AddRevolute(universe, enemyShape, 36, GraphicsWindow.GetRandomColor(), "D");

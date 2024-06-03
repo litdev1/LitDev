@@ -1269,7 +1269,7 @@ namespace LitDev
                         AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
 
                         DoubleAnimation doubleAnimaton = new DoubleAnimation();
-                        doubleAnimaton.Duration = new Duration(new TimeSpan((long)duration * 10000000));
+                        doubleAnimaton.Duration = new Duration(new TimeSpan((long)((double)duration * 10000000)));
                         doubleAnimaton.RepeatBehavior = (repeats > 0) ? new RepeatBehavior(repeats) : RepeatBehavior.Forever;
                         doubleAnimaton.From = startAngle;
                         doubleAnimaton.To = endAngle;
@@ -1312,7 +1312,7 @@ namespace LitDev
                         AxisAngleRotation3D axisAngleRotation3D = (AxisAngleRotation3D)rotateTransform3D.Rotation;
 
                         DoubleAnimation doubleAnimaton = new DoubleAnimation();
-                        doubleAnimaton.Duration = new Duration(new TimeSpan((long)duration * 10000000));
+                        doubleAnimaton.Duration = new Duration(new TimeSpan((long)((double)duration * 10000000)));
                         doubleAnimaton.RepeatBehavior = (repeats > 0) ? new RepeatBehavior(repeats) : RepeatBehavior.Forever;
                         doubleAnimaton.From = startAngle;
                         doubleAnimaton.To = endAngle;
@@ -1351,17 +1351,17 @@ namespace LitDev
                         TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
 
                         DoubleAnimation doubleAnimationX = new DoubleAnimation();
-                        doubleAnimationX.Duration = new Duration(new TimeSpan((long)duration * 10000000));
+                        doubleAnimationX.Duration = new Duration(new TimeSpan((long)((double)duration * 10000000)));
                         doubleAnimationX.From = translateTransform3D.OffsetX;
                         doubleAnimationX.To = x;
 
                         DoubleAnimation doubleAnimationY = new DoubleAnimation();
-                        doubleAnimationY.Duration = new Duration(new TimeSpan((long)duration * 10000000));
+                        doubleAnimationY.Duration = new Duration(new TimeSpan((long)((double)duration * 10000000)));
                         doubleAnimationY.From = translateTransform3D.OffsetY;
                         doubleAnimationY.To = y;
 
                         DoubleAnimation doubleAnimationZ = new DoubleAnimation();
-                        doubleAnimationZ.Duration = new Duration(new TimeSpan((long)duration * 10000000));
+                        doubleAnimationZ.Duration = new Duration(new TimeSpan((long)((double)duration * 10000000)));
                         doubleAnimationZ.From = translateTransform3D.OffsetZ;
                         doubleAnimationZ.To = z;
 
@@ -2999,6 +2999,7 @@ namespace LitDev
                                 int i = 0;
                                 foreach (GeometryModel3D geometry in model3DGroupLoad.Children)
                                 {
+                                    if (geometry.Bounds.IsEmpty) continue;
                                     string name = getGeometryName();
                                     names += (++i).ToString() + "=" + Utilities.ArrayParse(name) + ";";
                                     AddTransforms(geometry);
@@ -4365,5 +4366,63 @@ namespace LitDev
             }
         }
 
+        /// <summary>
+        /// Get the transformed offset (translation) position of an existing geometry.
+        /// </summary>
+        /// <param name="shapeName">The 3DView object.</param>
+        /// <param name="geometryName">The geometry object.</param>
+        /// <returns> An array of the offset position or "FAILED".
+        /// array[1] = X (Xcen)
+        /// array[2] = Y (Ycen)
+        /// array[3] = Z (Zcen)
+        /// </returns>
+        public static Primitive GetOffset(Primitive shapeName, Primitive geometryName)
+        {
+            UIElement obj;
+
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        Primitive result = "";
+                        try
+                        {
+                            if (obj.GetType() == typeof(Viewport3D))
+                            {
+                                Geometry geom = getGeometry(geometryName);
+                                if (null == geom) return "FAILED";
+                                GeometryModel3D geometry = geom.geometryModel3D;
+                                Transform3D transform3D = (Transform3D)geometry.Transform;
+                                Transform3DGroup transform3DGroup = (Transform3DGroup)transform3D;
+                                TranslateTransform3D translateTransform3D = (TranslateTransform3D)transform3DGroup.Children[(int)transform.Translate];
+
+                                result[1] = translateTransform3D.OffsetX;
+                                result[2] = translateTransform3D.OffsetY;
+                                result[3] = translateTransform3D.OffsetZ;
+                            }
+                            return result;
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            return "FAILED";
+                        }
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return "FAILED";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
     }
 }
