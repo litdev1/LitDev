@@ -431,7 +431,7 @@ namespace LitDev
                                 DataTemplate dt = new DataTemplate();
                                 dt.DataType = typeof(string);
                                 FrameworkElementFactory fef = new FrameworkElementFactory(typeof(TextBlock));
-                                fef.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding("col[" + (i - 1).ToString() + "]"));
+                                fef.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding("col[" + i + "]"));
                                 fef.SetValue(TextBlock.HorizontalAlignmentProperty, System.Windows.HorizontalAlignment.Left);
                                 dt.VisualTree = fef;
                                 Col.CellTemplate = dt;
