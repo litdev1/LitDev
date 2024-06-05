@@ -410,6 +410,11 @@ namespace LitDev
                             System.Windows.Controls.ListView shape = (System.Windows.Controls.ListView)obj;
                             GridView gridView = new GridView();
                             shape.View = gridView;
+
+                            Style style = new Style(typeof(System.Windows.Controls.ListViewItem));
+                            style.Setters.Add(new Setter(System.Windows.Controls.ListViewItem.HorizontalContentAlignmentProperty, System.Windows.HorizontalAlignment.Stretch));
+                            shape.ItemContainerStyle = style;
+
                             shape.Items.Clear();
 
                             int i = 0;
@@ -422,7 +427,15 @@ namespace LitDev
                                 header.MouseDown += new MouseButtonEventHandler(LDControls._ListViewHeaderMouseButtonEvent);
                                 Col.Header = header;
                                 Col.Width = Double.NaN;
-                                Col.DisplayMemberBinding = new System.Windows.Data.Binding("col[" + i + "]");
+                                //Col.DisplayMemberBinding = new System.Windows.Data.Binding("col[" + i + "]");
+                                DataTemplate dt = new DataTemplate();
+                                dt.DataType = typeof(string);
+                                FrameworkElementFactory fef = new FrameworkElementFactory(typeof(TextBlock));
+                                fef.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding("col[" + (i - 1).ToString() + "]"));
+                                fef.SetValue(TextBlock.HorizontalAlignmentProperty, System.Windows.HorizontalAlignment.Left);
+                                dt.VisualTree = fef;
+                                Col.CellTemplate = dt;
+                                Col.CellTemplate.Seal();
                                 i++;
                                 gridView.Columns.Add(Col);
                             }
@@ -439,6 +452,14 @@ namespace LitDev
                                 shape.Items.Add(dataGridRow);
                             }
 
+                            for (i = 0; i < columns; i++)
+                            {
+                                if (Double.IsNaN(((GridView)shape.View).Columns[i].Width))
+                                {
+                                    ((GridView)shape.View).Columns[i].Width = ((GridView)shape.View).Columns[i].ActualWidth;
+                                }
+                                ((GridView)shape.View).Columns[i].Width = Double.NaN;
+                            }
                             shape.UpdateLayout();
                         }
                         catch (Exception ex)
