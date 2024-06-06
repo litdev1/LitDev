@@ -765,7 +765,7 @@ namespace LitDev
 
         }
 
-        private struct DataGridRow
+        public struct DataGridRow
         {
             public string[] col { get; set; }
         }

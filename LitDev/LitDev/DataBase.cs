@@ -250,11 +250,6 @@ namespace LitDev
             return null;
         }
 
-        private struct DataGridRow
-        {
-            public string[] col { get; set; }
-        }
-
         private static DataTable GetDataTable(DataBase dataBase, string query, DataTable dataTable)
         {
             if (null == dataTable) dataTable = new DataTable();
@@ -443,7 +438,7 @@ namespace LitDev
                             int columns = dataTable.Columns.Count;
                             foreach (DataRow row in dataTable.Rows)
                             {
-                                DataGridRow dataGridRow = new DataGridRow();
+                                LDControls.DataGridRow dataGridRow = new LDControls.DataGridRow();
                                 dataGridRow.col = new string[columns];
                                 for (i = 0; i < columns; i++)
                                 {
