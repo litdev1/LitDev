@@ -18,27 +18,27 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Increase default AABB for larger display");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Allow longer duration animations");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("GetOriginPosition method added");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("LDPhysics", new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3});
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("UpdateShowHide property and Minimise method added.  Show and Hide methods updated" +
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("LDPhysics", new System.Windows.Forms.TreeNode[] {
+            treeNode1});
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("UpdateShowHide property and Minimise method added.  Show and Hide methods updated" +
         "");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Exit event added");
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("LDTextWindow", new System.Windows.Forms.TreeNode[] {
-            treeNode5,
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Exit event added");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("LDTextWindow", new System.Windows.Forms.TreeNode[] {
+            treeNode3,
+            treeNode4});
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("DataViewFont method added");
+            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("LDControls", new System.Windows.Forms.TreeNode[] {
             treeNode6});
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("DataViewFont method added");
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("LDControls", new System.Windows.Forms.TreeNode[] {
+            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("CallIncludeWithVars method added");
+            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("LDCall", new System.Windows.Forms.TreeNode[] {
             treeNode8});
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("CallIncludeWithVars method added");
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("LDCall", new System.Windows.Forms.TreeNode[] {
-            treeNode10});
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("GetOriginPosition method added");
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Allow longer duration animations");
             System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("LoadModel ignore bad objects");
             System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("GetOffset method added");
             System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("LD3DView", new System.Windows.Forms.TreeNode[] {
+            treeNode10,
+            treeNode11,
             treeNode12,
             treeNode13});
             System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Query updated to be similar to LDControls method");
@@ -47,10 +47,10 @@
             treeNode15,
             treeNode16});
             System.Windows.Forms.TreeNode treeNode18 = new System.Windows.Forms.TreeNode("Version 1.2.28.0", new System.Windows.Forms.TreeNode[] {
-            treeNode4,
+            treeNode2,
+            treeNode5,
             treeNode7,
             treeNode9,
-            treeNode11,
             treeNode14,
             treeNode17});
             System.Windows.Forms.TreeNode treeNode19 = new System.Windows.Forms.TreeNode("RichTextBoxWord method extended");
@@ -2103,27 +2103,27 @@
             this.treeView1.Name = "treeView1";
             treeNode1.Name = "Node2";
             treeNode1.Text = "Increase default AABB for larger display";
-            treeNode2.Name = "Node0";
-            treeNode2.Text = "Allow longer duration animations";
-            treeNode3.Name = "Node0";
-            treeNode3.Text = "GetOriginPosition method added";
-            treeNode4.Name = "Node1";
-            treeNode4.Text = "LDPhysics";
-            treeNode5.Name = "Node1";
-            treeNode5.Text = "UpdateShowHide property and Minimise method added.  Show and Hide methods updated" +
+            treeNode2.Name = "Node1";
+            treeNode2.Text = "LDPhysics";
+            treeNode3.Name = "Node1";
+            treeNode3.Text = "UpdateShowHide property and Minimise method added.  Show and Hide methods updated" +
     "";
-            treeNode6.Name = "Node0";
-            treeNode6.Text = "Exit event added";
+            treeNode4.Name = "Node0";
+            treeNode4.Text = "Exit event added";
+            treeNode5.Name = "Node0";
+            treeNode5.Text = "LDTextWindow";
+            treeNode6.Name = "Node1";
+            treeNode6.Text = "DataViewFont method added";
             treeNode7.Name = "Node0";
-            treeNode7.Text = "LDTextWindow";
+            treeNode7.Text = "LDControls";
             treeNode8.Name = "Node1";
-            treeNode8.Text = "DataViewFont method added";
+            treeNode8.Text = "CallIncludeWithVars method added";
             treeNode9.Name = "Node0";
-            treeNode9.Text = "LDControls";
-            treeNode10.Name = "Node1";
-            treeNode10.Text = "CallIncludeWithVars method added";
+            treeNode9.Text = "LDCall";
+            treeNode10.Name = "Node0";
+            treeNode10.Text = "GetOriginPosition method added";
             treeNode11.Name = "Node0";
-            treeNode11.Text = "LDCall";
+            treeNode11.Text = "Allow longer duration animations";
             treeNode12.Name = "Node1";
             treeNode12.Text = "LoadModel ignore bad objects";
             treeNode13.Name = "Node0";
