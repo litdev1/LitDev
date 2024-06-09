@@ -1055,7 +1055,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = GraphicsWindowType.GetMethod("VerifyAccess", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                method.Invoke(null, new object[] { false });
+#else
                 method.Invoke(null, new object[] { });
+#endif
 
 #if SVB
                 shapeName = method3.Invoke(null, new object[] { "Image", false }).ToString();

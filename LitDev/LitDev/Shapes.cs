@@ -1104,7 +1104,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = GraphicsWindowType.GetMethod("VerifyAccess", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                method.Invoke(null, new object[] { false });
+#else
                 method.Invoke(null, new object[] { });
+#endif
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
 #if SVB
@@ -1174,7 +1178,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = GraphicsWindowType.GetMethod("VerifyAccess", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                method.Invoke(null, new object[] { false });
+#else
                 method.Invoke(null, new object[] { });
+#endif
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
 #if SVB
@@ -1267,7 +1275,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = GraphicsWindowType.GetMethod("VerifyAccess", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                method.Invoke(null, new object[] { false });
+#else
                 method.Invoke(null, new object[] { });
+#endif
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
 #if SVB
@@ -3279,7 +3291,11 @@ namespace LitDev
             try
             {
                 MethodInfo method = GraphicsWindowType.GetMethod("VerifyAccess", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                method.Invoke(null, new object[] { false });
+#else
                 method.Invoke(null, new object[] { });
+#endif
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
 #if SVB
@@ -3409,7 +3425,11 @@ namespace LitDev
                 }
 
                 MethodInfo method = GraphicsWindowType.GetMethod("VerifyAccess", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                method.Invoke(null, new object[] { false });
+#else
                 method.Invoke(null, new object[] { });
+#endif
 
                 method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
 #if SVB
