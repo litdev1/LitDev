@@ -68,7 +68,7 @@ namespace LitDev.Engines
             }
             catch (Exception ex)
             {
-                MessageBox.Show("This extension object (" + objName + ") requires SlimDX runtime for .Net 4.0 to be installed.\n\nIt can be downloaded from http://slimdx.org/download.php.",
+                MessageBox.Show("This extension object (" + objName + ") requires SlimDX runtime for .Net 4.0 to be installed.\n\nIt can be downloaded from http://slimdx.org/download.php or " + Utilities.URL,
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Program.End();
             }
