@@ -367,5 +367,13 @@ namespace LitDev
         {
             get { return ((char)8).ToString(); }
         }
+
+        /// <summary>
+        /// Get the back tab character \t
+        /// </summary>
+        public static Primitive TAB
+        {
+            get { return ((char)9).ToString(); }
+        }
     }
 }
