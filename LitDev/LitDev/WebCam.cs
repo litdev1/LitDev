@@ -883,6 +883,9 @@ namespace LitDev
 
         private static void timer_Tick(object sender, EventArgs e)
         {
+            Window _window = (Window)typeof(GraphicsWindow).GetField("_window", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+            if (null == _window || !_window.IsActive) return;
+
             UpdateImage();
         }
 

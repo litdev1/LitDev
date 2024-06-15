@@ -260,6 +260,9 @@ namespace LitDev
 
         private static void animation_Tick(object sender, EventArgs e)
         {
+            Window _window = (Window)typeof(GraphicsWindow).GetField("_window", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+            if (null == _window || !_window.IsActive) return;
+
             if (animated.Count == 0) animationTimer.Enabled = false;
             for (int i = animated.Count - 1; i >= 0; i--) //Reverse order to allow removal
             {

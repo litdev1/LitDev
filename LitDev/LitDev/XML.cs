@@ -50,6 +50,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Windows;
 
 namespace LitDev
 {
@@ -695,6 +696,8 @@ namespace LitDev
 
         private static void timer_Tick(object sender, EventArgs e)
         {
+            if (null == formXML || !formXML.Visible) return;
+
             formXML.Update(xmlDoc);
         }
     }
