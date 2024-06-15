@@ -132,7 +132,7 @@ namespace LitDev
         private static string shapeName;
         private static PictureBox pictureBox = new PictureBox();
         private static List<Image> images = new List<Image>();
-        private static System.Windows.Forms.Timer timer;
+        private static System.Windows.Forms.Timer timer = null;
         private static int interval = 20;
         private static MethodInfo method3 = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
         private static eEffect effect = eEffect.NONE;
@@ -862,10 +862,13 @@ namespace LitDev
                 connected = true;
             }
 
-            timer = new System.Windows.Forms.Timer();
-            timer.Enabled = true;
-            timer.Interval = interval;
-            timer.Tick += new System.EventHandler(timer_Tick);
+            if (null == timer)
+            {
+                timer = new System.Windows.Forms.Timer();
+                timer.Enabled = true;
+                timer.Interval = interval;
+                timer.Tick += new System.EventHandler(timer_Tick);
+            }
         }
 
         private static void CamThread()

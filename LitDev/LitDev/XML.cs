@@ -77,6 +77,7 @@ namespace LitDev
         private static Dictionary<string, XmlDoc> documents = new Dictionary<string, XmlDoc>();
         private static XmlDoc xmlDoc = null;
         private static FormXML formXML = new FormXML();
+        private static System.Windows.Forms.Timer timer = null;
 
         private static Primitive toArray(XmlNode node)
         {
@@ -671,10 +672,13 @@ namespace LitDev
                         formXML.TopMost = true;
                         formXML.Show();
                         formXML.Update(xmlDoc);
-                        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-                        timer.Enabled = true;
-                        timer.Interval = 100;
-                        timer.Tick += new EventHandler(timer_Tick);
+                        if (null == timer)
+                        {
+                            timer = new System.Windows.Forms.Timer();
+                            timer.Enabled = true;
+                            timer.Interval = 100;
+                            timer.Tick += new EventHandler(timer_Tick);
+                        }
                     }
                     catch (Exception ex)
                     {

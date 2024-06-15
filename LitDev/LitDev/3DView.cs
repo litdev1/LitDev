@@ -55,6 +55,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Input;
 using LitDev.Engines;
+using System.Management.Instrumentation;
 
 namespace LitDev
 {
@@ -82,6 +83,7 @@ namespace LitDev
         public static double swapAngle = -90;
 
         private static Dictionary<string, UIElement> _objectsMap = (Dictionary<string, UIElement>)typeof(GraphicsWindow).GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        private static System.Windows.Forms.Timer timer = null;
 
         private static int iLight = 0;
         private class Lighting
@@ -571,6 +573,8 @@ namespace LitDev
             lock (lockObj)
             {
                 if (keyDist < 0) return;
+                Window _window = (Window)typeof(GraphicsWindow).GetField("_window", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (null == _window || !_window.IsActive) return;
 
                 if (autoMode == 0)
                 {
@@ -1531,10 +1535,13 @@ namespace LitDev
                             _window.MouseDoubleClick += new MouseButtonEventHandler(_MouseDoubleClick);
                             _window.KeyDown += new KeyEventHandler(_KeyDown);
 
-                            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-                            timer.Enabled = true;
-                            timer.Interval = 20;
-                            timer.Tick += new EventHandler(timer_Tick);
+                            if (null == timer)
+                            {
+                                timer = new System.Windows.Forms.Timer();
+                                timer.Enabled = true;
+                                timer.Interval = 20;
+                                timer.Tick += new EventHandler(timer_Tick);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -1588,10 +1595,13 @@ namespace LitDev
                             _window.MouseDoubleClick += new MouseButtonEventHandler(_MouseDoubleClick);
                             _window.KeyDown += new KeyEventHandler(_KeyDown);
 
-                            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-                            timer.Enabled = true;
-                            timer.Interval = 20;
-                            timer.Tick += new EventHandler(timer_Tick);
+                            if (null == timer)
+                            {
+                                timer = new System.Windows.Forms.Timer();
+                                timer.Enabled = true;
+                                timer.Interval = 20;
+                                timer.Tick += new EventHandler(timer_Tick);
+                            }
                         }
                     }
                     catch (Exception ex)
