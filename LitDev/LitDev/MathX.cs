@@ -43,6 +43,7 @@ using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using MathNet.Numerics.IntegralTransforms;
+using MathNet.Numerics.Interpolation;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -228,6 +229,114 @@ namespace LitDev
                     result += (i + 1).ToString() + "=" + (realData[i].ToString(CultureInfo.InvariantCulture) + "\\=" + imaginaryData[i].ToString(CultureInfo.InvariantCulture) + "\\;") + ";";
                 }
                 return Utilities.CreateArrayMap(result);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        private static Dictionary<string, CubicSpline> cubicSplines = new Dictionary<string, CubicSpline>();
+
+        /// <summary>
+        /// Create a cubic spline for later interpolation.
+        /// </summary>
+        /// <param name="data">A set of x,y data in an array data[x]=y.</param>
+        /// <param name="mode">Spline termination (both ends) or other variants
+        /// 1 : first derivitive = 0
+        /// 2 : second derivitive = 0
+        /// 3 : Hermite cubic spline (all first derivatives = 0)
+        /// 4 : Akima cubic spline (reduce outlier overshoots)</param>
+        /// <returns>The cubic spline.</returns>
+        public static Primitive CreateSpline(Primitive data, Primitive mode)
+        {
+            Type ShapesType = typeof(Shapes);
+            string splineName;
+
+            try
+            {
+                MethodInfo method = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase);
+#if SVB
+                splineName = method.Invoke(null, new object[] { "Spline", false }).ToString();
+#else
+                splineName = method.Invoke(null, new object[] { "Spline" }).ToString();
+#endif
+                Primitive indices = SBArray.GetAllIndices(data);
+                int numData = SBArray.GetItemCount(data);
+                double[] x = new double[numData];
+                double[] y = new double[numData];
+                double[] d = new double[numData];
+                for (int i = 1; i <= numData; i++)
+                {
+                    Primitive index = indices[i];
+                    x[i - 1] = index;
+                    y[i - 1] = data[index];
+                    d[i - 1] = 0;
+                }
+                CubicSpline spline;
+                switch ((int)mode)
+                {
+                    case 1:
+                        spline = CubicSpline.InterpolateBoundaries(x, y, SplineBoundaryCondition.FirstDerivative, 0, SplineBoundaryCondition.FirstDerivative, 0);
+                        cubicSplines[splineName] = spline;
+                        break;
+                    case 2:
+                        spline = CubicSpline.InterpolateBoundaries(x, y, SplineBoundaryCondition.SecondDerivative, 0, SplineBoundaryCondition.SecondDerivative, 0);
+                        cubicSplines[splineName] = spline;
+                        break;
+                    case 3:
+                        spline = CubicSpline.InterpolateHermite(x, y, d);
+                        cubicSplines[splineName] = spline;
+                        break;
+                    case 4:
+                        spline = CubicSpline.InterpolateAkima(x, y);
+                        cubicSplines[splineName] = spline;
+                        break;
+                    default:
+                        spline = CubicSpline.InterpolateNatural(x, y);
+                        cubicSplines[splineName] = spline;
+                        break;
+                }
+                return splineName;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "FAILED";
+            }
+        }
+
+        /// <summary>
+        /// Calculated interpolated data from a previopusly created cubic spline.
+        /// </summary>
+        /// <param name="splineName">The cubic spline created with CreateSpline.</param>
+        /// <param name="data">An array of x values to interpolate.</param>
+        /// <returns>An array of interpolated x,y pairs, result[x] = y.</returns>
+        public static Primitive InterpolateSpline(Primitive splineName, Primitive data)
+        {
+            try
+            {
+                CubicSpline spline = null;
+                if (cubicSplines.TryGetValue(splineName, out spline))
+                {
+                    if (SBArray.IsArray(data))
+                    {
+                        Primitive result = "";
+                        Primitive indices = SBArray.GetAllIndices(data);
+                        for (int i = 1; i <= SBArray.GetItemCount(indices); i++)
+                        {
+                            int index = indices[i];
+                            result[index] = spline.Interpolate(index);
+                        }
+                        return data;
+                    }
+                    else
+                    {
+                        return spline.Interpolate(data);
+                    }
+                }
+                return "FAILED";
             }
             catch (Exception ex)
             {
