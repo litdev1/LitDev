@@ -53,7 +53,7 @@ using System.Reflection;
 namespace LitDev
 {
     /// <summary>
-    /// Extended maths methods.
+    /// Extended maths methods, FFT and cubic spline.
     /// </summary>
 #if SVB
     [SmallVisualBasicType]
