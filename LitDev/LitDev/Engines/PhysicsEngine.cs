@@ -287,6 +287,7 @@ namespace LitDev.Engines
         public CircleDef circleDef;
         public float widthS, heightS;
         public List<string> Collisions = new List<string>();
+        public Vec2 acceleration;
 
         public Sprite(PhysicsEngine _physicsEngine, World _world)
         {
@@ -719,8 +720,26 @@ namespace LitDev.Engines
             _Sprite1 = (Sprite)point.Shape1.UserData;
             _Sprite2 = (Sprite)point.Shape2.UserData;
 
-            if (null != _Sprite1) _Sprite1.Collisions.Add(null == _Sprite2 ? "Wall" : _Sprite2.name);
-            if (null != _Sprite2) _Sprite2.Collisions.Add(null == _Sprite1 ? "Wall" : _Sprite1.name);
+            string _name1 = null == _Sprite1 ? "Wall" : _Sprite1.name;
+            string _name2 = null == _Sprite2 ? "Wall" : _Sprite2.name;
+
+            foreach (Chain i in engine.GetChains())
+            {
+                foreach (Sprite _Sprite in i.Sprites)
+                {
+                    if (null != _Sprite1 && _Sprite1.name == _Sprite.name)
+                    {
+                        _name1 = i.name;
+                    }
+                    if (null != _Sprite2 && _Sprite2.name == _Sprite.name)
+                    {
+                        _name2 = i.name;
+                    }
+                }
+            }
+
+            if (null != _Sprite1) _Sprite1.Collisions.Add(_name2);
+            if (null != _Sprite2) _Sprite2.Collisions.Add(_name1);
 
             foreach (Tire tire in engine.Tires)
             {
@@ -810,6 +829,7 @@ namespace LitDev.Engines
         //Public
         public World GetWorld() { return world; }
         public List<Sprite> GetSprites() { return Sprites; }
+        public List<Chain> GetChains() { return Chains; }
 
         public float timeStep;
         public int velocityIterations, positionIterations;
@@ -1809,6 +1829,8 @@ namespace LitDev.Engines
                             System.Windows.Controls.Canvas.SetLeft(sprite.uiElement, X);
                             System.Windows.Controls.Canvas.SetTop(sprite.uiElement, Y);
                             sprite.rotateTransform.Angle = angle * 180 / pi;
+                            sprite.acceleration += body.GetLinearVelocity();
+                            sprite.acceleration *= (1.0f / timeStep);
                         }
                     }
                 }
@@ -1836,6 +1858,7 @@ namespace LitDev.Engines
             foreach (Sprite i in Sprites)
             {
                 i.Collisions.Clear();
+                i.acceleration = -i.body.GetLinearVelocity();
             }
 
             //Update tires
@@ -2079,6 +2102,21 @@ namespace LitDev.Engines
                 }
             }
             return velS;
+        }
+
+        public float[] getAcceleration(string shapeName)
+        {
+            float[] accS = new float[2] { 0.0f, 0.0f };
+            foreach (Sprite i in Sprites)
+            {
+                if (i.name == shapeName)
+                {
+                    accS[0] = scale * i.acceleration.X;
+                    accS[1] = scale * i.acceleration.Y;
+                    return accS;
+                }
+            }
+            return accS;
         }
 
         public void setImpulse(string shapeName, float impulseXS, float impulseYS)

@@ -732,6 +732,22 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Get the acceleration of the shape.
+        /// </summary>
+        /// <param name="shapeName">
+        /// The shape name.
+        /// </param>
+        /// <returns>
+        /// A 2 element array with the shape acceleration.
+        /// </returns>
+        public static Primitive GetAcceleration(Primitive shapeName)
+        {
+            float[] acc = new float[2];
+            acc = _Engine.getAcceleration(shapeName);
+            return Utilities.CreateArrayMap("1=" + acc[0].ToString(CultureInfo.InvariantCulture) + ";2=" + acc[1].ToString(CultureInfo.InvariantCulture) + ";");
+        }
+
+        /// <summary>
         /// Solidly group two shapes to move together as one.  Shape1 is added to shape2 to act as one shape.
         /// </summary>
         /// <param name="shape1">

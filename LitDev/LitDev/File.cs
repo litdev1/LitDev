@@ -696,7 +696,8 @@ namespace LitDev
                 {
                     foreach (FieldInfo field in fields)
                     {
-                        streamWriter.WriteLine(field.Name + " " + field.GetValue(null));
+                        string value = field.GetValue(null).ToString().Replace("\r", "\\r").Replace("\n", "\\n");
+                        streamWriter.WriteLine(field.Name + " " + value);
                     }
                 }
             }
@@ -732,7 +733,7 @@ namespace LitDev
                         string line = streamReader.ReadLine();
                         int pos = line.IndexOf(" ");
                         string name = line.Substring(0, pos);
-                        Primitive var = line.Substring(pos + 1);
+                        Primitive var = line.Substring(pos + 1).Replace("\\r", "\r").Replace("\\n", "\n");
                         foreach (FieldInfo field in fields)
                         {
                             if (field.Name == name)
