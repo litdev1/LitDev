@@ -657,12 +657,12 @@ namespace LitDev.Engines
 
                 if (bChain)
                 {
-                    shapeName = Shapes.AddEllipse(20 * radiusP, 20 * radiusP);
+                    shapeName = Shapes.AddEllipse(2* scale * radiusP, 2 * scale * radiusP);
                     _sprite.Add(shapeName, posP.X, posP.Y, radiusP, radiusP, 0.0f, 0.3f, 0.1f, 40.0f, spriteType.MOVING, bImageCircle, scale);
                 }
                 else
                 {
-                    shapeName = Shapes.AddRectangle(20 * lenP, 20 * widthP);
+                    shapeName = Shapes.AddRectangle(2 * scale * lenP, 2 * scale * widthP);
                     Shapes.Zoom(shapeName, 1.1, 1.0);
                     _sprite.Add(shapeName, posXP, posYP, lenP, widthP, 0.0f, 0.3f, 0.5f, 20.0f, spriteType.MOVING, bImageCircle, scale);
                     _sprite.body.SetXForm(posP, angleP);
