@@ -3161,6 +3161,46 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Get the shape's rotation angle.
+        /// </summary>
+        /// <param name="shapeName">
+        /// The shape or control name.
+        /// </param>
+        /// <returns>
+        /// The shape rotation in degrees.
+        /// </returns>
+        public static Primitive Angle(Primitive shapeName)
+        {
+            try
+            {
+                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                {
+                    try
+                    {
+                        Type ShapesType = typeof(SBShapes);
+                        Dictionary<string, RotateTransform> _rotateTransformMap = (Dictionary<string, RotateTransform>)ShapesType.GetField("_rotateTransformMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                        RotateTransform rotateTransform;
+                        if (_rotateTransformMap.TryGetValue((string)shapeName, out rotateTransform))
+                            return rotateTransform.Angle;
+                        else
+                            return 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                    return 0;
+                });
+                return FastThread.InvokeWithReturn(ret).ToString();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return 0;
+            }
+        }
+
+        /// <summary>
         /// Get the shape's visible (including zoom) height.
         /// </summary>
         /// <param name="shapeName">
