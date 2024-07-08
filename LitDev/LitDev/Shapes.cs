@@ -1562,9 +1562,6 @@ namespace LitDev
         /// <param name="colour">
         /// The new brush colour.
         /// </param>
-        /// <returns>
-        /// None.
-        /// </returns>
         public static void BrushColour(Primitive shapeName, Primitive colour)
         {
             try
@@ -1674,6 +1671,69 @@ namespace LitDev
                             {
                                 Menu shape = (Menu)obj;
                                 shape.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    });
+                    FastThread.Invoke(ret);
+                }
+                else
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Set the alignment of text within a text shape
+        /// </summary>
+        /// <param name="shapeName">
+        /// The shape or control name.
+        /// </param>
+        /// <param name="alignment">
+        /// The alignment, can be "Left", "Center", "Right" or "Justify"</param>
+        public static void TextAlignment(Primitive shapeName, Primitive alignment)
+        {
+            try
+            {
+                if (_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    InvokeHelper ret = new InvokeHelper(delegate
+                    {
+                        try
+                        {
+                            TextAlignment _alignment = System.Windows.TextAlignment.Left;
+                            switch (((string)alignment).ToLower().Substring(0,1))
+                            {
+                                case "l":
+                                    _alignment = System.Windows.TextAlignment.Left;
+                                    break;
+                                case "r":
+                                    _alignment = System.Windows.TextAlignment.Right;
+                                    break;
+                                case "c":
+                                    _alignment = System.Windows.TextAlignment.Center;
+                                    break;
+                                case "j":
+                                    _alignment = System.Windows.TextAlignment.Justify;
+                                    break;
+                            }
+                            if (obj.GetType() == typeof(TextBlock))
+                            {
+                                TextBlock shape = (TextBlock)obj;
+                                shape.TextAlignment = _alignment;
+                            }
+                            else if (obj.GetType() == typeof(TextBox))
+                            {
+                                TextBox shape = (TextBox)obj;
+                                shape.TextAlignment = _alignment;
                             }
                         }
                         catch (Exception ex)
