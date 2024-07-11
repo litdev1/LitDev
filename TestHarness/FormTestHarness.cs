@@ -641,6 +641,9 @@ namespace TestHarness
                 System.IO.File.Copy(Application.StartupPath + "\\SmallVisualBasicLibrary.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\SmallVisualBasicLibrary.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Effects.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Effects.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\Microsoft.Expression.Drawing.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Microsoft.Expression.Drawing.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\AForge.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\AForge.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\AForge.Math.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\AForge.Math.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\AForge.Imaging.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\AForge.Imaging.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\LDBasic.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\LDBasic.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\LDBasic.xml", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\LDBasic.xml", true);
             }

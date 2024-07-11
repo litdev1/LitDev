@@ -54,6 +54,8 @@ using System.Text;
 using System.Windows.Media.Imaging;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using AForge.Imaging;
+using AForge.Imaging.Filters;
 
 namespace LitDev
 {
@@ -727,7 +729,7 @@ namespace LitDev
 
                     Bitmap dImg = FastPixel.GetBitmap(img);
 
-                    Image.GetThumbnailImageAbort dummyCallback = new Image.GetThumbnailImageAbort(LDWebCam.ResizeAbort);
+                    System.Drawing.Image.GetThumbnailImageAbort dummyCallback = new System.Drawing.Image.GetThumbnailImageAbort(LDWebCam.ResizeAbort);
                     dImg = (Bitmap)dImg.GetThumbnailImage(width, height, dummyCallback, IntPtr.Zero);
 
                     FastThread.SaveBitmap(image, dImg);
@@ -1944,7 +1946,7 @@ namespace LitDev
             {
                 try
                 {
-                    Image image = new Bitmap(imageFile);
+                    System.Drawing.Image image = new Bitmap(imageFile);
                     PropertyItem[] propItems = image.PropertyItems;
                     Primitive result = "";
                     foreach (PropertyItem item in propItems)
@@ -2364,6 +2366,7 @@ namespace LitDev
                         return "";
                     });
                     return FastThread.InvokeWithReturn(ret).ToString();
+
                 }
                 else if (_fileName.EndsWith(".png"))
                 {
@@ -2397,40 +2400,127 @@ namespace LitDev
             return "";
         }
 
+        private static Bitmap ConvertToFormat(System.Drawing.Image image, PixelFormat format)
+        {
+            Bitmap copy = new Bitmap(image.Width, image.Height, format);// PixelFormat.Format24bppRgb);
+            using (Graphics gr = Graphics.FromImage(copy))
+            {
+                gr.DrawImage(image, new Rectangle(0, 0, copy.Width, copy.Height));
+            }
+            return copy;
+        }
+
+        /// <summary>
+        /// Find if one image exists within another.
+        /// </summary>
+        /// <param name="source">The source image (image file or ImageList).</param>
+        /// <param name="find">The image to find within source (image file or ImageList).</param>
+        /// <param name="scale">This calculation can be slow, this option initially reduces the image sizes by a scale factor (Often 2 to 4).</param>
+        /// <param name="threshhold">An initial theshhold for the comparison (0.95 is recommended).</param>
+        /// <returns>An array with results for the best loaction of find in source, if no match found then "".  If scale > 1, then this is approximate.
+        /// result[1] = similarilty factor (1 is perfect match)
+        /// result[2] = left location of match in source image
+        /// result[3] = top location of match in source image
+        /// result[4] = width of match in source image
+        /// result[5] = height of match in source image
+        /// </returns>
+        public static Primitive FindImageInImage(Primitive source, Primitive find, Primitive scale, Primitive threshhold)
+        {
+            Type ImageListType = typeof(ImageList);
+            BitmapSource bmsSource, bmsFind;
+            Bitmap bmSource, bmFind;
+
+            try
+            {
+                _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_savedImages.TryGetValue((string)source, out bmsSource))
+                {
+                    bmSource = FastPixel.GetBitmap(bmsSource);
+                }
+                else if (System.IO.File.Exists(source))
+                {
+                    bmSource = (Bitmap)Bitmap.FromFile(source);
+                }
+                else
+                {
+                    return "";
+                }
+                if (_savedImages.TryGetValue((string)find, out bmsFind))
+                {
+                    bmFind = FastPixel.GetBitmap(bmsFind);
+                }
+                else if (System.IO.File.Exists(find))
+                {
+                    bmFind = (Bitmap)Bitmap.FromFile(find);
+                }
+                else
+                {
+                    return "";
+                }
+
+                ResizeBilinear filter1 = new ResizeBilinear((int)(bmSource.Width / scale), (int)(bmSource.Height / scale));
+                bmSource = filter1.Apply(bmSource);
+                ResizeBilinear filter2 = new ResizeBilinear((int)(bmFind.Width / scale), (int)(bmFind.Height / scale));
+                bmFind = filter2.Apply(bmFind);
+
+                bmSource = ConvertToFormat(bmSource, PixelFormat.Format24bppRgb);
+                bmFind = ConvertToFormat(bmFind, PixelFormat.Format24bppRgb);
+
+                ExhaustiveTemplateMatching tm = new ExhaustiveTemplateMatching(threshhold);
+                TemplateMatch[] matchings = tm.ProcessImage(bmSource, bmFind);
+
+                Primitive result = "";
+                if (matchings.Length > 0)
+                {
+                    result[1] = matchings[0].Similarity;
+                    result[2] = matchings[0].Rectangle.Left * scale;
+                    result[3] = matchings[0].Rectangle.Top * scale;
+                    result[4] = matchings[0].Rectangle.Width * scale;
+                    result[5] = matchings[0].Rectangle.Height * scale;
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
+
         /// <summary>
         /// Read text from an image
         /// </summary>
         /// <param name="image">The image, can be an ImageList or image file.</param>
         /// <returns>All text detected in the image or "".</returns>
-        //public static Primitive GetTextFromImage(Primitive image)
-        //{
-        //    Type ImageListType = typeof(ImageList);
-        //    BitmapSource img;
+            //public static Primitive GetTextFromImage(Primitive image)
+            //{
+            //    Type ImageListType = typeof(ImageList);
+            //    BitmapSource img;
 
-        //    try
-        //    {
-        //        _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-        //        if (!_savedImages.TryGetValue((string)image, out img)) return "";
+            //    try
+            //    {
+            //        _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+            //        if (!_savedImages.TryGetValue((string)image, out img)) return "";
 
-        //        //Bitmap dImg = FastPixel.GetBitmap(img);
-        //        //IronTesseract IronOcr = new IronTesseract();
-        //        //var Result = IronOcr.Read(dImg);
-        //        //return Result.Text;
+            //        //Bitmap dImg = FastPixel.GetBitmap(img);
+            //        //IronTesseract IronOcr = new IronTesseract();
+            //        //var Result = IronOcr.Read(dImg);
+            //        //return Result.Text;
 
-        //        var Ocr = new IronTesseract();
-        //        using (var Input = new OcrInput(image))
-        //        {
-        //            // Input.Deskew();  // use if image not straight
-        //            // Input.DeNoise(); // use if image contains digital noise
-        //            var Result = Ocr.Read(Input);
-        //            return Result.Text;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-        //    }
-        //    return "";
-        //}
+            //        var Ocr = new IronTesseract();
+            //        using (var Input = new OcrInput(image))
+            //        {
+            //            // Input.Deskew();  // use if image not straight
+            //            // Input.DeNoise(); // use if image contains digital noise
+            //            var Result = Ocr.Read(Input);
+            //            return Result.Text;
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            //    }
+            //    return "";
+            //}
     }
 }
