@@ -53,6 +53,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Media.Imaging;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace LitDev
 {
@@ -288,7 +289,26 @@ namespace LitDev
 #endif
     public static class LDImage
     {
-        private static Dictionary<string, Shadow> Shadows = new Dictionary<string, Shadow>();
+        // P/Invoke declarations
+        [DllImport("gdi32.dll")]
+        static extern bool BitBlt(IntPtr hdcDest, int xDest, int yDest, int
+        wDest, int hDest, IntPtr hdcSource, int xSrc, int ySrc, CopyPixelOperation rop);
+        [DllImport("user32.dll")]
+        static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDc);
+        [DllImport("gdi32.dll")]
+        static extern IntPtr DeleteDC(IntPtr hDc);
+        [DllImport("gdi32.dll")]
+        static extern IntPtr DeleteObject(IntPtr hDc);
+        [DllImport("gdi32.dll")]
+        static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
+        [DllImport("gdi32.dll")]
+        static extern IntPtr CreateCompatibleDC(IntPtr hdc);
+        [DllImport("gdi32.dll")]
+        static extern IntPtr SelectObject(IntPtr hdc, IntPtr bmp);
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetDesktopWindow();
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetWindowDC(IntPtr ptr); private static Dictionary<string, Shadow> Shadows = new Dictionary<string, Shadow>();
         private static object LockingVar = new object();
         private static Dictionary<string, BitmapSource> _savedImages;
 
@@ -2292,6 +2312,89 @@ namespace LitDev
             Primitive image = SBImageList.LoadImage(tmpFile);
             SBFile.DeleteFile(tmpFile);
             return image;
+        }
+
+        /// <summary>
+        /// Save the entire desktop screen as an image file (png, jpg, bmp, gif, tiff or ico).
+        /// </summary>
+        /// <param name="fileName">
+        /// The file to save the image to (*.png, *.jpg, *.bmp, *.gif, *.tiff or *.ico).
+        /// If this is set to "", then the image is created internally as an ImageList.
+        /// </param>
+        /// <returns>
+        /// The ImageList image if fileName is "", otherwise if output to a file, then "" is returned.
+        /// </returns>
+        public static Primitive CaptureScreen(Primitive fileName)
+        {
+            Type ShapesType = typeof(Shapes);
+            Type ImageListType = typeof(SBImageList);
+            Dictionary<string, BitmapSource> _savedImages;
+            try
+            {
+                Size sz = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
+                IntPtr hDesk = GetDesktopWindow();
+                IntPtr hSrce = GetWindowDC(hDesk);
+                IntPtr hDest = CreateCompatibleDC(hSrce);
+                IntPtr hBmp = CreateCompatibleBitmap(hSrce, sz.Width, sz.Height);
+                IntPtr hOldBmp = SelectObject(hDest, hBmp);
+                bool b = BitBlt(hDest, 0, 0, sz.Width, sz.Height, hSrce, 0, 0, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
+                Bitmap img = Bitmap.FromHbitmap(hBmp);
+
+                string _fileName = ((string)fileName).ToLower();
+
+                if (fileName == "")
+                {
+                    InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                    {
+                        try
+                        {
+                            _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+#if SVB
+                            string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList", false }).ToString();
+#else
+                            string shapeName = ShapesType.GetMethod("GenerateNewName", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).Invoke(null, new object[] { "ImageList" }).ToString();
+#endif
+                            _savedImages[shapeName] = FastPixel.GetBitmapImage(img);
+                            return shapeName;
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                        return "";
+                    });
+                    return FastThread.InvokeWithReturn(ret).ToString();
+                }
+                else if (_fileName.EndsWith(".png"))
+                {
+                    img.Save(fileName, ImageFormat.Png);
+                }
+                else if (_fileName.EndsWith(".jpg") || _fileName.EndsWith(".jpeg"))
+                {
+                    img.Save(fileName, ImageFormat.Jpeg);
+                }
+                else if (_fileName.EndsWith(".bmp"))
+                {
+                    img.Save(fileName, ImageFormat.Bmp);
+                }
+                else if (_fileName.EndsWith(".gif"))
+                {
+                    img.Save(fileName, ImageFormat.Gif);
+                }
+                else if (_fileName.EndsWith(".tiff"))
+                {
+                    img.Save(fileName, ImageFormat.Tiff);
+                }
+                else if (_fileName.EndsWith(".ico"))
+                {
+                    img.Save(fileName, ImageFormat.Icon);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
         }
 
         /// <summary>
