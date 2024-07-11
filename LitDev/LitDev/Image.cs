@@ -2293,5 +2293,41 @@ namespace LitDev
             SBFile.DeleteFile(tmpFile);
             return image;
         }
+
+        /// <summary>
+        /// Read text from an image
+        /// </summary>
+        /// <param name="image">The image, can be an ImageList or image file.</param>
+        /// <returns>All text detected in the image or "".</returns>
+        //public static Primitive GetTextFromImage(Primitive image)
+        //{
+        //    Type ImageListType = typeof(ImageList);
+        //    BitmapSource img;
+
+        //    try
+        //    {
+        //        _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+        //        if (!_savedImages.TryGetValue((string)image, out img)) return "";
+
+        //        //Bitmap dImg = FastPixel.GetBitmap(img);
+        //        //IronTesseract IronOcr = new IronTesseract();
+        //        //var Result = IronOcr.Read(dImg);
+        //        //return Result.Text;
+
+        //        var Ocr = new IronTesseract();
+        //        using (var Input = new OcrInput(image))
+        //        {
+        //            // Input.Deskew();  // use if image not straight
+        //            // Input.DeNoise(); // use if image contains digital noise
+        //            var Result = Ocr.Read(Input);
+        //            return Result.Text;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+        //    }
+        //    return "";
+        //}
     }
 }
