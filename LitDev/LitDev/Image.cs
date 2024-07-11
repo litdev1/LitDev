@@ -2415,7 +2415,7 @@ namespace LitDev
         /// </summary>
         /// <param name="source">The source image (image file or ImageList).</param>
         /// <param name="find">The image to find within source (image file or ImageList).</param>
-        /// <param name="scale">This calculation can be slow, this option initially reduces the image sizes by a scale factor (Often 2 to 4).</param>
+        /// <param name="scale">The calculation can be slow, and this option initially reduces the image sizes by a scale factor (Often 2 to 4).</param>
         /// <param name="threshhold">An initial theshhold for the comparison (0.95 is recommended).</param>
         /// <returns>An array with results for the best loaction of find in source, if no match found then "".  If scale > 1, then this is approximate.
         /// result[1] = similarilty factor (1 is perfect match)
