@@ -2401,16 +2401,6 @@ namespace LitDev
             return "";
         }
 
-        private static Bitmap ConvertToFormat(System.Drawing.Image image, PixelFormat format)
-        {
-            Bitmap copy = new Bitmap(image.Width, image.Height, format);// PixelFormat.Format24bppRgb);
-            using (Graphics gr = Graphics.FromImage(copy))
-            {
-                gr.DrawImage(image, new Rectangle(0, 0, copy.Width, copy.Height));
-            }
-            return copy;
-        }
-
         /// <summary>
         /// Find if one image exists within another.
         /// If no results are found, then reduce scale and/or threshhold.
