@@ -111,6 +111,16 @@ namespace LitDev.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] eng {
+            get {
+                object obj = ResourceManager.GetObject("eng", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap excel {
@@ -177,6 +187,26 @@ namespace LitDev.Properties {
             get {
                 object obj = ResourceManager.GetObject("legend", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] leptonica_1_82_032 {
+            get {
+                object obj = ResourceManager.GetObject("leptonica_1_82_032", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] leptonica_1_82_064 {
+            get {
+                object obj = ResourceManager.GetObject("leptonica_1_82_064", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
@@ -287,6 +317,26 @@ namespace LitDev.Properties {
             get {
                 object obj = ResourceManager.GetObject("stepout", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] tesseract5032 {
+            get {
+                object obj = ResourceManager.GetObject("tesseract5032", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] tesseract5064 {
+            get {
+                object obj = ResourceManager.GetObject("tesseract5064", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

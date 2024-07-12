@@ -644,6 +644,7 @@ namespace TestHarness
                 System.IO.File.Copy(Application.StartupPath + "\\AForge.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\AForge.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\AForge.Math.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\AForge.Math.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\AForge.Imaging.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\AForge.Imaging.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\Tesseract.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Tesseract.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\LDBasic.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\LDBasic.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\LDBasic.xml", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\LDBasic.xml", true);
             }
@@ -745,6 +746,9 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive sourceFile = "C:\\Users\\steve\\Documents\\SmallBasic\\steve\\imageWithText.jpg";
+            Primitive result3 = LDImage.GetTextFromImage(sourceFile, "", 1);
+
             Primitive view3D1 = LD3DView.AddView(800, 800, "True");
             Primitive whiteKing = LD3DView.LoadModel(view3D1, "C: \\Users\\steve\\Documents\\SmallBasic\\steve\\3DChess\\Pieces/12939_Stone_Chess_King_Side_A_V2_l1.obj");
             LD3DView.AddAmbientLight(view3D1, "White");

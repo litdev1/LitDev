@@ -57,6 +57,8 @@ using System.Runtime.InteropServices;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
 using Microsoft.JScript;
+using System.Diagnostics;
+using Tesseract;
 
 namespace LitDev
 {
@@ -2371,27 +2373,27 @@ namespace LitDev
                 }
                 else if (_fileName.EndsWith(".png"))
                 {
-                    img.Save(fileName, ImageFormat.Png);
+                    img.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
                 }
                 else if (_fileName.EndsWith(".jpg") || _fileName.EndsWith(".jpeg"))
                 {
-                    img.Save(fileName, ImageFormat.Jpeg);
+                    img.Save(fileName, System.Drawing.Imaging.ImageFormat.Jpeg);
                 }
                 else if (_fileName.EndsWith(".bmp"))
                 {
-                    img.Save(fileName, ImageFormat.Bmp);
+                    img.Save(fileName, System.Drawing.Imaging.ImageFormat.Bmp);
                 }
                 else if (_fileName.EndsWith(".gif"))
                 {
-                    img.Save(fileName, ImageFormat.Gif);
+                    img.Save(fileName, System.Drawing.Imaging.ImageFormat.Gif);
                 }
                 else if (_fileName.EndsWith(".tiff"))
                 {
-                    img.Save(fileName, ImageFormat.Tiff);
+                    img.Save(fileName, System.Drawing.Imaging.ImageFormat.Tiff);
                 }
                 else if (_fileName.EndsWith(".ico"))
                 {
-                    img.Save(fileName, ImageFormat.Icon);
+                    img.Save(fileName, System.Drawing.Imaging.ImageFormat.Icon);
                 }
             }
             catch (Exception ex)
@@ -2485,40 +2487,138 @@ namespace LitDev
             return "";
         }
 
+        private static void ExtractDll()
+        {
+            try
+            {
+                string path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                string filename;
+
+                string pathDll = path + (IntPtr.Size == 8 ? "\\x64" : "\\x86");
+                if (!Directory.Exists(pathDll))
+                {
+                    Directory.CreateDirectory(pathDll);
+                    filename = pathDll + "\\leptonica-1.82.0.dll";
+                    if (!System.IO.File.Exists(filename))
+                    {
+                        Byte[] dll = (IntPtr.Size == 8) ? global::LitDev.Properties.Resources.leptonica_1_82_064 : global::LitDev.Properties.Resources.leptonica_1_82_032;
+                        using (System.IO.FileStream fs = new System.IO.FileStream(filename, System.IO.FileMode.Create))
+                        {
+                            fs.Write(dll, 0, dll.Length);
+                        }
+                    }
+                    filename = pathDll + "\\tesseract50.dll";
+                    if (!System.IO.File.Exists(filename))
+                    {
+                        Byte[] dll = (IntPtr.Size == 8) ? global::LitDev.Properties.Resources.tesseract5064 : global::LitDev.Properties.Resources.tesseract5032;
+                        using (System.IO.FileStream fs = new System.IO.FileStream(filename, System.IO.FileMode.Create))
+                        {
+                            fs.Write(dll, 0, dll.Length);
+                        }
+                    }
+                }
+
+                string pathTesseract = path + "\\tessdata";
+                if (!Directory.Exists(pathTesseract))
+                {
+                    Directory.CreateDirectory(pathTesseract);
+                    filename = pathTesseract + "\\eng.traineddata";
+                    if (!System.IO.File.Exists(filename))
+                    {
+                        Byte[] dll = global::LitDev.Properties.Resources.eng;
+                        using (System.IO.FileStream fs = new System.IO.FileStream(filename, System.IO.FileMode.Create))
+                        {
+                            fs.Write(dll, 0, dll.Length);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
         /// <summary>
-        /// Read text from an image
+        /// Read text from an image.
+        /// This will extract required dlls (x64 or x86) and trained language recognition data (tessdata) to new folders along with your compiled code.
+        /// You can add additional language data files downloaded from https://github.com/tesseract-ocr/tessdata, placed in tessdata folder.
         /// </summary>
         /// <param name="image">The image, can be an ImageList or image file.</param>
+        /// <param name="language">The language to use, by default this must be "" or "eng" unless you add other language files.</param>
+        /// <param name="mode">The language engine mode, recommend Default.
+        /// 1 - Default
+        /// 2 - TesseractOnly
+        /// 3 - LstmOnly
+        /// 4 - TesseractAndLstm
+        /// </param>
         /// <returns>All text detected in the image or "".</returns>
-            //public static Primitive GetTextFromImage(Primitive image)
-            //{
-            //    Type ImageListType = typeof(ImageList);
-            //    BitmapSource img;
+        public static Primitive GetTextFromImage(Primitive image, Primitive language, Primitive mode)
+        {
+            Type ImageListType = typeof(ImageList);
+            string imageFile = image;
+            string lang = language.ToString().ToLower();
+            if (lang == "") lang = "eng";
+            bool isTempFile = false;
+            BitmapSource bmSource;
 
-            //    try
-            //    {
-            //        _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-            //        if (!_savedImages.TryGetValue((string)image, out img)) return "";
+            try
+            {
+                ExtractDll();
+                EngineMode em = EngineMode.Default;
+                switch (mode.ToString())
+                {
+                    case "1":
+                        em = EngineMode.Default;
+                        break;
+                    case "2":
+                        em = EngineMode.TesseractOnly;
+                        break;
+                    case "3":
+                        em = EngineMode.LstmOnly;
+                        break;
+                    case "4":
+                        em = EngineMode.TesseractAndLstm;
+                        break;
+                }
 
-            //        //Bitmap dImg = FastPixel.GetBitmap(img);
-            //        //IronTesseract IronOcr = new IronTesseract();
-            //        //var Result = IronOcr.Read(dImg);
-            //        //return Result.Text;
+                _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (_savedImages.TryGetValue((string)image, out bmSource))
+                {
+                    isTempFile = true;
+                    imageFile = Path.GetTempFileName();
+                    FastPixel.GetBitmap(bmSource).Save(imageFile, System.Drawing.Imaging.ImageFormat.Png);
+                }
+                if (!System.IO.File.Exists(imageFile))
+                {
+                    return "";
+                }
 
-            //        var Ocr = new IronTesseract();
-            //        using (var Input = new OcrInput(image))
-            //        {
-            //            // Input.Deskew();  // use if image not straight
-            //            // Input.DeNoise(); // use if image contains digital noise
-            //            var Result = Ocr.Read(Input);
-            //            return Result.Text;
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-            //    }
-            //    return "";
-            //}
+                string dataPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)+"\\tessdata";
+                string result = "";
+
+                using (var engine = new TesseractEngine(dataPath, lang, em))
+                {
+                    using (var img = Pix.LoadFromFile(imageFile))
+                    {
+                        using (var page = engine.Process(img))
+                        {
+                            result = page.GetText();
+                        }
+                    }
+                }
+
+                if (isTempFile)
+                {
+                    System.IO.File.Delete(imageFile);
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "";
+        }
     }
 }

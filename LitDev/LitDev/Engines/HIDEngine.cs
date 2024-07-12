@@ -235,7 +235,7 @@ namespace LitDev.Engines
             if (!SetupDiGetDeviceInterfaceDetail(hInfoSet, ref oInterface, IntPtr.Zero, 0, ref nRequiredSize, ref da))
             {
                 DeviceInterfaceDetailData oDetail = new DeviceInterfaceDetailData();
-                oDetail.Size = (IntPtr.Size == 4) ? 5 : 8;	// hardcoded to 5! Sorry, but this works and trying more future proof versions by setting the size to the struct sizeof failed miserably. If you manage to sort it, mail me! Thx
+                oDetail.Size = (!Environment.Is64BitOperatingSystem) ? 5 : 8;	// hardcoded to 5! Sorry, but this works and trying more future proof versions by setting the size to the struct sizeof failed miserably. If you manage to sort it, mail me! Thx
 
                 if (SetupDiGetDeviceInterfaceDetail(hInfoSet, ref oInterface, ref oDetail, nRequiredSize, ref nRequiredSize, ref da))
                 {
@@ -269,7 +269,7 @@ namespace LitDev.Engines
                     {
                         // build a Device Interface Detail Data structure
                         DeviceInterfaceDetailData oDetail = new DeviceInterfaceDetailData();
-                        oDetail.Size = (IntPtr.Size == 4) ? 5 : 8;	// hardcoded to 5! Sorry, but this works and trying more future proof versions by setting the size to the struct sizeof failed miserably. If you manage to sort it, mail me! Thx
+                        oDetail.Size = (!Environment.Is64BitOperatingSystem) ? 5 : 8;	// hardcoded to 5! Sorry, but this works and trying more future proof versions by setting the size to the struct sizeof failed miserably. If you manage to sort it, mail me! Thx
 
                         DeviceInfoData da = new DeviceInfoData();
                         da.Size = (uint)Marshal.SizeOf(da);

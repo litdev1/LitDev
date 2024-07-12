@@ -83,7 +83,7 @@ namespace LitDev
                     double realData = double.Parse(kvp.Value);
                     complex[i++] = new Complex(realData, 0);
                 }
-                Fourier.BluesteinForward(complex, FourierOptions.Default);
+                Fourier.Forward(complex, FourierOptions.Default);
                 string result = "";
                 for (i = 0; i < length; i++)
                 {
@@ -121,7 +121,7 @@ namespace LitDev
                     double imaginary = double.Parse(values[1]);
                     complexData[i++] = new Complex(real, imaginary);
                 }
-                Fourier.BluesteinInverse(complexData, FourierOptions.Default);
+                Fourier.Inverse(complexData, FourierOptions.Default);
                 string result = "";
                 for (i = 0; i < length; i++)
                 {
