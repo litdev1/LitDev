@@ -56,6 +56,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
+using Microsoft.JScript;
 
 namespace LitDev
 {
@@ -2412,12 +2413,15 @@ namespace LitDev
 
         /// <summary>
         /// Find if one image exists within another.
+        /// If no results are found, then reduce scale and/or threshhold.
+        /// To speed the calculation, increase scale and potentially reduce threshhold.
         /// </summary>
         /// <param name="source">The source image (image file or ImageList).</param>
         /// <param name="find">The image to find within source (image file or ImageList).</param>
-        /// <param name="scale">The calculation can be slow, and this option initially reduces the image sizes by a scale factor (Often 2 to 4).</param>
-        /// <param name="threshhold">An initial theshhold for the comparison (0.95 is recommended).</param>
-        /// <returns>An array with results for the best loaction of find in source, if no match found then "".  If scale > 1, then this is approximate.
+        /// <param name="scale">The calculation can be slow, and this option initially reduces the image sizes by a scale factor.
+        /// A larger number will be faster but less accurate, often a value around 4 is recommended.</param>
+        /// <param name="threshhold">An initial minimum theshhold for the comparison (0.9 is generally recommended).</param>
+        /// <returns>An array with results for the best loaction of find image in source image, if no match found then "".
         /// result[1] = similarilty factor (1 is perfect match)
         /// result[2] = left location of match in source image
         /// result[3] = top location of match in source image
@@ -2432,6 +2436,8 @@ namespace LitDev
 
             try
             {
+                scale = System.Math.Max(1, (int)scale);
+
                 _savedImages = (Dictionary<string, BitmapSource>)ImageListType.GetField("_savedImages", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
                 if (_savedImages.TryGetValue((string)source, out bmsSource))
                 {
@@ -2458,13 +2464,15 @@ namespace LitDev
                     return "";
                 }
 
+                Rectangle cropArea1 = new Rectangle(0, 0, scale * (int)(bmSource.Width / scale), scale * (int)(bmSource.Height / scale));
+                bmSource = bmSource.Clone(cropArea1, PixelFormat.Format24bppRgb);
+                Rectangle cropArea2 = new Rectangle(0, 0, scale * (int)(bmFind.Width / scale), scale * (int)(bmFind.Height / scale));
+                bmFind = bmFind.Clone(cropArea2, PixelFormat.Format24bppRgb);
+
                 ResizeBilinear filter1 = new ResizeBilinear((int)(bmSource.Width / scale), (int)(bmSource.Height / scale));
                 bmSource = filter1.Apply(bmSource);
                 ResizeBilinear filter2 = new ResizeBilinear((int)(bmFind.Width / scale), (int)(bmFind.Height / scale));
                 bmFind = filter2.Apply(bmFind);
-
-                bmSource = ConvertToFormat(bmSource, PixelFormat.Format24bppRgb);
-                bmFind = ConvertToFormat(bmFind, PixelFormat.Format24bppRgb);
 
                 ExhaustiveTemplateMatching tm = new ExhaustiveTemplateMatching(threshhold);
                 TemplateMatch[] matchings = tm.ProcessImage(bmSource, bmFind);
