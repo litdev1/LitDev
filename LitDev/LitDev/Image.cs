@@ -294,26 +294,7 @@ namespace LitDev
 #endif
     public static class LDImage
     {
-        // P/Invoke declarations
-        [DllImport("gdi32.dll")]
-        static extern bool BitBlt(IntPtr hdcDest, int xDest, int yDest, int
-        wDest, int hDest, IntPtr hdcSource, int xSrc, int ySrc, CopyPixelOperation rop);
-        [DllImport("user32.dll")]
-        static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDc);
-        [DllImport("gdi32.dll")]
-        static extern IntPtr DeleteDC(IntPtr hDc);
-        [DllImport("gdi32.dll")]
-        static extern IntPtr DeleteObject(IntPtr hDc);
-        [DllImport("gdi32.dll")]
-        static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
-        [DllImport("gdi32.dll")]
-        static extern IntPtr CreateCompatibleDC(IntPtr hdc);
-        [DllImport("gdi32.dll")]
-        static extern IntPtr SelectObject(IntPtr hdc, IntPtr bmp);
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetDesktopWindow();
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetWindowDC(IntPtr ptr); private static Dictionary<string, Shadow> Shadows = new Dictionary<string, Shadow>();
+        private static Dictionary<string, Shadow> Shadows = new Dictionary<string, Shadow>();
         private static object LockingVar = new object();
         private static Dictionary<string, BitmapSource> _savedImages;
 
