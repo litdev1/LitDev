@@ -44,6 +44,12 @@ using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
 
 namespace LitDev
 {
+#if SVB
+    [SmallVisualBasicType]
+#else
+    [SmallBasicType]
+#endif
+    [HideFromIntellisense]
     public static class LDAI
     {
     }

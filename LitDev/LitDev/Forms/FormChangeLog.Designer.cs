@@ -17,7 +17,7 @@
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Moving to .Net 4.8 to add new funky stuff coming soon");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Moving to .Net 4.8 to add new stuff");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("CaptureScreen method added");
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("FindImageInImage method added");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("GetTextFromImage method added");
@@ -2138,7 +2138,7 @@
             this.treeView1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.treeView1.Name = "treeView1";
             treeNode1.Name = "Node0";
-            treeNode1.Text = "Moving to .Net 4.8 to add new funky stuff coming soon";
+            treeNode1.Text = "Moving to .Net 4.8 to add new stuff";
             treeNode2.Name = "Node1";
             treeNode2.Text = "CaptureScreen method added";
             treeNode3.Name = "Node2";
