@@ -69,6 +69,7 @@ using System.Windows.Threading;
 using System.Collections.Specialized;
 using System.Drawing;
 using Size = System.Drawing.Size;
+using Microsoft.SmallVisualBasic.WinForms;
 
 namespace LitDev
 {
@@ -2033,12 +2034,13 @@ namespace LitDev
     internal class Instance
     {
         private static bool isChecked = false;
-        private static bool isValid = true;
+        private static bool isValid = false;
 
         internal static void Verify()
         {
             if (!isChecked)
             {
+                isValid = DateTime.Now < DateTime.Parse("01/01/2026");
                 isChecked = true;
 
                 try
