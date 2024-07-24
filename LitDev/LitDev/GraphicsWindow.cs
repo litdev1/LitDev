@@ -73,6 +73,11 @@ namespace LitDev
 #endif
     public static class LDGraphicsWindow
     {
+        static LDGraphicsWindow()
+        {
+            Instance.Verify();
+        }
+
         private static object[] data;
 
         private static bool exitOnClose = true;

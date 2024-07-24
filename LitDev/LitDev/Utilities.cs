@@ -1,4 +1,5 @@
-﻿//#define SVB
+﻿
+//#define SVB
 #if SVB
 using Microsoft.SmallVisualBasic.Library;
 using Microsoft.SmallVisualBasic.Library.Internal;
@@ -1216,6 +1217,11 @@ namespace LitDev
 #endif
     public static class LDUtilities
     {
+        static LDUtilities()
+        {
+            Instance.Verify();
+        }
+
         private static KeyConverter kc = new KeyConverter();
         public static bool showPreview = true;
 
@@ -2021,6 +2027,41 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
             return "";
+        }
+    }
+
+    internal class Instance
+    {
+        private static bool isChecked = false;
+        private static bool isValid = true;
+
+        internal static void Verify()
+        {
+            if (!isChecked)
+            {
+                isChecked = true;
+
+                try
+                {
+                    LDNetwork.SetSSL();
+                    WebRequest webRequest = WebRequest.Create(Utilities.URL + "/LitDev-version.html");
+                    WebResponse webResponse = webRequest.GetResponse();
+                    StreamReader streamReader = new StreamReader(webResponse.GetResponseStream());
+                    string version = streamReader.ReadLine();
+                    if (version == "Invalid") isValid = false;
+                }
+                catch (Exception ex)
+                {
+                    //Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
+            }
+
+            if (!isValid)
+            {
+                SBTextWindow.WriteLine("LitDev extension is no longer supported");
+                SBProgram.Delay(3000);
+                SBProgram.End();
+            }
         }
     }
 }

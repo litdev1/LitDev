@@ -446,6 +446,11 @@ namespace LitDev
 #endif
     public static class LDChart
     {
+        static LDChart()
+        {
+            Instance.Verify();
+        }
+
         private static double doughnutFraction = 0.7;
         private static double highlightDuration = 100;
 

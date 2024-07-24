@@ -60,6 +60,11 @@ namespace LitDev
 #endif
     public static class LDClient
     {
+        static LDClient()
+        {
+            Instance.Verify();
+        }
+
         private static TcpClient tcpClient = null;
         private static bool connected = false;
         private static bool autoMode = true;

@@ -79,6 +79,11 @@ namespace LitDev
 #endif
     public static class LDBlueTooth
     {
+        static LDBlueTooth()
+        {
+            Instance.Verify();
+        }
+
         private static BluetoothRadio localRadio = null;
         private static BluetoothDeviceInfo localRadioInfo = null;
         private static BluetoothClient bluetoothClient = null;

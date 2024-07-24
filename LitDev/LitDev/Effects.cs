@@ -63,6 +63,11 @@ namespace LitDev
 #endif
     public static class LDEffect
     {
+        static LDEffect()
+        {
+            Instance.Verify();
+        }
+
         private enum eEffect { NONE, DROPSHADOW, BLUR, BLOOM, COLORTONE, EMBOSSED, MAGNIFY, MONOCHROME, PIXELATE, RIPPLE, SHARPEN, SWIRL };
 
         private static void ExtractDll()

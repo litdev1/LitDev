@@ -222,6 +222,11 @@ namespace LitDev
 #endif
     public static class LDShapes
     {
+        static LDShapes()
+        {
+            Instance.Verify();
+        }
+
         private static Type GraphicsWindowType = typeof(GraphicsWindow);
         private static Dictionary<string, UIElement> _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
         private static UIElement obj;

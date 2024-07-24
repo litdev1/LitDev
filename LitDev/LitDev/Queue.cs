@@ -59,6 +59,11 @@ namespace LitDev
 #endif
     public static class LDQueue
     {
+        static LDQueue()
+        {
+            Instance.Verify();
+        }
+
         private static Dictionary<Primitive, Queue<Primitive>> _queueMap = new Dictionary<Primitive, Queue<Primitive>>();
         private static object lockQ = new object();
 

@@ -77,6 +77,11 @@ namespace LitDev
 #endif
     public static class LDEvents
     {
+        static LDEvents()
+        {
+            Instance.Verify();
+        }
+
         // Local variables set or used by events
         private static int Delta = 0;
         private static WatcherChangeTypes watchertype;

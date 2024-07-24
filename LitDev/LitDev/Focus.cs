@@ -62,6 +62,11 @@ namespace LitDev
 #endif
     public static class LDFocus
     {
+        static LDFocus()
+        {
+            Instance.Verify();
+        }
+
         /// <summary>
         /// Checks if the named shape has the focus.
         /// </summary>

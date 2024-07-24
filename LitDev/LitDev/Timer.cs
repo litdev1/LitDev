@@ -59,6 +59,11 @@ namespace LitDev
 #endif
     public static class LDTimer
     {
+        static LDTimer()
+        {
+            Instance.Verify();
+        }
+
         class ObjTimer
         {
             private const int _maxInterval = 100000000;

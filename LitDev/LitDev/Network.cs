@@ -61,6 +61,11 @@ namespace LitDev
 #endif
     public static class LDNetwork
     {
+        static LDNetwork()
+        {
+            Instance.Verify();
+        }
+
         private static string ConvertToPrimitive(string input)
         {
             int pos = input.IndexOf("<br>");

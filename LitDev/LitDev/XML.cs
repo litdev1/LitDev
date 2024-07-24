@@ -75,6 +75,11 @@ namespace LitDev
 #endif
     public static class LDxml
     {
+        static LDxml()
+        {
+            Instance.Verify();
+        }
+
         private static Dictionary<string, XmlDoc> documents = new Dictionary<string, XmlDoc>();
         private static XmlDoc xmlDoc = null;
         private static FormXML formXML = new FormXML();

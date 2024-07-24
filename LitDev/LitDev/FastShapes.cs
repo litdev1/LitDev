@@ -90,6 +90,11 @@ namespace LitDev
 #endif
     public static class LDFastShapes
     {
+        static LDFastShapes()
+        {
+            Instance.Verify();
+        }
+
         private static Type GraphicsWindowType = typeof(GraphicsWindow);
         private static List<ShapeProperty> shapeProperties = new List<ShapeProperty>();
         private static Canvas _mainCanvas = null;

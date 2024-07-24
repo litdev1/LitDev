@@ -58,6 +58,11 @@ namespace LitDev
 #endif
     public static class LDSearch
     {
+        static LDSearch()
+        {
+            Instance.Verify();
+        }
+
         private static string bingKey = "USofJjSorAeOFEQ19oS+coNxSholq0Cq4TMc3rY6Y/M";
         private static BingSearchContainer bing = new BingSearchContainer(new Uri("https://api.datamarket.azure.com/Bing/Search/")) { Credentials = new NetworkCredential(bingKey, bingKey) };
         private static Cognitive cognitive = new Cognitive();

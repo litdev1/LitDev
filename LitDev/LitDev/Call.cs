@@ -81,6 +81,11 @@ namespace LitDev
 #endif
     public static class LDCall
     {
+        static LDCall()
+        {
+            Instance.Verify();
+        }
+
         private static Assembly entryAssembly = Assembly.GetEntryAssembly();
         private static Type mainModule = entryAssembly.EntryPoint.DeclaringType;
         private static string compiler = "";

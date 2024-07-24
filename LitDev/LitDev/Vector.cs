@@ -58,6 +58,11 @@ namespace LitDev
 #endif
     public static class LDVector
     {
+        static LDVector()
+        {
+            Instance.Verify();
+        }
+
         /// <summary>
         /// Rotate one vector about a direction defined by a second vector.
         /// </summary>

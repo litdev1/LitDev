@@ -66,6 +66,11 @@ namespace LitDev
 #endif
     public static class LDWindows
     {
+        static LDWindows()
+        {
+            Instance.Verify();
+        }
+
         private static object _lock = new object();
         private static double lastActivatedTime = 0.0;
         private static int currentWin = 0;

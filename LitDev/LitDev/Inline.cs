@@ -120,6 +120,11 @@ namespace LitDev
 #endif
     public static class LDInline
     {
+        static LDInline()
+        {
+            Instance.Verify();
+        }
+
         private static Assembly entryAssembly = Assembly.GetEntryAssembly();
         private static Type mainModule = entryAssembly.EntryPoint.DeclaringType;
 

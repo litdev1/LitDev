@@ -58,6 +58,11 @@ namespace LitDev
 #endif
     public static class LDColours
     {
+        static LDColours()
+        {
+            Instance.Verify();
+        }
+
         public static double[] HSL2RGB(double H, double S, double L)
         {
             while (H < 0.0) H += 360.0;

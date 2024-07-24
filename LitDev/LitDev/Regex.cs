@@ -56,6 +56,11 @@ namespace LitDev
 #endif
     public static class LDRegex
     {
+        static LDRegex()
+        {
+            Instance.Verify();
+        }
+
         /// <summary>
         /// Perform a regex match.
         /// </summary>

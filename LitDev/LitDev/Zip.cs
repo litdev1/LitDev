@@ -60,6 +60,11 @@ namespace LitDev
 #endif
     public static class LDZip
     {
+        static LDZip()
+        {
+            Instance.Verify();
+        }
+
         private static void AddToArchive(Package zip, string fileToAdd, string root)
         {
             try

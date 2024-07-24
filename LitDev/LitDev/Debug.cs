@@ -62,6 +62,11 @@ namespace LitDev
 #endif
     public static class LDDebug
     {
+        static LDDebug()
+        {
+            Instance.Verify();
+        }
+
         public static bool running = false;
         public static bool ignoreAllBreaks = false;
         public static bool includeAllBreaks = true;

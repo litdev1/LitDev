@@ -60,6 +60,11 @@ namespace LitDev
 #endif
     public static class LDGraph
     {
+        static LDGraph()
+        {
+            Instance.Verify();
+        }
+
         private static int trendPoint = 50;
         private static Primitive trendCoef = "";
 

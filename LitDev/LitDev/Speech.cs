@@ -60,6 +60,11 @@ namespace LitDev
 #endif
     public static class LDSpeech
     {
+        static LDSpeech()
+        {
+            Instance.Verify();
+        }
+
         static SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
         static Choices vocab = new Choices();
         static bool defaultVocab = true;

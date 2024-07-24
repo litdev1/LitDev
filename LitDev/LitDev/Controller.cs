@@ -61,6 +61,11 @@ namespace LitDev
 #endif
     public static class LDController
     {
+        static LDController()
+        {
+            Instance.Verify();
+        }
+
         private static DirectInput directInput;
         private static List<Joystick> joysticks = new List<Joystick>();
         private static int scale = 100;

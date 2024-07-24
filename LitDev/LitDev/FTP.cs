@@ -60,6 +60,11 @@ namespace LitDev
 #endif
     public static class LDftp
     {
+        static LDftp()
+        {
+            Instance.Verify();
+        }
+
         private static bool useBinary = true;
         private static bool doAssync = false;
 

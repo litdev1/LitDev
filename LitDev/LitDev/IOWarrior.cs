@@ -118,6 +118,11 @@ namespace LitDev
 #endif
     public static class LDIOWarrior
     {
+        static LDIOWarrior()
+        {
+            Instance.Verify();
+        }
+
         public static uint timeout = 1000;
 
         private static List<IOWDevice> IOWDevices = new List<IOWDevice>();

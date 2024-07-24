@@ -72,6 +72,11 @@ namespace LitDev
 #endif
     public static class LDTextWindow
     {
+        static LDTextWindow()
+        {
+            Instance.Verify();
+        }
+
         private static KeyConverter kc = new KeyConverter();
         private static Object _lock = new Object();
         private static Keys _LastKey = Keys.None;

@@ -596,6 +596,11 @@ namespace LitDev
 #endif
     public static class LDFastArray
     {
+        static LDFastArray()
+        {
+            Instance.Verify();
+        }
+
         public static Dictionary<string, ListXD> listXMap = new Dictionary<string, ListXD>();
         private static ListXD listXD;
 

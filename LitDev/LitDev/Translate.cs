@@ -75,6 +75,11 @@ namespace LitDev
 #endif
     public static class LDTranslate
     {
+        static LDTranslate()
+        {
+            Instance.Verify();
+        }
+
         private static Dictionary<string, string> languageList = new Dictionary<string, string>();
         private static Cognitive cognitive = new Cognitive();
 

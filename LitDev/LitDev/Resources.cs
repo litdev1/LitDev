@@ -165,6 +165,11 @@ namespace LitDev
 #endif
     public static class LDResources
     {
+        static LDResources()
+        {
+            Instance.Verify();
+        }
+
         private static Resources resources = new Resources();
         private static string resourcesFile = Path.ChangeExtension(Assembly.GetEntryAssembly().Location, ".sbres");
         private static Primitive files = "";

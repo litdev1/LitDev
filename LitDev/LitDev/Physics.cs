@@ -82,6 +82,11 @@ namespace LitDev
 #endif
     public static class LDPhysics
     {
+        static LDPhysics()
+        {
+            Instance.Verify();
+        }
+
         private static PhysicsEngine _Engine = new PhysicsEngine();
 
         private static Primitive Cast(double value, bool reverseY)

@@ -65,6 +65,11 @@ namespace LitDev
 #endif
     public static class LDText
     {
+        static LDText()
+        {
+            Instance.Verify();
+        }
+
         /// <summary>
         /// Split a variable into an array delimiated by a separator.
         /// </summary>

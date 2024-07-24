@@ -116,6 +116,11 @@ namespace LitDev
 #endif
     public static class LDServer
     {
+        static LDServer()
+        {
+            Instance.Verify();
+        }
+
         private static IPAddress _ip = IPAddress.None;
         private static int _port = 100;
         private static TcpListener tcpListener = null;

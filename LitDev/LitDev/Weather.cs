@@ -73,6 +73,11 @@ namespace LitDev
     [HideFromIntellisense]
     public static class LDWeather
     {
+        static LDWeather()
+        {
+            Instance.Verify();
+        }
+
         private static List<Detail> Details = new List<Detail>();
 
         private static void SetForecast(string location)

@@ -139,6 +139,11 @@ namespace LitDev
 #endif
     public static class LDHID
     {
+        static LDHID()
+        {
+            Instance.Verify();
+        }
+
         private static List<HID_Device> HID_Devices = new List<HID_Device>();
         private static byte[] lastInput = null;
         private static string lastDevice = "";

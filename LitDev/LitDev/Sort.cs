@@ -58,6 +58,11 @@ namespace LitDev
 #endif
     public static class LDSort
     {
+        static LDSort()
+        {
+            Instance.Verify();
+        }
+
         private static bool bNumber = true;
         public static bool bCaseSensitive = true;
 

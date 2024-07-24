@@ -272,6 +272,11 @@ namespace LitDev
 #endif
     public static class LDMatrix
     {
+        static LDMatrix()
+        {
+            Instance.Verify();
+        }
+
         private static List<Matrix> Matrices = new List<Matrix>();
 
         private static Matrix getMatrix(string name)

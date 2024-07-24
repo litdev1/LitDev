@@ -57,6 +57,11 @@ namespace LitDev
 #endif
     public static class LDProcess
     {
+        static LDProcess()
+        {
+            Instance.Verify();
+        }
+
         class proc : IComparable
         {
             public int ID;

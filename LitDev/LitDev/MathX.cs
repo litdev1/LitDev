@@ -62,6 +62,11 @@ namespace LitDev
 #endif
     public static class LDMathX
     {
+        static LDMathX()
+        {
+            Instance.Verify();
+        }
+
         /// <summary>
         /// Compute a FFT (Fast Fourier Transform).
         /// </summary>

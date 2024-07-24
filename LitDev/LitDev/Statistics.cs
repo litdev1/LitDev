@@ -58,6 +58,11 @@ namespace LitDev
 #endif
     public static class LDStatistics
     {
+        static LDStatistics()
+        {
+            Instance.Verify();
+        }
+
         private static List<double> data = new List<double>();
         private static List<double> points = new List<double>();
         private static bool bPositive;

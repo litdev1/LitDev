@@ -229,6 +229,11 @@ namespace LitDev
 #endif
     public static class LDEncryption
     {
+        static LDEncryption()
+        {
+            Instance.Verify();
+        }
+
         private static UTF8Encoding ByteConverter = new UTF8Encoding();
         private static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
         private static SHA512CryptoServiceProvider sha512 = new SHA512CryptoServiceProvider();

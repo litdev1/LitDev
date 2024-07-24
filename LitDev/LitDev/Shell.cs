@@ -108,6 +108,11 @@ namespace LitDev
 #endif
     public static class LDShell
     {
+        static LDShell()
+        {
+            Instance.Verify();
+        }
+
         // https://social.msdn.microsoft.com/Forums/vstudio/en-US/b25e2b8f-141a-4a1c-a73c-1cb92f953b2b/instantiate-shell32shell-object-in-windows-8?forum=clr
         // http://nerdynotes.blogspot.no/2008/06/vbnet-shell32-code-compiled-on-vista.html
         private static Shell32.Folder GetShell32NameSpace(Object folder)

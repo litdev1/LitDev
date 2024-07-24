@@ -59,6 +59,11 @@ namespace LitDev
 #endif
     public static class LDStopwatch
     {
+        static LDStopwatch()
+        {
+            Instance.Verify();
+        }
+
         private static Dictionary<string, Stopwatch> watches = new Dictionary<string, Stopwatch>();
         private static Stopwatch watch;
         private static object lockWatch = new object();

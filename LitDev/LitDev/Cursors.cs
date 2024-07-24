@@ -64,6 +64,11 @@ namespace LitDev
 #endif
     public static class LDCursors
     {
+        static LDCursors()
+        {
+            Instance.Verify();
+        }
+
         private static Dictionary<string, Cursor> cursors = new Dictionary<string, Cursor>();
 
         private static Cursor createCursor(Bitmap bmp, int xHotSpot, int yHotSpot)

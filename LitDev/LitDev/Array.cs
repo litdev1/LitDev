@@ -234,6 +234,11 @@ namespace LitDev
 #endif
     public static class LDArray
     {
+        static LDArray()
+        {
+            Instance.Verify();
+        }
+
         private static List<Array> Arrays = new List<Array>();
 
         public static Array getArray(string name)

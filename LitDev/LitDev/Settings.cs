@@ -61,6 +61,11 @@ namespace LitDev
 #endif
     public static class LDSettings
     {
+        static LDSettings()
+        {
+            Instance.Verify();
+        }
+
         private static Primitive _filePath = new Primitive();
 
         private static Dictionary<string, string> ReadContents(Stream stream)

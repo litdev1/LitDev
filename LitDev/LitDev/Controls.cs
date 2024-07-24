@@ -79,6 +79,11 @@ namespace LitDev
 #endif
     public static class LDControls
     {
+        static LDControls()
+        {
+            Instance.Verify();
+        }
+
         private static void AddControl(string name, Control control)
         {
             Type GraphicsWindowType = typeof(GraphicsWindow);

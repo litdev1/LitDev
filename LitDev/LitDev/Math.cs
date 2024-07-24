@@ -101,6 +101,11 @@ namespace LitDev
 #endif
     public static class LDMath
     {
+        static LDMath()
+        {
+            Instance.Verify();
+        }
+
         private static double deg2rad = System.Math.PI / 180.0;
         private const string CharList = "0123456789abcdefghijklmnopqrstuvwxyz";
 

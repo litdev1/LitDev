@@ -294,6 +294,11 @@ namespace LitDev
 #endif
     public static class LDImage
     {
+        static LDImage()
+        {
+            Instance.Verify();
+        }
+
         private static Dictionary<string, Shadow> Shadows = new Dictionary<string, Shadow>();
         private static object LockingVar = new object();
         private static Dictionary<string, BitmapSource> _savedImages;

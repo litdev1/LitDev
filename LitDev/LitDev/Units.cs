@@ -74,6 +74,11 @@ namespace LitDev
 #endif
     public static class LDUnits
     {
+        static LDUnits()
+        {
+            Instance.Verify();
+        }
+
         static UnitSystem unitSystem = new UnitSystem();
 
         /// <summary>

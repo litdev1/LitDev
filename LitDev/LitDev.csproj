@@ -14,10 +14,14 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -316,6 +320,7 @@
     <Compile Include="LitDev\Engines\FastThread.cs" />
     <Compile Include="LitDev\Engines\UnitSystem.cs" />
     <Compile Include="LitDev\FastArray.cs" />
+    <Compile Include="LitDev\Instance.cs" />
     <Compile Include="LitDev\Vector.cs" />
     <Compile Include="LitDev\Timer.cs" />
     <Compile Include="LitDev\Units.cs" />

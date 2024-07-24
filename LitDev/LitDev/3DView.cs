@@ -79,6 +79,11 @@ namespace LitDev
 #endif
     public static class LD3DView
     {
+        static LD3DView()
+        {
+            Instance.Verify();
+        }
+
         public static Vector3D swapDirection = new Vector3D(1, 0, 0);
         public static double swapAngle = -90;
 

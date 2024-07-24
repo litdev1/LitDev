@@ -45,6 +45,10 @@ namespace LitDev
 #endif
     public static class LDFinances
     {
+        static LDFinances()
+        {
+            Instance.Verify();
+        }
 
         /// <summary>
         /// The API key to use for this API.

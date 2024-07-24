@@ -63,6 +63,11 @@ namespace LitDev
 #endif
     public static class LDIcon
     {
+        static LDIcon()
+        {
+            Instance.Verify();
+        }
+
         private static int[] size = { 16, 24, 32, 64, 128, 256 };
         private static bool bSquare = true;
         private static ImageFormat imageFormat = ImageFormat.Png;

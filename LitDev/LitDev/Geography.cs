@@ -495,6 +495,11 @@ namespace LitDev
 #endif
     public static class LDGeography
     {
+        static LDGeography()
+        {
+            Instance.Verify();
+        }
+
         /// <summary>
         /// Whenever possible make the search require an exact match
         /// between the query and the results.

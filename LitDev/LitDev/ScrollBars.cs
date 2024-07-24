@@ -69,6 +69,11 @@ namespace LitDev
 #endif
     public static class LDScrollBars
     {
+        static LDScrollBars()
+        {
+            Instance.Verify();
+        }
+
         private static bool rasterize = true;
         private static bool bKeyScroll = true;
         private static bool bMouseScroll = true;

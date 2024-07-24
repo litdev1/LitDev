@@ -62,6 +62,11 @@ namespace LitDev
 #endif
     public static class LDDateTime
     {
+        static LDDateTime()
+        {
+            Instance.Verify();
+        }
+
         /// <summary>
         /// The current date and time.
         /// </summary>

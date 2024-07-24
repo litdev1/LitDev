@@ -79,6 +79,11 @@ namespace LitDev
 #endif
     public static class LDList
     {
+        static LDList()
+        {
+            Instance.Verify();
+        }
+
         public static Dictionary<string, List<Primitive>> _listMap = new Dictionary<string, List<Primitive>>();
         private static int listCount = 0;
         private static bool _exact = true;

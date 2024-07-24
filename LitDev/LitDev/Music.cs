@@ -62,6 +62,11 @@ namespace LitDev
 #endif
     public static class LDMusic
     {
+        static LDMusic()
+        {
+            Instance.Verify();
+        }
+
         private static IntPtr _midiOut = IntPtr.Zero;
         private const int NUMCHANNEL = 16;
         private static int _channel = 0;

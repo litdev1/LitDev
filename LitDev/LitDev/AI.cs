@@ -52,5 +52,10 @@ namespace LitDev
     [HideFromIntellisense]
     public static class LDAI
     {
+        static LDAI()
+        {
+            Instance.Verify();
+        }
+
     }
 }

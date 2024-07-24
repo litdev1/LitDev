@@ -66,6 +66,11 @@ namespace LitDev
 #endif
     public static class LDDialogs
     {
+        static LDDialogs()
+        {
+            Instance.Verify();
+        }
+
         public static bool _Waiting = false;
         private static Thread _ThreadWait;
         private static string _TextWait;

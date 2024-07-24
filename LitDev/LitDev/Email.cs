@@ -57,6 +57,11 @@ namespace LitDev
 #endif
     public static class LDEmail
     {
+        static LDEmail()
+        {
+            Instance.Verify();
+        }
+
         private static int port = 587;
         private static string server = "smtp.gmail.com";
         private static string from;

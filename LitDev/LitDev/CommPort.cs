@@ -62,6 +62,11 @@ namespace LitDev
 #endif
     public static class LDCommPort
     {
+        static LDCommPort()
+        {
+            Instance.Verify();
+        }
+
         private static Dictionary<string, SerialPort> ports = new Dictionary<string, SerialPort>();
         private static SerialPort port = null;
         private static string lastPort = "";

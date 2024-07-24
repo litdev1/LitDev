@@ -60,6 +60,11 @@ namespace LitDev
 #endif
     public static class LDBits
     {
+        static LDBits()
+        {
+            Instance.Verify();
+        }
+
         private static varType one = (varType)1;
 
         /// <summary>

@@ -197,6 +197,11 @@ namespace LitDev
 #endif
     public static class LDDataBase
     {
+        static LDDataBase()
+        {
+            Instance.Verify();
+        }
+
         public static List<DataBase> dataBases = new List<DataBase>();
 
         /// <summary>

@@ -90,6 +90,11 @@ namespace LitDev
 #endif
     public static class LDWaveForm
     {
+        static LDWaveForm()
+        {
+            Instance.Verify();
+        }
+
         private static DirectSound directSound = null;
         private static WaveFormat waveFormat;
         private static short amplitude = 20262;

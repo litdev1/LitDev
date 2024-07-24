@@ -65,6 +65,11 @@ namespace LitDev
 #endif
     public static class LDClipboard
     {
+        static LDClipboard()
+        {
+            Instance.Verify();
+        }
+
         private static BitmapSource CB_image;
         private static StringCollection CB_files;
         private static String CB_text;

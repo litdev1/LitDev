@@ -104,6 +104,11 @@ namespace LitDev
 #endif
     public static class LDWebCam
     {
+        static LDWebCam()
+        {
+            Instance.Verify();
+        }
+
         [DllImport("user32", EntryPoint = "SendMessage")]
         private static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, Int32 wParam, Int32 lParam);
 

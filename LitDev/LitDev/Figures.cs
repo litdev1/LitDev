@@ -64,6 +64,11 @@ namespace LitDev
 #endif
     public static class LDFigures
     {
+        static LDFigures()
+        {
+            Instance.Verify();
+        }
+
         private enum eFigure { NONE, ARC, BLOCKARROW, REGULARPOLYGON, CALLOUT, LINEARROW };
 
         private static void ExtractDll()

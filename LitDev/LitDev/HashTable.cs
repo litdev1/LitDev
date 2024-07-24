@@ -60,6 +60,11 @@ namespace LitDev
 #endif
     public static class LDHashTable
     {
+        static LDHashTable()
+        {
+            Instance.Verify();
+        }
+
         public static Dictionary<string, Dictionary<Primitive, Primitive>> map 
             = new Dictionary<string, Dictionary<Primitive, Primitive>>();
 

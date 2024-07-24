@@ -65,6 +65,11 @@ namespace LitDev
 #endif
     public static class LDFile
     {
+        static LDFile()
+        {
+            Instance.Verify();
+        }
+
         private static Encoding GetFileEncoding(string fileName)
         {
             // *** Use Default of Encoding.Default (Ansi CodePage)

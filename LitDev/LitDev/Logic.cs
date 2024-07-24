@@ -61,6 +61,11 @@ namespace LitDev
 #endif
     public static class LDLogic
     {
+        static LDLogic()
+        {
+            Instance.Verify();
+        }
+
         private static StringComparison stringComparison = StringComparison.Ordinal;
 
         /// <summary>

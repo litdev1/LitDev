@@ -69,6 +69,11 @@ namespace LitDev
 #endif
     public static class LDDictionary
     {
+        static LDDictionary()
+        {
+            Instance.Verify();
+        }
+
         private const string _frenchGuid = "{92DF305E-677C-43D1-9FC7-B2A3D08DCA5C}";
         private const string _englishGuid = "{FEF89077-4F4D-4803-A8BF-228083F70EAA}";
         private const string _spanishGuid = "{FDB3E101-5014-44BE-AA64-BD0E5B55B3B7}";
