@@ -320,7 +320,6 @@
     <Compile Include="LitDev\Engines\FastThread.cs" />
     <Compile Include="LitDev\Engines\UnitSystem.cs" />
     <Compile Include="LitDev\FastArray.cs" />
-    <Compile Include="LitDev\Instance.cs" />
     <Compile Include="LitDev\Vector.cs" />
     <Compile Include="LitDev\Timer.cs" />
     <Compile Include="LitDev\Units.cs" />
