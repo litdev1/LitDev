@@ -2040,7 +2040,7 @@ namespace LitDev
         {
             if (!isChecked)
             {
-                isValid = DateTime.Now < DateTime.Parse("01/01/2026");
+                isValid = true; // DateTime.Now < DateTime.Parse("01/01/2026");
                 isChecked = true;
 
                 try
