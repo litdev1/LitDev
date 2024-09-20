@@ -1502,7 +1502,7 @@ namespace LitDev
                 WebRequest webRequest = WebRequest.Create(Utilities.URL + "/LitDev-version.html");
                 WebResponse webResponse = webRequest.GetResponse();
                 StreamReader streamReader = new StreamReader(webResponse.GetResponseStream());
-                info += "The current version is " + streamReader.ReadLine();
+                info += "The current main version is " + streamReader.ReadLine();
             }
             catch (Exception ex)
             {
@@ -1856,6 +1856,7 @@ namespace LitDev
                 Thread.CurrentThread.CurrentUICulture = Thread.CurrentThread.CurrentCulture;
                 CultureInfo.DefaultThreadCurrentCulture = Thread.CurrentThread.CurrentCulture;
                 CultureInfo.DefaultThreadCurrentUICulture = Thread.CurrentThread.CurrentCulture;
+                CultureInfo.CurrentCulture = Thread.CurrentThread.CurrentCulture;
             }
         }
 
@@ -2045,12 +2046,16 @@ namespace LitDev
 
                 try
                 {
-                    LDNetwork.SetSSL();
-                    WebRequest webRequest = WebRequest.Create(Utilities.URL + "/LitDev-version.html");
-                    WebResponse webResponse = webRequest.GetResponse();
-                    StreamReader streamReader = new StreamReader(webResponse.GetResponseStream());
-                    string version = streamReader.ReadLine();
-                    if (version == "Invalid") isValid = false;
+                    //WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
+                    //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    //WebRequest webRequest = WebRequest.Create(Utilities.URL + "/LitDev-version.html");
+                    //using (WebResponse webResponse = webRequest.GetResponse())
+                    //{
+                    //    StreamReader streamReader = new StreamReader(webResponse.GetResponseStream());
+                    //    string version = streamReader.ReadLine();
+                    //    if (version == "Invalid") isValid = false;
+                    //}
+                    //webRequest = null;
                 }
                 catch (Exception ex)
                 {

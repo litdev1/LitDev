@@ -65,7 +65,7 @@ namespace LitDev
             Instance.Verify();
         }
 
-        static SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
+        static SpeechRecognitionEngine recognizer = null;
         static Choices vocab = new Choices();
         static bool defaultVocab = true;
         static string lastSpoken = "";
@@ -98,7 +98,8 @@ namespace LitDev
                 _SpeechRecognitionDelegate = value;
                 try
                 {
-                    setGrammar();
+                    if (null == recognizer) recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
+                    SetGrammar();
                     recognizer.SetInputToDefaultAudioDevice();
                     recognizer.RecognizeAsync(RecognizeMode.Multiple);
                     recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(_SpeechRecognitionEvent);
@@ -112,7 +113,7 @@ namespace LitDev
             }
         }
 
-        static void setGrammar()
+        static void SetGrammar()
         {
             recognizer.UnloadAllGrammars();
             if (defaultVocab)
@@ -227,7 +228,6 @@ namespace LitDev
                 vocab.Add(new string[] {records[1]});
             }
             defaultVocab = lines.Length == 0;
-            setGrammar();
         }
 
         /// <summary>
