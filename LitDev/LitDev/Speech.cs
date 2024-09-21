@@ -71,6 +71,7 @@ namespace LitDev
         static string lastSpoken = "";
         static float lastSpokenConfidence = 0;
         static SBCallback _SpeechRecognitionDelegate;
+        static bool debugMode = false;
         static void _SpeechRecognitionEvent(Object sender, SpeechRecognizedEventArgs e)
         {
             lastSpoken = e.Result.Text;
@@ -84,7 +85,7 @@ namespace LitDev
         }
         static void _SpeechDetectedEvent(Object sender, SpeechDetectedEventArgs e)
         {
-            lastSpoken = "UNKNOWN";
+            lastSpoken = "DETECTED";
             _SpeechRecognitionDelegate();
         }
         static SBCallback _SpeechRecognition
@@ -96,20 +97,6 @@ namespace LitDev
             set
             {
                 _SpeechRecognitionDelegate = value;
-                try
-                {
-                    if (null == recognizer) recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
-                    SetGrammar();
-                    recognizer.SetInputToDefaultAudioDevice();
-                    recognizer.RecognizeAsync(RecognizeMode.Multiple);
-                    recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(_SpeechRecognitionEvent);
-                    //recognizer.SpeechHypothesized += new EventHandler<SpeechHypothesizedEventArgs>(_SpeechHypothesizedEvent);
-                    //recognizer.SpeechDetected += new EventHandler<SpeechDetectedEventArgs>(_SpeechDetectedEvent);
-                }
-                catch (Exception ex)
-                {
-                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
-                }
             }
         }
 
@@ -206,6 +193,17 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Set a debug mode for speech regognition "True" or "False" (default) 
+        /// Set before creating Listen event.
+        /// This will send message "DETECTED" to Listen event when any speech noise is detected, even if it is not recognised in the vocabulary.
+        /// </summary>
+        public static Primitive DebugMode
+        {
+            get { return debugMode ? "True" : "False"; }
+            set { debugMode = value; }
+        }
+
+        /// <summary>
         /// Set a vocabulary of words and phrases for the speech regonition to use.
         /// If this is unset, then a large language vocabulary is used and the results will generally be less good (unusable).
         /// Also distinct phrases can have a better recognition than single words.
@@ -239,6 +237,23 @@ namespace LitDev
             add
             {
                 _SpeechRecognition = value;
+                try
+                {
+                    if (null == recognizer) recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
+                    SetGrammar();
+                    recognizer.SetInputToDefaultAudioDevice();
+                    recognizer.RecognizeAsync(RecognizeMode.Multiple);
+                    recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(_SpeechRecognitionEvent);
+                    if (debugMode)
+                    {
+                        //recognizer.SpeechHypothesized += new EventHandler<SpeechHypothesizedEventArgs>(_SpeechHypothesizedEvent);
+                        recognizer.SpeechDetected += new EventHandler<SpeechDetectedEventArgs>(_SpeechDetectedEvent);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                }
             }
             remove
             {
