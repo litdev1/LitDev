@@ -65,13 +65,18 @@ namespace LitDev
             Instance.Verify();
         }
 
-        static SpeechRecognitionEngine recognizer = null;
+        static SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
         static Choices vocab = new Choices();
         static bool defaultVocab = true;
         static string lastSpoken = "";
         static float lastSpokenConfidence = 0;
         static SBCallback _SpeechRecognitionDelegate;
         static bool debugMode = false;
+        static double babbleTimeout = recognizer.BabbleTimeout.TotalSeconds;
+        static double initialSilenceTimeout = recognizer.InitialSilenceTimeout.TotalSeconds;
+        static double endSilenceTimeout = recognizer.EndSilenceTimeout.TotalSeconds;
+        static double endSilenceTimeoutAmbiguous = recognizer.EndSilenceTimeoutAmbiguous.TotalSeconds;
+
         static void _SpeechRecognitionEvent(Object sender, SpeechRecognizedEventArgs e)
         {
             lastSpoken = e.Result.Text;
@@ -80,7 +85,7 @@ namespace LitDev
         }
         static void _SpeechHypothesizedEvent(Object sender, SpeechHypothesizedEventArgs e)
         {
-            lastSpoken = "HYPOTHESIED" + e.Result.Text;
+            lastSpoken = "HYPOTHESIED " + e.Result.Text;
             _SpeechRecognitionDelegate();
         }
         static void _SpeechDetectedEvent(Object sender, SpeechDetectedEventArgs e)
@@ -88,6 +93,17 @@ namespace LitDev
             lastSpoken = "DETECTED";
             _SpeechRecognitionDelegate();
         }
+        static void _RecognizeCompletedEvent(Object sender, RecognizeCompletedEventArgs e)
+        {
+            lastSpoken = "COMPLETED " + e.Result.Text;
+            _SpeechRecognitionDelegate();
+        }
+        static void _SpeechRecognitionRejectedEvent(Object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            lastSpoken = "REJECTED " + e.Result.Text;
+            _SpeechRecognitionDelegate();
+        }
+        
         static SBCallback _SpeechRecognition
         {
             get
@@ -204,6 +220,42 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Time in seconds recogniser accepts input containing only background noise, default 0.
+        /// </summary>
+        public static Primitive BabbleTimeout
+        {
+            get { return babbleTimeout; }
+            set { babbleTimeout = value; }
+        }
+
+        /// <summary>
+        /// Time in seconds recogniser accepts input containing only silence, default 30.
+        /// </summary>
+        public static Primitive InitialSilenceTimeout
+        {
+            get { return initialSilenceTimeout; }
+            set { initialSilenceTimeout = value; }
+        }
+
+        /// <summary>
+        /// Time in seconds recogniser accepts silence after unambigous detection, default 0.15.
+        /// </summary>
+        public static Primitive EndSilenceTimeout
+        {
+            get { return endSilenceTimeout; }
+            set { endSilenceTimeout = value; }
+        }
+
+        /// <summary>
+        /// Time in seconds recogniser accepts silence after ambigous detection, default 0.5.
+        /// </summary>
+        public static Primitive EndSilenceTimeoutAmbiguous
+        {
+            get { return endSilenceTimeoutAmbiguous; }
+            set { endSilenceTimeoutAmbiguous = value; }
+        }
+
+        /// <summary>
         /// Set a vocabulary of words and phrases for the speech regonition to use.
         /// If this is unset, then a large language vocabulary is used and the results will generally be less good (unusable).
         /// Also distinct phrases can have a better recognition than single words.
@@ -239,15 +291,21 @@ namespace LitDev
                 _SpeechRecognition = value;
                 try
                 {
-                    if (null == recognizer) recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
+                    recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
                     SetGrammar();
+                    recognizer.BabbleTimeout = TimeSpan.FromSeconds(babbleTimeout);
+                    recognizer.InitialSilenceTimeout = TimeSpan.FromSeconds(initialSilenceTimeout);
+                    recognizer.EndSilenceTimeout = TimeSpan.FromSeconds(endSilenceTimeout);
+                    recognizer.EndSilenceTimeoutAmbiguous = TimeSpan.FromSeconds(endSilenceTimeoutAmbiguous);
                     recognizer.SetInputToDefaultAudioDevice();
                     recognizer.RecognizeAsync(RecognizeMode.Multiple);
                     recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(_SpeechRecognitionEvent);
                     if (debugMode)
                     {
-                        //recognizer.SpeechHypothesized += new EventHandler<SpeechHypothesizedEventArgs>(_SpeechHypothesizedEvent);
+                        recognizer.SpeechHypothesized += new EventHandler<SpeechHypothesizedEventArgs>(_SpeechHypothesizedEvent);
                         recognizer.SpeechDetected += new EventHandler<SpeechDetectedEventArgs>(_SpeechDetectedEvent);
+                        recognizer.RecognizeCompleted += new EventHandler<RecognizeCompletedEventArgs>(_RecognizeCompletedEvent);
+                        recognizer.SpeechRecognitionRejected += new EventHandler<SpeechRecognitionRejectedEventArgs>(_SpeechRecognitionRejectedEvent);
                     }
                 }
                 catch (Exception ex)
