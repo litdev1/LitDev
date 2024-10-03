@@ -54,6 +54,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Excel = Microsoft.Office.Interop.Excel;
+using DirectShowLib;
 
 namespace LitDev.Engines
 {
@@ -116,6 +117,7 @@ namespace LitDev.Engines
         public List<double> dataY = new List<double>();
         public string colour;
         public eLineType type;
+        public double scaleWidth;
 
         public seriesData()
         {
@@ -128,6 +130,7 @@ namespace LitDev.Engines
             dataY.Clear();
             colour = "";
             type = eLineType.LINE;
+            scaleWidth = 1;
         }
 
         public void CopyFrom(seriesData from)
@@ -145,6 +148,7 @@ namespace LitDev.Engines
             //dataY = from.dataY;
             colour = from.colour;
             type = from.type;
+            scaleWidth = from.scaleWidth;
         }
 
         ~seriesData()
@@ -699,6 +703,7 @@ namespace LitDev.Engines
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
         }
+
         private void plotSeries(Canvas _graph, plotData _plotData, eZoom eZoom, eRescale eRescale)
         {
             if (isPlotting) return;
@@ -1043,14 +1048,17 @@ namespace LitDev.Engines
                 if (_series.type == eLineType.HISTOGRAM) dSeries++; // Number of histograms;
             }
             double dOffest = -(dSeries - 1.0) / 2.0;
-            dSeries = 0;;
-            double dWL = 2.0; // Width for line
-            double dWH = 0.8 * System.Math.Min(50.0, System.Math.Max(2.0, gw / (double) iCount)); // Width for histogram
-            double dWP = System.Math.Min(12.0, System.Math.Max(6.0, gw / (double)iCount)); // Width for points
+            dSeries = 0;
+            double _dWL = 2.0; // Width for line
+            double _dWH = 0.8 * System.Math.Min(50.0, System.Math.Max(2.0, gw / (double) iCount)); // Width for histogram
+            double _dWP = System.Math.Min(12.0, System.Math.Max(6.0, gw / (double)iCount)); // Width for points
 
             foreach (seriesData _series in _plotData.series)
             {
                 Brush seriesBrush = getBrush(_series.colour);
+                double dWL = _dWL * _series.scaleWidth;
+                double dWH = _dWH * _series.scaleWidth;
+                double dWP = _dWP * _series.scaleWidth;
 
                 switch (_series.type)
                 {
@@ -1600,6 +1608,52 @@ namespace LitDev.Engines
                         delegate_Data = new object[] { _graph, _plotData, eZoom.FALSE, eRescale.TRUE };
                         FastThread.Invoke(plotSeries_Delegate);
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        internal void scaleWidth(Primitive graphName, Primitive seriesLabel, Primitive scaleWidth)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Dictionary<string, UIElement> _objectsMap;
+            UIElement obj;
+
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue(graphName, out obj))
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), graphName);
+                    return;
+                }
+
+                try
+                {
+                    Canvas _graph = (Canvas)obj;
+
+                    foreach (plotData _plotData in plotInfo)
+                    {
+                        if (_plotData.name == graphName)
+                        {
+                            foreach (seriesData _series in _plotData.series)
+                            {
+                                if (_series.name == seriesLabel)
+                                {
+                                    _series.scaleWidth = scaleWidth;
+                                    delegate_Data = new object[] { _graph, _plotData, eZoom.FALSE, eRescale.FALSE };
+                                    FastThread.Invoke(plotSeries_Delegate);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 }
             }
             catch (Exception ex)

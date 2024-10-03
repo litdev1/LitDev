@@ -221,6 +221,26 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Set a width scaling for an existing graph series.
+        /// </summary>
+        /// <param name="graphName">
+        /// The graph name.
+        /// </param>
+        /// <param name="seriesLabel">
+        /// The series label name to modify.
+        /// </param>
+        /// <param name="scaleWidth">
+        /// A width scale factor (line, histogram or point), default 1.
+        /// </param>
+        /// <returns>
+        /// None.
+        /// </returns>
+        public static void ScaleWidth(Primitive graphName, Primitive seriesLabel, Primitive scaleWidth)
+        {
+            _Engine.scaleWidth(graphName, seriesLabel, scaleWidth);
+        }
+
+        /// <summary>
         /// Stop all the graph left click mouse events.
         /// </summary>
         /// <returns>
