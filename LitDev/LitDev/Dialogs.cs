@@ -636,7 +636,8 @@ namespace LitDev
                 if (null != _window) return MessageBox.Show(_window, text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question).ToString();
                 else return MessageBox.Show(text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question).ToString();
             });
-            return FastThread.InvokeWithReturn(ret).ToString();
+            string result = FastThread.InvokeWithReturn(ret).ToString();
+            return result;
         }
 
         /// <summary>
@@ -647,7 +648,10 @@ namespace LitDev
         /// <returns>The test inpuut by the user.</returns>
         public static Primitive InputBox(Primitive prompt, Primitive title)
         {
-            return Microsoft.VisualBasic.Interaction.InputBox(prompt, title);
+            if (title = "") title = "Input";
+            StartPosition(null, title);
+            string result = Microsoft.VisualBasic.Interaction.InputBox(prompt, title, "", (int)xPosDisplay, (int)yPosDisplay);
+            return result;
         }
     }
 }
