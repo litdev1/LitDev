@@ -648,8 +648,7 @@ namespace LitDev
         /// <returns>The test inpuut by the user.</returns>
         public static Primitive InputBox(Primitive prompt, Primitive title)
         {
-            if (title = "") title = "Input";
-            StartPosition(null, title);
+            StartPosition(null, null);
             string result = Microsoft.VisualBasic.Interaction.InputBox(prompt, title, "", (int)xPosDisplay, (int)yPosDisplay);
             return result;
         }
