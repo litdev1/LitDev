@@ -1552,6 +1552,22 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Reset the LastKey to None.
+        /// </summary>
+        public static void LastKeyReset()
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            try
+            {
+                GraphicsWindowType.GetField("_lastKey", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).SetValue(null, System.Windows.Input.Key.None);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
         /// Draws a line of text on the screen at the specified location.
         /// </summary>
         /// <param name="x">

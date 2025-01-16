@@ -272,6 +272,14 @@ namespace LitDev
         }
 
         /// <summary>
+        /// Reset the LastKey to None.
+        /// </summary>
+        public static void LastKeyReset()
+        {
+            _LastKey = Keys.None;
+        }
+
+        /// <summary>
         /// Read from a TextWindow with a maximum delay.
         /// This sends a Return (ENTER) to the TextWindow after the delay.
         /// If the user presses Return before the delay is completed, then no further action is taken.

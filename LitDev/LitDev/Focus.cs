@@ -49,6 +49,8 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Input;
+using Box2DX.Collision;
 
 namespace LitDev
 {
@@ -176,6 +178,33 @@ namespace LitDev
                     }
                 }
                 return "False";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                return "False";
+            }
+        }
+
+        /// <summary>
+        /// Remove focus from all shapes.
+        /// </summary>
+        public static Primitive ResetFocus()
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Canvas _mainCanvas;
+
+            try
+            {
+                _mainCanvas = (Canvas)GraphicsWindowType.GetField("_mainCanvas", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                {
+                    _mainCanvas.Focusable = true;
+                    _mainCanvas.IsEnabled = true;
+                    Keyboard.Focus(_mainCanvas);
+                    return _mainCanvas.Focus();
+                });
+                return FastThread.InvokeWithReturn(ret).ToString();
             }
             catch (Exception ex)
             {
