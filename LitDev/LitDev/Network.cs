@@ -48,6 +48,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
+using Microsoft.Office.Interop.Excel;
 
 namespace LitDev
 {
@@ -300,5 +301,38 @@ namespace LitDev
             WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
+
+        /// <summary>
+        /// Send a web request to a server.
+        /// </summary>
+        /// <param name="url">The web request, typically a php server request.</param>
+        /// <returns>A string represntation of any returned result.</returns>
+        public static Primitive SendWebRequest(Primitive url)
+        {
+            //url = Utilities.URL + "/gamedata/server.php?program=" + "MyTest" + "&action=0" + "&info=";
+            StreamReader streamReader = null;
+            WebResponse webResponse = null;
+            string result = "";
+            try
+            {
+                LDNetwork.SetSSL();
+                WebRequest webRequest = WebRequest.Create(url);
+                webResponse = webRequest.GetResponse();
+                streamReader = new StreamReader(webResponse.GetResponseStream());
+                result = streamReader.ReadToEnd();
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            finally
+            {
+                if (streamReader != null) streamReader.Close();
+                if (webResponse != null) webResponse.Close();
+            }
+            return ConvertToPrimitive(result);
+        }
+
+
     }
 }
