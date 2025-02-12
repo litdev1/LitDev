@@ -14,15 +14,6 @@ using SBCallback = Microsoft.SmallVisualBasic.Library.SmallVisualBasicCallback;
 #else
 using Microsoft.SmallBasic.Library;
 using Microsoft.SmallBasic.Library.Internal;
-using SBArray = Microsoft.SmallBasic.Library.Array;
-using SBShapes = Microsoft.SmallBasic.Library.Shapes;
-using SBFile = Microsoft.SmallBasic.Library.File;
-using SBMath = Microsoft.SmallBasic.Library.Math;
-using SBProgram = Microsoft.SmallBasic.Library.Program;
-using SBControls = Microsoft.SmallBasic.Library.Controls;
-using SBImageList = Microsoft.SmallBasic.Library.ImageList;
-using SBTextWindow = Microsoft.SmallBasic.Library.TextWindow;
-using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
 #endif
 
 //The following Copyright applies to the LitDev Extension for Small Basic and files in the namespace LitDev.
@@ -43,18 +34,13 @@ using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
 //along with menu.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.CodeDom.Compiler;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Threading;
-using System.Web;
-using System.Web.Services;
-using System.Web.Services.Description;
-using System.Web.Services.Protocols;
 using System.Xml;
-using System.Xml.Linq;
+using System.Net;
+using System.Linq;
+using Newtonsoft.Json.Linq;
+
 
 namespace LitDev
 {
@@ -79,7 +65,7 @@ namespace LitDev
         private const string _spanishGuid = "{FDB3E101-5014-44BE-AA64-BD0E5B55B3B7}";
         private const string _queryXml = "<QueryPacket xmlns='urn:Microsoft.Search.Query' revision='1' >\r\n                                   <Query domain='{2}'>\r\n                                     <Context>\r\n                                       <QueryText type='STRING' language='en-us' >{0}</QueryText>\r\n                                       <LanguagePreference>en-us</LanguagePreference>\r\n                                     </Context>\r\n                                     <OfficeContext xmlns='urn:Microsoft.Search.Query.Office.Context' revision='1'>\r\n                                       <UserPreferences>\r\n                                         <ParentalControl>false</ParentalControl>\r\n                                       </UserPreferences>\r\n                                       <ServiceData>{1}</ServiceData>\r\n                                       <ApplicationContext>\r\n                                         <Name>Microsoft Office Word</Name>\r\n                                         <Version>(14.0.3524)</Version>\r\n                                       </ApplicationContext>\r\n                                       <QueryLanguage>en-us</QueryLanguage>\r\n                                       <KeyboardLanguage>en-us</KeyboardLanguage>\r\n                                    </OfficeContext>\r\n                                   </Query>\r\n                                 </QueryPacket>";
         
-        private static string url = "http://rr.office.microsoft.com/Research/query.asmx";
+        private static string url = "https://rr.office.microsoft.com/Research/query.asmx";
         private static string GetDefinition(string word, string serviceCode, string langGuid)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -128,6 +114,79 @@ namespace LitDev
             return stringBuilder.ToString();
         }
 
+        private static string api = "https://api.dictionaryapi.dev/api/v2/entries/"; // en/hello
+
+        private static string GetDefinition(string word, string lang)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            StreamReader streamReader = null;
+            WebResponse webResponse = null;
+            try
+            {
+                string url = api + lang + "/" + word;
+
+                LDNetwork.SetSSL();
+                WebRequest webRequest = WebRequest.Create(url);
+                webResponse = webRequest.GetResponse();
+                streamReader = new StreamReader(webResponse.GetResponseStream());
+                string result = streamReader.ReadToEnd();
+                streamReader.Close();
+
+                result = result.Substring(1, result.Length - 2);
+                JObject jsonObject = JObject.Parse(result);
+
+                var definitions = jsonObject.SelectTokens("$..definition", false).ToList();
+                foreach (JToken definition in definitions)
+                {
+                    stringBuilder.Append(definition);
+                    stringBuilder.AppendLine();
+                }
+
+                //var meanings = jsonObject.SelectTokens("$..meanings", false).ToList();
+                //foreach (JToken meaning in meanings)
+                //{
+                //    foreach (JToken part1 in meaning.Children())
+                //    {
+                //        foreach (JProperty part2 in part1.Children())
+                //        {
+                //            switch (part2.Name)
+                //            {
+                //                case "partOfSpeech":
+                //                    stringBuilder.Append(part2.Value);
+                //                    stringBuilder.AppendLine();
+                //                    break;
+                //                case "definitions":
+                //                    foreach (JToken part3 in part2.Children())
+                //                    {
+                //                        foreach (JToken part4 in part3.Children())
+                //                        {
+                //                            foreach (JProperty part5 in part4.Children())
+                //                            {
+                //                                if (part5.Name == "definition")
+                //                                {
+                //                                    stringBuilder.Append(part5.Value);
+                //                                    stringBuilder.AppendLine();
+                //                                }
+                //                            }
+                //                        }
+                //                    }
+                //                    break;
+                //                case "synonyms":
+                //                    break;
+                //                case "antonyms":
+                //                    break;
+                //            }
+                //        }
+                //    }
+                //}
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return stringBuilder.ToString();
+        }
+
         [HideFromIntellisense]
         public static Primitive Url
         {
@@ -146,7 +205,8 @@ namespace LitDev
         /// </returns>
         public static Primitive GetDefinition(Primitive word)
         {
-            return LDDictionary.GetDefinition(word, "EDICT", _englishGuid);
+            return GetDefinition(word, "en");
+            //return LDDictionary.GetDefinition(word, "EDICT", _englishGuid);
         }
 
         /// <summary>
@@ -158,9 +218,11 @@ namespace LitDev
         /// <returns>
         /// The definition(s) of the specified word.
         /// </returns>
+        [HideFromIntellisense]
         public static Primitive GetDefinitionInFrench(Primitive word)
         {
-            return LDDictionary.GetDefinition(word, "FDICT", _frenchGuid);
+            return GetDefinition(word, "fr");
+            //return LDDictionary.GetDefinition(word, "FDICT", _frenchGuid);
         }
 
         /// <summary>
@@ -172,9 +234,11 @@ namespace LitDev
         /// <returns>
         /// The definition(s) of the specified word.
         /// </returns>
+        [HideFromIntellisense]
         public static Primitive GetDefinitionInSpanish(Primitive word)
         {
-            return LDDictionary.GetDefinition(word, "SDICT", _spanishGuid);
+            return GetDefinition(word, "es");
+            //return LDDictionary.GetDefinition(word, "SDICT", _spanishGuid);
         }
     }
 }

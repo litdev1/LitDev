@@ -746,6 +746,10 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            //Primitive definitions = LDDictionary.GetDefinition("World");
+            //definitions = LDDictionary.GetDefinitionInFrench("Oui");
+            //definitions = LDDictionary.GetDefinitionInSpanish("Ola");
+
             Primitive sourceFile = "C:\\Users\\steve\\Documents\\SmallBasic\\steve\\imageWithText.jpg";
             Primitive result3 = LDImage.GetTextFromImage(sourceFile, "", 1);
 

@@ -4,9 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.SmallBasic.Library;
+using Newtonsoft.Json.Linq;
 using SBFile = Microsoft.SmallBasic.Library.File;
 using SBImageList = Microsoft.SmallBasic.Library.ImageList;
 
@@ -115,6 +118,54 @@ namespace LDBasic
             {
                 return -1;
             }
+        }
+
+        private static string api = "https://api.dictionaryapi.dev/api/v2/entries/"; // en/hello
+
+        private static string GetDefinition(string word, string lang)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            StreamReader streamReader = null;
+            WebResponse webResponse = null;
+            try
+            {
+                string url = api + lang + "/" + word;
+
+                SetSSL();
+                WebRequest webRequest = WebRequest.Create(url);
+                webResponse = webRequest.GetResponse();
+                streamReader = new StreamReader(webResponse.GetResponseStream());
+                string result = streamReader.ReadToEnd();
+                streamReader.Close();
+                result = result.Substring(1, result.Length - 2);
+                JObject jsonObject = JObject.Parse(result);
+
+                var definitions = jsonObject.SelectTokens("$..definition", false).ToList();
+                foreach (JToken definition in definitions)
+                {
+                    stringBuilder.Append(definition);
+                    stringBuilder.AppendLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+            return stringBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Gets the definition of a word, in English.
+        /// </summary>
+        /// <param name="word">
+        /// The word to define.
+        /// </param>
+        /// <returns>
+        /// The definition(s) of the specified word.
+        /// </returns>
+        public static Primitive GetDefinition(Primitive word)
+        {
+            return GetDefinition(word, "en");
         }
     }
 }
