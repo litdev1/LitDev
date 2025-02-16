@@ -76,7 +76,7 @@ namespace LitDev
     public class Chart : Canvas
     {
         public enum Styles { PIE, DOUGHNUT, BUBBLE, BAR, COLUMN };
-        public enum Legends { NONE, LEGEND, OVERLAY, PERCENT, LEGEND_PERCENT };
+        public enum Legends { NONE, LEGEND, OVERLAY, PERCENT, LEGEND_PERCENT, VALUE, LEGEND_VALUE };
         public enum HSL { HUE, SATURATION, LIGHTNESS };
         public Styles eStyle;
         public List<double> Values;
@@ -174,7 +174,7 @@ namespace LitDev
             yc = Height / 2.0;
             rad = scale * System.Math.Min(Width / 2.5, Height / 2.5);
 
-            if (eLegend == Legends.LEGEND || eLegend == Legends.LEGEND_PERCENT)
+            if (eLegend == Legends.LEGEND || eLegend == Legends.LEGEND_PERCENT || eLegend == Legends.LEGEND_VALUE)
             {
                 rad *= 0.7;
                 xc -= 0.8 * (xc - rad);
@@ -323,11 +323,14 @@ namespace LitDev
                 x1 = x2;
                 y1 = y2;
 
-                if (eLegend == Legends.OVERLAY || eLegend == Legends.PERCENT || eLegend == Legends.LEGEND_PERCENT)
+                if (eLegend == Legends.OVERLAY || eLegend == Legends.PERCENT || eLegend == Legends.LEGEND_PERCENT || eLegend == Legends.VALUE || eLegend == Legends.LEGEND_VALUE)
                 {
+                    string displayText = Labels[i];
+                    if (eLegend == Legends.PERCENT || eLegend == Legends.LEGEND_PERCENT) displayText = string.Format("{0:F1}%", 100 * Values[i] / Total);
+                    if (eLegend == Legends.VALUE || eLegend == Legends.LEGEND_VALUE) displayText = string.Format("{0}", Values[i]);
                     textblock = new TextBlock
                     {
-                        Text = eLegend == Legends.OVERLAY ? Labels[i] : string.Format("{0:F1}%", 100 * Values[i] / Total),
+                        Text = displayText,
                         Foreground = foreground,
                         FontFamily = fontFamily,
                         FontSize = fontSize,
@@ -384,7 +387,7 @@ namespace LitDev
                     Canvas.SetZIndex(textblock, 1);
                 }
 
-                if (eLegend == Legends.LEGEND || eLegend == Legends.LEGEND_PERCENT)
+                if (eLegend == Legends.LEGEND || eLegend == Legends.LEGEND_PERCENT || eLegend == Legends.LEGEND_VALUE)
                 {
                     rectangle = new Rectangle { Width = 10 * legendScale, Height = 10 * legendScale, Fill = brush, Stroke = Background };
                     Children.Add(rectangle);
@@ -776,6 +779,8 @@ namespace LitDev
         /// "Overlay" names overlaying chart
         /// "Percent" percentages overlaying chart
         /// "Legend_Percent" (default) separate legend and percentages overlaying chart
+        /// "Value" values overlaying chart
+        /// "Legend_Value" separate legend and values overlaying chart
         /// "</param>
         /// <param name="background">The legend label text background is coloured, "True" or "False" (default).</param>
         public static void Legend(Primitive chartName, Primitive scale, Primitive legend, Primitive background)
@@ -812,6 +817,12 @@ namespace LitDev
                                         break;
                                     case "legend_percent":
                                         chart.eLegend = Chart.Legends.LEGEND_PERCENT;
+                                        break;
+                                    case "value":
+                                        chart.eLegend = Chart.Legends.VALUE;
+                                        break;
+                                    case "legend_value":
+                                        chart.eLegend = Chart.Legends.LEGEND_VALUE;
                                         break;
                                 }
                                 chart.bLegendBackground = background;
