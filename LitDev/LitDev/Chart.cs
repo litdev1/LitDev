@@ -373,12 +373,19 @@ namespace LitDev
                     {
                         x2 = xc - rad + (2 * i + 1) * rad / (double)Count; 
                         //y2 = yc + rad - rad * (Values[i] - Min) / (Max - Min);
-                        y2 = yc + rad - w - 5;
-                        RotateTransform rotateTransform = new RotateTransform();
-				        rotateTransform.CenterX = w;
-				        rotateTransform.CenterY = h;
-                        rotateTransform.Angle = -90;
-                        textblock.RenderTransform = rotateTransform;
+                        if (w > rad / (double)Count)
+                        {
+                            y2 = yc + rad - w - 5;
+                            RotateTransform rotateTransform = new RotateTransform();
+                            rotateTransform.CenterX = w;
+                            rotateTransform.CenterY = h;
+                            rotateTransform.Angle = -90;
+                            textblock.RenderTransform = rotateTransform;
+                        }
+                        else
+                        {
+                            y2 = yc + rad - h - 5;
+                        }
                     }
                     angle += System.Math.PI * Values[i] / Total;
                     textblock.Tag = new Segment(x2, y2, w, h, Name, Labels[i]);
