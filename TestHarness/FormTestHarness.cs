@@ -746,7 +746,7 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            //Primitive definitions = LDDictionary.GetDefinition("World");
+            Primitive definitions = LDDictionary.GetDefinition("date");
             //definitions = LDDictionary.GetDefinitionInFrench("Oui");
             //definitions = LDDictionary.GetDefinitionInSpanish("Ola");
 

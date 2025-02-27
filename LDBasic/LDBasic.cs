@@ -120,7 +120,7 @@ namespace LDBasic
             }
         }
 
-        private static string api = "https://api.dictionaryapi.dev/api/v2/entries/"; // en/hello
+        private static string wordnikURL = "http://api.wordnik.com/v4/word.json/{0}/definitions?limit=20&includeRelated=false&sourceDictionaries=all&useCanonical=true&includeTags=false&api_key=j001kafeiltiu6qv9y9ra7lyxbqk02py7vzwh9d19tdqiu44z";
 
         private static string GetDefinition(string word, string lang)
         {
@@ -129,7 +129,7 @@ namespace LDBasic
             WebResponse webResponse = null;
             try
             {
-                string url = api + lang + "/" + word;
+                string url = string.Format(wordnikURL, word.ToLower());
 
                 SetSSL();
                 WebRequest webRequest = WebRequest.Create(url);
@@ -137,14 +137,16 @@ namespace LDBasic
                 streamReader = new StreamReader(webResponse.GetResponseStream());
                 string result = streamReader.ReadToEnd();
                 streamReader.Close();
-                result = result.Substring(1, result.Length - 2);
-                JObject jsonObject = JObject.Parse(result);
 
-                var definitions = jsonObject.SelectTokens("$..definition", false).ToList();
-                foreach (JToken definition in definitions)
+                JToken jToken = JToken.Parse(result);
+
+                foreach (JToken entry in jToken)
                 {
-                    stringBuilder.Append(definition);
-                    stringBuilder.AppendLine();
+                    if (null != entry["text"])
+                    {
+                        stringBuilder.Append(entry["text"]);
+                        stringBuilder.AppendLine();
+                    }
                 }
             }
             catch (Exception ex)

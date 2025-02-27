@@ -40,6 +40,8 @@ using System.Xml;
 using System.Net;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
+using Microsoft.JScript;
 
 
 namespace LitDev
@@ -115,6 +117,7 @@ namespace LitDev
         }
 
         private static string api = "https://api.dictionaryapi.dev/api/v2/entries/"; // en/hello
+        private static string wordnikURL = "http://api.wordnik.com/v4/word.json/{0}/definitions?limit=20&includeRelated=false&sourceDictionaries=all&useCanonical=true&includeTags=false&api_key=j001kafeiltiu6qv9y9ra7lyxbqk02py7vzwh9d19tdqiu44z";
 
         private static string GetDefinition(string word, string lang)
         {
@@ -123,7 +126,8 @@ namespace LitDev
             WebResponse webResponse = null;
             try
             {
-                string url = api + lang + "/" + word;
+                string url = string.Format(wordnikURL, word.ToLower());
+                //string url = api + lang + "/" + word;
 
                 LDNetwork.SetSSL();
                 WebRequest webRequest = WebRequest.Create(url);
@@ -132,52 +136,25 @@ namespace LitDev
                 string result = streamReader.ReadToEnd();
                 streamReader.Close();
 
-                result = result.Substring(1, result.Length - 2);
-                JObject jsonObject = JObject.Parse(result);
+                JToken jToken = JToken.Parse(result);
 
-                var definitions = jsonObject.SelectTokens("$..definition", false).ToList();
-                foreach (JToken definition in definitions)
+                foreach (JToken entry in jToken)
                 {
-                    stringBuilder.Append(definition);
-                    stringBuilder.AppendLine();
+                    if (null != entry["text"])
+                    {
+                        stringBuilder.Append(entry["text"]);
+                        stringBuilder.AppendLine();
+                    }
                 }
 
-                //var meanings = jsonObject.SelectTokens("$..meanings", false).ToList();
-                //foreach (JToken meaning in meanings)
+                //result = result.Substring(1, result.Length - 2);
+                //JObject jsonObject = JObject.Parse(result);
+
+                //var definitions = jsonObject.SelectTokens("$..definition", false).ToList();
+                //foreach (JToken definition in definitions)
                 //{
-                //    foreach (JToken part1 in meaning.Children())
-                //    {
-                //        foreach (JProperty part2 in part1.Children())
-                //        {
-                //            switch (part2.Name)
-                //            {
-                //                case "partOfSpeech":
-                //                    stringBuilder.Append(part2.Value);
-                //                    stringBuilder.AppendLine();
-                //                    break;
-                //                case "definitions":
-                //                    foreach (JToken part3 in part2.Children())
-                //                    {
-                //                        foreach (JToken part4 in part3.Children())
-                //                        {
-                //                            foreach (JProperty part5 in part4.Children())
-                //                            {
-                //                                if (part5.Name == "definition")
-                //                                {
-                //                                    stringBuilder.Append(part5.Value);
-                //                                    stringBuilder.AppendLine();
-                //                                }
-                //                            }
-                //                        }
-                //                    }
-                //                    break;
-                //                case "synonyms":
-                //                    break;
-                //                case "antonyms":
-                //                    break;
-                //            }
-                //        }
-                //    }
+                //    stringBuilder.Append(definition);
+                //    stringBuilder.AppendLine();
                 //}
             }
             catch (Exception ex)
@@ -186,6 +163,7 @@ namespace LitDev
             }
             return stringBuilder.ToString();
         }
+
 
         [HideFromIntellisense]
         public static Primitive Url

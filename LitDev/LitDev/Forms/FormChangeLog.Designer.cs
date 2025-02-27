@@ -54,7 +54,7 @@
             System.Windows.Forms.TreeNode treeNode24 = new System.Windows.Forms.TreeNode("LDChart", new System.Windows.Forms.TreeNode[] {
             treeNode22,
             treeNode23});
-            System.Windows.Forms.TreeNode treeNode25 = new System.Windows.Forms.TreeNode("Version 1.2.29.18", new System.Windows.Forms.TreeNode[] {
+            System.Windows.Forms.TreeNode treeNode25 = new System.Windows.Forms.TreeNode("Version 1.2.29.19", new System.Windows.Forms.TreeNode[] {
             treeNode1,
             treeNode4,
             treeNode7,
@@ -2224,7 +2224,7 @@
             treeNode24.Name = "Node0";
             treeNode24.Text = "LDChart";
             treeNode25.Name = "Node0";
-            treeNode25.Text = "Version 1.2.29.18";
+            treeNode25.Text = "Version 1.2.29.19";
             treeNode26.Name = "Node1";
             treeNode26.Text = "GetCollisions returns chain/rope name";
             treeNode27.Name = "Node0";
