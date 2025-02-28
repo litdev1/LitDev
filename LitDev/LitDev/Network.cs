@@ -49,6 +49,8 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
 using Microsoft.Office.Interop.Excel;
+using System.Threading.Tasks;
+using SlimDX;
 
 namespace LitDev
 {
@@ -333,6 +335,60 @@ namespace LitDev
             return ConvertToPrimitive(result);
         }
 
+        /// <summary>
+        /// Send a web request to a server asynchronously.
+        /// The web request is sent and this function returns immediately.
+        /// When a reply is received from the server, WebRequestResult event is called and LastWebRequestResult contains the result.
+        /// </summary>
+        /// <param name="url">The web request, typically a php server request.</param>
+        public static void SendWebRequestAsync(Primitive url)
+        {
+            try
+            {
+                LDNetwork.SetSSL();
+                WebRequest webRequest = WebRequest.Create(url);
+                MakeHttpRequestAsync(webRequest);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
 
+        /// <summary>
+        /// Event when a SendWebRequestAsync is completed.
+        /// </summary>
+        public static event SBCallback WebRequestResult
+        {
+            add
+            {
+                _WebRequestResultDelegate = value;
+            }
+            remove
+            {
+                _WebRequestResultDelegate = null;
+            }
+        }
+
+        /// <summary>
+        /// The last SendWebRequestAsync result.
+        /// </summary>
+        public static Primitive LastWebRequestResult
+        {
+            get { return lastWebRequestResult; }
+        }
+
+        private static SBCallback _WebRequestResultDelegate = null;
+        private static string lastWebRequestResult = "";
+        private static async Task MakeHttpRequestAsync(WebRequest webRequest)
+        {
+            using (WebResponse webResponse = (WebResponse)await webRequest.GetResponseAsync())
+            {
+                StreamReader streamReader = new StreamReader(webResponse.GetResponseStream());
+                string result = streamReader.ReadToEnd();
+                lastWebRequestResult =  ConvertToPrimitive(result);
+                if (null != _WebRequestResultDelegate) _WebRequestResultDelegate();
+            }
+        }
     }
 }
