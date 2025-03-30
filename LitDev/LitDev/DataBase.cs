@@ -80,18 +80,28 @@ namespace LitDev
         public SQLiteConnection cnnSQLite;
         public SQLiteCommand commandSQLite;
         public SQLiteDataAdapter adapterSQLite;
+        public Dictionary<DataTable, SQLiteCommand> commandSQLites;
+        public Dictionary<DataTable, SQLiteDataAdapter> adapterSQLites;
         public MySqlConnection cnnMySql;
         public MySqlCommand commandMySql;
         public MySqlDataAdapter adapterMySql;
+        public Dictionary<DataTable, MySqlCommand> commandMySqls;
+        public Dictionary<DataTable, MySqlDataAdapter> adapterMySqls;
         public SqlConnection cnnSqlServer;
         public SqlCommand commandSqlServer;
         public SqlDataAdapter adapterSqlServer;
+        public Dictionary<DataTable, SqlCommand> commandSqlServers;
+        public Dictionary<DataTable, SqlDataAdapter> adapterSqlServers;
         public OleDbConnection cnnOleDb;
         public OleDbCommand commandOleDb;
         public OleDbDataAdapter adapterOleDb;
+        public Dictionary<DataTable, OleDbCommand> commandOleDbs;
+        public Dictionary<DataTable, OleDbDataAdapter> adapterOleDbs;
         public OdbcConnection cnnOdbc;
         public OdbcCommand commandOdbc;
         public OdbcDataAdapter adapterOdbc;
+        public Dictionary<DataTable, OdbcCommand> commandOdbcs;
+        public Dictionary<DataTable, OdbcDataAdapter> adapterOdbcs;
 
         public DataBase(string database, int id)
         {
@@ -109,6 +119,8 @@ namespace LitDev
             cnnSQLite.Open();
             commandSQLite = new SQLiteCommand();
             commandSQLite.Connection = cnnSQLite;
+            commandSQLites = new Dictionary<DataTable, SQLiteCommand>();
+            adapterSQLites = new Dictionary<DataTable, SQLiteDataAdapter>();
         }
 
         public void ConnectMySql(string server, string user, string password)
@@ -120,6 +132,8 @@ namespace LitDev
             cnnMySql.Open();
             commandMySql = new MySqlCommand();
             commandMySql.Connection = cnnMySql;
+            commandMySqls = new Dictionary<DataTable, MySqlCommand>();
+            adapterMySqls = new Dictionary<DataTable, MySqlDataAdapter>();
         }
 
         public void ConnectSqlServer(string server)
@@ -132,6 +146,8 @@ namespace LitDev
             cnnSqlServer.Open();
             commandSqlServer = new SqlCommand();
             commandSqlServer.Connection = cnnSqlServer;
+            commandSqlServers = new Dictionary<DataTable, SqlCommand>();
+            adapterSqlServers = new Dictionary<DataTable, SqlDataAdapter>();
         }
 
         public void ConnectOleDb(string provider, string server)
@@ -144,6 +160,8 @@ namespace LitDev
             cnnOleDb.Open();
             commandOleDb = new OleDbCommand();
             commandOleDb.Connection = cnnOleDb;
+            commandOleDbs = new Dictionary<DataTable, OleDbCommand>();
+            adapterOleDbs = new Dictionary<DataTable, OleDbDataAdapter>();
         }
 
         public void ConnectOdbc(string driver, string server, Primitive port, string user, string password, string option)
@@ -156,6 +174,8 @@ namespace LitDev
             cnnOdbc.Open();
             commandOdbc = new OdbcCommand();
             commandOdbc.Connection = cnnOdbc;
+            commandOdbcs = new Dictionary<DataTable, OdbcCommand>();
+            adapterOdbcs = new Dictionary<DataTable, OdbcDataAdapter>();
         }
 
         public void Dispose()
@@ -171,15 +191,37 @@ namespace LitDev
                 // free managed resources
                 cnnSQLite.Dispose();
                 commandSQLite.Dispose();
+                foreach (var com in commandSQLites)
+                {
+                    com.Value.Dispose();
+                }
                 cnnMySql.Dispose();
                 commandMySql.Dispose();
+                foreach (var com in commandMySqls)
+                {
+                    com.Value.Dispose();
+                }
                 cnnSqlServer.Dispose();
                 commandSqlServer.Dispose();
+                foreach (var com in commandSqlServers)
+                {
+                    com.Value.Dispose();
+                }
                 cnnOleDb.Dispose();
                 commandOleDb.Dispose();
+                foreach (var com in commandOleDbs)
+                {
+                    com.Value.Dispose();
+                }
+                cnnOdbc.Dispose();
+                commandOdbc.Dispose();
+                foreach (var com in commandOdbcs)
+                {
+                    com.Value.Dispose();
+                }
             }
             // free native resources if there are any.
-       }
+        }
     }
 
     /// <summary>
@@ -257,43 +299,102 @@ namespace LitDev
 
         private static DataTable GetDataTable(DataBase dataBase, string query, DataTable dataTable)
         {
-            if (null == dataTable) dataTable = new DataTable();
+            bool dummyDataTable = null == dataTable;
+            if (dummyDataTable)
+            {
+                dataTable = new DataTable();
+            }
             dataTable.Clear();
             switch (dataBase.dbType)
             {
                 case DataBase.DBType.SQLite:
                     {
-                        dataBase.commandSQLite.CommandText = query;
-                        dataBase.adapterSQLite = new SQLiteDataAdapter(dataBase.commandSQLite);
-                        dataBase.adapterSQLite.Fill(dataTable);
+                        if (dummyDataTable)
+                        {
+                            dataBase.commandSQLite.CommandText = query;
+                            dataBase.adapterSQLite = new SQLiteDataAdapter(dataBase.commandSQLite);
+                            dataBase.adapterSQLite.Fill(dataTable);
+                        }
+                        else
+                        {
+                            dataBase.commandSQLites[dataTable] = new SQLiteCommand();
+                            dataBase.commandSQLites[dataTable].Connection = dataBase.cnnSQLite;
+                            dataBase.commandSQLites[dataTable].CommandText = query;
+                            dataBase.adapterSQLites[dataTable] = new SQLiteDataAdapter(dataBase.commandSQLites[dataTable]);
+                            dataBase.adapterSQLites[dataTable].Fill(dataTable);
+                        }
                     }
                     break;
                 case DataBase.DBType.MySql:
                     {
-                        dataBase.commandMySql.CommandText = query;
-                        dataBase.adapterMySql = new MySqlDataAdapter(dataBase.commandMySql);
-                        dataBase.adapterMySql.Fill(dataTable);
+                        if (dummyDataTable)
+                        {
+                            dataBase.commandMySql.CommandText = query;
+                            dataBase.adapterMySql = new MySqlDataAdapter(dataBase.commandMySql);
+                            dataBase.adapterMySql.Fill(dataTable);
+                        }
+                        else
+                        {
+                            dataBase.commandMySqls[dataTable] = new MySqlCommand();
+                            dataBase.commandMySqls[dataTable].Connection = dataBase.cnnMySql;
+                            dataBase.commandMySqls[dataTable].CommandText = query;
+                            dataBase.adapterMySqls[dataTable] = new MySqlDataAdapter(dataBase.commandMySqls[dataTable]);
+                            dataBase.adapterMySqls[dataTable].Fill(dataTable);
+                        }
                     }
                     break;
                 case DataBase.DBType.SqlServer:
                     {
-                        dataBase.commandSqlServer.CommandText = query;
-                        dataBase.adapterSqlServer = new SqlDataAdapter(dataBase.commandSqlServer);
-                        dataBase.adapterSqlServer.Fill(dataTable);
+                        if (dummyDataTable)
+                        {
+                            dataBase.commandSqlServer.CommandText = query;
+                            dataBase.adapterSqlServer = new SqlDataAdapter(dataBase.commandSqlServer);
+                            dataBase.adapterSqlServer.Fill(dataTable);
+                        }
+                        else
+                        {
+                            dataBase.commandSqlServers[dataTable] = new SqlCommand();
+                            dataBase.commandSqlServers[dataTable].Connection = dataBase.cnnSqlServer;
+                            dataBase.commandSqlServers[dataTable].CommandText = query;
+                            dataBase.adapterSqlServers[dataTable] = new SqlDataAdapter(dataBase.commandSqlServers[dataTable]);
+                            dataBase.adapterSqlServers[dataTable].Fill(dataTable);
+                        }
                     }
                     break;
                 case DataBase.DBType.OleDb:
                     {
-                        dataBase.commandOleDb.CommandText = query;
-                        dataBase.adapterOleDb = new OleDbDataAdapter(dataBase.commandOleDb);
-                        dataBase.adapterOleDb.Fill(dataTable);
+                        if (dummyDataTable)
+                        {
+                            dataBase.commandOleDb.CommandText = query;
+                            dataBase.adapterOleDb = new OleDbDataAdapter(dataBase.commandOleDb);
+                            dataBase.adapterOleDb.Fill(dataTable);
+                        }
+                        else
+                        {
+                            dataBase.commandOleDbs[dataTable] = new OleDbCommand();
+                            dataBase.commandOleDbs[dataTable].Connection = dataBase.cnnOleDb;
+                            dataBase.commandOleDbs[dataTable].CommandText = query;
+                            dataBase.adapterOleDbs[dataTable] = new OleDbDataAdapter(dataBase.commandOleDbs[dataTable]);
+                            dataBase.adapterOleDbs[dataTable].Fill(dataTable);
+                        }
                     }
                     break;
                 case DataBase.DBType.Odbc:
                     {
-                        dataBase.commandOdbc.CommandText = query;
-                        dataBase.adapterOdbc = new OdbcDataAdapter(dataBase.commandOdbc);
-                        dataBase.adapterOdbc.Fill(dataTable);
+                        if (dummyDataTable)
+                        {
+                            dataBase.commandOdbc.CommandText = query;
+                            dataBase.adapterOdbc = new OdbcDataAdapter(dataBase.commandOdbc);
+                            dataBase.adapterOdbc.Fill(dataTable);
+                        }
+                        else
+                        {
+                            dataBase.commandOdbcs[dataTable] = new OdbcCommand();
+                            dataBase.commandOdbcs[dataTable].Connection = dataBase.cnnOdbc;
+                            dataBase.commandOdbcs[dataTable].CommandText = query;
+                            dataBase.adapterOdbcs[dataTable] = new OdbcDataAdapter(dataBase.commandOdbcs[dataTable]);
+                            dataBase.adapterOdbcs[dataTable].Fill(dataTable);
+                        }
                     }
                     break;
             }
@@ -356,8 +457,8 @@ namespace LitDev
                 {
                     case DataBase.DBType.SQLite:
                         {
-                            dataBase.commandSQLite = new SQLiteCommandBuilder(dataBase.adapterSQLite).GetUpdateCommand();
-                            dataBase.adapterSQLite.Update(dataTable);
+                            dataBase.commandSQLites[dataTable] = new SQLiteCommandBuilder(dataBase.adapterSQLites[dataTable]).GetUpdateCommand();
+                            dataBase.adapterSQLites[dataTable].Update(dataTable);
                         }
                         break;
                     case DataBase.DBType.MySql:
@@ -386,8 +487,9 @@ namespace LitDev
                         break;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
                 UpdateDataTableBySQL(dataBase, dataView);
             }
         }
@@ -868,25 +970,28 @@ namespace LitDev
 
             try
             {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue((string)dataview, out obj)) return "FAILED";
+
+                WindowsFormsHost host = (WindowsFormsHost)obj;
+                DataGridView dataView = (DataGridView)host.Child;
+
                 string query = "SELECT * FROM " + table;
                 DataBase dataBase = GetDataBase(database);
                 if (null == dataBase) return "FAILED";
-                DataTable dataTable = GetDataTable(dataBase, query, null);
+                //TODO - We need an adapter specific to this table
+                //DataTable dataTable = (DataTable)dataView.Tag;
+                DataTable dataTable = new DataTable();
                 dataTable.TableName = table;
+                dataTable = GetDataTable(dataBase, query, dataTable);
 
                 BindingSource SBind = new BindingSource();
                 SBind.DataSource = dataTable;
-
-                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
-                if (!_objectsMap.TryGetValue((string)dataview, out obj)) return "FAILED";
 
                 InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
                 {
                     try
                     {
-                        WindowsFormsHost host = (WindowsFormsHost)obj;
-                        DataGridView dataView = (DataGridView)host.Child;
-
                         dataView.Columns.Clear();
                         dataView.Tag = dataTable;
                         dataView.DataSource = SBind;
