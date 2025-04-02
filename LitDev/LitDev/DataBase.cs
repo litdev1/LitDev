@@ -463,26 +463,26 @@ namespace LitDev
                         break;
                     case DataBase.DBType.MySql:
                         {
-                            dataBase.commandMySql = new MySqlCommandBuilder(dataBase.adapterMySql).GetUpdateCommand();
-                            dataBase.adapterMySql.Update(dataTable);
+                            dataBase.commandMySqls[dataTable] = new MySqlCommandBuilder(dataBase.adapterMySqls[dataTable]).GetUpdateCommand();
+                            dataBase.adapterMySqls[dataTable].Update(dataTable);
                         }
                         break;
                     case DataBase.DBType.SqlServer:
                         {
-                            dataBase.commandSqlServer = new SqlCommandBuilder(dataBase.adapterSqlServer).GetUpdateCommand();
-                            dataBase.adapterSqlServer.Update(dataTable);
+                            dataBase.commandSqlServers[dataTable] = new SqlCommandBuilder(dataBase.adapterSqlServers[dataTable]).GetUpdateCommand();
+                            dataBase.adapterSqlServers[dataTable].Update(dataTable);
                         }
                         break;
                     case DataBase.DBType.OleDb:
                         {
-                            dataBase.commandOleDb = new OleDbCommandBuilder(dataBase.adapterOleDb).GetUpdateCommand();
-                            dataBase.adapterOleDb.Update(dataTable);
+                            dataBase.commandOleDbs[dataTable] = new OleDbCommandBuilder(dataBase.adapterOleDbs[dataTable]).GetUpdateCommand();
+                            dataBase.adapterOleDbs[dataTable].Update(dataTable);
                         }
                         break;
                     case DataBase.DBType.Odbc:
                         {
-                            dataBase.commandOdbc = new OdbcCommandBuilder(dataBase.adapterOdbc).GetUpdateCommand();
-                            dataBase.adapterOdbc.Update(dataTable);
+                            dataBase.commandOdbcs[dataTable] = new OdbcCommandBuilder(dataBase.adapterOdbcs[dataTable]).GetUpdateCommand();
+                            dataBase.adapterOdbcs[dataTable].Update(dataTable);
                         }
                         break;
                 }
@@ -979,8 +979,6 @@ namespace LitDev
                 string query = "SELECT * FROM " + table;
                 DataBase dataBase = GetDataBase(database);
                 if (null == dataBase) return "FAILED";
-                //TODO - We need an adapter specific to this table
-                //DataTable dataTable = (DataTable)dataView.Tag;
                 DataTable dataTable = new DataTable();
                 dataTable.TableName = table;
                 dataTable = GetDataTable(dataBase, query, dataTable);
