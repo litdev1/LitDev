@@ -4973,6 +4973,45 @@ namespace LitDev
             }
         }
 
+        public static void ClearPasswordBox(Primitive shapeName)
+        {
+            Type GraphicsWindowType = typeof(GraphicsWindow);
+            Type ShapesType = typeof(SBShapes);
+            Dictionary<string, UIElement> _objectsMap;
+
+            UIElement obj;
+            try
+            {
+                _objectsMap = (Dictionary<string, UIElement>)GraphicsWindowType.GetField("_objectsMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase).GetValue(null);
+                if (!_objectsMap.TryGetValue((string)shapeName, out obj))
+                {
+                    Utilities.OnShapeError(Utilities.GetCurrentMethod(), shapeName);
+                    return;
+                }
+
+                InvokeHelper ret = new InvokeHelper(delegate
+                {
+                    try
+                    {
+                        if (obj.GetType() == typeof(PasswordBox))
+                        {
+                            PasswordBox passwordBox = (PasswordBox)obj;
+                            passwordBox.Password = null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                });
+                FastThread.Invoke(ret);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
         /// <summary>
         /// Event when a password is entered (Return key pressed).
         /// </summary>

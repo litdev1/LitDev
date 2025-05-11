@@ -746,6 +746,7 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            Primitive color1 = LDColours.HSLtoRGB(16, 1, 0.5);
             Primitive definitions = LDDictionary.GetDefinition("date");
             //definitions = LDDictionary.GetDefinitionInFrench("Oui");
             //definitions = LDDictionary.GetDefinitionInSpanish("Ola");
