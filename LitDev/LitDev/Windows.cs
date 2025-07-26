@@ -106,6 +106,23 @@ namespace LitDev
                 if (id > 0)
                 {
                     mCreateWindow.Invoke(null, new object[] { });
+                    /*
+                    InvokeHelper retT = delegate
+                    {
+                        try
+                        {
+                            window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                            window.AllowsTransparency = true;
+                            window.WindowStyle = WindowStyle.None;
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                        }
+                    };
+                    FastThread.Invoke(retT);
+                    GraphicsWindow.BackgroundColor = LDColours.Transparent;
+                    */
                     GraphicsWindow.Show();
                 }
                 else

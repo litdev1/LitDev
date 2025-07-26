@@ -44,6 +44,7 @@ using SBCallback = Microsoft.SmallBasic.Library.SmallBasicCallback;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace LitDev
 {
@@ -80,6 +81,16 @@ namespace LitDev
         }
         private static List<proc> procs = new List<proc>();
 
+        private static bool createWindow = true;
+        /// <summary>
+        /// Create a cmd window for the process with Start method (default "True")
+        /// </summary>
+        public static Primitive CreateWindow
+        {
+            get { return createWindow ? "True" : "False"; } 
+            set { createWindow = value; }
+        }
+
         /// <summary>
         /// Start an external application.
         /// </summary>
@@ -96,7 +107,21 @@ namespace LitDev
         {
             try
             {
-                System.Diagnostics.Process process = System.Diagnostics.Process.Start(application, arguments);
+                //System.Diagnostics.Process process = System.Diagnostics.Process.Start(application, arguments);
+                Process process = new Process();
+
+                // Stop the process from opening a new window
+                //process.StartInfo.RedirectStandardOutput = true;
+                //process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = !createWindow;
+
+                // Setup executable and parameters
+                process.StartInfo.FileName = application;
+                process.StartInfo.Arguments = arguments;
+
+                // Go
+                process.Start();
+
                 return (null != process) ? process.Id : -2;
             }
             catch (Exception ex)
