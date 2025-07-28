@@ -83,6 +83,7 @@ namespace LitDev
         private static Primitive serverData = "";
         private static Primitive thisClient;
         private static Primitive allClients = "";
+        private static bool addNull = true;
 
         private static void Listen()
         {
@@ -127,11 +128,28 @@ namespace LitDev
             lock (lockSend)
             {
                 if (!tcpClient.Connected) return "NOT_CONNECTED";
-                Byte[] bytes = Encoding.UTF8.GetBytes(message + '\0');
                 NetworkStream networkStream = tcpClient.GetStream();
-                networkStream.Write(bytes, 0, bytes.Length);
+                if (addNull)
+                {
+                    Byte[] bytes = Encoding.UTF8.GetBytes(message + '\0');
+                    networkStream.Write(bytes, 0, bytes.Length);
+                }
+                else
+                {
+                    Byte[] bytes = Encoding.UTF8.GetBytes(message);
+                    networkStream.Write(bytes, 0, bytes.Length);
+                }
                 return "SUCCESS";
             }
+        }
+
+        /// <summary>
+        /// Add a terminating null chaacter when sending message (default "True")
+        /// </summary>
+        public static Primitive AddNull
+        {
+            get { return addNull ? "True" : "False"; }
+            set { addNull = value; }
         }
 
         /// <summary>
