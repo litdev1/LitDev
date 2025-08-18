@@ -51,6 +51,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Modbus.Message;
 using System.Net.Mail;
+using Newtonsoft.Json.Linq;
+using SlimDX.Direct3D9;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LitDev
 {
@@ -286,8 +291,8 @@ namespace LitDev
         /// Write Coil data, discrete output data ("True" or "False")
         /// </summary>
         /// <param name="slave">The client number, 0 to 247</param>
-        /// <param name="address">The coil to write (1 to 9999)</param>
-        /// <param name="value">The coil value ("True" or "False")</param>
+        /// <param name="address">The (first) coil to write (1 to 9999)</param>
+        /// <param name="value">The coil value ("True" or "False"), may be an array of values</param>
         /// <returns>"SUCCESS" or "FAILED"</returns>
         public static Primitive WriteCoil(Primitive slave, Primitive address, Primitive value)
         {
@@ -295,8 +300,25 @@ namespace LitDev
             {
                 byte slaveAddress = (byte)slave;
                 ushort _address = (ushort)(address - 1);
-                bool _value = (bool)value;
-                master.WriteSingleCoil(slaveAddress, _address, _value);
+                if (SBArray.IsArray(value))
+                {
+                    Type PrimitiveType = typeof(Primitive);
+                    Dictionary<Primitive, Primitive> _arrayMap;
+                    value = Utilities.CreateArrayMap(value);
+                    _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(value);
+                    bool[] _value = new bool[_arrayMap.Count];
+                    int i = 0;
+                    foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
+                    {
+                        _value[i++] = (bool)kvp.Value;
+                    }
+                    master.WriteMultipleCoils(slaveAddress, _address, _value);
+                }
+                else
+                {
+                    bool _value = (bool)value;
+                    master.WriteSingleCoil(slaveAddress, _address, _value);
+                }
                 return "SUCCESS";
             }
             catch (Exception ex)
@@ -310,8 +332,8 @@ namespace LitDev
         /// Write Holding register data, discrete output data (16 bit unsigned integer)
         /// </summary>
         /// <param name="slave">The client number, 0 to 247</param>
-        /// <param name="address">The holding register to write (1 to 9999)</param>
-        /// <param name="value">The holding register value (0 to 65535)</param>
+        /// <param name="address">The (first) holding register to write (1 to 9999)</param>
+        /// <param name="value">The holding register value (0 to 65535), may be an array of values</param>
         /// <returns>"SUCCESS" or "FAILED"</returns>
         public static Primitive WriteRegister(Primitive slave, Primitive address, Primitive value)
         {
@@ -319,8 +341,25 @@ namespace LitDev
             {
                 byte slaveAddress = (byte)slave;
                 ushort _address = (ushort)(address - 1);
-                ushort _value = (ushort)value;
-                master.WriteSingleRegister(slaveAddress, _address, _value);
+                if (SBArray.IsArray(value))
+                {
+                    Type PrimitiveType = typeof(Primitive);
+                    Dictionary<Primitive, Primitive> _arrayMap;
+                    value = Utilities.CreateArrayMap(value);
+                    _arrayMap = (Dictionary<Primitive, Primitive>)PrimitiveType.GetField("_arrayMap", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.Instance).GetValue(value);
+                    ushort[] _value = new ushort[_arrayMap.Count];
+                    int i = 0;
+                    foreach (KeyValuePair<Primitive, Primitive> kvp in _arrayMap)
+                    {
+                        _value[i++] = (ushort)kvp.Value;
+                    }
+                    master.WriteMultipleRegisters(slaveAddress, _address, _value);
+                }
+                else
+                {
+                    ushort _value = (ushort)value;
+                    master.WriteSingleRegister(slaveAddress, _address, _value);
+                }
                 return "SUCCESS";
             }
             catch (Exception ex)
