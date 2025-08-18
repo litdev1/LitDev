@@ -645,6 +645,7 @@ namespace TestHarness
                 System.IO.File.Copy(Application.StartupPath + "\\AForge.Math.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\AForge.Math.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\AForge.Imaging.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\AForge.Imaging.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\Tesseract.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\Tesseract.dll", true);
+                System.IO.File.Copy(Application.StartupPath + "\\NModbus4.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\NModbus4.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\LDBasic.dll", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\LDBasic.dll", true);
                 System.IO.File.Copy(Application.StartupPath + "\\LDBasic.xml", Environment.GetEnvironmentVariable("ProgramFiles(x86)") + "\\Microsoft\\Small Basic\\lib\\LDBasic.xml", true);
             }
