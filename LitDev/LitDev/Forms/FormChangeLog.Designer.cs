@@ -32,7 +32,7 @@
             System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Modbus object added");
             System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("LDModbus", new System.Windows.Forms.TreeNode[] {
             treeNode9});
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Version 1.2.30.7", new System.Windows.Forms.TreeNode[] {
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Version 1.2.30.8", new System.Windows.Forms.TreeNode[] {
             treeNode2,
             treeNode4,
             treeNode6,
@@ -2219,7 +2219,7 @@
             treeNode10.Name = "Node0";
             treeNode10.Text = "LDModbus";
             treeNode11.Name = "Node0";
-            treeNode11.Text = "Version 1.2.30.7";
+            treeNode11.Text = "Version 1.2.30.8";
             treeNode12.Name = "Node0";
             treeNode12.Text = "Moving to .Net 4.8 to add new stuff";
             treeNode13.Name = "Node2";

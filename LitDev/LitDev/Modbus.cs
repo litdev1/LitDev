@@ -77,7 +77,29 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Connect to master using TCP/IP
+        /// Close existing Modbus master connection
+        /// </summary>
+        /// <returns>"SUCCESS" or "FAILED"</returns>
+        public static Primitive Close()
+        {
+            try
+            {
+                if (null != master)
+                {
+                    master.Dispose();
+                    master = null;
+                }
+                return "SUCCESS";
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+            return "FAILED";
+        }
+
+        /// <summary>
+        /// Connect to Modbus master using TCP/IP
         /// </summary>
         /// <param name="address">IP address string, e.g. "127.0.0.1"</param>
         /// <param name="port">Port number, e.g. 502</param>
@@ -98,7 +120,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Connect to master using UDP
+        /// Connect to Modbus master using UDP
         /// </summary>
         /// <param name="address">IP address string, e.g. "127.0.0.1"</param>
         /// <param name="port">Port number, e.g. 502</param>
@@ -119,7 +141,7 @@ namespace LitDev
         }
 
         /// <summary>
-        /// Connect to master using Serial port
+        /// Connect to Modbus master using Serial port (RTU)
         /// </summary>
         /// <param name="portname">IP address string, e.g. "COM1"</param>
         /// <param name="baudrate">Baud rate, e.g. 9600</param>
@@ -219,7 +241,7 @@ namespace LitDev
         /// <param name="slave">The client number, 0 to 247</param>
         /// <param name="start">The first input register to read (1 to 9999)</param>
         /// <param name="number">The number of input registers to read</param>
-        /// <returns>An array of results (if number is 1 then a single value is returned) or "FAILED"</returns>
+        /// <returns>An array of results (if number = 1 then a single value is returned) or "FAILED"</returns>
         public static Primitive ReadInputRegisters(Primitive slave, Primitive start, Primitive number)
         {
             try
@@ -256,7 +278,7 @@ namespace LitDev
         /// <param name="slave">The client number, 0 to 247</param>
         /// <param name="start">The first holding register to read (1 to 9999)</param>
         /// <param name="number">The number of holding registers to read</param>
-        /// <returns>An array of results (if number is 1 then a single value is returned) or "FAILED"</returns>
+        /// <returns>An array of results (if number = 1 then a single value is returned) or "FAILED"</returns>
         public static Primitive ReadHoldingRegisters(Primitive slave, Primitive start, Primitive number)
         {
             try
