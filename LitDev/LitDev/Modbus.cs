@@ -146,7 +146,7 @@ namespace LitDev
             try
             {
                 byte slaveAddress = (byte)slave;
-                ushort startAddress = (ushort)start;
+                ushort startAddress = (ushort)(start - 1);
                 ushort numInputs = (ushort)number;
                 bool[] result = master.ReadInputs(slaveAddress, startAddress, numInputs);
                 if (result == null) return "FAILED";
@@ -183,7 +183,7 @@ namespace LitDev
             try
             {
                 byte slaveAddress = (byte)slave;
-                ushort startAddress = (ushort)start;
+                ushort startAddress = (ushort)(start - 1);
                 ushort numInputs = (ushort)number;
                 bool[] result = master.ReadCoils(slaveAddress, startAddress, numInputs);
                 if (result == null) return "FAILED";
@@ -220,7 +220,7 @@ namespace LitDev
             try
             {
                 byte slaveAddress = (byte)slave;
-                ushort startAddress = (ushort)start;
+                ushort startAddress = (ushort)(start - 1);
                 ushort numInputs = (ushort)number;
                 ushort[] result = master.ReadInputRegisters(slaveAddress, startAddress, numInputs);
                 if (result == null) return "FAILED";
@@ -257,7 +257,7 @@ namespace LitDev
             try
             {
                 byte slaveAddress = (byte)slave;
-                ushort startAddress = (ushort)start;
+                ushort startAddress = (ushort)(start - 1);
                 ushort numInputs = (ushort)number;
                 ushort[] result = master.ReadHoldingRegisters(slaveAddress, startAddress, numInputs);
                 if (result == null) return "FAILED";
@@ -294,7 +294,7 @@ namespace LitDev
             try
             {
                 byte slaveAddress = (byte)slave;
-                ushort _address = (ushort)address;
+                ushort _address = (ushort)(address - 1);
                 bool _value = (bool)value;
                 master.WriteSingleCoil(slaveAddress, _address, _value);
                 return "SUCCESS";
@@ -318,7 +318,7 @@ namespace LitDev
             try
             {
                 byte slaveAddress = (byte)slave;
-                ushort _address = (ushort)address;
+                ushort _address = (ushort)(address - 1);
                 ushort _value = (ushort)value;
                 master.WriteSingleRegister(slaveAddress, _address, _value);
                 return "SUCCESS";
