@@ -500,6 +500,17 @@ namespace LitDev
             Instance.Verify();
         }
 
+        private static string apiKey = "";
+
+        /// <summary>
+        /// You can set your own API key here since the monthly limit is 100, see https://countrylayer.com/pricing
+        /// </summary>
+        public static Primitive AIPKey
+        {
+            get { return apiKey; }
+            set { apiKey = value; }
+        }
+
         /// <summary>
         /// Whenever possible make the search require an exact match
         /// between the query and the results.

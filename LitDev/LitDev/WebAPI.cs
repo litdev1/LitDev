@@ -79,7 +79,7 @@ namespace LitDev
         /// <returns>The response from the server</returns>
         public string Get(string path)
         {
-            string URL = baseUrl + path + "?access_key=6bf7ddeabea417fff6191861b37cd3f7";
+            string URL = baseUrl + path + "?access_key=" + (LDGeography.AIPKey == "" ? "6bf7ddeabea417fff6191861b37cd3f7" : (string)LDGeography.AIPKey);
 
             //TODO: This is the point where we could check the cache
             //and see if we can return the results from there instead of creating a new request 
