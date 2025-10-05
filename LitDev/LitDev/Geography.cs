@@ -62,7 +62,7 @@ namespace LitDev
     /// </summary>
     public static class Geography
     {
-        private const string baseURL = "https://restcountries.eu/rest/v2";
+        private const string baseURL = "https://api.countrylayer.com/v2";
         public static string query;
         public static string json;
 
