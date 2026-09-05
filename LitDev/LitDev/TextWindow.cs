@@ -58,6 +58,7 @@ using System.Windows;
 using System.Windows.Threading;
 using System.ComponentModel;
 using Microsoft.JScript;
+using static LitDev.User32;
 
 namespace LitDev
 {
@@ -340,6 +341,56 @@ namespace LitDev
                 int _keycode = KeyInterop.VirtualKeyFromKey(_key);
                 IntPtr _hWnd = User32.FindWindow(null, window);
                 User32.PostMessage(_hWnd, User32.WM_KEYDOWN, _keycode, 0);
+            }
+            catch (Exception ex)
+            {
+                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Send a key to a window (extended version).  This is the same a typing the key into a window.
+        /// </summary>
+        /// <param name="window">The window title e.g. TextWindow.Title or GraphicsWindow.Title.
+        /// If "" then the current active window is used.</param>
+        /// <param name="key">The key to send e.g. "Return"</param>
+        /// <param name="Alt">Alt key down ("True" or "False"), cannot be used with Shift or Ctrl.</param>
+        /// <param name="Shift">Shift key down ("True" or "False")</param>
+        /// <param name="Ctrl">Ctrl key down ("True" or "False")</param>
+        [HideFromIntellisense]
+        public static void SendKeyEx(Primitive window, Primitive key, Primitive Alt, Primitive Shift, Primitive Ctrl)
+        {
+            try
+            {
+                Key _key = (Key)kc.ConvertFromString(key);
+                int _keycode = KeyInterop.VirtualKeyFromKey(_key);
+                IntPtr _hWnd = window == "" ? User32.GetActiveWindow() : User32.FindWindow(null, window);
+                INPUT[] inputShift = new INPUT[1];
+                inputShift[0].type = INPUT_KEYBOARD;
+                inputShift[0].ki.wVk = VK_SHIFT;
+                INPUT[] inputCtrl = new INPUT[1];
+                inputCtrl[0].type = INPUT_KEYBOARD;
+                inputCtrl[0].ki.wVk = VK_CONTROL;
+                //if (Shift) User32.PostMessage(_hWnd, User32.WM_KEYDOWN, User32.VK_SHIFT, 0);
+                //if (Ctrl) User32.PostMessage(_hWnd, User32.WM_KEYDOWN, User32.VK_CONTROL, 0);
+                if (Shift) SendInput(1, inputShift, Marshal.SizeOf(typeof(INPUT)));
+                if (Ctrl) SendInput(1, inputCtrl, Marshal.SizeOf(typeof(INPUT)));
+                if (Alt)
+                {
+                    User32.PostMessage(_hWnd, User32.WM_SYSKEYDOWN, _keycode, 0x20200001);
+                    //User32.PostMessage(_hWnd, User32.WM_SYSKEYUP, _keycode, 0x20200001);
+                }
+                else
+                {
+                    PostMessage(_hWnd, WM_CHAR, key, 0);
+                    //User32.PostMessage(_hWnd, User32.WM_KEYUP, _keycode, 0);
+                }
+                inputShift[0].ki.dwFlags = KEYEVENTF_KEYUP;
+                inputCtrl[0].ki.dwFlags = KEYEVENTF_KEYUP;
+                //if (Ctrl) User32.PostMessage(_hWnd, User32.WM_KEYUP, User32.VK_CONTROL, 0);
+                //if (Shift) User32.PostMessage(_hWnd, User32.WM_KEYUP, User32.VK_SHIFT, 0);
+                if (Ctrl) SendInput(1, inputShift, Marshal.SizeOf(typeof(INPUT)));
+                if (Shift) SendInput(1, inputCtrl, Marshal.SizeOf(typeof(INPUT)));
             }
             catch (Exception ex)
             {

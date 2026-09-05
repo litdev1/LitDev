@@ -747,6 +747,13 @@ namespace TestHarness
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            GraphicsWindow.Show();
+            GraphicsWindow.Title = "MAIN";
+            Primitive id = LDWindows.Create();
+            GraphicsWindow.Title = id;
+            Primitive screens = LDUtilities.GetScreens();
+            Primitive result4 = LDUtilities.MoveGraphicsWindow(screens[1]["Name"], 500, 100, "True");
+
             Primitive color1 = LDColours.HSLtoRGB(16, 1, 0.5);
             Primitive definitions = LDDictionary.GetDefinition("date");
             //definitions = LDDictionary.GetDefinitionInFrench("Oui");

@@ -70,6 +70,8 @@ using System.Collections.Specialized;
 using System.Drawing;
 using Size = System.Drawing.Size;
 using Microsoft.SmallVisualBasic.WinForms;
+using static LitDev.User32;
+using System.Text.RegularExpressions;
 
 namespace LitDev
 {
@@ -1086,8 +1088,15 @@ namespace LitDev
         public const int SM_CYCAPTION = 4;
         public const int SM_CXVSCROLL = 2;
         public const int VK_RETURN = 0x0D;
+        public const int WM_CHAR = 0x0102;
+        public const int VK_SHIFT = 0x10;
+        public const int VK_CONTROL = 0x11;
         public const int WM_KEYDOWN = 0x0100;
         public const int WM_KEYUP = 0x0101;
+        public const int WM_SYSKEYDOWN = 0x0104;
+        public const int WM_SYSKEYUP = 0x0105;
+        public const int INPUT_KEYBOARD = 1;
+        public const int KEYEVENTF_KEYUP = 0x0002;
         public const int WM_LBUTTONDOWN = 0x201;
         public const int WM_LBUTTONUP = 0x202;
         public const int WM_RBUTTONDOWN = 0x0204;
@@ -1140,7 +1149,26 @@ namespace LitDev
         public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
         [DllImport("user32.dll", EntryPoint = "PostMessageA", SetLastError = true)]
         public static extern bool PostMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
-
+        // Import the SendInput function from user32.dll
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+        // Define the INPUT structure
+        [StructLayout(LayoutKind.Sequential)]
+        public struct INPUT
+        {
+            public uint type; // Input type: 0 for keyboard
+            public KEYBDINPUT ki; // Keyboard input data
+        }
+        // Define the KEYBDINPUT structure
+        [StructLayout(LayoutKind.Sequential)]
+        public struct KEYBDINPUT
+        {
+            public ushort wVk; // Virtual-key code
+            public ushort wScan; // Hardware scan code
+            public uint dwFlags; // Flags indicating various aspects of the key event
+            public uint time; // Time stamp for the event
+            public IntPtr dwExtraInfo; // Additional data associated with the key event
+        }
         public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, int dwThreadId);
@@ -2029,6 +2057,98 @@ namespace LitDev
                 Utilities.OnError(Utilities.GetCurrentMethod(), ex);
             }
             return "";
+        }
+
+        /// <summary>
+        /// Get the number and information on all the screens available.
+        /// </summary>
+        /// <returns>An array of screens indexed from 1.
+        /// For each screen there is an array of data for the screen:
+        /// "Name" - the screen device name
+        /// "Primary" - if this is the prmary screen "True" or "False"
+        /// "Top" - the working area top of the screen
+        /// "Bottom" - the working area bottom of the screen
+        /// "Width" - the working area width of the screen
+        /// "Height" - the working area height of the screen
+        /// </returns>
+        public static Primitive GetScreens()
+        {
+            Primitive result = "";
+            var screens = Screen.AllScreens;
+            int i = 1;
+            foreach (var screen in screens)
+            {
+                Primitive _screen = "";
+                _screen["Name"] = Regex.Replace(screen.DeviceName, "[^a-zA-Z0-9]", "");
+                _screen["Primary"] = screen.Primary ? "True" : "False";
+                _screen["Top"] = screen.WorkingArea.Top;
+                _screen["Bottom"] = screen.WorkingArea.Bottom;
+                _screen["Width"] = screen.WorkingArea.Width;
+                _screen["Height"] = screen.WorkingArea.Height;
+                result[i++] = _screen;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Reposition a GraphicsWindow to a specific screen
+        /// </summary>
+        /// <param name="screenName">The screen name as returned from GetScreens</param>
+        /// <param name="left">The left position in the screen</param>
+        /// <param name="top">The top position in the screen</param>
+        /// <param name="maximised">Maximised "True" or "False" (over-rides top/left)</param>
+        /// <returns></returns>
+        public static Primitive MoveGraphicsWindow(Primitive screenName, Primitive left, Primitive top, Primitive maximised)
+        {
+            var screens = Screen.AllScreens;
+            foreach (var screen in screens)
+            {
+                if (screenName == Regex.Replace(screen.DeviceName, "[^a-zA-Z0-9]", ""))
+                {
+                    var ratio = System.Math.Max(Screen.PrimaryScreen.WorkingArea.Width / SystemParameters.PrimaryScreenWidth, 
+                        Screen.PrimaryScreen.WorkingArea.Height / SystemParameters.PrimaryScreenHeight);
+
+                    Type GraphicsWindowType = typeof(GraphicsWindow);
+
+                    try
+                    {
+                        Window _window = (Window)GraphicsWindowType.GetField("_window", BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                        InvokeHelperWithReturn ret = new InvokeHelperWithReturn(delegate
+                        {
+                            try
+                            {
+                                _window.WindowStartupLocation = WindowStartupLocation.Manual;
+                                _window.WindowState = WindowState.Normal;
+                                if (maximised)
+                                {
+                                    _window.Left = screen.WorkingArea.Left / ratio;
+                                    _window.Top = screen.WorkingArea.Top / ratio;
+                                    _window.Width = screen.WorkingArea.Width / ratio;
+                                    _window.Height = screen.WorkingArea.Height / ratio;
+                                    _window.WindowState = WindowState.Maximized;
+                                }
+                                else
+                                {
+                                    _window.Left = (screen.WorkingArea.Left + left) / ratio;
+                                    _window.Top = (screen.WorkingArea.Top + top) / ratio;
+                                }
+                                return "SUCCESS";
+                            }
+                            catch (Exception ex)
+                            {
+                                Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                            }
+                            return "FAILED";
+                        });
+                        return FastThread.InvokeWithReturn(ret).ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.OnError(Utilities.GetCurrentMethod(), ex);
+                    }
+                }
+            }
+            return "FAILED";
         }
     }
 
